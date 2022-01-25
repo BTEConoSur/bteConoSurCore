@@ -88,17 +88,17 @@ public class command implements CommandExecutor {
                     YamlManager pData = new YamlManager(pluginFolder, "playerData/" + p.getUniqueId().toString() + ".yml");
 
                     if (pData.getAllData().get("presets") != null) {
-                        p.sendMessage(">+---------------+[-< §3PRESETS §f>-]+---------------+<");
+                        p.sendMessage(">+-----------+[-< §3PRESETS §f>-]+-----------+<");
 
                         Map<String, String> presets = (Map<String, String>) pData.getAllData().get("presets");
 
                         int i = 1;
                         for (Map.Entry<String, String> entry : presets.entrySet()) {
-                            p.sendMessage(i + ". §a" + entry.getKey() + "§7 - §f" + entry.getValue());
+                            p.sendMessage("§7" + i + ". §a" + entry.getKey() + "§7 - §f" + entry.getValue());
                             i++;
                         }
 
-                        p.sendMessage(">+---------------+[-< ======= >-]+---------------+<");
+                        p.sendMessage(">+-----------+[-< ======= >-]+-----------+<");
                     } else {
                         p.sendMessage(presetsPrefix + "No tienes ningún §opreset§f.");
                     }

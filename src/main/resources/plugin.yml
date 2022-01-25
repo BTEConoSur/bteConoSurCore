@@ -6,6 +6,10 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  pwarp:
+    description: Warps personales.
+    permission: bteconosur.pwarp
+    aliases: pw
   increment:
     description: Ajusta la cantidad de bloques que cambian al usar los atajos de WorldEdit.
     permission: bteconosur.worldedit.incremento

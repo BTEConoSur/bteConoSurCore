@@ -23,6 +23,7 @@ import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.prefix;
 import pizzaaxx.bteconosur.ranks.promote_demote;
 import pizzaaxx.bteconosur.teleport.onTeleport;
+import pizzaaxx.bteconosur.teleport.pWarp;
 import pizzaaxx.bteconosur.testing.testing;
 import pizzaaxx.bteconosur.worldedit.incremento;
 import pizzaaxx.bteconosur.worldedit.shortcuts;
@@ -65,6 +66,7 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("presets").setExecutor(new pizzaaxx.bteconosur.presets.command());
         getCommand("googlemaps").setExecutor(new googlemaps());
         getCommand("increment").setExecutor(new incremento());
+        getCommand("pwarp").setExecutor(new pWarp());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
