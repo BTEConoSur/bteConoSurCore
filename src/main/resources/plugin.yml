@@ -6,6 +6,10 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  /polywalls:
+    aliases: [/shell, /carcasa]
+    description: Crea paredes pero de regiones poligonales.
+    permission: bteconosur.worldedit.polywalls
   pwarp:
     description: Warps personales.
     permission: bteconosur.pwarp

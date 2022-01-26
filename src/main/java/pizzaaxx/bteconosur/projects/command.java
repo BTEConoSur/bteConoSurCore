@@ -76,6 +76,7 @@ public class command implements CommandExecutor {
                     region = getSelection(p);
                 } catch (IncompleteRegionException e) {
                     p.sendMessage(projectsPrefix + "§cSelecciona un área primero.");
+                    return true;
                 }
 
                 // GET POINTS

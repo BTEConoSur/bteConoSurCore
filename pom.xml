@@ -105,7 +105,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>6.1.5</version>
+            <version>6.1.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
