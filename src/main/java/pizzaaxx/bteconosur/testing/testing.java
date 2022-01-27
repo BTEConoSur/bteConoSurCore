@@ -15,7 +15,7 @@ public class testing implements CommandExecutor {
                 Player p = (Player) sender;
 
                 try {
-                    new Tree("test").place(new Vector(p.getLocation().getBlockX(), p.getLocation().getBlockY() + 1, p.getLocation().getBlockZ()), p);
+                    new Tree("test").place(new Vector(p.getLocation().getBlockX(), p.getLocation().getBlockY() + 1, p.getLocation().getBlockZ()), p, null);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }

@@ -1,45 +1,46 @@
 package pizzaaxx.bteconosur.worldedit.trees;
 
-import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.entity.Entity;
+import com.sk89q.worldedit.extension.input.InputParseException;
+import com.sk89q.worldedit.extension.input.ParserContext;
+import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.extent.clipboard.io.SchematicReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.schematic.SchematicFormat;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
-import com.sk89q.worldedit.world.registry.LegacyWorldData;
-import com.sk89q.worldedit.world.registry.WorldData;
-import javafx.scene.transform.Transform;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
-import javax.sound.sampled.Clip;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.worldedit.methods.getEditSession;
+import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class Tree {
 
-    private String name;
-    private Integer xOffset;
-    private Integer yOffset;
-    private Integer zOffset;
-    private File schematic;
+    public static String treePrefix = "§f[§2ÁRBOLES§f] §7>>§r ";
+
+    private final String name;
+    private final Integer xOffset;
+    private final Integer yOffset;
+    private final Integer zOffset;
+    private final File schematic;
 
     // CONSTRUCTOR
     public Tree(String name) throws Exception {
@@ -51,17 +52,51 @@ public class Tree {
             yOffset = (Integer) data.get("yOffset");
             zOffset = (Integer) data.get("zOffset");
 
-            schematic = new File(pluginFolder, "trees/schematics/" + (String) data.get("schematic") + ".schematic");
+            schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
         } else {
             throw new Exception("noSuchTree");
         }
     }
 
+    public Tree(ItemStack item) throws Exception {
+        if (item.getType() == Material.SAPLING) {
+            if (item.getItemMeta().hasDisplayName() && ChatColor.stripColor(item.getItemMeta().getDisplayName()).startsWith("Árbol: ")) {
+                String name = ChatColor.stripColor(item.getItemMeta().getDisplayName()).replace("Árbol: ", "");
+
+                this.name = name;
+
+                if (new YamlManager(pluginFolder, "trees/data.yml").getValue(name) != null) {
+                    Map<String, Object> data = (Map<String, Object>) new YamlManager(pluginFolder, "trees/data.yml").getValue(name);
+                    xOffset = (Integer) data.get("xOffset");
+                    yOffset = (Integer) data.get("yOffset");
+                    zOffset = (Integer) data.get("zOffset");
+
+                    schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
+                } else {
+                    throw new Exception("noSuchTree");
+                }
+            } else {
+                throw new Exception("invalidItem");
+            }
+        } else {
+            throw new Exception("invalidItem");
+        }
+    }
+
+    // GETTER
+
+    public String getName() {
+        return this.name;
+    }
+
     // PLACE
-    public void place(Vector loc, Player player) {
+    public EditSession place(Vector loc, Player player, EditSession editSession) {
+        if (editSession == null) {
+            editSession = getEditSession(player);
+        }
+
         com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), player);
         LocalSession localSession = WorldEdit.getInstance().getSessionManager().get(actor);
-        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(mainWorld), localSession.getBlockChangeLimit());
         Clipboard clipboard;
 
         ClipboardFormat format = ClipboardFormat.SCHEMATIC;
@@ -69,7 +104,6 @@ public class Tree {
             ClipboardReader reader = format.getReader(new FileInputStream(schematic));
             clipboard = reader.read(actor.getWorld().getWorldData());
             clipboard.setOrigin(new Vector(xOffset, yOffset, zOffset));
-            ClipboardHolder holder = new ClipboardHolder(clipboard, actor.getWorld().getWorldData());
             Region region = clipboard.getRegion();
 
             // PASTE SCHEMATIC
@@ -79,16 +113,56 @@ public class Tree {
             int yMax = clipboard.getMaximumPoint().getBlockY();
             int zMax = clipboard.getMaximumPoint().getBlockZ();
 
-            for (BlockVector p : region) {
-                int x = loc.getBlockX() + p.getBlockX() - xMax + xOffset;
-                int y = loc.getBlockY() + p.getBlockY() - yMax + yOffset;
-                int z = loc.getBlockZ() + p.getBlockZ() - zMax + zOffset;
-                Vector newVector = new Vector(x, y + clipboard.getDimensions().getBlockY() - 1, z);
-                editSession.setBlock(newVector, clipboard.getBlock(p));
+            // MASK
+            Mask mask = localSession.getMask();
+            if (mask == null) {
+                ParserContext parserContext = new ParserContext();
+                parserContext.setActor(actor);
+                Extent extent = actor.getExtent();
+                if (extent instanceof World) {
+                    parserContext.setWorld((World) extent);
+                }
+                parserContext.setSession(WorldEdit.getInstance().getSessionManager().get(actor));
+
+                mask = WorldEdit.getInstance().getMaskFactory().parseFromInput("0", parserContext);
             }
-            localSession.remember(editSession);
-        } catch (IOException | MaxChangedBlocksException e) {
+
+            // ROTATION
+            int degrees = new Random().nextInt(4);
+
+            // ORIGEN
+            int xOg = loc.getBlockX();
+            int zOg = loc.getBlockZ();
+
+            for (BlockVector p : region) {
+                if (clipboard.getBlock(p).getType() != 0) {
+                    int x = loc.getBlockX() + p.getBlockX() - xMax + xOffset;
+                    int y = loc.getBlockY() + p.getBlockY() - yMax + yOffset;
+                    int z = loc.getBlockZ() + p.getBlockZ() - zMax + zOffset;
+
+                    int x0 = x - xOg;
+                    int z0 = z - zOg;
+                    if (degrees == 1) {
+                        x = z0 + xOg;
+                        z = -x0 + zOg;
+                    } else if (degrees == 2) {
+                        x = -x0 + xOg;
+                        z = -z0 + zOg;
+                    } else if (degrees == 3) {
+                        x = -z0 + xOg;
+                        z = x0 + zOg;
+                    }
+
+                    Vector newVector = new Vector(x, y + clipboard.getDimensions().getBlockY() - 1, z);
+                    if (mask.test(newVector) &&  getWorldGuard().canBuild(player, mainWorld.getBlockAt(newVector.getBlockX(), newVector.getBlockY(), newVector.getBlockZ()))) {
+                        editSession.setBlock(newVector, clipboard.getBlock(p));
+                    }
+                }
+            }
+            return editSession;
+        } catch (IOException | MaxChangedBlocksException | InputParseException e) {
             e.printStackTrace();
+            return null;
         }
     }
 }

@@ -6,6 +6,14 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  /treecover:
+    aliases: /tc
+    description: Cubre un área específica con árboles de un grupo.
+    permission: bteconosur.trees.treecover
+  treegroup:
+    aliases: tg
+    description: Maneja tus grupos de árboles.
+    permission: bteconosur.trees.treegroup
   /polywalls:
     aliases: [/shell, /carcasa]
     description: Crea paredes pero de regiones poligonales.

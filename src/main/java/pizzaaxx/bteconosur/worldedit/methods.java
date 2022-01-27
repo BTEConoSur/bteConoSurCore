@@ -48,6 +48,15 @@ public class methods {
         localSession.dispatchCUISelection(actor);
     }
 
+    public static LocalSession getLocalSession(Player p) {
+        com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), p);
+        return WorldEdit.getInstance().getSessionManager().get(actor);
+    }
+
+    public static EditSession getEditSession(Player p) {
+        return WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(mainWorld), getLocalSession(p).getBlockChangeLimit());
+    }
+
     public static void setBlocksInLine(Player p, Actor actor, EditSession editSession, Pattern pattern, Mask mask, Vector pos1, Vector pos2) {
 
         Set<Vector> vset = new HashSet<>();

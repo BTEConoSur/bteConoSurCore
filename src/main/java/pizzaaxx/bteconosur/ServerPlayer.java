@@ -13,12 +13,10 @@ import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.playerData.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.worldedit.trees.Tree;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
@@ -154,6 +152,24 @@ public class ServerPlayer {
 
     public String getPrefix() {
         return (String) data.getData("prefix");
+    }
+
+    public List<Tree> getTreeGroup(String name) {
+        if (data.getData("treegroups") != null) {
+            Map<String, List<String>> treeGroups = (Map<String, List<String>>) data.getData("treegroups");
+            if (treeGroups.containsKey(name)) {
+                List<Tree> trees = new ArrayList<>();
+                for (String str : treeGroups.get(name)) {
+                    try {
+                        trees.add(new Tree(str));
+                    } catch (Exception exception) {
+                        Bukkit.getConsoleSender().sendMessage("No se pudo encontrar el árbol \"" + name + "\".");
+                    }
+                }
+                return trees;
+            }
+        }
+        return null;
     }
 
     public void setPrefix(String prefix) {

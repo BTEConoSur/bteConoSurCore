@@ -70,6 +70,8 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("increment").setExecutor(new incremento());
         getCommand("pwarp").setExecutor(new pWarp());
         getCommand("/polywalls").setExecutor(new polywall());
+        getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
+        getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

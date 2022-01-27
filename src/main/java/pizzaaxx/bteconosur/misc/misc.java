@@ -96,22 +96,6 @@ public class misc {
         return null;
     }
 
-    public static TextChannel getRequestsChannel(String country) {
-        if (country.equals("argentina")) {
-            return requestsAr;
-        }
-        if (country.equals("bolivia")) {
-            return requestsBo;
-        }
-        if (country.equals("chile")) {
-            return requestsCl;
-        }
-        if (country.equals("peru")) {
-            return requestsPe;
-        }
-        return null;
-    }
-
     public static String getCountryPrefix(String country) {
         if (country.equals("argentina")) {
             return "ar";
