@@ -51,6 +51,7 @@ public final class bteConoSur extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new pRandom(), this);
         Bukkit.getPluginManager().registerEvents(new event(), this);
         Bukkit.getPluginManager().registerEvents(new shortcuts(), this);
+        Bukkit.getPluginManager().registerEvents(new pizzaaxx.bteconosur.worldedit.trees.events(), this);
 
         getCommand("btecs_reload").setExecutor(new Config());
         getCommand("project").setExecutor(new command());
@@ -89,6 +90,8 @@ public final class bteConoSur extends JavaPlugin {
         discordFolder.mkdirs();
         File chatFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "chat");
         chatFolder.mkdirs();
+        File treesSchematicsFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics");
+        treesSchematicsFolder.mkdirs();
 
         // DISCORD BOT
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));

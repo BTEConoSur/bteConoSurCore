@@ -26,8 +26,6 @@ import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.ranks.main.primaryGroupsList;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
-// TODO OPTIMIZAR CARGA
-
 public class ServerPlayer {
 
     private OfflinePlayer player = null;
