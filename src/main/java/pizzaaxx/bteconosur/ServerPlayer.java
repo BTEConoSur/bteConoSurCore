@@ -167,9 +167,12 @@ public class ServerPlayer {
                     }
                 }
                 return trees;
+            } else {
+                return null;
             }
+        } else {
+            return null;
         }
-        return null;
     }
 
     public void setPrefix(String prefix) {

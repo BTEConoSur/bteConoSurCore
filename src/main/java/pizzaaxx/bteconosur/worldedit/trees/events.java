@@ -1,7 +1,10 @@
 package pizzaaxx.bteconosur.worldedit.trees;
 
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.regions.Region;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,11 +21,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 
 import java.util.*;
 
 import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.methods.getLocalSession;
+import static pizzaaxx.bteconosur.worldedit.methods.*;
 import static pizzaaxx.bteconosur.worldedit.trees.Tree.treePrefix;
 
 public class events implements Listener, CommandExecutor {
@@ -317,7 +321,7 @@ public class events implements Listener, CommandExecutor {
                         }
                     } else {
                         if (args[0].matches("[a-zA-Z0-9_]{1,20}")) {
-                            try {
+                            if (s.getTreeGroup(args[0]) != null) {
                                 s.getTreeGroup(args[0]);
 
                                 ItemStack tree = new ItemStack(Material.SAPLING);
@@ -328,8 +332,8 @@ public class events implements Listener, CommandExecutor {
                                 p.getInventory().addItem(tree);
 
                                 p.sendMessage(treePrefix + "Has conseguido el árbol del grupo de árboles §a" + args[0] + "§f.");
-                            } catch (Exception e) {
-                                p.sendMessage(treePrefix + "El grupo de árboles introducido no existe.");
+                            } else {
+                                p.sendMessage(wePrefix + "El grupo de árboles introducido no existe.");
                             }
                         } else {
                             p.sendMessage(treePrefix + "Introduce un nombre válido.");
@@ -339,15 +343,58 @@ public class events implements Listener, CommandExecutor {
             }
         }
 
-        if (command.getName().equals("treecover")) {
+        if (command.getName().equals("/treecover")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 ServerPlayer s = new ServerPlayer(p);
 
+                List<Tree> trees = new ArrayList<>();
+                int radius = 2;
 
+                if (args.length > 0 && args[0].matches("[0-9]{1,5}") && Integer.parseInt(args[0]) >= 2) {
+                    radius = Integer.parseInt(args[0]);
+
+                    if (args.length > 1) {
+
+                        if (s.getTreeGroup(args[1]) != null) {
+
+                            trees = s.getTreeGroup(args[1]);
+
+                        } else {
+                            p.sendMessage(wePrefix + "El grupo de árboles introducido no existe.");
+                            return true;
+                        }
+                    } else {
+                        try {
+                            Tree tree = new Tree(p.getInventory().getItemInMainHand());
+
+                            trees.add(tree);
+                        } catch (Exception e) {
+                            p.sendMessage(wePrefix + "Introduce el nombre de un grupo de árboles o ten un árbol en la mano.");
+                            return true;
+                        }
+                    }
+
+
+                } else {
+                    p.sendMessage(wePrefix + "Introduce una distancia mínima (Mayor o igual a 2).");
+                    return true;
+                }
+
+                Region region = null;
+                try {
+                    region = getSelection(p);
+                } catch (IncompleteRegionException e) {
+                    p.sendMessage(wePrefix + "Selecciona un área primero.");
+                    return true;
+                }
+
+                PoissonDiskSampling sampling = new PoissonDiskSampling(radius, region, p, trees);
+                sampling.generate();
+
+                p.sendMessage(wePrefix + "Árboles generados.");
             }
         }
-
         return true;
     }
 }
