@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.worldedit.trees;
 
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.Region;
 import org.apache.commons.lang.StringUtils;
@@ -389,8 +390,14 @@ public class events implements Listener, CommandExecutor {
                     return true;
                 }
 
-                PoissonDiskSampling sampling = new PoissonDiskSampling(radius, region, p, trees);
-                sampling.generate();
+                PoissonDiskSampling sampling = new PoissonDiskSampling(radius + 1, region, p, trees);
+                try {
+                    sampling.generate();
+                } catch (MaxChangedBlocksException e) {
+                    p.sendMessage(wePrefix + "Límite de bloques alcanzado.");
+                    return true;
+                }
+
 
                 p.sendMessage(wePrefix + "Árboles generados.");
             }
