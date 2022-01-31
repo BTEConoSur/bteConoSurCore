@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.luckperms.api.LuckPerms;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -22,6 +21,7 @@ import pizzaaxx.bteconosur.discord.commands.project;
 import pizzaaxx.bteconosur.join.join;
 import pizzaaxx.bteconosur.link.linkDiscord;
 import pizzaaxx.bteconosur.link.linkMinecraft;
+import pizzaaxx.bteconosur.points.scoreboard;
 import pizzaaxx.bteconosur.presets.event;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.donator;
@@ -37,7 +37,6 @@ import pizzaaxx.bteconosur.worldedit.shortcuts;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
-import java.awt.*;
 import java.io.File;
 
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
@@ -53,13 +52,14 @@ public final class bteConoSur extends JavaPlugin {
         getLogger().info("Enabling  BTE Cono Sur!");
 
         org.bukkit.Bukkit.getPluginManager().registerEvents(new join(), this);
-        Bukkit.getPluginManager().registerEvents(new actionBar(), this);
+        Bukkit.getPluginManager().registerEvents(new projectActionBar(), this);
         Bukkit.getPluginManager().registerEvents(new onTeleport(), this);
         Bukkit.getPluginManager().registerEvents(new events(), this);
         Bukkit.getPluginManager().registerEvents(new pRandom(), this);
         Bukkit.getPluginManager().registerEvents(new event(), this);
         Bukkit.getPluginManager().registerEvents(new shortcuts(), this);
         Bukkit.getPluginManager().registerEvents(new pizzaaxx.bteconosur.worldedit.trees.events(), this);
+        Bukkit.getPluginManager().registerEvents(new scoreboard(), this);
 
         getCommand("btecs_reload").setExecutor(new Config());
         getCommand("project").setExecutor(new command());
@@ -87,24 +87,16 @@ public final class bteConoSur extends JavaPlugin {
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
 
-        File configFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "");
-        configFolder.mkdirs();
-        File projectsFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projects");
-        projectsFolder.mkdirs();
-        File playerDataFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "playerData");
-        playerDataFolder.mkdirs();
-        File linksFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link");
-        linksFolder.mkdirs();
-        File pendingFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "pending_projects");
-        pendingFolder.mkdirs();
-        File tagsFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projectTags");
-        tagsFolder.mkdirs();
-        File discordFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "discord");
-        discordFolder.mkdirs();
-        File chatFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "chat");
-        chatFolder.mkdirs();
-        File treesSchematicsFolder =  new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics");
-        treesSchematicsFolder.mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projects").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "playerData").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "pending_projects").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projectTags").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "discord").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "chat").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "points").mkdirs();
+        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics").mkdirs();
 
         // DISCORD BOT
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));

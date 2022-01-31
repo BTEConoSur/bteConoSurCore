@@ -43,12 +43,6 @@ public class promote_demote implements CommandExecutor {
 
                                 p.sendMessage(promotePrefix + "Has promovido a §a" + new ServerPlayer(target).getName() + "§f a §a" + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase() + "§f.");
                                 s.sendNotification("Has sido promovid@ a §a" + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase() + "§f.");
-
-                                EmbedBuilder embed = new EmbedBuilder();
-                                embed.setColor(new Color(0, 255, 42));
-                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido promovid@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/%{_p}%/190.png");
-
-                                gateway.sendMessageEmbeds(embed.build()).queue();
                             } else {
                                 p.sendMessage(promotePrefix + "No puedes promover a este jugador.");
                             }
@@ -78,12 +72,6 @@ public class promote_demote implements CommandExecutor {
 
                                 p.sendMessage(demotePrefix + "Has degradado a §a" + s.getName() + "§f a §a" + primaryGroupsList.get(primaryGroupsList.indexOf(s.getPrimaryGroup()) - 1).replace("default", "visita").toUpperCase() + "§f.");
                                 s.sendNotification("Has sido degradad@ a §a" + primaryGroupsList.get(primaryGroupsList.indexOf(s.getPrimaryGroup()) - 1).replace("default", "visita").toUpperCase() + "§f.");
-
-                                EmbedBuilder embed = new EmbedBuilder();
-                                embed.setColor(new Color(255, 0, 0));
-                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido degradad@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/%{_p}%/190.png");
-
-                                gateway.sendMessageEmbeds(embed.build()).queue();
                             } else {
                                 p.sendMessage(demotePrefix + "No puedes degradar a este jugador.");
                             }

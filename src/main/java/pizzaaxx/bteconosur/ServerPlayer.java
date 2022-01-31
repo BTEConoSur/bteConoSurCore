@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.UserManager;
@@ -16,9 +17,12 @@ import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.ranks.main.primaryGroupsList;
@@ -27,7 +31,7 @@ import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 public class ServerPlayer {
 
     private OfflinePlayer player = null;
-    private final PlayerData data;
+    private PlayerData data;
 
     // CONSTRUCTOR
     public ServerPlayer(OfflinePlayer p) {
@@ -43,6 +47,10 @@ public class ServerPlayer {
         } else {
             throw new Exception();
         }
+    }
+
+    public OfflinePlayer getPlayer() {
+        return this.player;
     }
 
     // PROJECTS
@@ -72,6 +80,12 @@ public class ServerPlayer {
         return projects;
     }
 
+    // DATA
+
+    public void updateData() {
+        this.data = new PlayerData(this.player);
+    }
+
     // POINTS
 
     public Integer getPoints(Country country) {
@@ -90,6 +104,8 @@ public class ServerPlayer {
         } else {
             country.getLogs().sendMessage(":chart_with_upwards_trend: Se han quitado `" + (amount - (Integer) data.getData("points_" + country.getCountry())) + "` puntos de **" + getName() + "**. Total: `" + amount + "`.").queue();
         }
+
+        updateRanks();
     }
 
     public void addPoints(Country country, Integer amount) {
@@ -245,6 +261,81 @@ public class ServerPlayer {
 
     // GROUPS AND PERMISSIONS
 
+    public int getMaxPoints() {
+        int max = getPoints(new Country("argentina"));
+        for (String c : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
+            if (getPoints(new Country(c)) > max) {
+                max = getPoints(new Country(c));
+            }
+        }
+        return max;
+    }
+
+    public int getTotalProjects() {
+        return getProjects().size() + getTotalFinishedProjects();
+    }
+
+    public void updateRanks() {
+        updateData();
+        String pGroup = getPrimaryGroup();
+        int projects = getTotalProjects();
+        int points = getMaxPoints();
+        if (pGroup.equals("mod") || pGroup.equals("admin")) {
+            return;
+        }
+
+        if (pGroup.equals("default")) {
+            if (points >= 15) {
+                promote();
+                promote();
+            } else if (projects > 0) {
+                promote();
+            }
+        } else if (pGroup.equals("postulante")) {
+            if (points < 15 && projects == 0) {
+                demote();
+            } else if (points >= 15) {
+                promote();
+            }
+        } else if (pGroup.equals("builder")) {
+            if (points < 15) {
+                if (projects == 0) {
+                    demote();
+                    demote();
+                } else {
+                    demote();
+                }
+            }
+        }
+    }
+
+    public String getBuilderRank(Country country) {
+        updateData();
+        if (getPoints(country) >= 15) {
+            int points = getPoints(country);
+            if (points >= 1000) {
+                return "maestro";
+            } else if (points >= 500) {
+                return "veterano";
+            } else if (points >= 150) {
+                return "avanzado";
+            } else {
+                return "builder";
+            }
+        } else {
+            return getPrimaryGroup();
+        }
+    }
+
+    public void setBuilderRank(Country country, String rank) {
+        if (rank != null) {
+            data.setData(country.getAbbreviation() + "_builder_rank", rank);
+        } else {
+            data.deleteData(country.getAbbreviation() + "_builder_rank");
+        }
+        data.save();
+    }
+
     public void demote() {
         String targetRank = primaryGroupsList.get(primaryGroupsList.indexOf(getPrimaryGroup()) - 1);
 
@@ -265,6 +356,12 @@ public class ServerPlayer {
         });
 
         setPrimaryGroup(targetRank);
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(255, 0, 0));
+        embed.setAuthor(getName() + " ha sido degradad@ a " + getPrimaryGroup().replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/" + getName() + "/190.png");
+
+        gateway.sendMessageEmbeds(embed.build()).queue();
     }
 
     public void promote() {
@@ -287,6 +384,12 @@ public class ServerPlayer {
         });
 
         setPrimaryGroup(targetRank);
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(0, 255, 42));
+        embed.setAuthor(getName() + " ha sido promovid@ a " + getPrimaryGroup().replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/" + getName() + "/190.png");
+
+        gateway.sendMessageEmbeds(embed.build()).queue();
     }
 
     public List<String> getPermissionCountries() {

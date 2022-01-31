@@ -259,6 +259,8 @@ public class command implements CommandExecutor {
                         project.setOwner(p);
                         project.upload();
 
+                        s.updateRanks();
+
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
 
                         getLogsChannel(project.getCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
@@ -480,6 +482,7 @@ public class command implements CommandExecutor {
 
                     if (project.getOwner() == p) {
                         if (leaveConfirmation.contains(p)) {
+                            leaveConfirmation.remove(p);
                             project.empty();
                             project.setName(null);
                             project.upload();
@@ -487,6 +490,9 @@ public class command implements CommandExecutor {
                             PlayerData playerData = new PlayerData(p);
                             playerData.removeFromList("projects", project.getId());
                             playerData.save();
+
+                            s.updateRanks();
+
                             getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
 
                             if (project.getMembers() != null) {
@@ -494,6 +500,9 @@ public class command implements CommandExecutor {
                                     playerData = new PlayerData(member);
                                     playerData.removeFromList("projects", project.getId());
                                     playerData.save();
+
+                                    new ServerPlayer(member).updateRanks();
+
                                     new ServerPlayer(member).sendNotification("El líder de tu proyecto **§a" + project.getName(true) + "§f** ha abandonado el proyecto, por lo que tú también has salido.");
                                     getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + new ServerPlayer(member).getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
                                 }
@@ -510,6 +519,8 @@ public class command implements CommandExecutor {
                         playerData.removeFromList("projects", project.getId());
                         playerData.save();
 
+                        s.updateRanks();
+
                         p.sendMessage(projectsPrefix + "Has abandonado el proyecto §a" + project.getName() + "§f.");
 
                         new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha abandonado tu proyecto **§a" + project.getName(true) + "§f**.");
@@ -517,10 +528,10 @@ public class command implements CommandExecutor {
                         getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
                     } else {
                         p.sendMessage(projectsPrefix + "No eres miembro de este proyecto.");
-                        new ServerPlayer(project.getOwner()).sendNotification("**§a" + new ServerPlayer(p).getName() + "§f** ha abandonado tu proyecto **§a" + project.getName(true) + "§f**.");
                     }
                 } catch (Exception e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                    e.printStackTrace();
                 }
             }
 
@@ -552,19 +563,7 @@ public class command implements CommandExecutor {
                     return true;
                 }
 
-                List<String> permissionCountries = new ArrayList<>();
-                if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-                    permissionCountries.add("argentina");
-                }
-                if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-                    permissionCountries.add("bolivia");
-                }
-                if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-                    permissionCountries.add("chile");
-                }
-                if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-                    permissionCountries.add("peru");
-                }
+                List<String> permissionCountries = s.getPermissionCountries();
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -587,8 +586,9 @@ public class command implements CommandExecutor {
                                         amount = hardPoints;
                                     }
 
-                                    PlayerPoints playerPoints = new PlayerPoints(project.getOwner(), project.getCountry());
-                                    playerPoints.addAmount(amount);
+                                    ServerPlayer owner = new ServerPlayer(project.getOwner());
+
+                                    owner.addPoints(new Country(project.getCountry()), amount);
 
                                     PlayerData playerData = new PlayerData(project.getOwner());
                                     Integer finishedProjects;
@@ -601,13 +601,13 @@ public class command implements CommandExecutor {
                                     playerData.setData("finished_projects_" + project.getCountry(), finishedProjects);
                                     playerData.save();
 
-                                    new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
-                                    new ServerPlayer(project.getOwner()).sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + new PlayerPoints(project.getOwner(), project.getCountry()).getAmount());
+                                    owner.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
+                                    owner.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + owner.getPoints(new Country(project.getCountry())));
 
                                     if (project.getMembers() != null) {
                                         for (OfflinePlayer member : project.getMembers()) {
-                                            PlayerPoints memberPoints = new PlayerPoints(member, project.getCountry());
-                                            memberPoints.addAmount(amount);
+                                            ServerPlayer m = new ServerPlayer(member);
+                                            m.addPoints(new Country(project.getCountry()), amount);
 
                                             PlayerData playerDataMember = new PlayerData(member);
                                             Integer finishedProjectsMember;
@@ -620,8 +620,8 @@ public class command implements CommandExecutor {
                                             playerDataMember.setData("finished_projects_" + project.getCountry(), finishedProjectsMember);
                                             playerDataMember.save();
 
-                                            new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
-                                            new ServerPlayer(member).sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + new PlayerPoints(member, project.getCountry()).getAmount());
+                                            m.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
+                                            m.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + m.getPoints(new Country(project.getCountry())));
                                         }
                                     }
 
@@ -931,6 +931,9 @@ public class command implements CommandExecutor {
                         page.newLine();
 
                         page.add("§a§lDificultad: §r" + project.getDifficulty().toUpperCase());
+                        page.newLine();
+
+                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getCountry().replace("peru", "perú")));
                         page.newLine();
 
                         page.add("§a§lCoordenadas: §r\n");

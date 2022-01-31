@@ -129,5 +129,10 @@
             <artifactId>spigot-book-api</artifactId>
             <version>1.6</version>
         </dependency>
+        <dependency>
+            <groupId>fr.minuskube</groupId>
+            <artifactId>netherboard-bukkit</artifactId>
+            <version>1.2.2</version>
+        </dependency>
     </dependencies>
 </project>

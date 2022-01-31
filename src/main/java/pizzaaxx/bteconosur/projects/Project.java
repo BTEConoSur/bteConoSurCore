@@ -13,6 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.playerData.PlayerData;
@@ -377,6 +378,8 @@ public class Project {
                     playerData.removeFromList("projects", this.id);
 
                     playerData.save();
+
+                    new ServerPlayer(p).updateRanks();
                 }
             }
 
@@ -517,6 +520,8 @@ public class Project {
                     playerData.addToList("projects", this.id, false);
 
                     playerData.save();
+
+                    new ServerPlayer(p).updateRanks();
                 }
 
                 region.setMembers(regionMembers);
@@ -531,6 +536,8 @@ public class Project {
                 playerData.addToList("projects", this.id, false);
 
                 playerData.save();
+
+                new ServerPlayer(this.owner).updateRanks();
             }
         }
         region.setMembers(regionMembers);
