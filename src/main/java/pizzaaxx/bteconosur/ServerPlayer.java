@@ -202,14 +202,16 @@ public class ServerPlayer {
 
     // DISCORD AND CHATS
 
+    public boolean hasDiscordUser() {
+        return (data.getData("discord") != null);
+    }
+
     public User getDiscordUser() {
-        User discordUser;
         if (data.getData("discord") != null) {
-            discordUser = conoSurBot.getUserById((String) data.getData("discord"));
+            return conoSurBot.retrieveUserById((String) data.getData("discord")).complete();
         } else {
-            discordUser = null;
+            return null;
         }
-        return discordUser;
     }
 
     public Chat getDefaultChat() {
@@ -391,7 +393,7 @@ public class ServerPlayer {
     public void sendNotification(String message) {
         if (this.player.isOnline()) {
             ((Player) this.player).sendMessage(message.replace("**", "").replace("`", ""));
-        } else if (getDiscordUser() != null) {
+        } else if (hasDiscordUser()) {
             getDiscordUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(ChatColor.stripColor("**Notificación:** " + message)).queue());
         } else {
             List<String> notifications = null;

@@ -12,6 +12,7 @@ import pizzaaxx.bteconosur.chats.events;
 import pizzaaxx.bteconosur.commands.googlemaps;
 import pizzaaxx.bteconosur.commands.nickname;
 import pizzaaxx.bteconosur.commands.nightvision;
+import pizzaaxx.bteconosur.commands.streaming;
 import pizzaaxx.bteconosur.discord.bot;
 import pizzaaxx.bteconosur.discord.commands.mods;
 import pizzaaxx.bteconosur.discord.commands.project;
@@ -20,8 +21,10 @@ import pizzaaxx.bteconosur.link.linkDiscord;
 import pizzaaxx.bteconosur.link.linkMinecraft;
 import pizzaaxx.bteconosur.presets.event;
 import pizzaaxx.bteconosur.projects.*;
+import pizzaaxx.bteconosur.ranks.donator;
 import pizzaaxx.bteconosur.ranks.prefix;
 import pizzaaxx.bteconosur.ranks.promote_demote;
+import pizzaaxx.bteconosur.ranks.streamer;
 import pizzaaxx.bteconosur.teleport.onTeleport;
 import pizzaaxx.bteconosur.teleport.pWarp;
 import pizzaaxx.bteconosur.testing.testing;
@@ -72,6 +75,9 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("/polywalls").setExecutor(new polywall());
         getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
         getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
+        getCommand("donator").setExecutor(new donator());
+        getCommand("streamer").setExecutor(new streamer());
+        getCommand("streaming").setExecutor(new streaming());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

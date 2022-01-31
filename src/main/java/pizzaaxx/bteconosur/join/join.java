@@ -29,6 +29,7 @@ public class join implements Listener {
 
         Player p = e.getPlayer();
         ServerPlayer s = new ServerPlayer(p);
+        PlayerData pData = new PlayerData(p);
 
         // SET NECESSARY DATA
 
@@ -89,7 +90,7 @@ public class join implements Listener {
 
         // DISCORD
 
-        if (s.getDiscordUser() == null) {
+        if (!(s.hasDiscordUser())) {
             p.sendMessage(">+-----------------+[-< DISCORD >-]+-----------------+<");
             p.sendMessage(BookUtil.TextBuilder.of("§f               §f").build(), BookUtil.TextBuilder.of("§f[§aHAZ CLICK PARA CONECTAR TU CUENTA§f]").onHover(BookUtil.HoverAction.showText("Haz click para conectar tu cuenta.")).onClick(BookUtil.ClickAction.runCommand("/link")).build());
             p.sendMessage(" ");

@@ -6,6 +6,15 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  donator:
+    description: Da o quita el rango DONADOR a un jugador.
+    permission: bteconosur.ranks.donator
+  streamer:
+    description: Da o quita el rango STREAMER a un jugador.
+    permission: bteconosur.ranks.streamer
+  streaming:
+    description: Avisa al chat que estás en directo.
+    permission: bteconosur.streaming
   /treecover:
     aliases: /tc
     description: Cubre un área específica con árboles de un grupo.
