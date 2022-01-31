@@ -4,8 +4,11 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.luckperms.api.LuckPerms;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.events;
@@ -34,6 +37,7 @@ import pizzaaxx.bteconosur.worldedit.shortcuts;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.File;
 
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
@@ -45,6 +49,7 @@ public final class bteConoSur extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         getLogger().info("Enabling  BTE Cono Sur!");
 
         org.bukkit.Bukkit.getPluginManager().registerEvents(new join(), this);
@@ -132,5 +137,23 @@ public final class bteConoSur extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Disabling  BTE Cono Sur!");
+    }
+
+    public static void broadcast(String message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ServerPlayer s = new ServerPlayer(p);
+            if (!(s.isChatHidden())) {
+                p.sendMessage(message);
+            }
+        }
+    }
+
+    public static void broadcast(BaseComponent message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ServerPlayer s = new ServerPlayer(p);
+            if (!(s.isChatHidden())) {
+                p.sendMessage(message);
+            }
+        }
     }
 }

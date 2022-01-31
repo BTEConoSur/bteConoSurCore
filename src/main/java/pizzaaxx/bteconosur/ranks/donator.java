@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.ServerPlayer;
 
 public class donator implements CommandExecutor {
-    public String donatorPrefix = "§f[§dDONADOR§f] §7>>§r ";
+    public static String donatorPrefix = "§f[§dDONADOR§f] §7>>§r ";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

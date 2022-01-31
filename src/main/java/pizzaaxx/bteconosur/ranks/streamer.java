@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.ServerPlayer;
 
 public class streamer implements CommandExecutor {
-    public String streamerPrefix = "§f[§aSTREAMER§f] §7>>§r ";
+    public static String streamerPrefix = "§f[§aSTREAMER§f] §7>>§r ";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

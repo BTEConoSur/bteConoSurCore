@@ -46,7 +46,7 @@ public class promote_demote implements CommandExecutor {
 
                                 EmbedBuilder embed = new EmbedBuilder();
                                 embed.setColor(new Color(0, 255, 42));
-                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido promovid@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), "https://cravatar.eu/helmavatar/%{_p}%/190.png");
+                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido promovid@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/%{_p}%/190.png");
 
                                 gateway.sendMessageEmbeds(embed.build()).queue();
                             } else {
@@ -81,7 +81,7 @@ public class promote_demote implements CommandExecutor {
 
                                 EmbedBuilder embed = new EmbedBuilder();
                                 embed.setColor(new Color(255, 0, 0));
-                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido degradad@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), "https://cravatar.eu/helmavatar/%{_p}%/190.png");
+                                embed.setAuthor(new ServerPlayer(target).getName() + " ha sido degradad@ a " + primaryGroupsList.get(primaryGroupsList.indexOf(new ServerPlayer(target).getPrimaryGroup()) + 1).replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/%{_p}%/190.png");
 
                                 gateway.sendMessageEmbeds(embed.build()).queue();
                             } else {

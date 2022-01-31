@@ -76,7 +76,7 @@ public class join implements Listener {
         if (s.getNotifications().size() > 0) {
             int i = 1;
             for (String notif : s.getNotifications()) {
-                p.sendMessage(i + ". " + notif.replace("&", "§"));
+                    p.sendMessage(i + ". " + notif.replace("&", "§"));
                 p.sendMessage(" ");
                 i++;
             }

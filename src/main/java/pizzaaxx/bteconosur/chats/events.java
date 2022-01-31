@@ -1,20 +1,23 @@
 package pizzaaxx.bteconosur.chats;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,56 @@ import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.chats.command.chatsPrefix;
 
 public class events implements Listener, EventListener {
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        ServerPlayer s = new ServerPlayer(e.getPlayer());
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(255,0,0));
+        embed.setAuthor("" + s.getName() + " ha salido del servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+        gateway.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @EventHandler
+    public void onFirstJoin(PlayerJoinEvent e) {
+        if (!(e.getPlayer().hasPlayedBefore())) {
+            ServerPlayer s = new ServerPlayer(e.getPlayer());
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(new Color(0, 255, 42));
+            embed.setAuthor("¡" + s.getName() + " ha entrado al servidor por primera vez!", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+            gateway.sendMessageEmbeds(embed.build()).queue();
+        }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        ServerPlayer s = new ServerPlayer(e.getPlayer());
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(0, 255, 42));
+        embed.setAuthor(s.getName() + " ha entrado al servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+        gateway.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent e) {
+        ServerPlayer s = new ServerPlayer(e.getPlayer());
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(new Color(252, 127, 3));
+        embed.setAuthor(s.getName() + " ha sido expulsado del servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+        embed.addField(":scroll: Razón:", ChatColor.stripColor(e.getReason()), false);
+        gateway.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @EventHandler
+    public void onBan(PlayerQuitEvent e) {
+        if (e.getPlayer().isBanned()) {
+            ServerPlayer s = new ServerPlayer(e.getPlayer());
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(new Color(173, 38, 31));
+            embed.setAuthor(s.getName() + " ha sido baneado del servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+            gateway.sendMessageEmbeds(embed.build()).queue();
+        }
+    }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
