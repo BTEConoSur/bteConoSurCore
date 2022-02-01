@@ -494,6 +494,7 @@ public class Project {
 
         region.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
         region.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
+        region.setPriority(1);
 
         FlagRegistry registry = getWorldGuard().getFlagRegistry();
 

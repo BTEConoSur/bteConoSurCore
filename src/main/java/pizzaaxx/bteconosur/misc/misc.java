@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.projects.Project;
@@ -116,6 +117,23 @@ public class misc {
             return "uy";
         }
         return null;
+    }
+
+    public static ItemStack itemBuilder(Material material, String name, List<String> lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(name);
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static ItemStack itemBuilder(Material material, String name) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(name);
+        item.setItemMeta(meta);
+        return item;
     }
 
     public static ItemStack getCustomHead(String name, String lore, String value) {

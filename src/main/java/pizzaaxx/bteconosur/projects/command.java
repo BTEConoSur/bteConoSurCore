@@ -55,6 +55,7 @@ public class command implements CommandExecutor {
     public Set<Player> leaveConfirmation = new HashSet<>();
     public Set<Player> finishConfirmation = new HashSet<>();
     public Set<Player> deleteConfirmation = new HashSet<>();
+    public static ItemStack background;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -1285,7 +1286,7 @@ public class command implements CommandExecutor {
                 glass.setItemMeta(gMeta);
 
                 for (int i=0; i < 27; i++) {
-                    pRandomGui.setItem(i, glass);
+                    pRandomGui.setItem(i, background);
                 }
 
                 pRandomGui.setItem(11, getCustomHead("§aFácil §f- 15 puntos", "§fProyectos de un área pequeña, con construcciones simples y rápidas.", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmFlMTE5YTIzODJlZGE4NjRiMjQ0ZmE4YzUzYWMzZTU0NDE2MzEwM2VlNjY3OTVmMGNkNmM2NGY3YWJiOGNmMSJ9fX0="));

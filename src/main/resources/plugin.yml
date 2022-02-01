@@ -6,6 +6,9 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  get:
+    description: Obtén acceso a bloques especiales.
+    permission: bteconosur.get
   donator:
     description: Da o quita el rango DONADOR a un jugador.
     permission: bteconosur.ranks.donator

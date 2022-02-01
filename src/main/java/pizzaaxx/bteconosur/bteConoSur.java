@@ -3,18 +3,19 @@ package pizzaaxx.bteconosur;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.luckperms.api.LuckPerms;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.events;
-import pizzaaxx.bteconosur.commands.googlemaps;
-import pizzaaxx.bteconosur.commands.nickname;
-import pizzaaxx.bteconosur.commands.nightvision;
-import pizzaaxx.bteconosur.commands.streaming;
+import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.discord.bot;
 import pizzaaxx.bteconosur.discord.commands.mods;
 import pizzaaxx.bteconosur.discord.commands.project;
@@ -39,6 +40,8 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 
+import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
+import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
 public final class bteConoSur extends JavaPlugin {
@@ -60,6 +63,7 @@ public final class bteConoSur extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new shortcuts(), this);
         Bukkit.getPluginManager().registerEvents(new pizzaaxx.bteconosur.worldedit.trees.events(), this);
         Bukkit.getPluginManager().registerEvents(new scoreboard(), this);
+        Bukkit.getPluginManager().registerEvents(new get(), this);
 
         getCommand("btecs_reload").setExecutor(new Config());
         getCommand("project").setExecutor(new command());
@@ -83,6 +87,7 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("donator").setExecutor(new donator());
         getCommand("streamer").setExecutor(new streamer());
         getCommand("streaming").setExecutor(new streaming());
+        getCommand("get").setExecutor(new get());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -98,6 +103,13 @@ public final class bteConoSur extends JavaPlugin {
         new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "points").mkdirs();
         new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics").mkdirs();
 
+        // GUI
+        ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
+        ItemMeta gMeta = glass.getItemMeta();
+        gMeta.setDisplayName(" ");
+        glass.setItemMeta(gMeta);
+        background = glass;
+
         // DISCORD BOT
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
@@ -108,7 +120,7 @@ public final class bteConoSur extends JavaPlugin {
         builder.addEventListeners(new events());
         builder.addEventListeners(new mods());
         try {
-            bot.conoSurBot = builder.build().awaitReady();
+            conoSurBot = builder.build().awaitReady();
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }

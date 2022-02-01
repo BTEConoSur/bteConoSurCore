@@ -84,10 +84,10 @@ public class events implements Listener, EventListener {
         ServerPlayer s = new ServerPlayer(p);
 
         if (!(s.isChatHidden())) {
-            List<Chat> targetChats = new ArrayList<>();
+            List<String> targetChats = new ArrayList<>();
             List<Player> pingedPlayers = new ArrayList<>();
 
-            targetChats.add(s.getChat());
+            targetChats.add(s.getChat().getName());
 
             String message = ChatColor.stripColor(e.getMessage());
 
@@ -100,8 +100,8 @@ public class events implements Listener, EventListener {
                             pingedPlayers.add(target);
                         }
 
-                        if (!(targetChats.contains(new ServerPlayer(target).getChat()))) {
-                            targetChats.add(new ServerPlayer(target).getChat());
+                        if (!(targetChats.contains(new ServerPlayer(target).getChat().getName()))) {
+                            targetChats.add(new ServerPlayer(target).getChat().getName());
                         }
 
                         message = message.replace(word, "§a~" + s.getDisplayName() + "~");
@@ -111,7 +111,8 @@ public class events implements Listener, EventListener {
 
             String finalMessage = String.join(" ", s.getPrefixes()) + "§f <" + s.getDisplayName() + "§f> " + message.replace("~", "");
 
-            for (Chat chat : targetChats) {
+            for (String name : targetChats) {
+                Chat chat = new Chat(name);
                 if (chat.getName().equals("global")) {
                     List<String> strings = new ArrayList<>();
                     strings.add(":speech_balloon: **");
