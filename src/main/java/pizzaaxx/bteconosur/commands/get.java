@@ -70,8 +70,8 @@ public class get implements CommandExecutor, Listener {
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
-        if (getWorldGuard().canBuild(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()))) {
-            if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (getWorldGuard().canBuild(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()))) {
                 Player p = e.getPlayer();
                 if (p.getInventory().getItemInMainHand() != null) {
                     if (p.getInventory().getItemInMainHand().getType() == Material.SKULL_ITEM) {

@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
 public class testing implements CommandExecutor {
@@ -13,12 +14,10 @@ public class testing implements CommandExecutor {
         if (command.getName().equals("test")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
+                ServerPlayer s = new ServerPlayer(p);
 
-                try {
-                    new Tree("test").place(new Vector(p.getLocation().getBlockX(), p.getLocation().getBlockY() + 1, p.getLocation().getBlockZ()), p, null);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
+                s.updateScoreboard();
+                s.updateRanks();
             }
         }
 

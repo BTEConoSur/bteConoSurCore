@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur;
 
+import fr.minuskube.netherboard.Netherboard;
+import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.luckperms.api.model.group.Group;
@@ -58,7 +60,7 @@ public class ServerPlayer {
     public Integer getTotalFinishedProjects() {
         int total = 0;
 
-        for (String country : "ar bo cl py pe uy".split(" "))
+        for (String country : "argentina bolivia chile paraguay peru uruguay".split(" "))
             if (data.getData("finished_projects_" + country) != null) {
                 total = total + (Integer) new PlayerData(this.player).getData("finished_projects_" + country);
             }
@@ -203,10 +205,10 @@ public class ServerPlayer {
     public List<String> getPrefixes() {
         List<String> prefixes = new ArrayList<>();
 
-        prefixes.add("§f[" + ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "chat/colors.yml").get(getPrimaryGroup())) + getPrimaryGroup().toUpperCase() + "§f]");
+        prefixes.add("§f[" + ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "chat/colors.yml").get(getPrimaryGroup())) + getPrimaryGroup().replace("default", "visita").toUpperCase() + "§f]");
 
         for (String group : getSecondaryGroups()) {
-            prefixes.add("§f[" + ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "chat/colors.yml").get(group)) + group.toUpperCase() + "§f]");
+            prefixes.add("§f[" + ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "chat/colors.yml").get(group)) + group.replace("donator", "donador").toUpperCase() + "§f]");
         }
 
         if (getPrefix() != null) {
@@ -278,27 +280,27 @@ public class ServerPlayer {
     public void updateRanks() {
         updateData();
         String pGroup = getPrimaryGroup();
-        int projects = getTotalProjects();
-        int points = getMaxPoints();
+        int projects = getProjects().size();
+        int finishedProjects = getTotalFinishedProjects();
         if (pGroup.equals("mod") || pGroup.equals("admin")) {
             return;
         }
 
         if (pGroup.equals("default")) {
-            if (points >= 15) {
+            if (finishedProjects > 0) {
                 promote();
                 promote();
             } else if (projects > 0) {
                 promote();
             }
         } else if (pGroup.equals("postulante")) {
-            if (points < 15 && projects == 0) {
+            if (projects == 0 && finishedProjects == 0) {
                 demote();
-            } else if (points >= 15) {
+            } else if (finishedProjects > 0) {
                 promote();
             }
         } else if (pGroup.equals("builder")) {
-            if (points < 15) {
+            if (finishedProjects == 0) {
                 if (projects == 0) {
                     demote();
                     demote();
@@ -522,4 +524,143 @@ public class ServerPlayer {
         return new ArrayList<>();
     }
 
+    // SCOREBOARD
+
+    public void setScoreboardHide(boolean status) {
+        data.setData("hideScoreboard", status);
+        data.save();
+        updateScoreboard();
+    }
+
+    public boolean isScoreboardHidden() {
+        return (boolean) data.getData("hideScoreboard");
+    }
+
+    public void setScoreboardAuto(boolean status) {
+        data.setData("scoreboardAuto", status);
+        data.save();
+    }
+
+    public boolean isScoreboardAuto() {
+        return (boolean) data.getData("scoreboardAuto");
+    }
+
+    public void setScoreboard(String name) {
+        data.setData("scoreboard", name);
+        data.save();
+        updateScoreboard();
+    }
+
+    public String getScoreboard() {
+        return (String) data.getData("scoreboard");
+    }
+
+    public void updateScoreboard() {
+        String scoreboard = getScoreboard();
+        boolean hide = isScoreboardHidden();
+
+        if (!hide) {
+            if (scoreboard.equals("server")) {
+                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "BTE Cono Sur");
+
+                List<String> lines = new ArrayList<>();
+
+                lines.add("§aIP: §fbteconosur.com");
+                lines.add(" ");
+
+                lines.add("§aJugadores: §f" + Bukkit.getOnlinePlayers().size() + "/20");
+
+                lines.add("§aArgentina: §f" + new Country("argentina").getPlayers().size());
+                lines.add("§aBolivia: §f" + new Country("bolivia").getPlayers().size());
+                lines.add("§aChile: §f" + new Country("chile").getPlayers().size());
+                lines.add("§aParaguay: §f" + new Country("paraguay").getPlayers().size());
+                lines.add("§aPerú: §f" + new Country("peru").getPlayers().size());
+                lines.add("§aUruguay: §f" + new Country("uruguay").getPlayers().size());
+
+                board.setAll(lines.toArray(new String[0]));
+            } else if (scoreboard.equals("me")) {
+                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, getDisplayName());
+
+                List<String> lines = new ArrayList<>();
+
+                lines.add(" ");
+
+                lines.add("§aRango: §f" + getPrefixes().get(0));
+                if (getPrefixes().size() > 1) {
+                    lines.add("§aOtros rangos:§f");
+                    for (String prefix : getPrefixes().subList(1, getPrefixes().size())) {
+                        lines.add("- " + prefix);
+                    }
+                }
+
+                lines.add(" ");
+
+                if (hasDiscordUser()) {
+                    lines.add("§aDiscord: §f" + getDiscordUser().getName() + "#" + getDiscordUser().getDiscriminator());
+                }
+
+                lines.add(" ");
+                if (getMaxPoints() > 0) {
+                    lines.add("§aPuntos:§f");
+                    for (String c : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
+                        if (getPoints(new Country(c)) > 0) {
+                            lines.add("- " + StringUtils.capitalize(c.replace("peru", "perú")) + ": " + getPoints(new Country(c)));
+                        }
+                    }
+                }
+
+                lines.add("§aProyectos activos: §f" + getProjects().size());
+                lines.add("§aProyectos terminados: §f" + getTotalFinishedProjects());
+
+                board.setAll(lines.toArray(new String[0]));
+            } else if (scoreboard.equals("project")) {
+                try {
+                    Project project = new Project(((Player) getPlayer()).getLocation());
+
+                    ChatColor color;
+                    if (project.getDifficulty().equals("facil")) {
+                        color = ChatColor.GREEN;
+                    } else if (project.getDifficulty().equals("intermedio")) {
+                        color = ChatColor.YELLOW;
+                    } else {
+                        color = ChatColor.RED;
+                    }
+
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, color + project.getName(true));
+
+                    List<String> lines = new ArrayList<>();
+
+                    lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty()));
+                    lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry()));
+                    if (project.getTag() != null) {
+                        lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().replace("_", " ")));
+                    }
+                    if (project.getOwner() != null) {
+                        lines.add("§aLíder: §f" + new ServerPlayer(project.getOwner()).getName());
+                    }
+                    if (project.getMembers() != null) {
+                        lines.add("§aMiembros: §f");
+                        int i = 0;
+                        for (OfflinePlayer member : project.getMembers()) {
+                            lines.add("- " + new ServerPlayer(member).getName());
+                            i++;
+                            if (i >= 9) {
+                                lines.add("etc...");
+                            }
+                        }
+                    }
+
+                    board.setAll(lines.toArray(new String[0]));
+                } catch (Exception e) {
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§cProyecto");
+
+                    List<String> lines = new ArrayList<>();
+
+                    lines.add("§cNo hay un proyecto.");
+
+                    board.setAll(lines.toArray(new String[0]));
+                }
+            }
+        }
+    }
 }

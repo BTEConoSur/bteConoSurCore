@@ -6,6 +6,8 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  scoreboard:
+    description: Comando para manejar el scoreboard.
   get:
     description: Obtén acceso a bloques especiales.
     permission: bteconosur.get

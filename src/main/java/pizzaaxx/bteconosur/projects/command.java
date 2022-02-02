@@ -573,11 +573,11 @@ public class command implements CommandExecutor {
 
                         if (project.isPending()) {
 
-                            if (args.length < 2) {
+                            if (args.length > 1) {
                                 if (args[1].equals("accept") || args[1].equals("aceptar")) {
                                     // ADD POINTS
 
-                                    Integer amount = 0;
+                                    Integer amount;
 
                                     if (project.getDifficulty().equals("dificil")) {
                                         amount = easyPoints;
@@ -626,6 +626,8 @@ public class command implements CommandExecutor {
                                         }
                                     }
 
+                                    p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
+                                    
                                     getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
 
                                     project.delete();
@@ -636,10 +638,12 @@ public class command implements CommandExecutor {
                                     project.upload();
 
                                     if (project.getAllMembers() != null) {
-                                        for (OfflinePlayer member : project.getMembers()) {
+                                        for (OfflinePlayer member : project.getAllMembers()) {
                                             new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName() + "§f** ha sido continuado.");
                                         }
                                     }
+
+                                    p.sendMessage(projectsPrefix + "Has continuado el proyecto §a" + project.getId() + "§f.");
 
                                     getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
                                 }
@@ -655,6 +659,8 @@ public class command implements CommandExecutor {
                                         }
                                     }
 
+                                    p.sendMessage(projectsPrefix + "Has rechazado el proyecto §a" + project.getId() + "§f.");
+
                                     getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha rechazado el proyecto `" + project.getId() + "`.").queue();
                                 }
                             } else {
@@ -668,6 +674,7 @@ public class command implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
@@ -717,7 +724,7 @@ public class command implements CommandExecutor {
 
                     for (List<String> subList : subLists) {
                         BookUtil.PageBuilder page = new BookUtil.PageBuilder();
-                        page.add("§7----[ §rPENDIENTES §7]----");
+                        page.add("§7---[ §rPENDIENTES §7]---");
                         page.newLine();
 
                         for (String str : subList) {

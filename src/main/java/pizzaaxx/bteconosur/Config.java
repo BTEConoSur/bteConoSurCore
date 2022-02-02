@@ -46,22 +46,22 @@ public class Config implements CommandExecutor {
         if (!(data.containsKey("easyPoints"))) {
             data.put("easyPoints", 15);
         }
-        maxProjectsPerPlayer = (Integer) data.get("easyPoints");
+        easyPoints = (Integer) data.get("easyPoints");
 
         if (!(data.containsKey("mediumPoints"))) {
             data.put("mediumPoints", 50);
         }
-        maxProjectsPerPlayer = (Integer) data.get("mediumPoints");
+        mediumPoints = (Integer) data.get("mediumPoints");
 
         if (!(data.containsKey("hardPoints"))) {
             data.put("hardPoints", 100);
         }
-        maxProjectsPerPlayer = (Integer) data.get("hardPoints");
+        hardPoints = (Integer) data.get("hardPoints");
 
         if (!(data.containsKey("maxProjectMembers"))) {
             data.put("maxProjectMembers", 15);
         }
-        maxProjectsPerPlayer = (Integer) data.get("maxProjectMembers");
+        maxProjectMembers = (Integer) data.get("maxProjectMembers");
 
         if (!(data.containsKey("requestsAr"))) {
             data.put("requestsAr", "932074847016718426");

@@ -106,7 +106,9 @@ public class Country {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         for (Player player : Bukkit.getOnlinePlayers()) {
             Set<ProtectedRegion> regions = regionManager.getApplicableRegions(player.getLocation()).getRegions();
-            if (regions.contains(regionManager.getRegion(this.country)) || regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
+            if (this.country.equals("chile") && (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp")))) {
+                players.add(player);
+            } else if (regions.contains(regionManager.getRegion(this.country))) {
                 players.add(player);
             }
         }

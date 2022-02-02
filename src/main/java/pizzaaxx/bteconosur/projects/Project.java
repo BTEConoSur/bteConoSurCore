@@ -503,42 +503,9 @@ public class Project {
 
         DefaultDomain regionMembers = new DefaultDomain();
 
-        if (this.pending) {
+        if (!this.pending) {
             for (OfflinePlayer member : getAllMembers()) {
-                PlayerData playerData = new PlayerData(member);
-
-                playerData.removeFromList("projects", this.id);
-
-                playerData.save();
-            }
-        } else {
-            if (this.members != null) {
-                for (OfflinePlayer p : this.members) {
-                    regionMembers.addPlayer(p.getUniqueId());
-
-                    PlayerData playerData = new PlayerData(p);
-
-                    playerData.addToList("projects", this.id, false);
-
-                    playerData.save();
-
-                    new ServerPlayer(p).updateRanks();
-                }
-
-                region.setMembers(regionMembers);
-            }
-
-
-            if (this.owner != null) {
-                regionMembers.addPlayer(this.owner.getUniqueId());
-
-                PlayerData playerData = new PlayerData(this.owner);
-
-                playerData.addToList("projects", this.id, false);
-
-                playerData.save();
-
-                new ServerPlayer(this.owner).updateRanks();
+                regionMembers.addPlayer(member.getUniqueId());
             }
         }
         region.setMembers(regionMembers);

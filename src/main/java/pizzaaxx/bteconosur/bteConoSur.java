@@ -88,6 +88,7 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("streamer").setExecutor(new streamer());
         getCommand("streaming").setExecutor(new streaming());
         getCommand("get").setExecutor(new get());
+        getCommand("scoreboard").setExecutor(new scoreboard());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

@@ -59,6 +59,18 @@ public class join implements Listener {
             playerData.setData("increment", 1);
         }
 
+        if (new PlayerData(p).getData("hideScoreboard") == null) {
+            playerData.setData("hideScoreboard", false);
+        }
+
+        if (new PlayerData(p).getData("scoreboard") == null) {
+            playerData.setData("scoreboard", "me");
+        }
+
+        if (new PlayerData(p).getData("scoreboardAuto") == null) {
+            playerData.setData("scoreboardAuto", true);
+        }
+
         playerData.save();
 
         // SEND MESSAGES
@@ -105,5 +117,8 @@ public class join implements Listener {
 
             p.sendMessage(chatsPrefix + "Te has unido al chat §a" + s.getChat().getFormattedName() + "§f. §7(Jugadores: " + s.getChat().getMembers().size() + ")");
         }
+
+        s.updateData();
+        s.updateScoreboard();
     }
 }
