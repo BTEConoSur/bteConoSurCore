@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.notifications.Notification;
@@ -21,6 +22,16 @@ import java.util.function.IntToDoubleFunction;
 import static pizzaaxx.bteconosur.chats.command.chatsPrefix;
 
 public class join implements Listener {
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer oP = new ServerPlayer(player);
+            if (oP.getScoreboard().equals("server")) {
+                oP.updateScoreboard();
+            }
+        }
+    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -120,5 +131,12 @@ public class join implements Listener {
 
         s.updateData();
         s.updateScoreboard();
+        
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer oP = new ServerPlayer(player);
+            if (oP.getScoreboard().equals("server")) {
+                oP.updateScoreboard();
+            }
+        }
     }
 }

@@ -7,19 +7,23 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.chats.Chat;
+import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.xml.soap.Text;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.Config.logsPe;
 import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class Country {
     private String country;
+
+    public static List<String> countryRegionNames = Arrays.asList("argentina", "bolivia", "chile_idp", "chile_cont", "paraguay", "peru", "uruguay");
 
     // CONSTRUCTOR
     public Country(String country) {
@@ -167,6 +171,17 @@ public class Country {
             return "uy";
         }
         return null;
+    }
+
+    public List<ServerPlayer> getScoreboard() {
+        List<ServerPlayer> scoreboard = new ArrayList<>();
+
+        YamlManager yaml = new YamlManager(pluginFolder, "points/max.yml");
+        for (String uuid : (List<String>) yaml.getList(getAbbreviation() + "_max")) {
+            scoreboard.add(new ServerPlayer(Bukkit.getOfflinePlayer(UUID.fromString(uuid))));
+        }
+
+        return scoreboard;
     }
 
     public String getPrefix(Boolean abb) {

@@ -13,6 +13,9 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
@@ -39,6 +42,7 @@ public class Project {
     private String id = null;
     private String tag = null;
     private String oldTag = null;
+    private Set<OfflinePlayer> removedMembers = new HashSet<>();
 
     // CONSTRUCTORS
 
@@ -324,6 +328,7 @@ public class Project {
 
     public void removeMember(OfflinePlayer player) {
         this.members.remove(player);
+        this.removedMembers.add(player);
         if (this.members.size() == 0) {
             this.members = null;
         }
@@ -379,13 +384,59 @@ public class Project {
 
                     playerData.save();
 
-                    new ServerPlayer(p).updateRanks();
+                    ServerPlayer s = new ServerPlayer(p);
+                    s.updateRanks();
+                    if (s.getScoreboard().equals("me")) {
+                        s.updateScoreboard();
+                    }
+
+                    if (s.getChat().getName().replace("project_", "").equals(this.id)) {
+                        s.setChat("global");
+                    }
+                    if (s.getDefaultChat().getName().replace("project_", "").equals(this.id)) {
+                        s.setDefaultChat("global");
+                    }
                 }
             }
 
+            if (this.removedMembers != null) {
+                for (OfflinePlayer member : this.removedMembers) {
+                    PlayerData playerData = new PlayerData(member);
+
+                    playerData.removeFromList("projects", this.id);
+
+                    playerData.save();
+
+                    ServerPlayer s = new ServerPlayer(member);
+                    s.updateRanks();
+                    if (s.getScoreboard().equals("me")) {
+                        s.updateScoreboard();
+                    }
+
+                    if (s.getChat().getName().replace("project_", "").equals(this.id)) {
+                        s.setChat("global");
+                    }
+                    if (s.getDefaultChat().getName().replace("project_", "").equals(this.id)) {
+                        s.setDefaultChat("global");
+                    }
+                }
+            }
+
+            List<ServerPlayer> inside = new ArrayList<>();
             RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                ServerPlayer p = new ServerPlayer(player);
+                if (regions.getApplicableRegions(player.getLocation()).getRegions().contains(regions.getRegion("project_" + this.id)) && p.getScoreboard().equals("project")) {
+                    inside.add(p);
+                }
+            }
+
             if (regions.hasRegion("project_" + this.id)) {
                 regions.removeRegion("project_" + this.id);
+            }
+
+            for (ServerPlayer s : inside) {
+                s.updateScoreboard();
             }
         }
     }
@@ -460,6 +511,14 @@ public class Project {
             project.deleteValue("owner");
         } else {
             project.setValue("owner", this.owner.getUniqueId().toString());
+            PlayerData owner = new PlayerData(this.owner);
+            owner.addToList("projects", this.id, false);
+            owner.save();
+            ServerPlayer s = new ServerPlayer(this.owner);
+            s.updateRanks();
+            if (s.getScoreboard().equals("me")) {
+                s.updateScoreboard();
+            }
         }
 
         if (this.members == null) {
@@ -467,6 +526,37 @@ public class Project {
         } else {
             for (OfflinePlayer p : this.members) {
                 project.addToList("members", p.getUniqueId().toString(), false);
+                PlayerData member = new PlayerData(p);
+                member.addToList("projects", this.id, false);
+                member.save();
+                ServerPlayer s = new ServerPlayer(p);
+                s.updateRanks();
+                if (s.getScoreboard().equals("me")) {
+                    s.updateScoreboard();
+                }
+            }
+        }
+
+        if (this.removedMembers != null) {
+            for (OfflinePlayer member : this.removedMembers) {
+                PlayerData playerData = new PlayerData(member);
+
+                playerData.removeFromList("projects", this.id);
+
+                playerData.save();
+
+                ServerPlayer s = new ServerPlayer(member);
+                s.updateRanks();
+                if (s.getScoreboard().equals("me")) {
+                    s.updateScoreboard();
+                }
+
+                if (s.getChat().getName().replace("project_", "").equals(this.id)) {
+                    s.setChat("global");
+                }
+                if (s.getDefaultChat().getName().replace("project_", "").equals(this.id)) {
+                    s.setDefaultChat("global");
+                }
             }
         }
 
@@ -504,8 +594,10 @@ public class Project {
         DefaultDomain regionMembers = new DefaultDomain();
 
         if (!this.pending) {
-            for (OfflinePlayer member : getAllMembers()) {
-                regionMembers.addPlayer(member.getUniqueId());
+            if (getAllMembers() != null) {
+                for (OfflinePlayer member : getAllMembers()) {
+                    regionMembers.addPlayer(member.getUniqueId());
+                }
             }
         }
         region.setMembers(regionMembers);
@@ -518,11 +610,24 @@ public class Project {
         } else {
             regions.addRegion(region);
         }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer p = new ServerPlayer(player);
+            if (regions.getApplicableRegions(player.getLocation()).getRegions().contains(regions.getRegion("project_" + this.id)) && p.getScoreboard().equals("project")) {
+                p.updateScoreboard();
+            }
+        }
     }
 
     // EMPTY PROJECT
 
     public void empty() {
+        if (this.members != null) {
+            this.removedMembers.addAll(this.members);
+        }
+        if (this.owner != null) {
+            this.removedMembers.add(this.owner);
+        }
         this.members = null;
         this.owner = null;
     }

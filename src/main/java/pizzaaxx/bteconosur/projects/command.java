@@ -260,8 +260,6 @@ public class command implements CommandExecutor {
                         project.setOwner(p);
                         project.upload();
 
-                        s.updateRanks();
-
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
 
                         getLogsChannel(project.getCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
@@ -491,9 +489,6 @@ public class command implements CommandExecutor {
                             PlayerData playerData = new PlayerData(p);
                             playerData.removeFromList("projects", project.getId());
                             playerData.save();
-
-                            s.updateRanks();
-
                             getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
 
                             if (project.getMembers() != null) {
@@ -501,8 +496,6 @@ public class command implements CommandExecutor {
                                     playerData = new PlayerData(member);
                                     playerData.removeFromList("projects", project.getId());
                                     playerData.save();
-
-                                    new ServerPlayer(member).updateRanks();
 
                                     new ServerPlayer(member).sendNotification("El líder de tu proyecto **§a" + project.getName(true) + "§f** ha abandonado el proyecto, por lo que tú también has salido.");
                                     getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + new ServerPlayer(member).getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
@@ -519,8 +512,6 @@ public class command implements CommandExecutor {
                         PlayerData playerData = new PlayerData(p);
                         playerData.removeFromList("projects", project.getId());
                         playerData.save();
-
-                        s.updateRanks();
 
                         p.sendMessage(projectsPrefix + "Has abandonado el proyecto §a" + project.getName() + "§f.");
 
@@ -580,12 +571,16 @@ public class command implements CommandExecutor {
                                     Integer amount;
 
                                     if (project.getDifficulty().equals("dificil")) {
-                                        amount = easyPoints;
+                                        amount = hardPoints;
                                     } else if (project.getDifficulty().equals("intermedio")) {
                                         amount = mediumPoints;
                                     } else {
-                                        amount = hardPoints;
+                                        amount = easyPoints;
                                     }
+
+                                    getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
+                                    p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
+
 
                                     ServerPlayer owner = new ServerPlayer(project.getOwner());
 
@@ -626,10 +621,6 @@ public class command implements CommandExecutor {
                                         }
                                     }
 
-                                    p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
-                                    
-                                    getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
-
                                     project.delete();
 
                                 }
@@ -637,13 +628,13 @@ public class command implements CommandExecutor {
                                     project.setPending(false);
                                     project.upload();
 
+                                    p.sendMessage(projectsPrefix + "Has continuado el proyecto §a" + project.getId() + "§f.");
+
                                     if (project.getAllMembers() != null) {
                                         for (OfflinePlayer member : project.getAllMembers()) {
                                             new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName() + "§f** ha sido continuado.");
                                         }
                                     }
-
-                                    p.sendMessage(projectsPrefix + "Has continuado el proyecto §a" + project.getId() + "§f.");
 
                                     getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
                                 }
@@ -652,6 +643,7 @@ public class command implements CommandExecutor {
                                     project.empty();
                                     project.setName(null);
                                     project.upload();
+                                    p.sendMessage(projectsPrefix + "Has rechazado el proyecto §a" + project.getId() + "§f.");
 
                                     if (project.getAllMembers() != null) {
                                         for (OfflinePlayer member : project.getAllMembers()) {
@@ -659,7 +651,6 @@ public class command implements CommandExecutor {
                                         }
                                     }
 
-                                    p.sendMessage(projectsPrefix + "Has rechazado el proyecto §a" + project.getId() + "§f.");
 
                                     getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha rechazado el proyecto `" + project.getId() + "`.").queue();
                                 }
@@ -767,6 +758,7 @@ public class command implements CommandExecutor {
                     if (project.getOwner() == p) {
                         if (!(project.isPending())) {
                             if (finishConfirmation.contains(p)) {
+                                finishConfirmation.remove(p);
                                 project.setPending(true);
                                 project.upload();
 
@@ -1073,7 +1065,7 @@ public class command implements CommandExecutor {
                         return true;
                     }
 
-                    if (!p.hasPermission("bteconosur.projects.manage.redefine")) {
+                    if (p.hasPermission("bteconosur.projects.manage.redefine")) {
 
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");

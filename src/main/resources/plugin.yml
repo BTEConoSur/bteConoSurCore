@@ -8,6 +8,7 @@ loadbefore:
 commands:
   scoreboard:
     description: Comando para manejar el scoreboard.
+    aliases: sc
   get:
     description: Obtén acceso a bloques especiales.
     permission: bteconosur.get

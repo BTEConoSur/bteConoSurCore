@@ -12,7 +12,7 @@ import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class regionEvents {
-    public Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
+    public static Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
         RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
@@ -31,7 +31,7 @@ public class regionEvents {
         return regions;
     }
 
-    public Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
+    public static Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
         RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);

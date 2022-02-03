@@ -1,5 +1,10 @@
 package pizzaaxx.bteconosur.points;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import fr.minuskube.netherboard.Netherboard;
+import fr.minuskube.netherboard.bukkit.BPlayerBoard;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -7,12 +12,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static pizzaaxx.bteconosur.country.Country.countryRegionNames;
 import static pizzaaxx.bteconosur.ranks.points.getScoreboard;
+import static pizzaaxx.bteconosur.worldguard.regionEvents.getEnteredRegions;
+import static pizzaaxx.bteconosur.worldguard.regionEvents.getLeftRegions;
 
 public class scoreboard implements Listener, CommandExecutor {
 
@@ -20,10 +34,68 @@ public class scoreboard implements Listener, CommandExecutor {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        List<ServerPlayer> top = getScoreboard(new Country(p.getLocation()));
+        new ServerPlayer(e.getPlayer()).updateScoreboard();
+    }
 
+    public void checkScoreboardMovement(Location from, Location to, Player player) {
+        boolean project = false;
+        boolean country = false;
 
+        for (ProtectedRegion region : getEnteredRegions(from, to)) {
+            if (region.getId().startsWith("project_")) {
+                project = true;
+            }
+            if (countryRegionNames.contains(region.getId())) {
+                country = true;
+            }
+        }
+
+        for (ProtectedRegion region : getLeftRegions(from, to)) {
+            if (region.getId().startsWith("project_")) {
+                project = true;
+            }
+            if (countryRegionNames.contains(region.getId())) {
+                country = true;
+            }
+        }
+
+        ServerPlayer s = new ServerPlayer(player);
+        if (project && s.getScoreboard().equals("project")) {
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    s.updateScoreboard();
+                }
+            };
+            runnable.runTaskLater(Bukkit.getPluginManager().getPlugin("bteConoSur"), 1);
+        } else if (country) {
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (s.getScoreboard().equals("top")) {
+                        s.updateScoreboard();
+                    }
+
+                    for (Player oPlayer : Bukkit.getOnlinePlayers()) {
+                        ServerPlayer p = new ServerPlayer(oPlayer);
+                        if (p.getScoreboard().equals("server")) {
+                            p.updateScoreboard();
+                        }
+                    }
+                }
+            };
+            runnable.runTaskLater(Bukkit.getPluginManager().getPlugin("bteConoSur"), 1);
+        }
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent e) {
+        checkScoreboardMovement(e.getFrom(), e.getTo(), e.getPlayer());
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent e) {
+        checkScoreboardMovement(e.getFrom(), e.getTo(), e.getPlayer());
     }
 
     @Override

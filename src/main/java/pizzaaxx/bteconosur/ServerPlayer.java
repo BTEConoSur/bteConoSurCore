@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur;
 
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import fr.minuskube.netherboard.Netherboard;
 import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -14,6 +16,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.playerData.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
@@ -25,10 +28,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.Config.gateway;
+import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.ranks.main.primaryGroupsList;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
+import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class ServerPlayer {
 
@@ -98,16 +103,26 @@ public class ServerPlayer {
     }
 
     public void setPoints(Country country, Integer amount) {
+        int preAmount = getPoints(country);
         data.setData("points_" + country.getCountry(), amount);
         data.save();
 
-        if ((Integer) data.getData("points_" + country.getCountry()) > amount) {
-            country.getLogs().sendMessage(":chart_with_upwards_trend: Se han añadido `" + ((Integer) data.getData("points_" + country.getCountry()) - amount) + "` puntos a **" + getName() + "**. Total: `" + amount + "`.").queue();
-        } else {
-            country.getLogs().sendMessage(":chart_with_upwards_trend: Se han quitado `" + (amount - (Integer) data.getData("points_" + country.getCountry())) + "` puntos de **" + getName() + "**. Total: `" + amount + "`.").queue();
+        if (preAmount < amount) {
+            country.getLogs().sendMessage(":chart_with_upwards_trend: Se han añadido `" + (amount - preAmount) + "` puntos a **" + getName() + "**. Total: `" + amount + "`.").queue();
+        } else if (preAmount > amount) {
+            country.getLogs().sendMessage(":chart_with_upwards_trend: Se han quitado `" + (preAmount - amount) + "` puntos de **" + getName() + "**. Total: `" + amount + "`.").queue();
         }
 
+        checkTop(country);
+
         updateRanks();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer p = new ServerPlayer(player);
+            if (country.equals(new Country(player.getLocation())) || p.getScoreboard().equals("top")) {
+                p.updateScoreboard();
+            }
+        }
     }
 
     public void addPoints(Country country, Integer amount) {
@@ -159,6 +174,9 @@ public class ServerPlayer {
             data.deleteData("nickname");
         }
         data.save();
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public String getDisplayName() {
@@ -247,6 +265,9 @@ public class ServerPlayer {
     public void setChatHidden(Boolean hide) {
         data.setData("hideChat", hide);
         data.save();
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public void setDefaultChat(String chat) {
@@ -259,6 +280,10 @@ public class ServerPlayer {
 
         data.setData("chat", chat);
         data.save();
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     // GROUPS AND PERMISSIONS
@@ -299,15 +324,6 @@ public class ServerPlayer {
             } else if (finishedProjects > 0) {
                 promote();
             }
-        } else if (pGroup.equals("builder")) {
-            if (finishedProjects == 0) {
-                if (projects == 0) {
-                    demote();
-                    demote();
-                } else {
-                    demote();
-                }
-            }
         }
     }
 
@@ -325,17 +341,8 @@ public class ServerPlayer {
                 return "builder";
             }
         } else {
-            return getPrimaryGroup();
+            return null;
         }
-    }
-
-    public void setBuilderRank(Country country, String rank) {
-        if (rank != null) {
-            data.setData(country.getAbbreviation() + "_builder_rank", rank);
-        } else {
-            data.deleteData(country.getAbbreviation() + "_builder_rank");
-        }
-        data.save();
     }
 
     public void demote() {
@@ -364,6 +371,10 @@ public class ServerPlayer {
         embed.setAuthor(getName() + " ha sido degradad@ a " + getPrimaryGroup().replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/" + getName() + "/190.png");
 
         gateway.sendMessageEmbeds(embed.build()).queue();
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public void promote() {
@@ -392,6 +403,10 @@ public class ServerPlayer {
         embed.setAuthor(getName() + " ha sido promovid@ a " + getPrimaryGroup().replace("default", "visita").toUpperCase(), null, "https://cravatar.eu/helmavatar/" + getName() + "/190.png");
 
         gateway.sendMessageEmbeds(embed.build()).queue();
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public List<String> getPermissionCountries() {
@@ -419,6 +434,10 @@ public class ServerPlayer {
     public void setPrimaryGroup(String group) {
         data.setData("primaryGroup", group);
         data.save();
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public List<String> getSecondaryGroups() {
@@ -459,6 +478,10 @@ public class ServerPlayer {
                 lp.getUserManager().saveUser(user);
             });
         }
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
+        }
     }
 
     public void removeSecondaryGroup(String group) {
@@ -490,6 +513,10 @@ public class ServerPlayer {
 
                 lp.getUserManager().saveUser(user);
             });
+        }
+
+        if (getScoreboard().equals("me")) {
+            updateScoreboard();
         }
     }
 
@@ -561,8 +588,6 @@ public class ServerPlayer {
 
         if (!hide) {
             if (scoreboard.equals("server")) {
-                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "BTE Cono Sur");
-
                 List<String> lines = new ArrayList<>();
 
                 lines.add("§aIP: §fbteconosur.com");
@@ -570,17 +595,43 @@ public class ServerPlayer {
 
                 lines.add("§aJugadores: §f" + Bukkit.getOnlinePlayers().size() + "/20");
 
-                lines.add("§aArgentina: §f" + new Country("argentina").getPlayers().size());
-                lines.add("§aBolivia: §f" + new Country("bolivia").getPlayers().size());
-                lines.add("§aChile: §f" + new Country("chile").getPlayers().size());
-                lines.add("§aParaguay: §f" + new Country("paraguay").getPlayers().size());
-                lines.add("§aPerú: §f" + new Country("peru").getPlayers().size());
-                lines.add("§aUruguay: §f" + new Country("uruguay").getPlayers().size());
+                int arg = 0;
+                int bol = 0;
+                int chi = 0;
+                int par = 0;
+                int per = 0;
+                int uru = 0;
+                RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    Set<ProtectedRegion> regions = regionManager.getApplicableRegions(player.getLocation()).getRegions();
+                    if (regions.contains(regionManager.getRegion("argentina"))) {
+                        arg++;
+                    } else if (regions.contains(regionManager.getRegion("bolivia"))) {
+                        bol++;
+                    }
+                    else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
+                        chi++;
+                    }
+                    else if (regions.contains(regionManager.getRegion("paraguay"))) {
+                        par++;
+                    }
+                    else if (regions.contains(regionManager.getRegion("peru"))) {
+                        per++;
+                    }
+                    else if (regions.contains(regionManager.getRegion("uruguay"))) {
+                        uru++;
+                    }
+                }
+                lines.add("§aArgentina: §f" + arg);
+                lines.add("§aBolivia: §f" + bol);
+                lines.add("§aChile: §f" + chi);
+                lines.add("§aParaguay: §f" + par);
+                lines.add("§aPerú: §f" + per);
+                lines.add("§aUruguay: §f" + uru);
 
+                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§3§lBTE Cono Sur");
                 board.setAll(lines.toArray(new String[0]));
             } else if (scoreboard.equals("me")) {
-                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, getDisplayName());
-
                 List<String> lines = new ArrayList<>();
 
                 lines.add(" ");
@@ -593,25 +644,36 @@ public class ServerPlayer {
                     }
                 }
 
-                lines.add(" ");
-
                 if (hasDiscordUser()) {
                     lines.add("§aDiscord: §f" + getDiscordUser().getName() + "#" + getDiscordUser().getDiscriminator());
+                } else {
+                    lines.add("§aDiscord: §fN/A");
                 }
 
-                lines.add(" ");
+                ChatColor color;
+                color = isChatHidden() ? ChatColor.DARK_GRAY : ChatColor.WHITE;
+                lines.add("§aChat: " + color + getChat().getFormattedName());
                 if (getMaxPoints() > 0) {
                     lines.add("§aPuntos:§f");
+
+                    List<CountryPlayer> list = new ArrayList<>();
                     for (String c : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
                         if (getPoints(new Country(c)) > 0) {
-                            lines.add("- " + StringUtils.capitalize(c.replace("peru", "perú")) + ": " + getPoints(new Country(c)));
+                            list.add(new CountryPlayer(this, new Country(c)));
                         }
+                    }
+
+                    Collections.sort(list);
+
+                    for (CountryPlayer p : list) {
+                        lines.add("- " + StringUtils.capitalize(p.getCountry().getCountry().replace("peru", "perú")) + ": " + getPoints(p.getCountry()));
                     }
                 }
 
                 lines.add("§aProyectos activos: §f" + getProjects().size());
                 lines.add("§aProyectos terminados: §f" + getTotalFinishedProjects());
 
+                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§a§l" + getDisplayName());
                 board.setAll(lines.toArray(new String[0]));
             } else if (scoreboard.equals("project")) {
                 try {
@@ -626,11 +688,9 @@ public class ServerPlayer {
                         color = ChatColor.RED;
                     }
 
-                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, color + project.getName(true));
-
                     List<String> lines = new ArrayList<>();
 
-                    lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty()));
+                    lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().replace("facil", "fácil").replace("dificil", "difícil")));
                     lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry()));
                     if (project.getTag() != null) {
                         lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().replace("_", " ")));
@@ -650,17 +710,79 @@ public class ServerPlayer {
                         }
                     }
 
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, color +  "§l" + project.getName(true));
                     board.setAll(lines.toArray(new String[0]));
                 } catch (Exception e) {
-                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§cProyecto");
+                    List<String> lines = new ArrayList<>();
+
+                    lines.add("§cNo disponible.");
+
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§c§lProyecto");
+                    board.setAll(lines.toArray(new String[0]));
+                }
+            } else if (scoreboard.equals("top")) {
+                Country country = new Country(((Player) this.player).getLocation());
+
+                if (!country.getCountry().equals("global") && !country.getCountry().equals("argentina")) {
 
                     List<String> lines = new ArrayList<>();
 
-                    lines.add("§cNo hay un proyecto.");
+                    int i = 1;
+                    for (ServerPlayer s : country.getScoreboard()) {
 
+                        ChatColor color = ChatColor.WHITE;
+
+                        if (s.getBuilderRank(country) != null) {
+                            String bRank = s.getBuilderRank(country);
+                            if (bRank.equals("builder")) {
+                                color = ChatColor.BLUE;
+                            } else if (bRank.equals("avanzado")) {
+                                color = ChatColor.DARK_BLUE;
+                            } else if (bRank.equals("veterano")) {
+                                color = ChatColor.YELLOW;
+                            } else if (bRank.equals("maestro")) {
+                                color = ChatColor.GOLD;
+                            }
+                        }
+                        lines.add(i + ". §a" + s.getPoints(country) + " §7- " + color + s.getName());
+                        i++;
+                    }
+
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§6§lMayores puntajes");
+                    board.setAll(lines.toArray(new String[0]));
+                } else {
+                    List<String> lines = new ArrayList<>();
+
+                    lines.add("§cNo disponible.");
+
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§6§lMayores puntajes");
                     board.setAll(lines.toArray(new String[0]));
                 }
             }
+        } else {
+            Netherboard.instance().getBoard((Player) getPlayer()).clear();
         }
+    }
+
+    public void checkTop(Country country) {
+        List<CountryPlayer> top = new ArrayList<>();
+        for (ServerPlayer m : country.getScoreboard()) {
+            if (!m.getName().equals(getName())) {
+                top.add(new CountryPlayer(m, country));
+            }
+        }
+
+        top.add(new CountryPlayer(this, country));
+
+        Collections.sort(top);
+
+        List<String> newUUIDs = new ArrayList<>();
+        for (CountryPlayer countryPlayer : top.subList(0, Math.min(10, top.size()))) {
+            newUUIDs.add(countryPlayer.getPlayer().getPlayer().getUniqueId().toString());
+        }
+
+        YamlManager yaml = new YamlManager(pluginFolder, "points/max.yml");
+        yaml.setValue(country.getAbbreviation() + "_max", newUUIDs);
+        yaml.write();
     }
 }

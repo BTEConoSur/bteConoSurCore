@@ -14,12 +14,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
@@ -109,10 +112,42 @@ public class events implements Listener, EventListener {
                 }
             }
 
-            String finalMessage = String.join(" ", s.getPrefixes()) + "§f <" + s.getDisplayName() + "§f> " + message.replace("~", "");
-
             for (String name : targetChats) {
                 Chat chat = new Chat(name);
+
+                Country country = null;
+
+                if (name.startsWith("project_")) {
+                    try {
+                        Project project = new Project(name.replace("project_", ""));
+
+                        country = new Country(project.getCountry());
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                } else if (!name.equals("global")) {
+                    country = new Country(name);
+                }
+
+                String bRankPrefix = "";
+                if (country != null && !country.getCountry().equals("argentina")) {
+                    if (s.getBuilderRank(country) != null) {
+                        String bRank = s.getBuilderRank(country);
+                        if (bRank.equals("maestro")) {
+                            bRankPrefix = "§f [§6MAESTRO§f]";
+                        }
+                        if (bRank.equals("veterano")) {
+                            bRankPrefix = "§f [§eVETERANO§f]";
+                        }
+                        if (bRank.equals("avanzado")) {
+                            bRankPrefix = "§f [§1AVANZADO§f]";
+                        }
+                    }
+                }
+
+                String finalMessage = String.join(" ", s.getPrefixes()) + bRankPrefix + "§f <" + s.getDisplayName() + "§f> " + message.replace("~", "");
+
+
                 if (chat.getName().equals("global")) {
                     List<String> strings = new ArrayList<>();
                     strings.add(":speech_balloon: **");
