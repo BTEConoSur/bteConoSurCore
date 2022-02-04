@@ -1,9 +1,9 @@
 package pizzaaxx.bteconosur;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.luckperms.api.LuckPerms;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
@@ -16,9 +16,10 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.events;
 import pizzaaxx.bteconosur.commands.*;
-import pizzaaxx.bteconosur.discord.bot;
 import pizzaaxx.bteconosur.discord.commands.mods;
+import pizzaaxx.bteconosur.discord.commands.player;
 import pizzaaxx.bteconosur.discord.commands.project;
+import pizzaaxx.bteconosur.discord.commands.schematic;
 import pizzaaxx.bteconosur.join.join;
 import pizzaaxx.bteconosur.link.linkDiscord;
 import pizzaaxx.bteconosur.link.linkMinecraft;
@@ -38,8 +39,10 @@ import pizzaaxx.bteconosur.worldedit.shortcuts;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.File;
 
+import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
@@ -120,6 +123,8 @@ public final class bteConoSur extends JavaPlugin {
         builder.addEventListeners(new requestResponse());
         builder.addEventListeners(new events());
         builder.addEventListeners(new mods());
+        builder.addEventListeners(new schematic());
+        builder.addEventListeners(new player());
         try {
             conoSurBot = builder.build().awaitReady();
         } catch (LoginException | InterruptedException e) {
@@ -137,11 +142,26 @@ public final class bteConoSur extends JavaPlugin {
             lp = provider.getProvider();
         }
 
+        EmbedBuilder online = new EmbedBuilder();
+        online.setColor(new Color(0, 255, 42));
+        online.setTitle("¡El servidor ya está online!");
+        online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
+
+        gateway.sendMessageEmbeds(online.build()).queue();
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Disabling  BTE Cono Sur!");
+
+        EmbedBuilder online = new EmbedBuilder();
+        online.setColor(new Color(255, 0, 0));
+        online.setTitle("El servidor ha sido apagado.");
+        online.setDescription("Te esperamos cuando vuelva a estar disponible.");
+
+        gateway.sendMessageEmbeds(online.build()).queue();
+
+        conoSurBot.shutdown();
     }
 
     public static void broadcast(String message) {
