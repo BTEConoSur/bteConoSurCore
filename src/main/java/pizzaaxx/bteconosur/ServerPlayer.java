@@ -73,6 +73,16 @@ public class ServerPlayer {
         return total;
     }
 
+    public List<Project> getOwnedProjects() {
+        List<Project> projects = new ArrayList<>();
+        for (Project project : getProjects()) {
+            if (project.getOwner() == this.player) {
+                projects.add(project);
+            }
+        }
+        return projects;
+    }
+
     public List<Project> getProjects() {
         List<Project> projects = new ArrayList<>();
         if (data.getData("projects") != null) {
@@ -657,7 +667,7 @@ public class ServerPlayer {
                     lines.add("§aPuntos:§f");
 
                     List<CountryPlayer> list = new ArrayList<>();
-                    for (String c : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
+                    for (String c : "bolivia chile paraguay peru uruguay".split(" ")) {
                         if (getPoints(new Country(c)) > 0) {
                             list.add(new CountryPlayer(this, new Country(c)));
                         }

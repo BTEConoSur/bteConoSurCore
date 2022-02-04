@@ -25,7 +25,6 @@ public class schematic implements EventListener {
                 String[] args = fullCommand.replaceFirst("/", "").split(" ");
                 if (args.length > 0) {
                     if (args[0].equals("schematic")) {
-
                         try {
                             ServerPlayer s = new ServerPlayer(e.getAuthor());
 

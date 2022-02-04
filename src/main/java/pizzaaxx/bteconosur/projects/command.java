@@ -250,7 +250,7 @@ public class command implements CommandExecutor {
                         } else if (project.getMembers().contains(p)) {
                             p.sendMessage("Alguien más ya es dueñ@ de este proyecto. Usa §a/p request §fpara solicitar unirte.");
                         }
-                    } else if (new ServerPlayer(p).getProjects().size() >= maxProjectsPerPlayer){
+                    } else if (new ServerPlayer(p).getOwnedProjects().size() >= maxProjectsPerPlayer){
                         p.sendMessage(projectsPrefix + "No puedes ser líder de más de 10 proyectos al mismo tiempo.");
                     } else {
                         if ((new ServerPlayer(p).getPrimaryGroup().equals("postulante") || new ServerPlayer(p).getPrimaryGroup().equals("default")) && !(project.getDifficulty().equals("facil"))) {
@@ -432,7 +432,7 @@ public class command implements CommandExecutor {
                                         transferConfirmation.remove(p);
                                         Player target = Bukkit.getPlayer(args[1]);
 
-                                        if (new ServerPlayer(target).getProjects().size() > maxProjectsPerPlayer) {
+                                        if (new ServerPlayer(target).getOwnedProjects().size() > maxProjectsPerPlayer) {
                                             p.sendMessage(projectsPrefix + "El jugador introducido ya alcanzó su límite de proyectos.");
                                             return true;
                                         }
