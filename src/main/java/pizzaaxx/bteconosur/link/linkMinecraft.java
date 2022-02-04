@@ -52,8 +52,9 @@ public class linkMinecraft implements CommandExecutor {
                         YamlManager.writeYaml(pluginFolder, "link/links.yml", linkData);
 
                         p.sendMessage(linkPrefix + "Se ha conectado exitosamente la cuenta de Minecraft §a" + p.getName() + "§f a la cuenta de Discord §a" + user.getName() + "#" + user.getDiscriminator() + "§f.");
+                        p.sendMessage(linkPrefix + "Desde ahora recibirás las notificaciones del servidor por medio de Discord.");
                     } else {
-                        p.sendMessage(linkPrefix + "El código introduido no existe.");
+                        p.sendMessage(linkPrefix + "El código introducido no existe.");
                     }
                 } else {
                     p.sendMessage(linkPrefix + "Introduce un código válido.");

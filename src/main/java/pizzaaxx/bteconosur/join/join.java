@@ -94,21 +94,23 @@ public class join implements Listener {
 
         // NOTIFICACIONES
 
-        p.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
+        if (e.getPlayer().hasPlayedBefore()) {
+            p.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
 
-        if (s.getNotifications().size() > 0) {
-            int i = 1;
-            for (String notif : s.getNotifications()) {
+            if (s.getNotifications().size() > 0) {
+                int i = 1;
+                for (String notif : s.getNotifications()) {
                     p.sendMessage(i + ". " + notif.replace("&", "§"));
-                p.sendMessage(" ");
-                i++;
-            }
+                    p.sendMessage(" ");
+                    i++;
+                }
 
-            playerData.deleteData("notifications");
-            playerData.save();
-        } else {
-            p.sendMessage("§c                   No tienes notificaciones nuevas.");
-            p.sendMessage(" ");
+                playerData.deleteData("notifications");
+                playerData.save();
+            } else if (!s.hasDiscordUser()) {
+                p.sendMessage("§c                   No tienes notificaciones nuevas.");
+                p.sendMessage(" ");
+            }
         }
 
         // DISCORD

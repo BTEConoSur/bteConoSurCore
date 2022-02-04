@@ -65,7 +65,8 @@ public class linkDiscord implements EventListener {
 
                                     EmbedBuilder success = new EmbedBuilder();
                                     success.setColor(new Color(0, 255, 42));
-                                    success.setAuthor("Se ha conectado exitosamente la cuenta de Discord \"" + e.getAuthor().getName() + "#" + e.getAuthor().getDiscriminator() + "\" con la cuenta de Minecraft \"" + player.getName() + "\".");
+                                    success.addField("Cuenta conectada", "Has conectado exitosamente la cuenta de Discord \"" + e.getAuthor().getName() + "#" + e.getAuthor().getDiscriminator() + "\" con la cuenta de Minecraft \"" + player.getName() + "\".", false);
+                                    success.addField("Notificaciones:", "Desde ahora recibirás las notificaciones del servidor por medio de Discord.", false);
                                     e.getTextChannel().sendMessageEmbeds(success.build()).queue();
                                 }
                             } else {
