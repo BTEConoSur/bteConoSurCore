@@ -4,11 +4,9 @@ import com.google.common.collect.Lists;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
 import com.sk89q.worldedit.world.World;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,7 +30,6 @@ import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.playerData.PlayerData;
-import pizzaaxx.bteconosur.points.PlayerPoints;
 import pizzaaxx.bteconosur.worldedit.methods;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
@@ -110,7 +107,19 @@ public class command implements CommandExecutor {
                     return true;
                 }
 
+                Country country = new Country(points.get(0));
+
+                if (country.getCountry().equals("global")) {
+                    p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
+                    return true;
+                }
+
                 if (p.hasPermission("bteconosur.projects.manage.create")) {
+
+                    if (!s.getPermissionCountries().contains(country.getCountry())) {
+                        p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
+                    }
+
                     if (args.length < 2) {
                         p.sendMessage(projectsPrefix + "Introduce una dificultad, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
                         return true;
@@ -123,21 +132,7 @@ public class command implements CommandExecutor {
 
                     Project project = new Project(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), args[1], points);
 
-                    List<String> permissionCountries = new ArrayList<>();
-                    if (p.hasPermission("bteconosur.projects.manage.ar")) {
-                        permissionCountries.add("argentina");
-                    }
-                    if (p.hasPermission("bteconosur.projects.manage.bo")) {
-                        permissionCountries.add("bolivia");
-                    }
-                    if (p.hasPermission("bteconosur.projects.manage.cl")) {
-                        permissionCountries.add("chile");
-                    }
-                    if (p.hasPermission("bteconosur.projects.manage.pe")) {
-                        permissionCountries.add("peru");
-                    }
-
-                    if (!(permissionCountries.contains(project.getCountry()))) {
+                    if (!(s.getPermissionCountries().contains(project.getCountry()))) {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         return true;
                     }
@@ -158,6 +153,7 @@ public class command implements CommandExecutor {
                 } else if (p.hasPermission("bteconosur.projects.create")) {
                     if (new ServerPlayer(p).getProjects().size() < maxProjectsPerPlayer) {
                         Project project = new Project(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), "facil", points);
+
 
                         String channelId;
                         if (project.getCountry().equals("argentina")) {
@@ -1065,7 +1061,13 @@ public class command implements CommandExecutor {
                         return true;
                     }
 
+                    Country country = new Country(points.get(0));
+
                     if (p.hasPermission("bteconosur.projects.manage.redefine")) {
+
+                        if (!s.getPermissionCountries().contains(project.getCountry())) {
+                            p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
+                        }
 
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
@@ -1084,25 +1086,6 @@ public class command implements CommandExecutor {
 
                         project.setDifficulty(args[1]);
                         project.setPoints(points);
-
-                        List<String> permissionCountries = new ArrayList<>();
-                        if (p.hasPermission("bteconosur.projects.manage.ar")) {
-                            permissionCountries.add("argentina");
-                        }
-                        if (p.hasPermission("bteconosur.projects.manage.bo")) {
-                            permissionCountries.add("bolivia");
-                        }
-                        if (p.hasPermission("bteconosur.projects.manage.cl")) {
-                            permissionCountries.add("chile");
-                        }
-                        if (p.hasPermission("bteconosur.projects.manage.pe")) {
-                            permissionCountries.add("peru");
-                        }
-
-                        if (!(permissionCountries.contains(project.getCountry()))) {
-                            p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
-                            return true;
-                        }
 
                         project.upload();
                         // SEND MESSAGES

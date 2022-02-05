@@ -18,10 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.country.Country.countryRegionNames;
 import static pizzaaxx.bteconosur.ranks.points.getScoreboard;
@@ -88,6 +85,20 @@ public class scoreboard implements Listener, CommandExecutor {
         }
     }
 
+    public static List<String> scoreboardsOrder = Arrays.asList("server", "me", "project", "top");
+    public static void checkAutoScoreboards() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer s = new ServerPlayer(player);
+            if (s.isScoreboardAuto()) {
+                if (scoreboardsOrder.indexOf(s.getScoreboard()) + 1 != scoreboardsOrder.size()) {
+                    s.setScoreboard(scoreboardsOrder.get(scoreboardsOrder.indexOf(s.getScoreboard()) + 1));
+                } else {
+                    s.setScoreboard(scoreboardsOrder.get(0));
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         checkScoreboardMovement(e.getFrom(), e.getTo(), e.getPlayer());
@@ -107,10 +118,20 @@ public class scoreboard implements Listener, CommandExecutor {
                 ServerPlayer s = new ServerPlayer(p);
                 if (args.length > 0) {
                     if (args[0].equals("project") || args[0].equals("me") || args[0].equals("server") || args[0].equals("top") || args[0].equals("proyecto")) {
+                        s.setScoreboardAuto(false);
                         s.setScoreboardHide(false);
                         s.setScoreboard(args[0].replace("proyecto", "project"));
 
                         p.sendMessage(scoreboardPrefix + "Has establecido tu §oscoreboard§f en §a" + args[0].replace("proyecto", "project").toUpperCase() + "§f.");
+                    } else if (args[0].equals("auto")) {
+                        if (s.isScoreboardAuto()) {
+                            s.setScoreboardAuto(false);
+                            p.sendMessage(scoreboardPrefix + "Has desactivado el §oscoreboard§f automático.");
+                        } else {
+                            s.setScoreboardHide(false);
+                            s.setScoreboardAuto(true);
+                            p.sendMessage(scoreboardPrefix + "Has activado el §oscoreboard§f automático.");
+                        }
                     } else {
                         p.sendMessage(scoreboardPrefix + "Introduce un tipo válido.");
                     }

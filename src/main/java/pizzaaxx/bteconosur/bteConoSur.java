@@ -45,6 +45,7 @@ import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
+import static pizzaaxx.bteconosur.points.scoreboard.checkAutoScoreboards;
 import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
@@ -150,6 +151,15 @@ public final class bteConoSur extends JavaPlugin {
         online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
 
         gateway.sendMessageEmbeds(online.build()).queue();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                checkAutoScoreboards();
+            }
+        };
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, runnable, 300, 300);
     }
 
     @Override

@@ -700,6 +700,7 @@ public class ServerPlayer {
 
                     List<String> lines = new ArrayList<>();
 
+                    lines.add(" ");
                     lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().replace("facil", "fácil").replace("dificil", "difícil")));
                     lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry()));
                     if (project.getTag() != null) {
@@ -725,6 +726,7 @@ public class ServerPlayer {
                 } catch (Exception e) {
                     List<String> lines = new ArrayList<>();
 
+                    lines.add(" ");
                     lines.add("§cNo disponible.");
 
                     BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§c§lProyecto");

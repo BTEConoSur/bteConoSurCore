@@ -75,7 +75,7 @@ public class join implements Listener {
         }
 
         if (new PlayerData(p).getData("scoreboard") == null) {
-            playerData.setData("scoreboard", "me");
+            playerData.setData("scoreboard", "server");
         }
 
         if (new PlayerData(p).getData("scoreboardAuto") == null) {
