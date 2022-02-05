@@ -6,6 +6,8 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  tpdir:
+    description: Teletranspórtate a algún lugar usando su nombre.
   scoreboard:
     description: Comando para manejar el scoreboard.
     aliases: sc

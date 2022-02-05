@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.coords;
 
 import com.sk89q.worldedit.BlockVector2D;
+import jdk.nashorn.internal.ir.Block;
 import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
@@ -55,6 +56,14 @@ public class Coords2D {
     }
 
     // GETTER
+
+    public BlockVector2D toBlockVector2D() {
+        return new BlockVector2D(this.x, this.z);
+    }
+
+    public Location toHighestLocation() {
+        return new Location(mainWorld, this.x, getHighestY(), this.z);
+    }
 
     public double getLon() {
         return lon;
