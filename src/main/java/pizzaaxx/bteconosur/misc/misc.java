@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.misc;
 
+import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
@@ -18,10 +19,7 @@ import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.Config.requestsPe;
@@ -30,30 +28,20 @@ import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class misc {
-    public static String getCountryAtLocation(BlockVector2D loc) {
-        Location location = new Location(mainWorld, loc.getX(), 100.0, loc.getZ());
-        RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
-        Set<ProtectedRegion> regions = regionManager.getApplicableRegions(location).getRegions();
-        if (regions.contains(regionManager.getRegion("argentina"))) {
-            return "argentina";
-        }
-        if (regions.contains(regionManager.getRegion("bolivia"))) {
-            return "bolivia";
-        }
-        if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            return "chile";
-        }
-        if (regions.contains(regionManager.getRegion("paraguay"))) {
-            return "paraguay";
-        }
-        if (regions.contains(regionManager.getRegion("peru"))) {
-            return "peru";
-        }
-        if (regions.contains(regionManager.getRegion("uruguay"))) {
-            return "uruguay";
-        }
-        return null;
 
+    private static final Map<String, String> COUNTRIES = new HashMap<>();
+
+    static  {
+        COUNTRIES.put("argentina" , "arg");
+        COUNTRIES.put("bolivia", "bo");
+        COUNTRIES.put("chile", "cl");
+        COUNTRIES.put("paraguay", "pa");
+        COUNTRIES.put("peru", "pe");
+        COUNTRIES.put("uruguay", "uy");
+    }
+
+    public static String getCountryAtLocation(BlockVector2D loc) {
+        return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ());
     }
 
     public static String getCountryAtLocation(Location loc) {
@@ -98,25 +86,7 @@ public class misc {
     }
 
     public static String getCountryPrefix(String country) {
-        if (country.equals("argentina")) {
-            return "ar";
-        }
-        if (country.equals("bolivia")) {
-            return "bo";
-        }
-        if (country.equals("chile")) {
-            return "cl";
-        }
-        if (country.equals("paraguay")) {
-            return "py";
-        }
-        if (country.equals("peru")) {
-            return "pe";
-        }
-        if (country.equals("uruguay")) {
-            return "uy";
-        }
-        return null;
+        return COUNTRIES.get(country);
     }
 
     public static ItemStack itemBuilder(Material material, String name, List<String> lore) {
