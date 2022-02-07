@@ -7,10 +7,6 @@ import org.bukkit.plugin.Plugin;
 public class worldguard {
 
     public static WorldGuardPlugin getWorldGuard() {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
-        if (!(plugin instanceof WorldGuardPlugin)) {
-            return null;
-        }
-        return (WorldGuardPlugin) plugin;
+        return WorldGuardPlugin.inst();
     }
 }
