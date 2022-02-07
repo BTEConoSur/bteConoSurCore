@@ -53,6 +53,11 @@ public class tpdir implements CommandExecutor {
 
                         String response = content.toString();
 
+                        if (response.equals("[]")) {
+                            p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
+                            return true;
+                        }
+                        
                         String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
 
                         Map<String, String> map = new HashMap<>();
@@ -73,8 +78,6 @@ public class tpdir implements CommandExecutor {
 
                         p.teleport(coords.toHighestLocation());
                         p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
-                        p.sendMessage("§7" + map.get("display_name"));
-
                     } catch (IOException e) {
                         p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
                     }

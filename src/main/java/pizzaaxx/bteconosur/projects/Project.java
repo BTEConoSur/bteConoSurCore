@@ -219,7 +219,7 @@ public class Project {
                 coords.add(new Coords2D(point).getLat() + "," + new Coords2D(point).getLon());
             }
             coords.add(new Coords2D(this.points.get(0)).getLat() + "," + new Coords2D(this.points.get(0)).getLon());
-            return "https://open.mapquestapi.com/staticmap/v5/map?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&shape=" + String.join("|", coords) + "|fill:6382DC50&size=1280,720&imagetype=png";
+            return "https://open.mapquestapi.com/staticmap/v5/map?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&type=sat&shape=" + String.join("|", coords) + "|fill:6382DC50&size=1920,1080&imagetype=png";
         }
         return null;
     }

@@ -1193,7 +1193,7 @@ public class command implements CommandExecutor {
                         }
                         coordsNew.add(new Coords2D(points.get(0)).getLat() + "," + new Coords2D(points.get(0)).getLon());
 
-                        url = "https://open.mapquestapi.com/staticmap/v5/map?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&shape=" + String.join("|", coordsOld) + "|fill:6382DC50&shape=" + String.join("|", coordsNew) + "|fill:ff000050|border:ff0000&size=1280,720&imagetype=png";
+                        url = "https://open.mapquestapi.com/staticmap/v5/map?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&type=sat&shape=" + String.join("|", coordsOld) + "|fill:6382DC50&shape=" + String.join("|", coordsNew) + "|fill:ff000050|border:ff0000&size=1280,720&imagetype=png";
 
                         request.setImage(url);
 

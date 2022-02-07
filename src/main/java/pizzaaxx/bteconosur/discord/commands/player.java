@@ -18,7 +18,10 @@ import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +60,7 @@ public class player implements EventListener {
                                         EmbedBuilder embed = new EmbedBuilder();
                                         embed.setColor(new Color(255, 0, 0));
                                         embed.setAuthor("El usuario introducido no tiene una cuenta de Minecraft conectada.");
-                                        e.getTextChannel().sendMessageEmbeds(embed.build()).queue();
+                                        e.getTextChannel().sendMessageEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                                         return;
                                     }
                                 }
@@ -81,6 +84,8 @@ public class player implements EventListener {
                                         chat = (s.getChat().getName().equals("global") ? ":earth_americas:" : ":flag_" + new Country(s.getChat().getName()).getAbbreviation() + ":");
                                     }
                                     embed.addField("Chat:", chat + " " + s.getChat().getFormattedName(), false);
+
+                                    embed.setImage("https://open.mapquestapi.com/staticmap/v4/getmap?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&size=1280,720&type=sat&scalebar=false&imagetype=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&xis=https://cravatar.eu/helmavatar/" + p.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon());
 
                                 } else {
                                     embed.setColor(new Color(255, 0, 0));
@@ -151,17 +156,18 @@ public class player implements EventListener {
                                 }
 
                                 embed.setThumbnail("https://mc-heads.net/head/" + s.getPlayer().getUniqueId().toString());
-                                e.getTextChannel().sendMessageEmbeds(embed.build()).queue();
+
+                                e.getTextChannel().sendMessageEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                             } else {
                                 embed.setColor(new Color(255, 0, 0));
                                 embed.setAuthor("Introduce un jugador, menciona a un usuario o introduce su ID.");
-                                e.getTextChannel().sendMessageEmbeds(embed.build()).queue();
+                                e.getTextChannel().sendMessageEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                             }
                         } else {
                             EmbedBuilder embed = new EmbedBuilder();
                             embed.setColor(new Color(255, 0, 0));
                             embed.setAuthor("Introduce un jugador, menciona a un usuario o introduce su ID.");
-                            e.getTextChannel().sendMessageEmbeds(embed.build()).queue();
+                            e.getTextChannel().sendMessageEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                         }
                     }
                 }

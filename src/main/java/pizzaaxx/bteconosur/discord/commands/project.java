@@ -188,12 +188,12 @@ public class project implements EventListener {
 
                             pending.addField("Proyectos pendientes de revisión:", value, false);
 
-                            e.getTextChannel().sendMessageEmbeds(pending.build()).queue();
+                            e.getTextChannel().sendMessageEmbeds(pending.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                         } else {
                             EmbedBuilder noPending = new EmbedBuilder();
                             noPending.setColor(new Color(255,0,0));
                             noPending.setAuthor("No hay proyectos pendientes de revisión.");
-                            e.getTextChannel().sendMessageEmbeds(noPending.build()).queue();
+                            e.getTextChannel().sendMessageEmbeds(noPending.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                         }
                     }
                 }

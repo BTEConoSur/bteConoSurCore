@@ -17,10 +17,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.events;
 import pizzaaxx.bteconosur.commands.*;
-import pizzaaxx.bteconosur.discord.commands.mods;
-import pizzaaxx.bteconosur.discord.commands.player;
-import pizzaaxx.bteconosur.discord.commands.project;
-import pizzaaxx.bteconosur.discord.commands.schematic;
+import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.join.join;
 import pizzaaxx.bteconosur.link.linkDiscord;
 import pizzaaxx.bteconosur.link.linkMinecraft;
@@ -128,6 +125,7 @@ public final class bteConoSur extends JavaPlugin {
         builder.addEventListeners(new mods());
         builder.addEventListeners(new schematic());
         builder.addEventListeners(new player());
+        builder.addEventListeners(new online_where());
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
