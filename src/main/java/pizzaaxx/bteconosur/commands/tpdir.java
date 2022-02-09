@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class tpdir implements CommandExecutor {
 
@@ -32,55 +33,59 @@ public class tpdir implements CommandExecutor {
                 Player p = (Player) sender;
                 if (args.length > 0) {
                     String dir = String.join("+", args);
-                    try {
-                        // WEB REQUEST
 
-                        URL url = new URL("https://nominatim.openstreetmap.org/search?q=" + dir + "&format=json");
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setRequestMethod("GET");
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            // WEB REQUEST
 
-                        int status = connection.getResponseCode();
+                            URL url = new URL("https://nominatim.openstreetmap.org/search?q=" + dir + "&format=json");
+                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                            connection.setRequestMethod("GET");
 
-                        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        String inputLine;
-                        StringBuilder content = new StringBuilder();
-                        while ((inputLine = in.readLine()) != null) {
-                            content.append(inputLine);
-                        }
-                        in.close();
+                            int status = connection.getResponseCode();
 
-                        connection.disconnect();
-
-                        String response = content.toString();
-
-                        if (response.equals("[]")) {
-                            p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
-                            return true;
-                        }
-                        
-                        String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
-
-                        Map<String, String> map = new HashMap<>();
-
-                        for (String string : firstOption.split(",")) {
-                            if (!string.contains(":")) {
-                                continue;
+                            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                            String inputLine;
+                            StringBuilder content = new StringBuilder();
+                            while ((inputLine = in.readLine()) != null) {
+                                content.append(inputLine);
                             }
-                            map.put(string.split(":")[0].replace("\"", ""), string.split(":")[1].replace("\"", ""));
+                            in.close();
+
+                            connection.disconnect();
+
+                            String response = content.toString();
+
+                            if (response.equals("[]")) {
+                                p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
+                                return;
+                            }
+
+                            String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
+
+                            Map<String, String> map = new HashMap<>();
+
+                            for (String string : firstOption.split(",")) {
+                                if (!string.contains(":")) {
+                                    continue;
+                                }
+                                map.put(string.split(":")[0].replace("\"", ""), string.split(":")[1].replace("\"", ""));
+                            }
+
+                            Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
+
+                            if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
+                                p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
+                                return;
+                            }
+
+                            p.teleport(coords.toHighestLocation());
+                            p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
+                        } catch (IOException e) {
+                            p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
                         }
+                    });
 
-                        Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
-
-                        if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
-                            p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
-                            return true;
-                        }
-
-                        p.teleport(coords.toHighestLocation());
-                        p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
-                    } catch (IOException e) {
-                        p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
-                    }
                 } else {
                     p.sendMessage(tpdirPrefix + "Introduce el nombre de un lugar.");
                 }
