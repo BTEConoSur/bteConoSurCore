@@ -102,16 +102,18 @@ public final class bteConoSur extends JavaPlugin {
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
 
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projects").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "playerData").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "pending_projects").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projectTags").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "discord").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "chat").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "points").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics").mkdirs();
+        createDirectories(
+                "",
+                "projects",
+                "playerData",
+                "link",
+                "pending_projects",
+                "projectTags",
+                "discord",
+                "chat",
+                "points",
+                "trees/schematics"
+        );
 
         // GUI
         ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
@@ -206,6 +208,13 @@ public final class bteConoSur extends JavaPlugin {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager()
                     .registerEvents(listener, this);
+        }
+    }
+
+    private void createDirectories(String... names) {
+        for (String name : names) {
+            File file = new File(getDataFolder(), name);
+            file.mkdirs();
         }
     }
 
