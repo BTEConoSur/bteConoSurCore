@@ -4,13 +4,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -42,7 +45,6 @@ import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
-import static pizzaaxx.bteconosur.points.scoreboard.checkAutoScoreboards;
 import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
@@ -57,16 +59,18 @@ public final class bteConoSur extends JavaPlugin {
 
         getLogger().info("Enabling  BTE Cono Sur!");
 
-        org.bukkit.Bukkit.getPluginManager().registerEvents(new join(), this);
-        Bukkit.getPluginManager().registerEvents(new projectActionBar(), this);
-        Bukkit.getPluginManager().registerEvents(new onTeleport(), this);
-        Bukkit.getPluginManager().registerEvents(new events(), this);
-        Bukkit.getPluginManager().registerEvents(new pRandom(), this);
-        Bukkit.getPluginManager().registerEvents(new event(), this);
-        Bukkit.getPluginManager().registerEvents(new shortcuts(), this);
-        Bukkit.getPluginManager().registerEvents(new pizzaaxx.bteconosur.worldedit.trees.events(), this);
-        Bukkit.getPluginManager().registerEvents(new scoreboard(), this);
-        Bukkit.getPluginManager().registerEvents(new get(), this);
+        registerListeners(
+                new join(),
+                new projectActionBar(),
+                new onTeleport(),
+                new event(),
+                new pRandom(),
+                new event(),
+                new shortcuts(),
+                new events(),
+                new scoreboard(),
+                new get()
+        );
 
         getCommand("btecs_reload").setExecutor(new Config());
         getCommand("project").setExecutor(new command());
@@ -98,16 +102,18 @@ public final class bteConoSur extends JavaPlugin {
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
 
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projects").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "playerData").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "pending_projects").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projectTags").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "discord").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "chat").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "points").mkdirs();
-        new File(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "trees/schematics").mkdirs();
+        createDirectories(
+                "",
+                "projects",
+                "playerData",
+                "link",
+                "pending_projects",
+                "projectTags",
+                "discord",
+                "chat",
+                "points",
+                "trees/schematics"
+        );
 
         // GUI
         ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
@@ -120,15 +126,18 @@ public final class bteConoSur extends JavaPlugin {
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
         builder.setStatus(OnlineStatus.ONLINE);
-        builder.addEventListeners(new linkDiscord());
-        builder.addEventListeners(new project());
-        builder.addEventListeners(new requestResponse());
-        builder.addEventListeners(new events());
-        builder.addEventListeners(new mods());
-        builder.addEventListeners(new schematic());
-        builder.addEventListeners(new player());
-        builder.addEventListeners(new online_where());
-        builder.addEventListeners(new pizzaaxx.bteconosur.discord.commands.scoreboard());
+
+        registerDiscordListener(builder,
+                new linkDiscord(),
+                new project(),
+                new requestResponse(),
+                new events(),
+                new mods(),
+                new schematic(),
+                new player(),
+                new online_where(),
+                new pizzaaxx.bteconosur.discord.commands.scoreboard());
+
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
@@ -156,14 +165,7 @@ public final class bteConoSur extends JavaPlugin {
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                checkAutoScoreboards();
-            }
-        };
-
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, runnable, 300, 300);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, scoreboard::checkAutoScoreboards, 300, 300);
     }
 
     @Override
@@ -197,4 +199,25 @@ public final class bteConoSur extends JavaPlugin {
             }
         }
     }
+
+    private void registerListeners(Listener... listeners) {
+        for (Listener listener : listeners) {
+            Bukkit.getPluginManager()
+                    .registerEvents(listener, this);
+        }
+    }
+
+    private void registerDiscordListener(JDABuilder builder, EventListener... listeners) {
+        for (EventListener listener : listeners) {
+            builder.addEventListeners(listener);
+        }
+    }
+
+    private void createDirectories(String... names) {
+        for (String name : names) {
+            File file = new File(getDataFolder(), name);
+            file.mkdirs();
+        }
+    }
+
 }
