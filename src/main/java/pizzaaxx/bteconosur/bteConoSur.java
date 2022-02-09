@@ -162,14 +162,7 @@ public final class bteConoSur extends JavaPlugin {
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                checkAutoScoreboards();
-            }
-        };
-
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, runnable, 300, 300);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, scoreboard::checkAutoScoreboards, 300, 300);
     }
 
     @Override
