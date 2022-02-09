@@ -136,7 +136,10 @@ public final class bteConoSur extends JavaPlugin {
                 new schematic(),
                 new player(),
                 new online_where(),
-                new pizzaaxx.bteconosur.discord.commands.scoreboard());
+                new pizzaaxx.bteconosur.discord.commands.scoreboard(),
+                new help(),
+                new helpButtons()
+        );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {

@@ -52,7 +52,21 @@ public class YamlManager {
     }
 
     public Object getValue(String key) {
-        return this.data.get(key);
+        String[] steps = key.split("[.]");
+        Map<String, Object> main = this.data;
+        int i = 1;
+        for (String name : steps) {
+            if (steps.length == i) {
+                return main.get(name);
+            }
+            if (main.get(name) != null) {
+                main = (Map<String, Object>) main.get(name);
+            } else {
+                return null;
+            }
+            i++;
+        }
+        return null;
     }
 
     // SET
@@ -102,12 +116,9 @@ public class YamlManager {
 
     public List<?> getList(String key) {
         if (this.data.get(key) instanceof List<?>) {
-            return (List<?>) this.data.get(key);
-        } else if (data.containsKey(key)) {
-            return null;
-        } else {
-            return new ArrayList<>();
+            return (List<?>) getValue(key);
         }
+        return null;
     }
 
     // SAVE

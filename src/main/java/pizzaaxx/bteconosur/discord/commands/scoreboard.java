@@ -1,8 +1,6 @@
 package pizzaaxx.bteconosur.discord.commands;
 
-import javafx.beans.binding.MapExpression;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -11,10 +9,6 @@ import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 
 import java.awt.*;
-import java.util.List;
-
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
-import static pizzaaxx.bteconosur.misc.misc.COUNTRIES;
 
 public class scoreboard implements EventListener {
 
@@ -47,6 +41,14 @@ public class scoreboard implements EventListener {
                                 return;
                             }
                             country = new Country(e.getGuild());
+                        }
+
+                        if (country.getCountry().equals("argentina")) {
+                            EmbedBuilder error = new EmbedBuilder();
+                            error.setColor(new Color(255,0,0));
+                            error.setAuthor("Argentina no trabaja con puntos.");
+                            e.getTextChannel().sendMessageEmbeds(error.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
+                            return;
                         }
 
                         EmbedBuilder top = new EmbedBuilder();
