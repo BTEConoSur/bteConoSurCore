@@ -10,7 +10,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -57,16 +59,18 @@ public final class bteConoSur extends JavaPlugin {
 
         getLogger().info("Enabling  BTE Cono Sur!");
 
-        org.bukkit.Bukkit.getPluginManager().registerEvents(new join(), this);
-        Bukkit.getPluginManager().registerEvents(new projectActionBar(), this);
-        Bukkit.getPluginManager().registerEvents(new onTeleport(), this);
-        Bukkit.getPluginManager().registerEvents(new events(), this);
-        Bukkit.getPluginManager().registerEvents(new pRandom(), this);
-        Bukkit.getPluginManager().registerEvents(new event(), this);
-        Bukkit.getPluginManager().registerEvents(new shortcuts(), this);
-        Bukkit.getPluginManager().registerEvents(new pizzaaxx.bteconosur.worldedit.trees.events(), this);
-        Bukkit.getPluginManager().registerEvents(new scoreboard(), this);
-        Bukkit.getPluginManager().registerEvents(new get(), this);
+        registerListeners(
+                new join(),
+                new projectActionBar(),
+                new onTeleport(),
+                new event(),
+                new pRandom(),
+                new event(),
+                new shortcuts(),
+                new events(),
+                new scoreboard(),
+                new get()
+        );
 
         getCommand("btecs_reload").setExecutor(new Config());
         getCommand("project").setExecutor(new command());
@@ -197,4 +201,12 @@ public final class bteConoSur extends JavaPlugin {
             }
         }
     }
+
+    private void registerListeners(Listener... listeners) {
+        for (Listener listener : listeners) {
+            Bukkit.getPluginManager()
+                    .registerEvents(listener, this);
+        }
+    }
+
 }
