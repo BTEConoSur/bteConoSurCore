@@ -27,68 +27,65 @@ public class tpdir implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            Player p = (Player) sender;
+            if (args.length > 0) {
+                String dir = String.join("+", args);
 
-        if (command.getName().equals("tpdir")) {
-            if (sender instanceof Player) {
-                Player p = (Player) sender;
-                if (args.length > 0) {
-                    String dir = String.join("+", args);
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        // WEB REQUEST
 
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            // WEB REQUEST
+                        URL url = new URL("https://nominatim.openstreetmap.org/search?q=" + dir + "&format=json");
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("GET");
 
-                            URL url = new URL("https://nominatim.openstreetmap.org/search?q=" + dir + "&format=json");
-                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                            connection.setRequestMethod("GET");
+                        int status = connection.getResponseCode();
 
-                            int status = connection.getResponseCode();
-
-                            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                            String inputLine;
-                            StringBuilder content = new StringBuilder();
-                            while ((inputLine = in.readLine()) != null) {
-                                content.append(inputLine);
-                            }
-                            in.close();
-
-                            connection.disconnect();
-
-                            String response = content.toString();
-
-                            if (response.equals("[]")) {
-                                p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
-                                return;
-                            }
-
-                            String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
-
-                            Map<String, String> map = new HashMap<>();
-
-                            for (String string : firstOption.split(",")) {
-                                if (!string.contains(":")) {
-                                    continue;
-                                }
-                                map.put(string.split(":")[0].replace("\"", ""), string.split(":")[1].replace("\"", ""));
-                            }
-
-                            Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
-
-                            if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
-                                p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
-                                return;
-                            }
-
-                            p.teleport(coords.toHighestLocation());
-                            p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
-                        } catch (IOException e) {
-                            p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
+                        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        String inputLine;
+                        StringBuilder content = new StringBuilder();
+                        while ((inputLine = in.readLine()) != null) {
+                            content.append(inputLine);
                         }
-                    });
+                        in.close();
 
-                } else {
-                    p.sendMessage(tpdirPrefix + "Introduce el nombre de un lugar.");
-                }
+                        connection.disconnect();
+
+                        String response = content.toString();
+
+                        if (response.equals("[]")) {
+                            p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
+                            return;
+                        }
+
+                        String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
+
+                        Map<String, String> map = new HashMap<>();
+
+                        for (String string : firstOption.split(",")) {
+                            if (!string.contains(":")) {
+                                continue;
+                            }
+                            map.put(string.split(":")[0].replace("\"", ""), string.split(":")[1].replace("\"", ""));
+                        }
+
+                        Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
+
+                        if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
+                            p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
+                            return;
+                        }
+
+                        p.teleport(coords.toHighestLocation());
+                        p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
+                    } catch (IOException e) {
+                        p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
+                    }
+                });
+
+            } else {
+                p.sendMessage(tpdirPrefix + "Introduce el nombre de un lugar.");
             }
         }
         return true;
