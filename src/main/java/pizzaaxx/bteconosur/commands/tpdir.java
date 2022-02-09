@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class tpdir implements CommandExecutor {
 
@@ -24,12 +25,12 @@ public class tpdir implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            Player p = (Player) sender;
+            if (args.length > 0) {
+                String dir = String.join("+", args);
 
-        if (command.getName().equals("tpdir")) {
-            if (sender instanceof Player) {
-                Player p = (Player) sender;
-                if (args.length > 0) {
-                    String dir = String.join("+", args);
+                CompletableFuture.runAsync(() -> {
                     try {
                         // WEB REQUEST
 
@@ -53,9 +54,9 @@ public class tpdir implements CommandExecutor {
 
                         if (response.equals("[]")) {
                             p.sendMessage(tpdirPrefix + "No se ha podido encontrar el lugar introducido.");
-                            return true;
+                            return;
                         }
-                        
+
                         String firstOption = response.split("},")[0].replace("[{", "").replace("}]", "");
 
                         Map<String, String> map = new HashMap<>();
@@ -71,7 +72,7 @@ public class tpdir implements CommandExecutor {
 
                         if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
                             p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
-                            return true;
+                            return;
                         }
 
                         p.teleport(coords.toHighestLocation());
@@ -79,9 +80,10 @@ public class tpdir implements CommandExecutor {
                     } catch (IOException e) {
                         p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");
                     }
-                } else {
-                    p.sendMessage(tpdirPrefix + "Introduce el nombre de un lugar.");
-                }
+                });
+
+            } else {
+                p.sendMessage(tpdirPrefix + "Introduce el nombre de un lugar.");
             }
         }
         return true;
