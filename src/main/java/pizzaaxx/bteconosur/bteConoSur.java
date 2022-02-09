@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -44,7 +45,6 @@ import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
-import static pizzaaxx.bteconosur.points.scoreboard.checkAutoScoreboards;
 import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
@@ -126,15 +126,18 @@ public final class bteConoSur extends JavaPlugin {
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
         builder.setStatus(OnlineStatus.ONLINE);
-        builder.addEventListeners(new linkDiscord());
-        builder.addEventListeners(new project());
-        builder.addEventListeners(new requestResponse());
-        builder.addEventListeners(new events());
-        builder.addEventListeners(new mods());
-        builder.addEventListeners(new schematic());
-        builder.addEventListeners(new player());
-        builder.addEventListeners(new online_where());
-        builder.addEventListeners(new pizzaaxx.bteconosur.discord.commands.scoreboard());
+
+        registerDiscordListener(builder,
+                new linkDiscord(),
+                new project(),
+                new requestResponse(),
+                new events(),
+                new mods(),
+                new schematic(),
+                new player(),
+                new online_where(),
+                new pizzaaxx.bteconosur.discord.commands.scoreboard());
+
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
@@ -201,6 +204,12 @@ public final class bteConoSur extends JavaPlugin {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager()
                     .registerEvents(listener, this);
+        }
+    }
+
+    private void registerDiscordListener(JDABuilder builder, EventListener... listeners) {
+        for (EventListener listener : listeners) {
+            builder.addEventListeners(listener);
         }
     }
 
