@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.commands;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

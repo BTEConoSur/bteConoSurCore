@@ -62,6 +62,10 @@ public class ServerPlayer {
 
     // PROJECTS
 
+    public Integer getFinishedProjects(Country country) {
+        return (Integer) this.data.getData("finished_projects_" + country.getCountry());
+    }
+
     public Integer getTotalFinishedProjects() {
         int total = 0;
 
@@ -254,10 +258,23 @@ public class ServerPlayer {
 
     public User getDiscordUser() {
         if (data.getData("discord") != null) {
-            return conoSurBot.retrieveUserById((String) data.getData("discord")).complete();
-        } else {
-            return null;
+            return conoSurBot.retrieveUserById(((Map<String, String>) data.getData("discord")).get("id")).complete();
         }
+        return null;
+    }
+
+    public String getDiscordName() {
+        if (data.getData("discord") != null) {
+            return ((Map<String, String>) data.getData("discord")).get("name");
+        }
+        return null;
+    }
+
+    public String getDiscordDiscriminator() {
+        if (data.getData("discord") != null) {
+            return ((Map<String, String>) data.getData("discord")).get("discriminator");
+        }
+        return null;
     }
 
     public Chat getDefaultChat() {
@@ -433,6 +450,12 @@ public class ServerPlayer {
         }
         if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
             permissionCountries.add("peru");
+        }
+        if (p.hasPermission("bteconosur.projects.manage.country.py")) {
+            permissionCountries.add("paraguay");
+        }
+        if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
+            permissionCountries.add("uruguay");
         }
         return permissionCountries;
     }

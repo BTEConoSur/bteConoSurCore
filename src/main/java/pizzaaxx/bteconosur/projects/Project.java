@@ -25,8 +25,7 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import java.io.*;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.bteConoSur.*;
 import static pizzaaxx.bteconosur.methods.codeGenerator.generateCode;
 import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
@@ -219,7 +218,7 @@ public class Project {
                 coords.add(new Coords2D(point).getLat() + "," + new Coords2D(point).getLon());
             }
             coords.add(new Coords2D(this.points.get(0)).getLat() + "," + new Coords2D(this.points.get(0)).getLon());
-            return "https://open.mapquestapi.com/staticmap/v5/map?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&type=sat&shape=" + String.join("|", coords) + "|fill:6382DC50&size=1920,1080&imagetype=png";
+            return "https://open.mapquestapi.com/staticmap/v5/map?key=" + key + "&type=sat&shape=" + String.join("|", coords) + "|fill:6382DC50&size=1920,1080&imagetype=png";
         }
         return null;
     }

@@ -22,8 +22,6 @@ public class tpdir implements CommandExecutor {
 
     public static String tpdirPrefix = "§f[§9TPDIR§f] §7>>§r ";
 
-    // TODO Finish this.
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 

@@ -50,6 +50,7 @@ public final class bteConoSur extends JavaPlugin {
 
     public static World mainWorld = null;
     public static File pluginFolder = null;
+    public static String key;
 
     @Override
     public void onEnable() {
@@ -92,6 +93,7 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("get").setExecutor(new get());
         getCommand("scoreboard").setExecutor(new scoreboard());
         getCommand("tpdir").setExecutor(new tpdir());
+        getCommand("event").setExecutor(new pizzaaxx.bteconosur.events.command());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -126,12 +128,15 @@ public final class bteConoSur extends JavaPlugin {
         builder.addEventListeners(new schematic());
         builder.addEventListeners(new player());
         builder.addEventListeners(new online_where());
+        builder.addEventListeners(new pizzaaxx.bteconosur.discord.commands.scoreboard());
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        key = (String) new YamlManager(pluginFolder, "key.yml").getValue("key");
 
         // CONFIG
 

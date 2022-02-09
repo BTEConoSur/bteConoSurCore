@@ -29,7 +29,7 @@ import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
 
 public class misc {
 
-    private static final Map<String, String> COUNTRIES = new HashMap<>();
+    public static final Map<String, String> COUNTRIES = new HashMap<>();
 
     static  {
         COUNTRIES.put("argentina" , "arg");
@@ -41,7 +41,7 @@ public class misc {
     }
 
     public static String getCountryAtLocation(BlockVector2D loc) {
-        return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ());
+        return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ()));
     }
 
     public static String getCountryAtLocation(Location loc) {

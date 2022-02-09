@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static pizzaaxx.bteconosur.bteConoSur.key;
+
 public class online_where implements EventListener {
     @Override
     public void onEvent(@NotNull GenericEvent event) {
@@ -56,12 +58,12 @@ public class online_where implements EventListener {
                                 for (Player p : country.getPlayers()) {
                                     names.add(p.getName().replace("_", "\\_"));
                                     Coords2D coords = new Coords2D(p.getLocation());
-                                    xis.add("https://cravatar.eu/helmavatar/" + p.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon());
+                                    xis.add("https://cravatar.eu/helmavatar/" + p.getName() + "/32.png,1,c," + coords.getLat() + "," + coords.getLon());
                                 }
                                 Collections.sort(names);
                                 embed.addField(":flag_" + country.getAbbreviation() + ": " + StringUtils.capitalize(c.replace("peru", "perú")) + ": " + names.size(), (names.size() > 0 ? String.join(", ", names) : "N/A"), true);
                             }
-                            embed.setImage("https://open.mapquestapi.com/staticmap/v4/getmap?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&scalebar=false&size=1280,720&type=sat&imagetype=png&center=-33.43957706920842,-66.86130716417696&zoom=4&xis=" + String.join(",", xis));
+                            embed.setImage("https://open.mapquestapi.com/staticmap/v4/getmap?key=" + key + "i&scalebar=false&size=1280,720&type=sat&imagetype=png&center=-33.43957706920842,-66.86130716417696&zoom=4&xis=" + String.join(",", xis));
                             embed.setThumbnail("https://media.discordapp.net/attachments/807694452214333482/845857288609988628/conosur.png?width=471&height=473");
                             e.getTextChannel().sendMessageEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
 

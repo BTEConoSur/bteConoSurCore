@@ -4,7 +4,6 @@ import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.playerData.PlayerData;
 
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.misc.misc.getCountryPrefix;
 import static pizzaaxx.bteconosur.misc.misc.getLogsChannel;
 

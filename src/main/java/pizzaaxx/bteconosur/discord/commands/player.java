@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static pizzaaxx.bteconosur.bteConoSur.key;
 import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 
@@ -85,7 +86,7 @@ public class player implements EventListener {
                                     }
                                     embed.addField("Chat:", chat + " " + s.getChat().getFormattedName(), false);
 
-                                    embed.setImage("https://open.mapquestapi.com/staticmap/v4/getmap?key=iZIDpeEGELwG16q3zZGOMPEPsbM6uqxi&size=1280,720&type=sat&scalebar=false&imagetype=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&xis=https://cravatar.eu/helmavatar/" + p.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon());
+                                    embed.setImage("https://open.mapquestapi.com/staticmap/v4/getmap?key=" + key + "&size=1280,720&type=sat&scalebar=false&imagetype=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&xis=https://cravatar.eu/helmavatar/" + p.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon());
 
                                 } else {
                                     embed.setColor(new Color(255, 0, 0));

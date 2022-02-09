@@ -3,23 +3,16 @@ package pizzaaxx.bteconosur.projects;
 
 import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.misc.misc;
-import pizzaaxx.bteconosur.notifications.Notification;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.misc.misc.getLogsChannel;
 import static pizzaaxx.bteconosur.projects.command.projectsPrefix;
 

@@ -6,6 +6,12 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  manageevent:
+    description: Comando para manejar eventos.
+    permission: bteconosur.events.manage
+  event:
+    description: Comando genérico para los eventos.
+    permission: bteconosur.events.default
   tpdir:
     description: Teletranspórtate a algún lugar usando su nombre.
   scoreboard:

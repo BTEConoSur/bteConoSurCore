@@ -56,7 +56,11 @@ public class linkDiscord implements EventListener {
                                     OfflinePlayer player = minecraftLinks.get(args[1]);
 
                                     PlayerData playerData = new PlayerData(player);
-                                    playerData.setData("discord", e.getAuthor().getId());
+                                    Map<String, String> discord = new HashMap<>();
+                                    discord.put("id", e.getAuthor().getId());
+                                    discord.put("name", e.getAuthor().getName());
+                                    discord.put("discriminator", e.getAuthor().getDiscriminator());
+                                    playerData.setData("discord", discord);
                                     playerData.save();
 
                                     Map<String, Object> linkData = YamlManager.getYamlData(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link/links.yml");

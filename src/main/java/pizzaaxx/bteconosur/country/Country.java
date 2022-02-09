@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.country;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,6 +29,7 @@ public class Country {
     // CONSTRUCTOR
     public Country(String country) {
         if (country.matches("[a-z]{2}")) {
+            this.country = null;
             if (country.equals("ar")) {
                 this.country = "argentina";
             }
@@ -50,7 +52,32 @@ public class Country {
                 this.country = "global";
             }
         } else {
-            this.country = country;
+            this.country = null;
+            if (country.equals("argentina") || country.equals("bolivia") || country.equals("chile") || country.equals("paraguay") || country.equals("peru") || country.equals("uruguay") || country.equals("global")) {
+                this.country = country;
+            }
+        }
+    }
+
+    public Country(Guild guild) {
+        String id = guild.getId();
+        switch (id) {
+            case "692607124210974760":
+                this.country = "argentina";
+                break;
+            case "762309020517531698":
+                this.country = "bolivia";
+                break;
+            case "807694451530924073":
+                // TODO CHANGE THIS BEFORE DEPLOY
+                this.country = "chile";
+                break;
+            case "695044514066464828":
+                this.country = "peru";
+                break;
+            case "696154248593014815":
+                this.country = "uruguay";
+                break;
         }
     }
 
@@ -129,8 +156,14 @@ public class Country {
         if (this.country.equals("chile")) {
             return logsCl;
         }
+        if (this.country.equals("paraguay")) {
+            return logsPy;
+        }
         if (this.country.equals("peru")) {
             return logsPe;
+        }
+        if (this.country.equals("uruguay")) {
+            return logsUy;
         }
         return null;
     }
@@ -145,8 +178,14 @@ public class Country {
         if (this.country.equals("chile")) {
             return requestsCl;
         }
+        if (this.country.equals("paraguay")) {
+            return requestsPy;
+        }
         if (this.country.equals("peru")) {
             return requestsPe;
+        }
+        if (this.country.equals("uruguay")) {
+            return requestsUy;
         }
         return null;
     }

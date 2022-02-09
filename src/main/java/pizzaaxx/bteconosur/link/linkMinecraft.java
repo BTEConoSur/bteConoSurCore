@@ -44,7 +44,11 @@ public class linkMinecraft implements CommandExecutor {
                         User user = discordLinks.get(args[0]);
 
                         PlayerData playerData = new PlayerData(p);
-                        playerData.setData("discord", user.getId());
+                        Map<String, String> discord = new HashMap<>();
+                        discord.put("id", user.getId());
+                        discord.put("name", user.getName());
+                        discord.put("discriminator", user.getDiscriminator());
+                        playerData.setData("discord", discord);
                         playerData.save();
 
                         Map<String, Object> linkData = YamlManager.getYamlData(pluginFolder, "link/links.yml");
