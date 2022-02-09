@@ -16,13 +16,16 @@ import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.bteConoSur.*;
 
 public class project implements EventListener {
     @Override
@@ -40,102 +43,111 @@ public class project implements EventListener {
 
                                 // DIFICULTAD
 
-                                EmbedBuilder embed = new EmbedBuilder();
+                                CompletableFuture.runAsync(() -> {
 
-                                if (project.getDifficulty().equals("dificil")) {
-                                    embed.setColor(new Color(255, 0, 0));
-                                    embed.addField(":tools: Dificultad: ", ":red_circle: Difícil", false);
-                                } else if (project.getDifficulty().equals("intermedio")) {
-                                    embed.setColor(new Color(255, 220, 0));
-                                    embed.addField(":tools: Dificultad: ", ":yellow_circle: Intermedio", false);
-                                } else {
-                                    embed.setColor(new Color(0, 255, 42));
-                                    embed.addField(":tools: Dificultad: ", ":green_circle: Fácil", false);
-                                }
+                                    EmbedBuilder embed = new EmbedBuilder();
 
-                                // THUMBNAIL
-
-                                if (project.getOwner() != null) {
-                                    embed.setThumbnail("https://mc-heads.net/head/" + project.getOwner().getUniqueId().toString());
-                                }
-
-                                // NOMBRE
-
-                                if (!Objects.equals(project.getName(), project.getId())) {
-                                    embed.setTitle("Proyecto \"" + project.getName() + "\" (ID: " + project.getId().toUpperCase() + ")");
-                                } else {
-                                    embed.setTitle("Proyecto " + project.getId().toUpperCase());
-                                }
-
-                                // PAIS
-
-                                embed.addField(":globe_with_meridians: País:", ":flag_" + misc.getCountryPrefix(project.getCountry()) + ": " + WordUtils.capitalize(project.getCountry()), false);
-
-                                // ETIQUETA
-
-                                if (project.getTag() != null) {
-                                    embed.addField(":label: Etiqueta:", project.getTag()
-                                            .replace("edificios", ":cityscape: Edificios")
-                                            .replace("casas", ":house_with_garden: Casas")
-                                            .replace("departamentos", ":hotel: Departamentos")
-                                            .replace("centros_comerciales", ":shpping_bags: Centros Comerciales")
-                                            .replace("establecimientos", ":hospital: Establecimientos")
-                                            .replace("parques", ":deciduous_tree: Parques")
-                                            .replace("carreteras", ":motorway: Carreteras"), false);
-                                }
-
-                                // GOOGLE MAPS
-
-                                Double minX = project.getPoints().get(0).getX();
-                                Double maxX = project.getPoints().get(0).getX();
-                                Double minZ = project.getPoints().get(0).getZ();
-                                Double maxZ = project.getPoints().get(0).getZ();
-
-                                for (BlockVector2D point : project.getPoints()) {
-                                    if (point.getX() > maxX) {
-                                        maxX = point.getX();
+                                    if (project.getDifficulty().equals("dificil")) {
+                                        embed.setColor(new Color(255, 0, 0));
+                                        embed.addField(":tools: Dificultad: ", ":red_circle: Difícil", false);
+                                    } else if (project.getDifficulty().equals("intermedio")) {
+                                        embed.setColor(new Color(255, 220, 0));
+                                        embed.addField(":tools: Dificultad: ", ":yellow_circle: Intermedio", false);
+                                    } else {
+                                        embed.setColor(new Color(0, 255, 42));
+                                        embed.addField(":tools: Dificultad: ", ":green_circle: Fácil", false);
                                     }
-                                    if (point.getX() < minX) {
-                                        minX = point.getX();
+
+                                    // THUMBNAIL
+
+                                    if (project.getOwner() != null) {
+                                        embed.setThumbnail("https://mc-heads.net/head/" + project.getOwner().getUniqueId().toString());
                                     }
-                                    if (point.getZ() > maxZ) {
-                                        maxZ = point.getZ();
+
+                                    // NOMBRE
+
+                                    if (!Objects.equals(project.getName(), project.getId())) {
+                                        embed.setTitle("Proyecto \"" + project.getName() + "\" (ID: " + project.getId().toUpperCase() + ")");
+                                    } else {
+                                        embed.setTitle("Proyecto " + project.getId().toUpperCase());
                                     }
-                                    if (point.getZ() < minZ) {
-                                        minZ = point.getZ();
+
+                                    // PAIS
+
+                                    embed.addField(":globe_with_meridians: País:", ":flag_" + misc.getCountryPrefix(project.getCountry()) + ": " + WordUtils.capitalize(project.getCountry()), false);
+
+                                    // ETIQUETA
+
+                                    if (project.getTag() != null) {
+                                        embed.addField(":label: Etiqueta:", project.getTag()
+                                                .replace("edificios", ":cityscape: Edificios")
+                                                .replace("casas", ":house_with_garden: Casas")
+                                                .replace("departamentos", ":hotel: Departamentos")
+                                                .replace("centros_comerciales", ":shpping_bags: Centros Comerciales")
+                                                .replace("establecimientos", ":hospital: Establecimientos")
+                                                .replace("parques", ":deciduous_tree: Parques")
+                                                .replace("carreteras", ":motorway: Carreteras"), false);
                                     }
-                                }
 
-                                Coords2D geoCoord = new Coords2D(new Location(mainWorld, (minX + maxX) / 2, 100, (minZ + maxZ) / 2));
+                                    // GOOGLE MAPS
 
-                                embed.addField(":round_pushpin: Coordenadas:", ("> " + geoCoord.getX() + " " + geoCoord.getHighestY() + " " + geoCoord.getZ()).replace(".5", "").replace(".0", ""), false);
+                                    double minX = project.getPoints().get(0).getX();
+                                    double maxX = project.getPoints().get(0).getX();
+                                    double minZ = project.getPoints().get(0).getZ();
+                                    double maxZ = project.getPoints().get(0).getZ();
 
-                                embed.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
-
-
-                                // LIDER
-
-                                if (project.getOwner() != null) {
-                                    embed.addField(":crown: Líder:", ((String) new PlayerData(project.getOwner()).getData("name")).replace("_", "\\_"), false);
-                                }
-
-                                // MIEMBROS
-
-                                if (project.getMembers() != null) {
-                                    List<String> members = new ArrayList<>();
-                                    for (OfflinePlayer player : project.getMembers()) {
-                                        members.add(((String) new PlayerData(player).getData("name")).replace("_", "\\_"));
+                                    for (BlockVector2D point : project.getPoints()) {
+                                        if (point.getX() > maxX) {
+                                            maxX = point.getX();
+                                        }
+                                        if (point.getX() < minX) {
+                                            minX = point.getX();
+                                        }
+                                        if (point.getZ() > maxZ) {
+                                            maxZ = point.getZ();
+                                        }
+                                        if (point.getZ() < minZ) {
+                                            minZ = point.getZ();
+                                        }
                                     }
-                                    embed.addField(":busts_in_silhouette: Miembros:", String.join(", ", members), false);
-                                }
 
-                                // IMAGE
+                                    Coords2D geoCoord = new Coords2D(new Location(mainWorld, (minX + maxX) / 2, 100, (minZ + maxZ) / 2));
 
-                                if (project.getImageUrl() != null) {
-                                    embed.setImage(project.getImageUrl());
-                                }
+                                    embed.addField(":round_pushpin: Coordenadas:", ("> " + geoCoord.getX() + " " + geoCoord.getHighestY() + " " + geoCoord.getZ()).replace(".5", "").replace(".0", ""), false);
 
-                                e.getMessage().replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+                                    embed.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
+
+
+                                    // LIDER
+
+                                    if (project.getOwner() != null) {
+                                        embed.addField(":crown: Líder:", ((String) new PlayerData(project.getOwner()).getData("name")).replace("_", "\\_"), false);
+                                    }
+
+                                    // MIEMBROS
+
+                                    if (project.getMembers() != null) {
+                                        List<String> members = new ArrayList<>();
+                                        for (OfflinePlayer player : project.getMembers()) {
+                                            members.add(((String) new PlayerData(player).getData("name")).replace("_", "\\_"));
+                                        }
+                                        embed.addField(":busts_in_silhouette: Miembros:", String.join(", ", members), false);
+                                    }
+
+                                    // IMAGE
+
+                                    InputStream file;
+                                    try {
+                                        file = new URL(project.getImageUrl()).openStream();
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                        return;
+                                    }
+
+                                    embed.setImage("attachment://map.png");
+                                    e.getTextChannel().sendFile(file, "map.png").setEmbeds(embed.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
+                                });
+
                             } catch (Exception exception) {
                                 exception.printStackTrace();
                                 EmbedBuilder error = new EmbedBuilder();
@@ -171,14 +183,13 @@ public class project implements EventListener {
                                             ": " +
                                             project.getId();
 
-                                    if (project.getName() != project.getId()) {
+                                    if (!Objects.equals(project.getName(), project.getId())) {
                                         line = line + " - " + project.getName();
                                     }
 
                                     lines.add(line);
 
-                                } catch (Exception exception) {
-                                    continue;
+                                } catch (Exception ignored) {
                                 }
                             }
 
