@@ -69,7 +69,8 @@ public final class bteConoSur extends JavaPlugin {
                 new shortcuts(),
                 new events(),
                 new scoreboard(),
-                new get()
+                new get(),
+                new prefix()
         );
 
         getCommand("btecs_reload").setExecutor(new Config());
@@ -98,6 +99,8 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("scoreboard").setExecutor(new scoreboard());
         getCommand("tpdir").setExecutor(new tpdir());
         getCommand("event").setExecutor(new pizzaaxx.bteconosur.events.command());
+        getCommand("lobby").setExecutor(new lobby());
+        getCommand("assets").setExecutor(new lobby());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

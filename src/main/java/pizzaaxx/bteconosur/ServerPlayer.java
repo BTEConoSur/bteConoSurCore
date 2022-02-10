@@ -200,8 +200,8 @@ public class ServerPlayer {
         return (String) data.getData("name");
     }
 
-    public String getPrefix() {
-        return (String) data.getData("prefix");
+    public String getCountryPrefix() {
+        return ((String) data.getData("prefix")).replace("&", "§");
     }
 
     public List<Tree> getTreeGroup(String name) {
@@ -225,7 +225,7 @@ public class ServerPlayer {
         }
     }
 
-    public void setPrefix(String prefix) {
+    public void setCountryPrefix(String prefix) {
         if (prefix != null) {
             data.setData("prefix", prefix);
         } else {
@@ -243,8 +243,8 @@ public class ServerPlayer {
             prefixes.add("§f[" + ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "chat/colors.yml").get(group)) + group.replace("donator", "donador").toUpperCase() + "§f]");
         }
 
-        if (getPrefix() != null) {
-            prefixes.add(getPrefix().replace("&", "§"));
+        if (getCountryPrefix() != null) {
+            prefixes.add(getCountryPrefix());
         }
 
         return prefixes;
