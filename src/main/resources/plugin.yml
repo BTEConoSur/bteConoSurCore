@@ -6,6 +6,10 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  lobby:
+    description: Teletranspórtate a alguno de los lobbies.
+  assets:
+    description: Teletrenaspórtate a la zona de Assets.
   manageevent:
     description: Comando para manejar eventos.
     permission: bteconosur.events.manage
