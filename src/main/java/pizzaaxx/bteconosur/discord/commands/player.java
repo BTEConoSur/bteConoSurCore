@@ -18,6 +18,8 @@ import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
+import pizzaaxx.bteconosur.helper.DataTime;
+import pizzaaxx.bteconosur.helper.DateHelper;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
@@ -27,6 +29,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -130,6 +133,15 @@ public class player extends ListenerAdapter {
 
                             embedBuilder.setColor(ERROR_COLOR)
                                     .addField("Status:", ":red_circle: Offline", false);
+
+                            DataTime time = DateHelper.differenceToData(
+                                            new Date(offlinePlayer.getLastPlayed()),
+                                            new Date()
+                                    );
+
+                            embedBuilder.addField("Ultima vez conectado: ",
+                                    "Hace " + time.get(DateHelper.Type.HOUR) + " horas y " + time.get(DateHelper.Type.MINUTE) + " minutos ", false);
+
                         }
 
                         if (serverPlayer.hasDiscordUser()) {
