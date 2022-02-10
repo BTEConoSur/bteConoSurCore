@@ -140,7 +140,7 @@ public class player extends ListenerAdapter {
                                     );
 
                             embedBuilder.addField("Ultima vez conectado: ",
-                                    "Hace " + time.get(DateHelper.Type.HOUR) + " horas y " + time.get(DateHelper.Type.MINUTE) + " minutos ", false);
+                                    (time.get(DateHelper.Type.MINUTE) > 0 ? "Hace " + (time.get(DateHelper.Type.HOUR) > 0 ? time.get(DateHelper.Type.HOUR) + " hora(s) y " : "") + time.get(DateHelper.Type.MINUTE) + " minuto(s)" : "Recién"), false);
 
                         }
 
