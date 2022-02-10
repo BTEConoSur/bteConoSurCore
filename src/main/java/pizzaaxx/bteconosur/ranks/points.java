@@ -1,14 +1,13 @@
 package pizzaaxx.bteconosur.ranks;
 
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class points {
     public static List<ServerPlayer> getScoreboard(Country country) {

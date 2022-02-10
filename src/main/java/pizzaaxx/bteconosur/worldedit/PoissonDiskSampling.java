@@ -1,15 +1,11 @@
 package pizzaaxx.bteconosur.worldedit;
 
 import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.World;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
@@ -18,9 +14,9 @@ import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.*;
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.methods.getEditSession;
-import static pizzaaxx.bteconosur.worldedit.methods.getLocalSession;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.worldedit.Methods.getEditSession;
+import static pizzaaxx.bteconosur.worldedit.Methods.getLocalSession;
 
 public class PoissonDiskSampling {
     private BlockVector2D[][] grid;

@@ -5,7 +5,6 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.Region;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,11 +25,11 @@ import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.methods.*;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.worldedit.Methods.*;
 import static pizzaaxx.bteconosur.worldedit.trees.Tree.treePrefix;
 
-public class events implements Listener, CommandExecutor {
+public class Events implements Listener, CommandExecutor {
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {

@@ -13,9 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
@@ -25,9 +23,9 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import java.io.*;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.bteConoSur.*;
+import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.methods.codeGenerator.generateCode;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
 
 public class Project {

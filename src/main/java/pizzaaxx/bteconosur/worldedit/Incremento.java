@@ -6,9 +6,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.playerData.PlayerData;
 
-import static pizzaaxx.bteconosur.worldedit.methods.wePrefix;
+import static pizzaaxx.bteconosur.worldedit.Methods.wePrefix;
 
-public class incremento implements CommandExecutor {
+public class Incremento implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 

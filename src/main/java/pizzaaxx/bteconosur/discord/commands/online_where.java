@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static pizzaaxx.bteconosur.bteConoSur.key;
+import static pizzaaxx.bteconosur.BteConoSur.key;
 
 public class online_where implements EventListener {
     @Override

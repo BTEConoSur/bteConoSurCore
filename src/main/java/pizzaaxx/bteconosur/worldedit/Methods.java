@@ -18,10 +18,10 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
-public class methods {
+public class Methods {
     public static String wePrefix = "§f[§5WORLDEDIT§f] §7>>§r ";
 
     public static Region getSelection(Player p) throws IncompleteRegionException{

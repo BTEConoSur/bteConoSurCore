@@ -8,10 +8,10 @@ import org.bukkit.Location;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
-public class regionEvents {
+public class RegionEvents {
     public static Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 

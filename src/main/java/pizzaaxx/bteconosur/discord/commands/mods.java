@@ -7,8 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class mods implements EventListener {
     @Override

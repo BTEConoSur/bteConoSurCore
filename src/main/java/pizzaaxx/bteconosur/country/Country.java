@@ -17,9 +17,9 @@ import java.util.*;
 
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.Config.logsPe;
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Country {
     private String country;

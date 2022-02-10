@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static pizzaaxx.bteconosur.bteConoSur.*;
+import static pizzaaxx.bteconosur.BteConoSur.*;
 
 public class project implements EventListener {
     @Override

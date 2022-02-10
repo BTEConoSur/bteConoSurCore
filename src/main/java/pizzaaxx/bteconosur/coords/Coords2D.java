@@ -7,7 +7,7 @@ import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.bukkit.Location;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
 public class Coords2D {
 

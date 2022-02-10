@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.misc;
 
-import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
@@ -22,10 +21,9 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.Config.*;
-import static pizzaaxx.bteconosur.Config.requestsPe;
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class misc {
 

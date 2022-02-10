@@ -11,8 +11,6 @@ import pizzaaxx.bteconosur.ServerPlayer;
 import java.awt.*;
 import java.io.File;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-
 public class schematic implements EventListener {
 
 

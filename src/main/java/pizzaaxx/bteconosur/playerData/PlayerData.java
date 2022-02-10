@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.playerData;
 
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
@@ -8,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
-import static pizzaaxx.bteconosur.yaml.YamlManager.writeYaml;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class PlayerData {
 

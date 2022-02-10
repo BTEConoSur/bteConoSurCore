@@ -1,21 +1,18 @@
 package pizzaaxx.bteconosur.teleport;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.playerData.PlayerData;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
-public class pWarp implements CommandExecutor {
+public class PWarp implements CommandExecutor {
     public static String pWarpPrefix = "§f[§6PWARP§f] §7>>§r ";
 
     @Override

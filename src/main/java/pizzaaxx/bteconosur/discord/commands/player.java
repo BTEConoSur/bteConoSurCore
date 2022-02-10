@@ -4,9 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -14,7 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.ServerPlayer;
-import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
@@ -33,8 +30,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static pizzaaxx.bteconosur.bteConoSur.key;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.key;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 
 public class player extends ListenerAdapter {

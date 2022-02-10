@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class discordCommand implements EventListener {
 

@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.misc.getAvailableProjectsWithTag;
 import static pizzaaxx.bteconosur.misc.misc.getCustomHead;
 import static pizzaaxx.bteconosur.projects.command.projectsPrefix;

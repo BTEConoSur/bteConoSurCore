@@ -16,7 +16,7 @@ import org.bukkit.inventory.Inventory;
 import static pizzaaxx.bteconosur.misc.misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.misc.itemBuilder;
 import static pizzaaxx.bteconosur.projects.command.background;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class get implements CommandExecutor, Listener {
     @Override

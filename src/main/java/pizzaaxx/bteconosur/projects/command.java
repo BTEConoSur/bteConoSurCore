@@ -30,7 +30,7 @@ import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.playerData.PlayerData;
-import pizzaaxx.bteconosur.worldedit.methods;
+import pizzaaxx.bteconosur.worldedit.Methods;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -39,11 +39,11 @@ import java.util.*;
 import java.util.List;
 
 import static pizzaaxx.bteconosur.Config.*;
-import static pizzaaxx.bteconosur.bteConoSur.*;
+import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.misc.misc.*;
 import static pizzaaxx.bteconosur.points.PlayerPoints.pointsPrefix;
-import static pizzaaxx.bteconosur.worldedit.methods.getSelection;
+import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
 
 public class command implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
@@ -535,7 +535,7 @@ public class command implements CommandExecutor {
                     int minY = p.getLocation().getBlockY() - 10;
 
                     Polygonal2DRegionSelector selector = new Polygonal2DRegionSelector((World) new BukkitWorld(mainWorld), project.getPoints(), minY, maxY);
-                    methods.setSelection(p, selector);
+                    Methods.setSelection(p, selector);
 
                     p.sendMessage(projectsPrefix + "Mostrando los bordes del proyecto §a" + project.getName() + "§f. §7Requiere WorldEdit CUI.");
                 } catch (Exception e) {

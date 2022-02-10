@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,10 +21,9 @@ import xyz.upperlevel.spigot.book.BookUtil;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.chats.command.chatsPrefix;
 
 public class events implements Listener, EventListener {

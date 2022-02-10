@@ -12,7 +12,7 @@ import pizzaaxx.bteconosur.misc.misc;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.misc.getLogsChannel;
 import static pizzaaxx.bteconosur.projects.command.projectsPrefix;
 

@@ -12,7 +12,7 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.link.linkDiscord.discordLinks;
 import static pizzaaxx.bteconosur.methods.codeGenerator.generateCode;
 

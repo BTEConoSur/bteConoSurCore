@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.link.linkMinecraft.minecraftLinks;
 import static pizzaaxx.bteconosur.methods.codeGenerator.generateCode;
 

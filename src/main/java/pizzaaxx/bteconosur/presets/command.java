@@ -12,7 +12,7 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class command implements CommandExecutor {
     public static String presetsPrefix = "§f[§3PRESETS§f] §7>>§r ";

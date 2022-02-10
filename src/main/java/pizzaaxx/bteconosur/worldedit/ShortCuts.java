@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.worldedit;
 
-import com.sk89q.worldedit.WorldEdit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,7 +11,7 @@ import pizzaaxx.bteconosur.playerData.PlayerData;
 
 import java.util.Objects;
 
-public class shortcuts implements Listener {
+public class ShortCuts implements Listener {
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {

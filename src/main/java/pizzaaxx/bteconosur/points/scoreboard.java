@@ -1,8 +1,6 @@
 package pizzaaxx.bteconosur.points;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import fr.minuskube.netherboard.Netherboard;
-import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -16,14 +14,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
 
 import java.util.*;
 
 import static pizzaaxx.bteconosur.country.Country.countryRegionNames;
-import static pizzaaxx.bteconosur.ranks.points.getScoreboard;
-import static pizzaaxx.bteconosur.worldguard.regionEvents.getEnteredRegions;
-import static pizzaaxx.bteconosur.worldguard.regionEvents.getLeftRegions;
+import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
+import static pizzaaxx.bteconosur.worldguard.RegionEvents.getLeftRegions;
 
 public class scoreboard implements Listener, CommandExecutor {
 

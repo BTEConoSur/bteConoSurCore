@@ -7,7 +7,7 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class event implements Listener {
 

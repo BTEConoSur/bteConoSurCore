@@ -14,8 +14,8 @@ import pizzaaxx.bteconosur.ServerPlayer;
 
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class projectActionBar implements Listener {
 

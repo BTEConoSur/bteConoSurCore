@@ -11,7 +11,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -31,12 +30,13 @@ import pizzaaxx.bteconosur.ranks.donator;
 import pizzaaxx.bteconosur.ranks.prefix;
 import pizzaaxx.bteconosur.ranks.promote_demote;
 import pizzaaxx.bteconosur.ranks.streamer;
-import pizzaaxx.bteconosur.teleport.onTeleport;
-import pizzaaxx.bteconosur.teleport.pWarp;
-import pizzaaxx.bteconosur.testing.testing;
-import pizzaaxx.bteconosur.worldedit.incremento;
-import pizzaaxx.bteconosur.worldedit.polywall;
-import pizzaaxx.bteconosur.worldedit.shortcuts;
+import pizzaaxx.bteconosur.teleport.OnTeleport;
+import pizzaaxx.bteconosur.teleport.PWarp;
+import pizzaaxx.bteconosur.testing.Testing;
+import pizzaaxx.bteconosur.worldedit.Incremento;
+import pizzaaxx.bteconosur.worldedit.Polywall;
+import pizzaaxx.bteconosur.worldedit.ShortCuts;
+import pizzaaxx.bteconosur.worldedit.trees.Events;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
@@ -48,7 +48,7 @@ import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.command.background;
 import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
 
-public final class bteConoSur extends JavaPlugin {
+public final class BteConoSur extends JavaPlugin {
 
     public static World mainWorld = null;
     public static File pluginFolder = null;
@@ -62,11 +62,11 @@ public final class bteConoSur extends JavaPlugin {
         registerListeners(
                 new join(),
                 new projectActionBar(),
-                new onTeleport(),
+                new OnTeleport(),
                 new event(),
                 new pRandom(),
                 new event(),
-                new shortcuts(),
+                new ShortCuts(),
                 new events(),
                 new scoreboard(),
                 new get()
@@ -81,16 +81,16 @@ public final class bteConoSur extends JavaPlugin {
         getCommand("prefix").setExecutor(new prefix());
         getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chats.command());
         getCommand("nickname").setExecutor(new nickname());
-        getCommand("test").setExecutor(new testing());
+        getCommand("test").setExecutor(new Testing());
         getCommand("demote").setExecutor(new promote_demote());
         getCommand("project").setTabCompleter(new tabCompletions());
         getCommand("presets").setExecutor(new pizzaaxx.bteconosur.presets.command());
         getCommand("googlemaps").setExecutor(new googlemaps());
-        getCommand("increment").setExecutor(new incremento());
-        getCommand("pwarp").setExecutor(new pWarp());
-        getCommand("/polywalls").setExecutor(new polywall());
-        getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
-        getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.events());
+        getCommand("increment").setExecutor(new Incremento());
+        getCommand("pwarp").setExecutor(new PWarp());
+        getCommand("/polywalls").setExecutor(new Polywall());
+        getCommand("treegroup").setExecutor(new Events());
+        getCommand("/treecover").setExecutor(new Events());
         getCommand("donator").setExecutor(new donator());
         getCommand("streamer").setExecutor(new streamer());
         getCommand("streaming").setExecutor(new streaming());

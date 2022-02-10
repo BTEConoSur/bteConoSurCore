@@ -15,7 +15,7 @@ import java.net.URL;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.ranks.streamer.streamerPrefix;
-import static pizzaaxx.bteconosur.bteConoSur.broadcast;
+import static pizzaaxx.bteconosur.BteConoSur.broadcast;
 
 public class streaming implements CommandExecutor {
     @Override

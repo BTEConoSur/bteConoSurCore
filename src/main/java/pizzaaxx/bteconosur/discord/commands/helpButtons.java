@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class helpButtons extends ListenerAdapter {
 

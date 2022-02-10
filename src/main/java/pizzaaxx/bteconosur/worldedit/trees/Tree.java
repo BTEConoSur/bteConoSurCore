@@ -2,9 +2,7 @@ package pizzaaxx.bteconosur.worldedit.trees;
 
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.Extent;
@@ -27,10 +25,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
-import static pizzaaxx.bteconosur.bteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.bteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.worldedit.methods.getEditSession;
-import static pizzaaxx.bteconosur.worldguard.worldguard.getWorldGuard;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.worldedit.Methods.getEditSession;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Tree {
 
