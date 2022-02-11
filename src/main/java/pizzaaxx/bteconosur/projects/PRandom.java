@@ -22,7 +22,7 @@ import java.util.Map;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.getAvailableProjectsWithTag;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
-import static pizzaaxx.bteconosur.projects.Command.projectsPrefix;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
 public class PRandom implements Listener {
 

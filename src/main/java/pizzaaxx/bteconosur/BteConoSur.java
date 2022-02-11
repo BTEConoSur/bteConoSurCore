@@ -19,11 +19,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.discord.commands.*;
+import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.link.LinkDiscord;
 import pizzaaxx.bteconosur.link.LinkMinecraft;
-import pizzaaxx.bteconosur.points.scoreboard;
-import pizzaaxx.bteconosur.presets.Event;
+import pizzaaxx.bteconosur.points.Scoreboard;
+import pizzaaxx.bteconosur.presets.PresetsEvent;
+import pizzaaxx.bteconosur.presets.PresetsCommand;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.Prefix;
@@ -43,7 +45,7 @@ import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
-import static pizzaaxx.bteconosur.projects.Command.background;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
@@ -61,18 +63,19 @@ public final class BteConoSur extends JavaPlugin {
                 new Join(),
                 new ProjectActionBar(),
                 new OnTeleport(),
-                new Event(),
+                new PresetsEvent(),
                 new PRandom(),
-                new Event(),
+                new PresetsEvent(),
                 new ShortCuts(),
                 new Events(),
-                new scoreboard(),
+                new Scoreboard(),
                 new GetCommand(),
-                new Prefix()
+                new Prefix(),
+                new LobbyCommand()
         );
 
         getCommand("btecs_reload").setExecutor(new Config());
-        getCommand("project").setExecutor(new Command());
+        getCommand("project").setExecutor(new ProjectsCommand());
         getCommand("link").setExecutor(new LinkMinecraft());
         getCommand("unlink").setExecutor(new LinkMinecraft());
         getCommand("nightvision").setExecutor(new NightVisionCommand());
@@ -83,7 +86,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("test").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
-        getCommand("presets").setExecutor(new pizzaaxx.bteconosur.presets.Command());
+        getCommand("presets").setExecutor(new PresetsCommand());
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new Incremento());
         getCommand("pwarp").setExecutor(new PWarp());
@@ -94,9 +97,9 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("streamer").setExecutor(new Streamer());
         getCommand("streaming").setExecutor(new StreamingCommand());
         getCommand("get").setExecutor(new GetCommand());
-        getCommand("scoreboard").setExecutor(new scoreboard());
+        getCommand("scoreboard").setExecutor(new Scoreboard());
         getCommand("tpdir").setExecutor(new TpDirCommand());
-        getCommand("event").setExecutor(new pizzaaxx.bteconosur.events.Command());
+        getCommand("event").setExecutor(new EventsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand());
         getCommand("assets").setExecutor(new LobbyCommand());
 
@@ -169,7 +172,7 @@ public final class BteConoSur extends JavaPlugin {
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, scoreboard::checkAutoScoreboards, 300, 300);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Scoreboard::checkAutoScoreboards, 300, 300);
     }
 
     @Override

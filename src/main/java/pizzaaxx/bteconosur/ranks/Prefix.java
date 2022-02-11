@@ -14,7 +14,7 @@ import pizzaaxx.bteconosur.misc.Misc;
 
 import java.util.Objects;
 
-import static pizzaaxx.bteconosur.projects.Command.background;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 
 public class Prefix implements CommandExecutor, Listener {
     public static String prefixPrefix = "§f[§3PAÍS§f] §7>>§r ";

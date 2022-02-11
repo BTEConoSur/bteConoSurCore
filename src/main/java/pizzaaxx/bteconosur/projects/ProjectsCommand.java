@@ -44,7 +44,7 @@ import static pizzaaxx.bteconosur.misc.Misc.*;
 import static pizzaaxx.bteconosur.points.PlayerPoints.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
 
-public class Command implements CommandExecutor {
+public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
     public Set<Player> transferConfirmation = new HashSet<>();
     public Set<Player> leaveConfirmation = new HashSet<>();

@@ -14,7 +14,7 @@ import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.getLogsChannel;
-import static pizzaaxx.bteconosur.projects.Command.projectsPrefix;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
 public class RequestResponse extends ListenerAdapter {
     public Set<String> requestsClicks = new HashSet<>();

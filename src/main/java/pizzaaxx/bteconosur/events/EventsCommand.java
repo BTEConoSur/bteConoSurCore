@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 
 import static pizzaaxx.bteconosur.country.Country.countryAbbreviations;
 
-public class Command implements CommandExecutor {
+public class EventsCommand implements CommandExecutor {
 
     public static String eventsPrefix = "[§bEVENTO§f] §7>> §f";
 

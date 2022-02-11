@@ -15,7 +15,7 @@ import org.bukkit.inventory.Inventory;
 
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.Misc.itemBuilder;
-import static pizzaaxx.bteconosur.projects.Command.background;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class GetCommand implements CommandExecutor, Listener {

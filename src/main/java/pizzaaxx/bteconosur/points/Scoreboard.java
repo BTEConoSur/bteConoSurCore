@@ -21,7 +21,7 @@ import static pizzaaxx.bteconosur.country.Country.countryRegionNames;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getLeftRegions;
 
-public class scoreboard implements Listener, CommandExecutor {
+public class Scoreboard implements Listener, CommandExecutor {
 
     public static String scoreboardPrefix = "§f[§9SCOREBOARD§f] §7>>§r ";
 

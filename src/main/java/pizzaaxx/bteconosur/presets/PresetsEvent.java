@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
-public class Event implements Listener {
+public class PresetsEvent implements Listener {
 
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent e) {
