@@ -13,10 +13,10 @@ import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
 
 public class Chat {
 
-    private String name;
-    private Set<Player> members = new HashSet<>();
+    private static final String SECTION_LINE = "§7>+--------------+[-< ~ >-]+--------------+<";
 
-    public static String sectionLine = "§7>+--------------+[-< ~ >-]+--------------+<";
+    private final String name;
+    private final Set<Player> members = new HashSet<>();
 
     public Chat(String name) {
         this.name = name;
@@ -53,7 +53,6 @@ public class Chat {
         return null;
     }
 
-    // SETTER
 
     public void addPlayer(Player player) {
         if (!(this.members.contains(player))) {
@@ -70,8 +69,6 @@ public class Chat {
             members.add(player);
         }
     }
-
-    // SENDER
 
     public void sendMessage(String message) {
         for (Player member : this.members) {

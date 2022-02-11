@@ -18,10 +18,10 @@ import static pizzaaxx.bteconosur.ranks.Streamer.streamerPrefix;
 import static pizzaaxx.bteconosur.BteConoSur.broadcast;
 
 public class StreamingCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (command.getName().equals("streaming")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 ServerPlayer s = new ServerPlayer(p);
@@ -96,7 +96,6 @@ public class StreamingCommand implements CommandExecutor {
                     sender.sendMessage(streamerPrefix + "Introduce un enlace.");
                 }
             }
-        }
 
         return true;
     }

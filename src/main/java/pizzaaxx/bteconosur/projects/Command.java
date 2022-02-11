@@ -54,8 +54,6 @@ public class Command implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
-
-        if (cmd.getName().equals("project")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(projectsPrefix + "Este comando solo puede ser usado por jugadores.");
             }
@@ -1275,7 +1273,6 @@ public class Command implements CommandExecutor {
 
                 p.openInventory(pRandomGui);
             }
-        }
         return true;
     }
 }

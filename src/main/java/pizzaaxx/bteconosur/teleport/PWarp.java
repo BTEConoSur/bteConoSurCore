@@ -17,7 +17,6 @@ public class PWarp implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equals("pwarp")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 PlayerData pData =  new PlayerData(p);
@@ -107,7 +106,6 @@ public class PWarp implements CommandExecutor {
                             p.sendMessage(pWarpPrefix + "Introduce un nombre válido.");
                         }
                     }
-                }
             }
         }
         return true;

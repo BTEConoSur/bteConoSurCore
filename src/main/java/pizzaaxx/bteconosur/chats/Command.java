@@ -24,7 +24,6 @@ public class Command implements CommandExecutor {
         Player p = (Player) sender;
         ServerPlayer s = new ServerPlayer(p);
 
-        if (command.getName().equals("chat")) {
             if (args.length == 0) {
                 p.sendMessage(chatsPrefix + "Estás en el chat §a" + s.getChat().getFormattedName() + "§f.");
             } else {
@@ -151,7 +150,7 @@ public class Command implements CommandExecutor {
                     }
                 }
             }
-        }
+
         return true;
     }
 }

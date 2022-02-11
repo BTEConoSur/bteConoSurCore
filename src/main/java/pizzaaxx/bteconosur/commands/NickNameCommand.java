@@ -19,7 +19,6 @@ public class NickNameCommand implements CommandExecutor {
         Player p = (Player) sender;
         ServerPlayer s = new ServerPlayer(p);
 
-        if (command.getName().equals("nickname")) {
             if (args.length > 0) {
                 if (Bukkit.getOfflinePlayer(args[0]).isOnline() && Bukkit.getPlayer(args[0]) != p) {
                     if (p.hasPermission("bteconosur.nickname.others")) {
@@ -64,7 +63,6 @@ public class NickNameCommand implements CommandExecutor {
                     p.sendMessage(nickPrefix + "Introduce un apodo.");
                 }
             }
-        }
 
         return true;
     }

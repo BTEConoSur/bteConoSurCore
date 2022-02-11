@@ -18,8 +18,6 @@ public class Command implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-
-        if (command.getName().equals("presets")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("Solo jugadores.");
             }
@@ -107,7 +105,6 @@ public class Command implements CommandExecutor {
             } else {
                 p.sendMessage(presetsPrefix + "Introduce un subcomando.");
             }
-        }
 
         return true;
     }
