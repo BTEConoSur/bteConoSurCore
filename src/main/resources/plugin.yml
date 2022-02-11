@@ -1,6 +1,6 @@
 name: bteConoSur
 version: '${project.version}'
-main: pizzaaxx.bteconosur.bteConoSur
+main: pizzaaxx.bteconosur.BteConoSur
 loadbefore:
   - LuckPerms
   - WorldGuard

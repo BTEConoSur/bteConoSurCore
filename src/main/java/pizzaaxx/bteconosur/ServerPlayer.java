@@ -30,9 +30,9 @@ import java.util.concurrent.CompletableFuture;
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
-import static pizzaaxx.bteconosur.ranks.main.primaryGroupsList;
-import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
+import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
+import static pizzaaxx.bteconosur.ranks.Main.primaryGroupsList;
+import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class ServerPlayer {

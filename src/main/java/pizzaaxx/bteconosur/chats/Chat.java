@@ -9,7 +9,7 @@ import pizzaaxx.bteconosur.projects.Project;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.chats.command.chatsPrefix;
+import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
 
 public class Chat {
 

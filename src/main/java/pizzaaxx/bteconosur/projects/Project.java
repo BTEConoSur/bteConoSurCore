@@ -24,7 +24,7 @@ import java.io.*;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
-import static pizzaaxx.bteconosur.methods.codeGenerator.generateCode;
+import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
 

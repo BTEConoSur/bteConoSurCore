@@ -9,7 +9,7 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
+import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 
 public class Config implements CommandExecutor {
 

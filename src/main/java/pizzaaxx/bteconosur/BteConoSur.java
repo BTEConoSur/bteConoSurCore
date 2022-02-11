@@ -11,32 +11,30 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import pizzaaxx.bteconosur.chats.events;
+import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.discord.commands.*;
-import pizzaaxx.bteconosur.join.join;
-import pizzaaxx.bteconosur.link.linkDiscord;
-import pizzaaxx.bteconosur.link.linkMinecraft;
+import pizzaaxx.bteconosur.join.Join;
+import pizzaaxx.bteconosur.link.LinkDiscord;
+import pizzaaxx.bteconosur.link.LinkMinecraft;
 import pizzaaxx.bteconosur.points.scoreboard;
-import pizzaaxx.bteconosur.presets.event;
+import pizzaaxx.bteconosur.presets.Event;
 import pizzaaxx.bteconosur.projects.*;
-import pizzaaxx.bteconosur.ranks.donator;
-import pizzaaxx.bteconosur.ranks.prefix;
-import pizzaaxx.bteconosur.ranks.promote_demote;
-import pizzaaxx.bteconosur.ranks.streamer;
+import pizzaaxx.bteconosur.ranks.Donator;
+import pizzaaxx.bteconosur.ranks.Prefix;
+import pizzaaxx.bteconosur.ranks.PromoteDemote;
+import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.teleport.PWarp;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.Incremento;
 import pizzaaxx.bteconosur.worldedit.Polywall;
 import pizzaaxx.bteconosur.worldedit.ShortCuts;
-import pizzaaxx.bteconosur.worldedit.trees.Events;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
@@ -44,9 +42,9 @@ import java.awt.*;
 import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.discord.bot.conoSurBot;
-import static pizzaaxx.bteconosur.projects.command.background;
-import static pizzaaxx.bteconosur.ranks.promote_demote.lp;
+import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
+import static pizzaaxx.bteconosur.projects.Command.background;
+import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
@@ -60,47 +58,47 @@ public final class BteConoSur extends JavaPlugin {
         getLogger().info("Enabling  BTE Cono Sur!");
 
         registerListeners(
-                new join(),
-                new projectActionBar(),
+                new Join(),
+                new ProjectActionBar(),
                 new OnTeleport(),
-                new event(),
-                new pRandom(),
-                new event(),
+                new Event(),
+                new PRandom(),
+                new Event(),
                 new ShortCuts(),
-                new events(),
+                new Events(),
                 new scoreboard(),
-                new get(),
-                new prefix()
+                new GetCommand(),
+                new Prefix()
         );
 
         getCommand("btecs_reload").setExecutor(new Config());
-        getCommand("project").setExecutor(new command());
-        getCommand("link").setExecutor(new linkMinecraft());
-        getCommand("unlink").setExecutor(new linkMinecraft());
-        getCommand("nightvision").setExecutor(new nightvision());
-        getCommand("promote").setExecutor(new promote_demote());
-        getCommand("prefix").setExecutor(new prefix());
-        getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chats.command());
-        getCommand("nickname").setExecutor(new nickname());
+        getCommand("project").setExecutor(new Command());
+        getCommand("link").setExecutor(new LinkMinecraft());
+        getCommand("unlink").setExecutor(new LinkMinecraft());
+        getCommand("nightvision").setExecutor(new NightVisionCommand());
+        getCommand("promote").setExecutor(new PromoteDemote());
+        getCommand("prefix").setExecutor(new Prefix());
+        getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chats.Command());
+        getCommand("nickname").setExecutor(new NickNameCommand());
         getCommand("test").setExecutor(new Testing());
-        getCommand("demote").setExecutor(new promote_demote());
-        getCommand("project").setTabCompleter(new tabCompletions());
-        getCommand("presets").setExecutor(new pizzaaxx.bteconosur.presets.command());
-        getCommand("googlemaps").setExecutor(new googlemaps());
+        getCommand("demote").setExecutor(new PromoteDemote());
+        getCommand("project").setTabCompleter(new TabCompletions());
+        getCommand("presets").setExecutor(new pizzaaxx.bteconosur.presets.Command());
+        getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new Incremento());
         getCommand("pwarp").setExecutor(new PWarp());
         getCommand("/polywalls").setExecutor(new Polywall());
-        getCommand("treegroup").setExecutor(new Events());
-        getCommand("/treecover").setExecutor(new Events());
-        getCommand("donator").setExecutor(new donator());
-        getCommand("streamer").setExecutor(new streamer());
-        getCommand("streaming").setExecutor(new streaming());
-        getCommand("get").setExecutor(new get());
+        getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
+        getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
+        getCommand("donator").setExecutor(new Donator());
+        getCommand("streamer").setExecutor(new Streamer());
+        getCommand("streaming").setExecutor(new StreamingCommand());
+        getCommand("get").setExecutor(new GetCommand());
         getCommand("scoreboard").setExecutor(new scoreboard());
-        getCommand("tpdir").setExecutor(new tpdir());
-        getCommand("event").setExecutor(new pizzaaxx.bteconosur.events.command());
-        getCommand("lobby").setExecutor(new lobby());
-        getCommand("assets").setExecutor(new lobby());
+        getCommand("tpdir").setExecutor(new TpDirCommand());
+        getCommand("event").setExecutor(new pizzaaxx.bteconosur.events.Command());
+        getCommand("lobby").setExecutor(new LobbyCommand());
+        getCommand("assets").setExecutor(new LobbyCommand());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -131,17 +129,17 @@ public final class BteConoSur extends JavaPlugin {
         builder.setStatus(OnlineStatus.ONLINE);
 
         registerDiscordListener(builder,
-                new linkDiscord(),
-                new project(),
-                new requestResponse(),
-                new events(),
-                new mods(),
-                new schematic(),
-                new player(),
-                new online_where(),
-                new pizzaaxx.bteconosur.discord.commands.scoreboard(),
-                new help(),
-                new helpButtons()
+                new LinkDiscord(),
+                new ProjectCommand(),
+                new RequestResponse(),
+                new Events(),
+                new ModsCommand(),
+                new SchematicCommand(),
+                new PlayerCommand(),
+                new OnlineWhereCommand(),
+                new ScoreboardCommand(),
+                new HelpCommand(),
+                new HelpButtonsCommand()
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
@@ -189,7 +187,7 @@ public final class BteConoSur extends JavaPlugin {
     }
 
     public static void broadcast(String message) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
             ServerPlayer s = new ServerPlayer(p);
             if (!(s.isChatHidden())) {
                 p.sendMessage(message);
@@ -198,7 +196,7 @@ public final class BteConoSur extends JavaPlugin {
     }
 
     public static void broadcast(BaseComponent message) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
             ServerPlayer s = new ServerPlayer(p);
             if (!(s.isChatHidden())) {
                 p.sendMessage(message);
