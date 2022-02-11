@@ -9,8 +9,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 public class OnTeleport implements Listener {
 
     @EventHandler
-    public void onPlayerTeleport(PlayerTeleportEvent e) {
-        Player p = e.getPlayer();
-        p.playSound(e.getTo(), Sound.ENTITY_ENDERMEN_TELEPORT, 1, 1);
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        event.getPlayer().playSound(event.getTo(), Sound.ENTITY_ENDERMEN_TELEPORT, 1, 1);
     }
 }

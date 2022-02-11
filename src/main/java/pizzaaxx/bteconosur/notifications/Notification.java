@@ -12,11 +12,11 @@ import java.util.List;
 
 public class Notification {
 
-    public static String notificationPrefix = "§f[§9NOTIFICAIÓN§f] §7>>§r ";
+    private static final String NOTIFICATION_PREFIX = "§f[§9NOTIFICAIÓN§f] §7>>§r ";
 
-    private OfflinePlayer player;
-    private String message;
-    private File image = null;
+    private final OfflinePlayer player;
+    private final String message;
+    private final File image = null;
 
     public Notification(OfflinePlayer player, String message) {
         this.player = player;
@@ -26,4 +26,9 @@ public class Notification {
     public String getMessage() {
         return this.message;
     }
+
+    public OfflinePlayer getPlayer() {
+        return player;
+    }
+
 }
