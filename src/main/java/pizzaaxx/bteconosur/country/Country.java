@@ -11,8 +11,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.yaml.YamlManager;
-
-import javax.xml.soap.Text;
+;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.Config.*;
