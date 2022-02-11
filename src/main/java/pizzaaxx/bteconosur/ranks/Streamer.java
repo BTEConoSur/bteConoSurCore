@@ -13,23 +13,21 @@ public class Streamer implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (command.getName().equals("streamer")) {
-            if (args.length > 0 && Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                ServerPlayer s = new ServerPlayer(target);
+        if (args.length > 0 && Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            ServerPlayer s = new ServerPlayer(target);
 
-                if (s.getSecondaryGroups().contains("streamer")) {
-                    s.removeSecondaryGroup("streamer");
-                    sender.sendMessage(streamerPrefix + "Has quitado el rango §aSTREAMER§f a §a" + s.getName() + "§f.");
-                    s.sendNotification(streamerPrefix + "Te han quitado el rango §a**STREAMER**§f.");
-                } else {
-                    s.addSecondaryGroup("streamer");
-                    sender.sendMessage(streamerPrefix + "Has dado el rango §aSTRAEMER§f a §a" + s.getName() + "§f.");
-                    s.sendNotification(streamerPrefix + "Te han dado el rango §a**STREAMER**§f.");
-                }
+            if (s.getSecondaryGroups().contains("streamer")) {
+                s.removeSecondaryGroup("streamer");
+                sender.sendMessage(streamerPrefix + "Has quitado el rango §aSTREAMER§f a §a" + s.getName() + "§f.");
+                s.sendNotification(streamerPrefix + "Te han quitado el rango §a**STREAMER**§f.");
             } else {
-                sender.sendMessage(streamerPrefix + "Introduce un jugador válido.");
+                s.addSecondaryGroup("streamer");
+                sender.sendMessage(streamerPrefix + "Has dado el rango §aSTRAEMER§f a §a" + s.getName() + "§f.");
+                s.sendNotification(streamerPrefix + "Te han dado el rango §a**STREAMER**§f.");
             }
+        } else {
+            sender.sendMessage(streamerPrefix + "Introduce un jugador válido.");
         }
 
         return true;

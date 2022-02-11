@@ -13,7 +13,6 @@ public class Donator implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (command.getName().equals("donator")) {
             if (args.length > 0 && Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
                 OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                 ServerPlayer s = new ServerPlayer(target);
@@ -30,7 +29,6 @@ public class Donator implements CommandExecutor {
             } else {
                 sender.sendMessage(donatorPrefix + "Introduce un jugador válido.");
             }
-        }
 
         return true;
     }
