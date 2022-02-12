@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.blockMethods;
+package pizzaaxx.bteconosur.block.methods;
 
 import com.sk89q.worldedit.BlockVector;
 
