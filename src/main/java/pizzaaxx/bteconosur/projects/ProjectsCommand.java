@@ -28,7 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.worldedit.Methods;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;

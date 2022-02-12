@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.playerData;
+package pizzaaxx.bteconosur.player.data;
 
 import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.yaml.YamlManager;

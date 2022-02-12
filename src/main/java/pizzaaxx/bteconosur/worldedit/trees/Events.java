@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.ServerPlayer;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 
 import java.util.*;

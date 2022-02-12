@@ -1,14 +1,8 @@
 package pizzaaxx.bteconosur.notifications;
 
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer;
-import pizzaaxx.bteconosur.playerData.PlayerData;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Notification {
 

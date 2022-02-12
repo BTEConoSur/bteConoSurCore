@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 

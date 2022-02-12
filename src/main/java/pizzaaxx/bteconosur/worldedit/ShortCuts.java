@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 
 import java.util.Objects;
 

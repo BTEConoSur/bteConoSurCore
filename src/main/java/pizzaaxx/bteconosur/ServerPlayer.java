@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 import pizzaaxx.bteconosur.yaml.YamlManager;
@@ -54,6 +54,10 @@ public class ServerPlayer {
         } else {
             throw new Exception();
         }
+    }
+
+    public UUID getId() {
+        return player.getUniqueId();
     }
 
     public OfflinePlayer getPlayer() {
@@ -475,7 +479,7 @@ public class ServerPlayer {
 
     public List<String> getSecondaryGroups() {
         if (data.getData("secondaryGroups") != null) {
-            List<String> groups = (List <String>) data.getData("secondaryGroups");
+            List<String> groups = (List<String>) data.getData("secondaryGroups");
             Collections.sort(groups);
             return groups;
         } else {
@@ -486,7 +490,7 @@ public class ServerPlayer {
     public void addSecondaryGroup(String newGroup) {
         List<String> groups;
         if (data.getData("secondaryGroups") != null) {
-             groups = (List<String>) data.getData("secondaryGroups");
+            groups = (List<String>) data.getData("secondaryGroups");
         } else {
             groups = new ArrayList<>();
         }
@@ -641,17 +645,13 @@ public class ServerPlayer {
                         arg++;
                     } else if (regions.contains(regionManager.getRegion("bolivia"))) {
                         bol++;
-                    }
-                    else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
+                    } else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
                         chi++;
-                    }
-                    else if (regions.contains(regionManager.getRegion("paraguay"))) {
+                    } else if (regions.contains(regionManager.getRegion("paraguay"))) {
                         par++;
-                    }
-                    else if (regions.contains(regionManager.getRegion("peru"))) {
+                    } else if (regions.contains(regionManager.getRegion("peru"))) {
                         per++;
-                    }
-                    else if (regions.contains(regionManager.getRegion("uruguay"))) {
+                    } else if (regions.contains(regionManager.getRegion("uruguay"))) {
                         uru++;
                     }
                 }
@@ -744,7 +744,7 @@ public class ServerPlayer {
                         }
                     }
 
-                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, color +  "§l" + project.getName(true));
+                    BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, color + "§l" + project.getName(true));
                     board.setAll(lines.toArray(new String[0]));
                 } catch (Exception e) {
                     List<String> lines = new ArrayList<>();

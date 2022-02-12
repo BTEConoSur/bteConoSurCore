@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.playerData.PlayerData;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
