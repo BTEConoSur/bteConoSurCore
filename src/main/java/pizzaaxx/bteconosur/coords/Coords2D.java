@@ -10,47 +10,41 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
 public class Coords2D {
 
-    public static GeographicProjection geographicProjection = EarthGeneratorSettings.parse(EarthGeneratorSettings.BTE_DEFAULT_SETTINGS).projection();
+    private final GeographicProjection geographicProjection =
+            EarthGeneratorSettings.parse(EarthGeneratorSettings.BTE_DEFAULT_SETTINGS).projection();
 
     private double x;
     private double z;
     private double lon;
     private double lat;
 
-    public Coords2D(Double lat, Double lon) {
+    public Coords2D(double lat, double lon) {
         try {
             double[] mcCoords = geographicProjection.fromGeo(lon, lat);
-            this.lon = lat;
-            this.lat = lon;
-            this.x = mcCoords[0];
-            this.z = mcCoords[1];
-        } catch (OutOfProjectionBoundsException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Coords2D(BlockVector2D point) {
-        try {
-            double[] geoCoords = geographicProjection.toGeo(point.getX(), point.getZ());
-            this.x = point.getX();
-            this.z = point.getZ();
-            this.lon = geoCoords[0];
-            this.lat = geoCoords[1];
+           initialize(mcCoords[0], mcCoords[1], lon, lat);
         } catch (OutOfProjectionBoundsException e) {
             e.printStackTrace();
         }
     }
 
     public Coords2D(Location location) {
+        this(location.getX(), location.getZ());
+    }
+
+    public Coords2D(BlockVector2D point) {
         try {
-            double[] geoCoords = geographicProjection.toGeo(location.getX(), location.getZ());
-            this.x = location.getX();
-            this.z = location.getZ();
-            this.lon = geoCoords[0];
-            this.lat = geoCoords[1];
+            double[] geoCoords = geographicProjection.toGeo(point.getX(), point.getZ());
+            initialize(x, z, geoCoords[0], geoCoords[1]);
         } catch (OutOfProjectionBoundsException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initialize(double x, double z, double lon, double lat) {
+            this.x = x;
+            this.z = z;
+            this.lon = lon;
+            this.lat = lat;
     }
 
     public BlockVector2D toBlockVector2D() {
