@@ -10,14 +10,14 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
 public class Coords2D {
 
+    public static GeographicProjection geographicProjection = EarthGeneratorSettings.parse(EarthGeneratorSettings.BTE_DEFAULT_SETTINGS).projection();
+
     private double x;
     private double z;
     private double lon;
     private double lat;
 
     public Coords2D(Double lat, Double lon) {
-        GeographicProjection geographicProjection = EarthGeneratorSettings.parse(EarthGeneratorSettings.BTE_DEFAULT_SETTINGS).projection();
-
         try {
             double[] mcCoords = geographicProjection.fromGeo(lon, lat);
             this.lon = lat;
@@ -30,11 +30,27 @@ public class Coords2D {
     }
 
     public Coords2D(BlockVector2D point) {
-        this(point.getX(), point.getZ());
+        try {
+            double[] geoCoords = geographicProjection.toGeo(point.getX(), point.getZ());
+            this.x = point.getX();
+            this.z = point.getZ();
+            this.lon = geoCoords[0];
+            this.lat = geoCoords[1];
+        } catch (OutOfProjectionBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     public Coords2D(Location location) {
-        this(location.getX(), location.getZ());
+        try {
+            double[] geoCoords = geographicProjection.toGeo(location.getX(), location.getZ());
+            this.x = location.getX();
+            this.z = location.getZ();
+            this.lon = geoCoords[0];
+            this.lat = geoCoords[1];
+        } catch (OutOfProjectionBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     public BlockVector2D toBlockVector2D() {

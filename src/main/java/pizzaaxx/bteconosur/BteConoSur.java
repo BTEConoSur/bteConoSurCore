@@ -53,6 +53,7 @@ public final class BteConoSur extends JavaPlugin {
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
+    public static PlayerRegistry playerRegistry = new PlayerRegistry();
 
     @Override
     public void onEnable() {

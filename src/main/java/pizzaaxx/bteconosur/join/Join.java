@@ -10,6 +10,7 @@ import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import xyz.upperlevel.spigot.book.BookUtil;
 
+import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
 
 public class Join implements Listener {
@@ -22,10 +23,13 @@ public class Join implements Listener {
                 oP.updateScoreboard();
             }
         }
+        playerRegistry.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+
+        playerRegistry.add(new ServerPlayer(e.getPlayer()));
 
         e.setJoinMessage(new ServerPlayer(e.getPlayer()).getDisplayName() + " ha entrado al servidor.");
 

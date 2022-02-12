@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.yaml.snakeyaml.Yaml;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
@@ -27,9 +28,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.ranks.Main.primaryGroupsList;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
@@ -42,15 +42,22 @@ public class ServerPlayer {
 
     // CONSTRUCTOR
     public ServerPlayer(OfflinePlayer p) {
-        this.player = p;
 
-        data = new PlayerData(p);
+        if (playerRegistry.exists(p.getUniqueId())) {
+            this.player = playerRegistry.get(p.getUniqueId()).player;
+            this.data = playerRegistry.get(p.getUniqueId()).data;
+        } else {
+            this.player = p;
+
+            this.data = new PlayerData(p);
+        }
     }
 
     public ServerPlayer(User user) throws Exception {
-        if (YamlManager.getYamlData(pluginFolder, "link/links.yml").containsKey(user.getId())) {
-            this.player = Bukkit.getOfflinePlayer(UUID.fromString((String) YamlManager.getYamlData(pluginFolder, "link/links.yml").get(user.getId())));
-            this.data = new PlayerData(this.player);
+        YamlManager links = new YamlManager(pluginFolder, "link/links.yml");
+        if (links.getValue(user.getId()) != null) {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString((String) links.getValue(user.getId())));
+            new ServerPlayer(player);
         } else {
             throw new Exception();
         }
