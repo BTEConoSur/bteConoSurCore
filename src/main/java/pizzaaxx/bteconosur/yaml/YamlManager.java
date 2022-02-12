@@ -4,10 +4,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class YamlManager {
 
@@ -52,15 +49,23 @@ public class YamlManager {
     }
 
     public Object getValue(String key) {
+        return getNode(key, data);
+    }
+
+    public static Object getNode(String key, Map<String, Object> map) {
         String[] steps = key.split("[.]");
-        Map<String, Object> main = this.data;
+        Map<String, Object> main = map;
         int i = 1;
         for (String name : steps) {
             if (steps.length == i) {
                 return main.get(name);
             }
             if (main.get(name) != null) {
-                main = (Map<String, Object>) main.get(name);
+                try {
+                    main = (Map<String, Object>) main.get(name);
+                } catch (ClassCastException e) {
+                    return null;
+                }
             } else {
                 return null;
             }
@@ -71,12 +76,82 @@ public class YamlManager {
 
     // SET
     public void setValue(String key, Object value) {
-        this.data.put(key, value);
+
+        data = setNode(key, value, data);
+
+    }
+
+    public static Map<String, Object> setNode(String key, Object value, Map<String, Object> map) {
+        List<String> steps = Arrays.asList(key.split("[.]"));
+        List<Map<String, Object>> maps = new ArrayList<>();
+        maps.add(map);
+
+        int i = 1;
+        for (String step : steps) {
+            Map<String, Object> last = maps.get(maps.size() - 1);
+
+            if (i >= steps.size()) {
+                last.put(step, value);
+
+                List<String> reverseSteps = steps.subList(0, steps.size() - 1);
+                Collections.reverse(reverseSteps);
+                Collections.reverse(maps);
+                for (int j = 1; j < maps.size(); j++) {
+                    maps.get(j).put(reverseSteps.get(j - 1), maps.get(j - 1));
+                }
+
+            } else {
+                try {
+                    maps.add(last.containsKey(step) ? (Map<String, Object>) last.get(step) : new HashMap<>());
+                } catch (ClassCastException e) {
+                    maps.add(new HashMap<>());
+                }
+            }
+
+            i++;
+        }
+
+        return maps.get(maps.size() - 1);
     }
 
     // DELETE
     public void deleteValue(String key) {
-        this.data.remove(key);
+
+        data = deleteNode(key, data);
+
+    }
+
+    public static Map<String, Object> deleteNode(String key, Map<String, Object> map) {
+        List<String> steps = Arrays.asList(key.split("[.]"));
+        List<Map<String, Object>> maps = new ArrayList<>();
+        maps.add(map);
+
+        int i = 1;
+        for (String step : steps) {
+            Map<String, Object> last = maps.get(maps.size() - 1);
+
+            if (i >= steps.size()) {
+                last.remove(step);
+
+                List<String> reverseSteps = steps.subList(0, steps.size() - 1);
+                Collections.reverse(reverseSteps);
+                Collections.reverse(maps);
+                for (int j = 1; j < maps.size(); j++) {
+                    maps.get(j).put(reverseSteps.get(j - 1), maps.get(j - 1));
+                }
+
+            } else {
+                try {
+                    maps.add(last.containsKey(step) ? (Map<String, Object>) last.get(step) : new HashMap<>());
+                } catch (ClassCastException e) {
+                    maps.add(new HashMap<>());
+                }
+            }
+
+            i++;
+        }
+
+        return maps.get(maps.size() - 1);
     }
 
     // LISTS

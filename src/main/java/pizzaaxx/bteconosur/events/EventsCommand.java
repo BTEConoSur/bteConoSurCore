@@ -2,7 +2,9 @@ package pizzaaxx.bteconosur.events;
 
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import pizzaaxx.bteconosur.yaml.YamlManager;
 
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.country.Country.countryAbbreviations;
 
 public class EventsCommand implements CommandExecutor {
@@ -23,11 +25,16 @@ public class EventsCommand implements CommandExecutor {
             if (args.length > 0) {
                 if (countryAbbreviations.contains(args[0])) {
                     if (args.length > 1) {
+                        YamlManager yaml = new YamlManager(pluginFolder, "event.yml");
                         if (args[1].equals("name")) {
+                            if (args.length > 2 && args[2].matches("[A-Za-z0-9]{1,32}")) {
 
+                            }
                         } else if (args[1].equals("tp")) {
 
                         } else if (args[1].equals("redefine")) {
+
+                        } else if (args[1].equals("groups")) {
 
                         }
                     } else {

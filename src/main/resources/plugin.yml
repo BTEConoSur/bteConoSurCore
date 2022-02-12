@@ -118,3 +118,5 @@ permissions:
 
   bteconosur.link:
     description: Permiso para usar /link.
+
+database: true
