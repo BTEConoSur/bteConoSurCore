@@ -103,6 +103,8 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand());
         getCommand("assets").setExecutor(new LobbyCommand());
+        getCommand("event").setExecutor(new EventsCommand());
+        getCommand("manageevent").setExecutor(new EventsCommand());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
