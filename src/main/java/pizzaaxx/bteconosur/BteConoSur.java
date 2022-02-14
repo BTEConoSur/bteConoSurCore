@@ -44,6 +44,7 @@ import java.awt.*;
 import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
+import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
@@ -155,6 +156,15 @@ public final class BteConoSur extends JavaPlugin {
             e.printStackTrace();
         }
 
+        JDABuilder chile = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("chile"));
+        chile.setStatus(OnlineStatus.ONLINE);
+        chile.setActivity(Activity.playing("IP: bteconosur.com"));
+        try {
+            chileBot = chile.build().awaitReady();
+        } catch (LoginException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
         key = (String) new YamlManager(pluginFolder, "key.yml").getValue("key");
 
         // CONFIG
@@ -190,6 +200,7 @@ public final class BteConoSur extends JavaPlugin {
         gateway.sendMessageEmbeds(online.build()).queue();
 
         conoSurBot.shutdown();
+        chileBot.shutdown();
     }
 
     public static void broadcast(String message) {
