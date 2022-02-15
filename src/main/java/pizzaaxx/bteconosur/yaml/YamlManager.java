@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.yaml;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.reader.UnicodeReader;
 
 import java.io.*;
 import java.util.*;
@@ -39,7 +40,8 @@ public class YamlManager {
                 e.printStackTrace();
             }
 
-            this.data = yaml.load(inputStream);
+            UnicodeReader unicodeReader = new UnicodeReader(inputStream);
+            this.data = yaml.load(unicodeReader);
         }
     }
 
@@ -198,6 +200,8 @@ public class YamlManager {
 
     // SAVE
     public void write() {
+        // TODO FIX FOR UNICODE
+
         DumperOptions options = new DumperOptions();
         options.setIndent(4);
         options.setPrettyFlow(true);
@@ -260,6 +264,7 @@ public class YamlManager {
 
     public static void writeYaml(File parent, String children, Map<String, Object> data){
         DumperOptions options = new DumperOptions();
+        options.setAllowUnicode(false);
         options.setIndent(4);
         options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
