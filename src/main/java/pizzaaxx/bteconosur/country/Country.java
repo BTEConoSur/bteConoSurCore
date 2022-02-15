@@ -24,7 +24,7 @@ public class Country {
     private String country;
 
     public static List<String> countryNames = Arrays.asList("argentina", "bolivia", "chile", "paraguay", "peru", "uruguay");
-    public static List<String> countryAbbreviations = Arrays.asList("ar", "bo", "cl", "py", "pe", "uy");
+    public static List<String> countryAbbreviations = Arrays.asList("ar", "bo", "cl", "py", "pe", "uy", "gl");
     public static List<String> countryRegionNames = Arrays.asList("argentina", "bolivia", "chile_idp", "chile_cont", "paraguay", "peru", "uruguay");
 
     // CONSTRUCTOR
@@ -124,6 +124,10 @@ public class Country {
     }
 
     // GETTERS
+
+    public String getIcon() {
+        return (String) new YamlManager(pluginFolder, "discord/countryIcons.yml").getValue(country);
+    }
 
     public String getCountry() {
         return this.country;

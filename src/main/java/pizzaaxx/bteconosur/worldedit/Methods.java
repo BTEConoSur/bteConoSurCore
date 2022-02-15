@@ -7,15 +7,20 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
 import com.sk89q.worldedit.session.SessionManager;
 import com.sk89q.worldedit.world.World;
+import jdk.nashorn.internal.ir.Block;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
@@ -24,7 +29,7 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 public class Methods {
     public static String wePrefix = "§f[§5WORLDEDIT§f] §7>>§r ";
 
-    public static Region getSelection(Player p) throws IncompleteRegionException{
+    public static Region getSelection(Player p) throws IncompleteRegionException {
         com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), p);
 
         WorldEdit worldEdit = WorldEdit.getInstance();
@@ -36,6 +41,29 @@ public class Methods {
 
         return region;
 
+    }
+
+    public static Polygonal2DRegion polyRegion(Region region) throws IllegalArgumentException, IncompleteRegionException {
+        if (region instanceof Polygonal2DRegion) {
+            if (((Polygonal2DRegion) region).getPoints().size() < 3) {
+                throw new IncompleteRegionException();
+            }
+            return (Polygonal2DRegion) region;
+        } else if (region instanceof CuboidRegion) {
+            CuboidRegion cuboidRegion = (CuboidRegion) region;
+            Vector first = cuboidRegion.getPos1();
+            Vector second = cuboidRegion.getPos2();
+
+            List<BlockVector2D> points = new ArrayList<>();
+
+            points.add(new BlockVector2D(first.getX(), first.getZ()));
+            points.add(new BlockVector2D(second.getX(), first.getZ()));
+            points.add(new BlockVector2D(second.getX(), second.getZ()));
+            points.add(new BlockVector2D(first.getX(), second.getZ()));
+
+            return new Polygonal2DRegion((World) new BukkitWorld(mainWorld), points, cuboidRegion.getMinimumY(), cuboidRegion.getMaximumY());
+        }
+        throw new IllegalArgumentException();
     }
 
     public static void setSelection(Player p, Polygonal2DRegionSelector selector) {
