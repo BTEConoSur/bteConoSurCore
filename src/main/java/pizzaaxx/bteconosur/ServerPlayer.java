@@ -43,14 +43,24 @@ public class ServerPlayer {
     // CONSTRUCTOR
     public ServerPlayer(OfflinePlayer p) {
 
-        if (playerRegistry.exists(p.getUniqueId())) {
-            this.player = playerRegistry.get(p.getUniqueId()).player;
-            this.data = playerRegistry.get(p.getUniqueId()).data;
-        } else {
-            this.player = p;
+    }
 
-            this.data = new PlayerData(p);
+    public ServerPlayer(UUID uuid) {
+        if (playerRegistry.exists(uuid)) {
+            ServerPlayer serverPlayer = playerRegistry.get(uuid);
+
+            player = serverPlayer.getPlayer();
+            data = serverPlayer.data;
+
+        } else {
+
+            player = Bukkit.getOfflinePlayer(uuid);
+            this.data = new PlayerData(player);
         }
+    }
+
+    public PlayerData getData() {
+        return data;
     }
 
     public ServerPlayer(User user) throws Exception {

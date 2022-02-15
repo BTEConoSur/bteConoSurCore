@@ -6,74 +6,79 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import pizzaaxx.bteconosur.PlayerRegistry;
 import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
 
 public class Join implements Listener {
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            ServerPlayer oP = new ServerPlayer(player);
-            if (oP.getScoreboard().equals("server")) {
-                oP.updateScoreboard();
-            }
-        }
-        playerRegistry.remove(e.getPlayer().getUniqueId());
+    private final PlayerRegistry playerRegistry;
+
+    public Join(PlayerRegistry playerRegistry) {
+        this.playerRegistry = playerRegistry;
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
+    public void onQuit(PlayerQuitEvent event) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
 
-        playerRegistry.add(new ServerPlayer(e.getPlayer()));
+            String scoreboard = serverPlayer.getScoreboard();
+            if (scoreboard.equals("server")) {
+                serverPlayer.updateScoreboard();
+            }
 
-        e.setJoinMessage(new ServerPlayer(e.getPlayer()).getDisplayName() + " ha entrado al servidor.");
-
-        Player p = e.getPlayer();
-        ServerPlayer s = new ServerPlayer(p);
-        PlayerData pData = new PlayerData(p);
-
-        // SET NECESSARY DATA
-
-        PlayerData playerData = new PlayerData(p);
-
-        if ((String) playerData.getData("name") != p.getName()) {
-            playerData.setData("name", p.getName());
         }
 
-        if (new PlayerData(p).getData("primaryGroup") == null) {
+        playerRegistry.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+
+        Player player = event.getPlayer();
+        event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
+
+        ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
+        PlayerData playerData = serverPlayer.getData();
+
+        String dataName = (String) playerData.getData("name");
+        if (!dataName.equals(player.getName())) {
+            playerData.setData("name", player.getName());
+        }
+
+        if (playerData.getData("primaryGroup") == null) {
             playerData.setData("primaryGroup", "default");
         }
 
-        if (new PlayerData(p).getData("chat") == null) {
+        if (playerData.getData("chat") == null) {
             playerData.setData("chat", "global");
         }
 
-        if (new PlayerData(p).getData("defaultChat") == null) {
+        if (playerData.getData("defaultChat") == null) {
             playerData.setData("defaultChat", "global");
         }
 
-        if (new PlayerData(p).getData("hideChat") == null) {
+        if (playerData.getData("hideChat") == null) {
             playerData.setData("hideChat", false);
         }
 
-        if (new PlayerData(p).getData("increment") == null) {
+        if (playerData.getData("increment") == null) {
             playerData.setData("increment", 1);
         }
 
-        if (new PlayerData(p).getData("hideScoreboard") == null) {
+        if (playerData.getData("hideScoreboard") == null) {
             playerData.setData("hideScoreboard", false);
         }
 
-        if (new PlayerData(p).getData("scoreboard") == null) {
+        if (playerData.getData("scoreboard") == null) {
             playerData.setData("scoreboard", "server");
         }
 
-        if (new PlayerData(p).getData("scoreboardAuto") == null) {
+        if (playerData.getData("scoreboardAuto") == null) {
             playerData.setData("scoreboardAuto", true);
         }
 
@@ -81,58 +86,58 @@ public class Join implements Listener {
 
         // SEND MESSAGES
 
-        p.sendMessage(">+--------------+[-< ============= >-]+--------------+<");
-        p.sendMessage(" ");
-        p.sendMessage("§7                                Bienvenido a");
-        p.sendMessage("§7                      §9§lBuildTheEarth: §a§lCono Sur");
-        p.sendMessage(" ");
+        player.sendMessage(">+--------------+[-< ============= >-]+--------------+<");
+        player.sendMessage(" ");
+        player.sendMessage("§7                                Bienvenido a");
+        player.sendMessage("§7                      §9§lBuildTheEarth: §a§lCono Sur");
+        player.sendMessage(" ");
 
         // NOTIFICACIONES
 
-        if (e.getPlayer().hasPlayedBefore()) {
-            p.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
+        if (player.hasPlayedBefore()) {
+            player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
 
-            if (s.getNotifications().size() > 0) {
+            if (serverPlayer.getNotifications().size() > 0) {
                 int i = 1;
-                for (String notif : s.getNotifications()) {
-                    p.sendMessage(i + ". " + notif.replace("&", "§"));
-                    p.sendMessage(" ");
+                for (String notif : serverPlayer.getNotifications()) {
+                    player.sendMessage(i + ". " + notif.replace("&", "§"));
+                    player.sendMessage(" ");
                     i++;
                 }
 
                 playerData.deleteData("notifications");
                 playerData.save();
-            } else if (!s.hasDiscordUser()) {
-                p.sendMessage("§c                   No tienes notificaciones nuevas.");
-                p.sendMessage(" ");
+            } else if (!serverPlayer.hasDiscordUser()) {
+                player.sendMessage("§c                   No tienes notificaciones nuevas.");
+                player.sendMessage(" ");
             }
         }
 
         // DISCORD
 
-        if (!(s.hasDiscordUser())) {
-            p.sendMessage(">+-----------------+[-< DISCORD >-]+-----------------+<");
-            p.sendMessage(BookUtil.TextBuilder.of("§f               §f").build(), BookUtil.TextBuilder.of("§f[§aHAZ CLICK PARA CONECTAR TU CUENTA§f]").onHover(BookUtil.HoverAction.showText("Haz click para conectar tu cuenta.")).onClick(BookUtil.ClickAction.runCommand("/link")).build());
-            p.sendMessage(" ");
+        if (!(serverPlayer.hasDiscordUser())) {
+            player.sendMessage(">+-----------------+[-< DISCORD >-]+-----------------+<");
+            player.sendMessage(BookUtil.TextBuilder.of("§f               §f").build(), BookUtil.TextBuilder.of("§f[§aHAZ CLICK PARA CONECTAR TU CUENTA§f]").onHover(BookUtil.HoverAction.showText("Haz click para conectar tu cuenta.")).onClick(BookUtil.ClickAction.runCommand("/link")).build());
+            player.sendMessage(" ");
         }
 
-        p.sendMessage(">+--------------+[-< ============= >-]+--------------+<");
+        player.sendMessage(">+--------------+[-< ============= >-]+--------------+<");
 
         // SET PLAYER'S CHAT TO DEFAULT
 
-        if (!(s.getChat().getName().equals(s.getDefaultChat().getName()))) {
-            s.setChat(s.getDefaultChat().getName());
+        if (!(serverPlayer.getChat().getName().equals(serverPlayer.getDefaultChat().getName()))) {
+            serverPlayer.setChat(serverPlayer.getDefaultChat().getName());
 
-            p.sendMessage(chatsPrefix + "Te has unido al chat §a" + s.getChat().getFormattedName() + "§f. §7(Jugadores: " + s.getChat().getMembers().size() + ")");
+            player.sendMessage(chatsPrefix + "Te has unido al chat §a" + serverPlayer.getChat().getFormattedName() + "§f. §7(Jugadores: " + serverPlayer.getChat().getMembers().size() + ")");
         }
 
-        s.updateData();
-        s.updateScoreboard();
-        
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            ServerPlayer oP = new ServerPlayer(player);
-            if (oP.getScoreboard().equals("server")) {
-                oP.updateScoreboard();
+        serverPlayer.updateData();
+        serverPlayer.updateScoreboard();
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            ServerPlayer serverPlayerOnline = playerRegistry.get(online.getUniqueId());
+            if (serverPlayerOnline.getScoreboard().equals("server")) {
+                serverPlayerOnline.updateScoreboard();
             }
         }
     }

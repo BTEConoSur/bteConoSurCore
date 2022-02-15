@@ -61,7 +61,7 @@ public final class BteConoSur extends JavaPlugin {
         getLogger().info("Enabling  BTE Cono Sur!");
 
         registerListeners(
-                new Join(),
+                new Join(playerRegistry),
                 new ProjectActionBar(),
                 new OnTeleport(),
                 new PresetsEvent(),
