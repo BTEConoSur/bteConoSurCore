@@ -37,6 +37,7 @@ import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.Incremento;
 import pizzaaxx.bteconosur.worldedit.Polywall;
 import pizzaaxx.bteconosur.worldedit.ShortCuts;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
@@ -61,6 +62,9 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Enabling  BTE Cono Sur!");
 
+        Configuration configuration = new Configuration(this, "config");
+        Config config = new Config(configuration);
+
         registerListeners(
                 new Join(playerRegistry),
                 new ProjectActionBar(),
@@ -76,7 +80,7 @@ public final class BteConoSur extends JavaPlugin {
                 new LobbyCommand()
         );
 
-        getCommand("btecs_reload").setExecutor(new Config());
+        getCommand("btecs_reload").setExecutor(config);
         getCommand("project").setExecutor(new ProjectsCommand());
         getCommand("link").setExecutor(new LinkMinecraft());
         getCommand("unlink").setExecutor(new LinkMinecraft());
@@ -166,10 +170,6 @@ public final class BteConoSur extends JavaPlugin {
         }
 
         key = (String) new YamlManager(pluginFolder, "key.yml").getValue("key");
-
-        // CONFIG
-
-        Config.reload();
 
         // LUCKPERMS
 

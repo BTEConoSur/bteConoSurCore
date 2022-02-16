@@ -84,7 +84,7 @@ public class ServerPlayer {
     // PROJECTS
 
     public Integer getFinishedProjects(Country country) {
-        return (Integer) this.data.getData("finished_projects_" + country.getCountry());
+        return (Integer) data.getData("finished_projects_" + country.getCountry());
     }
 
     public Integer getTotalFinishedProjects() {
@@ -92,7 +92,7 @@ public class ServerPlayer {
 
         for (String country : "argentina bolivia chile paraguay peru uruguay".split(" "))
             if (data.getData("finished_projects_" + country) != null) {
-                total = total + (Integer) new PlayerData(this.player).getData("finished_projects_" + country);
+                total = total + (Integer) data.getData("finished_projects_" + country);
             }
 
         return total;
