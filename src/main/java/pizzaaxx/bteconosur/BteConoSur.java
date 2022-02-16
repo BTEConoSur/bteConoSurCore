@@ -72,7 +72,7 @@ public final class BteConoSur extends JavaPlugin {
                 new PresetsEvent(),
                 new PRandom(),
                 new PresetsEvent(),
-                new ShortCuts(),
+                new ShortCuts(playerRegistry),
                 new Events(),
                 new Scoreboard(),
                 new GetCommand(),

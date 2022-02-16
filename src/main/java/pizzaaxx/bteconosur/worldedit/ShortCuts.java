@@ -7,27 +7,45 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import pizzaaxx.bteconosur.PlayerRegistry;
+import pizzaaxx.bteconosur.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 
 import java.util.Objects;
 
 public class ShortCuts implements Listener {
 
+    private final PlayerRegistry playerRegistry;
+
+    public ShortCuts(PlayerRegistry playerRegistry) {
+        this.playerRegistry = playerRegistry;
+    }
+
     @EventHandler
-    public void onClick(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        int d = (Integer) new PlayerData(p).getData("increment");
-        if (Objects.equals(e.getItem(), new ItemStack(Material.WOOD_AXE))) {
-            if (e.getAction() == Action.LEFT_CLICK_AIR) {
-                if (p.isSneaking()) {
-                    p.performCommand("/shift " + d);
-                } else {
-                    p.performCommand("/expand " + d);
+    public void onClick(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
+        PlayerData playerData = serverPlayer.getData();
+
+        int increment = (int) playerData.getData("increment");
+
+        if (event.getItem().getType() == Material.WOOD_AXE) {
+            if (event.getAction() == Action.LEFT_CLICK_AIR) {
+
+                if (player.isSneaking()) {
+                    player.performCommand("/shift " + increment);
+                    return;
                 }
+
+                player.performCommand("/expand " + increment);
+                return;
             }
-            if (e.getAction() == Action.RIGHT_CLICK_AIR) {
-                p.performCommand("/contract " + d);
+
+            if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+                player.performCommand("/contract " + increment);
             }
+
+
         }
     }
 }
