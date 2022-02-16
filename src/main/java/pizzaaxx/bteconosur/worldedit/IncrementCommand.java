@@ -8,7 +8,7 @@ import pizzaaxx.bteconosur.player.data.PlayerData;
 
 import static pizzaaxx.bteconosur.worldedit.Methods.wePrefix;
 
-public class Incremento implements CommandExecutor {
+public class IncrementCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 

@@ -34,7 +34,7 @@ import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.teleport.PWarp;
 import pizzaaxx.bteconosur.testing.Testing;
-import pizzaaxx.bteconosur.worldedit.Incremento;
+import pizzaaxx.bteconosur.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.worldedit.Polywall;
 import pizzaaxx.bteconosur.worldedit.ShortCuts;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -94,7 +94,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
-        getCommand("increment").setExecutor(new Incremento());
+        getCommand("increment").setExecutor(new IncrementCommand());
         getCommand("pwarp").setExecutor(new PWarp());
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
