@@ -57,6 +57,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(projectsPrefix + "Este comando solo puede ser usado por jugadores.");
             }
+
             Player p = (Player) sender;
             ServerPlayer s = new ServerPlayer(p);
             if (args.length == 0) {
