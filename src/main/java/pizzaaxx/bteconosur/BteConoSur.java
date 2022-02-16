@@ -94,7 +94,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
-        getCommand("increment").setExecutor(new IncrementCommand());
+        getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
         getCommand("pwarp").setExecutor(new PWarp());
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
