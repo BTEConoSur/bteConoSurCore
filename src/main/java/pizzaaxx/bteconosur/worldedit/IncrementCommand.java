@@ -12,7 +12,6 @@ public class IncrementCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (command.getName().equals("increment")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 PlayerData pData = new PlayerData(p);
@@ -31,7 +30,6 @@ public class IncrementCommand implements CommandExecutor {
                 } else {
                     p.sendMessage(wePrefix + "Introduce una distancia.");
                 }
-            }
         }
 
         return true;
