@@ -1,5 +1,6 @@
 max-projects-per-player: 10
-max-projects-per-points: 15
+max-project-points: 15
+max-members-per-project: 15
 easy-points: 15
 medium-points: 50
 hard-points: 100

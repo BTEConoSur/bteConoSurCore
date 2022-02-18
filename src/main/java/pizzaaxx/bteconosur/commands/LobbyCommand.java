@@ -12,11 +12,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.yaml.YamlManager;
-
-import java.util.Objects;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;

@@ -9,14 +9,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 
-public class Prefix implements CommandExecutor, Listener {
+public class PrefixCommand implements CommandExecutor, Listener {
     public static String prefixPrefix = "§f[§3PAÍS§f] §7>>§r ";
 
     @EventHandler
@@ -29,7 +30,7 @@ public class Prefix implements CommandExecutor, Listener {
                 if (e.getSlot() == 35) {
                     e.getWhoClicked().closeInventory();
                 } else if (e.getSlot() == 22) {
-                    if (s.getCountryPrefix() != null) {
+                    if (s.getChatManager().getDisplayName() != null) {
                         s.setCountryPrefix(null);
                         p.sendMessage(prefixPrefix + "Has eliminado tu prefijo de país.");
                     } else {

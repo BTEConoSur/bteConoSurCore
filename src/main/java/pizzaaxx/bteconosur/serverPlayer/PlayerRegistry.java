@@ -1,4 +1,6 @@
-package pizzaaxx.bteconosur;
+package pizzaaxx.bteconosur.serverPlayer;
+
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import java.util.Collection;
 import java.util.HashMap;

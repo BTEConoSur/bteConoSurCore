@@ -1,8 +1,7 @@
 package pizzaaxx.bteconosur.country;
 
-import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class CountryPlayer implements Comparable<CountryPlayer> {
 

@@ -25,7 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.player.data.PlayerData;
@@ -129,7 +129,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     Project project = new Project(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), args[1], points);
 
-                    if (!(s.getPermissionCountries().contains(project.getCountry()))) {
+                    if (!(s.getPermissionCountries().contains(project.getOldCountry()))) {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         return true;
                     }
@@ -145,7 +145,7 @@ public class ProjectsCommand implements CommandExecutor {
                     }
                     dscMessage = dscMessage.replace(".0", "");
 
-                    getLogsChannel(project.getCountry()).sendMessage(dscMessage).queue();
+                    getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
                     return true;
                 } else if (p.hasPermission("bteconosur.projects.create")) {
                     if (new ServerPlayer(p).getProjects().size() < maxProjectsPerPlayer) {
@@ -153,13 +153,13 @@ public class ProjectsCommand implements CommandExecutor {
 
 
                         String channelId;
-                        if (project.getCountry().equals("argentina")) {
+                        if (project.getOldCountry().equals("argentina")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("bolivia")) {
+                        } else if (project.getOldCountry().equals("bolivia")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("chile")) {
+                        } else if (project.getOldCountry().equals("chile")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("peru")) {
+                        } else if (project.getOldCountry().equals("peru")) {
                             channelId = "932074847016718426";
                         } else {
                             p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
@@ -178,27 +178,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                         // GMAPS
 
-                        Double minX = project.getPoints().get(0).getX();
-                        Double maxX = project.getPoints().get(0).getX();
-                        Double minZ = project.getPoints().get(0).getZ();
-                        Double maxZ = project.getPoints().get(0).getZ();
+                        BlockVector2D average = project.getAverageCoordinate();
 
-                        for (BlockVector2D point : project.getPoints()) {
-                            if (point.getX() > maxX) {
-                                maxX = point.getX();
-                            }
-                            if (point.getX() < minX) {
-                                minX = point.getX();
-                            }
-                            if (point.getZ() > maxZ) {
-                                maxZ = point.getZ();
-                            }
-                            if (point.getZ() < minZ) {
-                                minZ = point.getZ();
-                            }
-                        }
-
-                        Coords2D geoCoord = new Coords2D(new Location(mainWorld, (minX + maxX) / 2, 100, (minZ + maxZ) / 2));
+                        Coords2D geoCoord = new Coords2D(average);
 
                         request.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
 
@@ -255,7 +237,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
 
-                        getLogsChannel(project.getCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
+                        getLogsChannel(project.getOldCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
                     }
                 } catch (Exception e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
@@ -284,7 +266,7 @@ public class ProjectsCommand implements CommandExecutor {
                                 new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido eliminado.");
                             }
 
-                            getLogsChannel(project.getCountry()).sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+                            getLogsChannel(project.getOldCountry()).sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
                         } catch (Exception e) {
                             p.sendMessage(projectsPrefix + "Este proyecto no existe.");
                             return true;
@@ -295,7 +277,7 @@ public class ProjectsCommand implements CommandExecutor {
                             project.delete();
 
                             p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
-                            getLogsChannel(project.getCountry()).sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+                            getLogsChannel(project.getOldCountry()).sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
                         } catch (Exception e) {
                             p.sendMessage(projectsPrefix + "No estás dentro de ningun proyecto.");
                         }
@@ -336,7 +318,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     p.sendMessage(projectsPrefix + "Has agregado a §a" + new ServerPlayer(target).getName() + "§f al proyecto §a" + project.getName() + "§f.");
                                     target.sendMessage(projectsPrefix + "Has sido añadido al proyecto §a" + project.getName() + "§f.");
 
-                                    new Country(project.getCountry()).getLogs().sendMessage(":pencil: **" + s.getName() + "** ha agregado a **" + new ServerPlayer(target).getName() + "** al proyecto `" + project.getId() + "`.").queue();
+                                    new Country(project.getOldCountry()).getLogs().sendMessage(":pencil: **" + s.getName() + "** ha agregado a **" + new ServerPlayer(target).getName() + "** al proyecto `" + project.getId() + "`.").queue();
                                 } else {
                                     p.sendMessage(projectsPrefix + "El jugador introducido no existe o no se encuentra online.");
                                 }
@@ -386,7 +368,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     new ServerPlayer(target).sendNotification(projectsPrefix + "Has sido removido del proyecto **§a" + project.getName(true) + "§f**.");
 
-                                    new Country(project.getCountry()).getLogs().sendMessage(":pencil: **" + s.getName() + "** ha removido a **" + new ServerPlayer(target).getName() + "** del proyecto `" + project.getId() + "`.").queue();
+                                    new Country(project.getOldCountry()).getLogs().sendMessage(":pencil: **" + s.getName() + "** ha removido a **" + new ServerPlayer(target).getName() + "** del proyecto `" + project.getId() + "`.").queue();
                                 } else {
                                     p.sendMessage(projectsPrefix + "El jugador introducido no es parte del proyecto.");
                                 }
@@ -482,7 +464,7 @@ public class ProjectsCommand implements CommandExecutor {
                             PlayerData playerData = new PlayerData(p);
                             playerData.removeFromList("projects", project.getId());
                             playerData.save();
-                            getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
+                            getLogsChannel(project.getOldCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
 
                             if (project.getMembers() != null) {
                                 for (OfflinePlayer member : project.getMembers()) {
@@ -491,7 +473,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     playerData.save();
 
                                     new ServerPlayer(member).sendNotification("El líder de tu proyecto **§a" + project.getName(true) + "§f** ha abandonado el proyecto, por lo que tú también has salido.");
-                                    getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + new ServerPlayer(member).getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
+                                    getLogsChannel(project.getOldCountry()).sendMessage(":outbox_tray: **" + new ServerPlayer(member).getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
                                 }
                             }
                         } else {
@@ -510,7 +492,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha abandonado tu proyecto **§a" + project.getName(true) + "§f**.");
 
-                        getLogsChannel(project.getCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
+                        getLogsChannel(project.getOldCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
                     } else {
                         p.sendMessage(projectsPrefix + "No eres miembro de este proyecto.");
                     }
@@ -553,7 +535,7 @@ public class ProjectsCommand implements CommandExecutor {
                 try {
                     Project project = new Project(p.getLocation());
 
-                    if (permissionCountries.contains(project.getCountry())) {
+                    if (permissionCountries.contains(project.getOldCountry())) {
 
                         if (project.isPending()) {
 
@@ -571,46 +553,46 @@ public class ProjectsCommand implements CommandExecutor {
                                         amount = easyPoints;
                                     }
 
-                                    getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
+                                    getLogsChannel(project.getOldCountry()).sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
                                     p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
 
 
                                     ServerPlayer owner = new ServerPlayer(project.getOwner());
 
-                                    owner.addPoints(new Country(project.getCountry()), amount);
+                                    owner.addPoints(new Country(project.getOldCountry()), amount);
 
                                     PlayerData playerData = new PlayerData(project.getOwner());
                                     Integer finishedProjects;
-                                    if (playerData.getData("finished_projects_" + project.getCountry()) != null) {
-                                        finishedProjects = (Integer) playerData.getData("finished_projects_" + project.getCountry());
+                                    if (playerData.getData("finished_projects_" + project.getOldCountry()) != null) {
+                                        finishedProjects = (Integer) playerData.getData("finished_projects_" + project.getOldCountry());
                                         finishedProjects++;
                                     } else {
                                         finishedProjects = 1;
                                     }
-                                    playerData.setData("finished_projects_" + project.getCountry(), finishedProjects);
+                                    playerData.setData("finished_projects_" + project.getOldCountry(), finishedProjects);
                                     playerData.save();
 
                                     owner.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
-                                    owner.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + owner.getPoints(new Country(project.getCountry())));
+                                    owner.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + owner.getPoints(new Country(project.getOldCountry())));
 
                                     if (project.getMembers() != null) {
                                         for (OfflinePlayer member : project.getMembers()) {
                                             ServerPlayer m = new ServerPlayer(member);
-                                            m.addPoints(new Country(project.getCountry()), amount);
+                                            m.addPoints(new Country(project.getOldCountry()), amount);
 
                                             PlayerData playerDataMember = new PlayerData(member);
                                             Integer finishedProjectsMember;
-                                            if (playerDataMember.getData("finished_projects_" + project.getCountry()) != null) {
-                                                finishedProjectsMember = (Integer) playerDataMember.getData("finished_projects_" + project.getCountry());
+                                            if (playerDataMember.getData("finished_projects_" + project.getOldCountry()) != null) {
+                                                finishedProjectsMember = (Integer) playerDataMember.getData("finished_projects_" + project.getOldCountry());
                                                 finishedProjectsMember++;
                                             } else {
                                                 finishedProjectsMember = 1;
                                             }
-                                            playerDataMember.setData("finished_projects_" + project.getCountry(), finishedProjectsMember);
+                                            playerDataMember.setData("finished_projects_" + project.getOldCountry(), finishedProjectsMember);
                                             playerDataMember.save();
 
                                             m.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
-                                            m.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + m.getPoints(new Country(project.getCountry())));
+                                            m.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + m.getPoints(new Country(project.getOldCountry())));
                                         }
                                     }
 
@@ -629,7 +611,7 @@ public class ProjectsCommand implements CommandExecutor {
                                         }
                                     }
 
-                                    getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
+                                    getLogsChannel(project.getOldCountry()).sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
                                 }
                                 if (args[1].equals("deny") || args[1].equals("denegar") || args[1].equals("rechazar")) {
                                     project.setPending(false);
@@ -645,7 +627,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     }
 
 
-                                    getLogsChannel(project.getCountry()).sendMessage(":mag: **" + s.getName() + "** ha rechazado el proyecto `" + project.getId() + "`.").queue();
+                                    getLogsChannel(project.getOldCountry()).sendMessage(":mag: **" + s.getName() + "** ha rechazado el proyecto `" + project.getId() + "`.").queue();
                                 }
                             } else {
                                 p.sendMessage(projectsPrefix + "Introduce una acción.");
@@ -763,7 +745,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     }
                                 }
 
-                                getLogsChannel(project.getCountry()).sendMessage(":lock: **" + s.getName() + "** ha marcado el proyecto `" + project.getId() + "` como terminado.").queue();
+                                getLogsChannel(project.getOldCountry()).sendMessage(":lock: **" + s.getName() + "** ha marcado el proyecto `" + project.getId() + "` como terminado.").queue();
                             } else {
                                 finishConfirmation.add(p);
                                 p.sendMessage(projectsPrefix + "§cNo podrás construir ni administrar tu proyecto mientras está en revisión. §fUsa el comando de nuevo para confirmar.");
@@ -829,7 +811,7 @@ public class ProjectsCommand implements CommandExecutor {
                             .style(ChatColor.BOLD)
                             .build()
                     );
-                    page.add(StringUtils.capitalize(project.getCountry().replace("peru", "perú")));
+                    page.add(StringUtils.capitalize(project.getOldCountry().replace("peru", "perú")));
                     page.newLine();
 
                     // TAG
@@ -926,7 +908,7 @@ public class ProjectsCommand implements CommandExecutor {
                         page.add("§a§lDificultad: §r" + project.getDifficulty().toUpperCase());
                         page.newLine();
 
-                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getCountry().replace("peru", "perú")));
+                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getOldCountry().replace("peru", "perú")));
                         page.newLine();
 
                         page.add("§a§lCoordenadas: §r\n");
@@ -974,13 +956,33 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equals("members") || args[0].equals("miembros")) {
+            if (args[0].equals("manage") || args[0].equals("manejar")) {
                 if (!(p.hasPermission("bteconosur.projects.members"))) {
                     p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                     return true;
                 }
 
+                try {
+                    Project project = new Project(p.getLocation());
+                    if (project.getOwner() == p) {
+                        Inventory gui = Bukkit.createInventory(null, 53, "Proyecto " + project.getName(true));
 
+                        List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
+
+                        for (int i = 0; i < 53; i++) {
+                            if (!membersSlots.contains(i)) {
+                                gui.setItem(i, background);
+                            }
+                        }
+
+                        p.openInventory(gui);
+
+                    } else {
+                        p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
+                    }
+                } catch (Exception e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                }
             }
 
             if (args[0].equals("request") || args[0].equals("solicitar")) {
@@ -1058,11 +1060,9 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    Country country = new Country(points.get(0));
-
                     if (p.hasPermission("bteconosur.projects.manage.redefine")) {
 
-                        if (!s.getPermissionCountries().contains(project.getCountry())) {
+                        if (!s.getPermissionCountries().contains(project.getOldCountry())) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         }
 
@@ -1104,7 +1104,7 @@ public class ProjectsCommand implements CommandExecutor {
                             new ServerPlayer(project.getOwner()).sendNotification(notif);
                         }
 
-                        getLogsChannel(project.getCountry()).sendMessage(dscMessage).queue();
+                        getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
                         return true;
                     } else if (p.hasPermission("bteconosur.projects.redefine")) {
 
@@ -1119,13 +1119,13 @@ public class ProjectsCommand implements CommandExecutor {
                         }
 
                         String channelId;
-                        if (project.getCountry().equals("argentina")) {
+                        if (project.getOldCountry().equals("argentina")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("bolivia")) {
+                        } else if (project.getOldCountry().equals("bolivia")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("chile")) {
+                        } else if (project.getOldCountry().equals("chile")) {
                             channelId = "932074847016718426";
-                        } else if (project.getCountry().equals("peru")) {
+                        } else if (project.getOldCountry().equals("peru")) {
                             channelId = "932074847016718426";
                         } else {
                             p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
@@ -1150,27 +1150,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                         // GMAPS
 
-                        Double minX = project.getPoints().get(0).getX();
-                        Double maxX = project.getPoints().get(0).getX();
-                        Double minZ = project.getPoints().get(0).getZ();
-                        Double maxZ = project.getPoints().get(0).getZ();
+                        BlockVector2D average = project.getAverageCoordinate();
 
-                        for (BlockVector2D point : points) {
-                            if (point.getX() > maxX) {
-                                maxX = point.getX();
-                            }
-                            if (point.getX() < minX) {
-                                minX = point.getX();
-                            }
-                            if (point.getZ() > maxZ) {
-                                maxZ = point.getZ();
-                            }
-                            if (point.getZ() < minZ) {
-                                minZ = point.getZ();
-                            }
-                        }
-
-                        Coords2D geoCoord = new Coords2D(new Location(mainWorld, (minX + maxX) / 2, 100, (minZ + maxZ) / 2));
+                        Coords2D geoCoord = new Coords2D(average);
 
                         request.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
 
@@ -1221,7 +1203,7 @@ public class ProjectsCommand implements CommandExecutor {
                     try {
                         Project project = new Project(p.getLocation());
 
-                        if (!(s.getPermissionCountries().contains(project.getCountry()))) {
+                        if (!(s.getPermissionCountries().contains(project.getOldCountry()))) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         }
 
@@ -1230,14 +1212,14 @@ public class ProjectsCommand implements CommandExecutor {
                                 project.setTag(args[1]);
                                 project.upload();
 
-                                new Country(project.getCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
+                                new Country(project.getOldCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
 
                                 p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
                             } else if (args[1].equals("delete")) {
                                 project.setTag(null);
                                 project.upload();
 
-                                new Country(project.getCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
+                                new Country(project.getOldCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
 
                                 p.sendMessage(projectsPrefix + "Has eliminado la etiqueta del proyecto §a" + project.getId() + "§f.");
 

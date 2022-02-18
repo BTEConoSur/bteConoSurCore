@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.chats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 

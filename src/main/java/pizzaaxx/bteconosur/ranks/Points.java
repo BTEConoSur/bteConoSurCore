@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.ranks;
 
 import org.bukkit.Bukkit;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 

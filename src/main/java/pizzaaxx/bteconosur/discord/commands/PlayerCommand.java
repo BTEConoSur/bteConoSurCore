@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
@@ -189,12 +189,12 @@ public class PlayerCommand extends ListenerAdapter {
                         if (serverPlayer.getProjects().size() > 0) {
                             List<String> projects = new ArrayList<>();
                             for (Project project : serverPlayer.getOwnedProjects()) {
-                                projects.add("• :flag_" + new Country(project.getCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
+                                projects.add("• :flag_" + new Country(project.getOldCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                             }
 
                             for (Project project : serverPlayer.getProjects()) {
                                 if (project.getOwner() != serverPlayer.getPlayer()) {
-                                    projects.add("• :flag_" + new Country(project.getCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
+                                    projects.add("• :flag_" + new Country(project.getOldCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                                 }
                                 if (projects.size() >= 15) {
                                     projects.add("y " + (serverPlayer.getProjects().size() - 15) + " más...");

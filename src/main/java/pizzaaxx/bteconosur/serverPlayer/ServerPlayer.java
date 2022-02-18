@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur;
+package pizzaaxx.bteconosur.serverPlayer;
 
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -14,7 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.yaml.snakeyaml.Yaml;
+import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
@@ -39,10 +39,25 @@ public class ServerPlayer {
 
     private OfflinePlayer player = null;
     private PlayerData data;
+    private DataManager dataManager;
+    private ChatManager chatManager;
+    private PointsManager pointsManager;
+    private ProjectsManager projectsManager;
 
     // CONSTRUCTOR
-    public ServerPlayer(OfflinePlayer p) {
 
+    public ServerPlayer(UUID uuid, boolean storeManagers) {
+        if (playerRegistry.exists(uuid)) {
+            ServerPlayer serverPlayer = playerRegistry.get(uuid);
+
+            player = serverPlayer.getPlayer();
+            data = serverPlayer.data;
+
+        } else {
+
+            player = Bukkit.getOfflinePlayer(uuid);
+            this.data = new PlayerData(player);
+        }
     }
 
     public ServerPlayer(UUID uuid) {
@@ -58,6 +73,49 @@ public class ServerPlayer {
             this.data = new PlayerData(player);
         }
     }
+
+    public ServerPlayer(OfflinePlayer p) {
+        this.player = p;
+        ServerPlayer s = new ServerPlayer(p.getUniqueId());
+        this.data = s.getData();
+    }
+
+    // MANAGERS
+
+    public void loadManagers() {
+        dataManager = new DataManager(this);
+        chatManager = new ChatManager(this);
+        projectsManager = new ProjectsManager(this);
+    }
+
+    public DataManager getDataManager() {
+        if (dataManager == null) {
+            DataManager manager = new DataManager(this);
+            dataManager = manager;
+            return manager;
+        }
+        return dataManager;
+    }
+
+    public ChatManager getChatManager() {
+        if (chatManager == null) {
+            ChatManager manager = new ChatManager(this);
+            chatManager = manager;
+            return manager;
+        }
+        return chatManager;
+    }
+
+    public ProjectsManager getProjectsManager() {
+        if (projectsManager == null) {
+            ProjectsManager manager = new ProjectsManager(this);
+            projectsManager = manager;
+            return manager;
+        }
+        return projectsManager;
+    }
+
+    /////////
 
     public PlayerData getData() {
         return data;
@@ -195,7 +253,7 @@ public class ServerPlayer {
     }
 
     public String getName() {
-        return (String) data.getData("name");
+        return dataManager.getString("name");
     }
 
     public String getNickame() {
@@ -212,13 +270,6 @@ public class ServerPlayer {
         if (getScoreboard().equals("me")) {
             updateScoreboard();
         }
-    }
-
-    public String getDisplayName() {
-        if (getNickame() != null) {
-            return getNickame().replace("&", "§");
-        }
-        return (String) data.getData("name");
     }
 
     public String getCountryPrefix() {
@@ -481,6 +532,20 @@ public class ServerPlayer {
         return permissionCountries;
     }
 
+    public enum PrimaryGroup {
+
+        DEFAULT, POSTULANTE, BUILDER, MOD, ADMIN;
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase();
+        }
+    }
+
+    public PrimaryGroup newGetPrimaryGroup() {
+        return PrimaryGroup.valueOf(((String) data.getData("primaryGroup")).toUpperCase());
+    }
+
     public String getPrimaryGroup() {
         return (String) data.getData("primaryGroup");
     }
@@ -492,6 +557,10 @@ public class ServerPlayer {
         if (getScoreboard().equals("me")) {
             updateScoreboard();
         }
+    }
+
+    public enum SecondaryGroup {
+        STREAMER, DONADOR, EVENTO
     }
 
     public List<String> getSecondaryGroups() {
@@ -580,7 +649,13 @@ public class ServerPlayer {
         if (this.player.isOnline()) {
             ((Player) this.player).sendMessage(message.replace("**", "").replace("`", ""));
         } else if (hasDiscordUser()) {
-            getDiscordUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(ChatColor.stripColor("**Notificación:** " + message)).queue());
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    getDiscordUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(ChatColor.stripColor("**Notificación:** " + message)).queue());
+                }
+            };
+            runnable.runTaskAsynchronously(Bukkit.getPluginManager().getPlugin("bteConoSur"));
         } else {
             List<String> notifications = null;
             if (data.getData("notifications") != null) {
@@ -723,7 +798,7 @@ public class ServerPlayer {
                 lines.add("§aProyectos activos: §f" + getProjects().size());
                 lines.add("§aProyectos terminados: §f" + getTotalFinishedProjects());
 
-                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§a§l" + getDisplayName());
+                BPlayerBoard board = Netherboard.instance().createBoard((Player) this.player, "§a§l" + getChatManager().getDisplayName());
                 board.setAll(lines.toArray(new String[0]));
             } else if (scoreboard.equals("project")) {
                 try {
@@ -742,7 +817,7 @@ public class ServerPlayer {
 
                     lines.add(" ");
                     lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().replace("facil", "fácil").replace("dificil", "difícil")));
-                    lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry()));
+                    lines.add("§aPaís: §f" + StringUtils.capitalize(project.getOldCountry()));
                     if (project.getTag() != null) {
                         lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().replace("_", " ")));
                     }

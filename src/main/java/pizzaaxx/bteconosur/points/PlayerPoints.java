@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.points;
 
 import org.bukkit.OfflinePlayer;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 
 import static pizzaaxx.bteconosur.misc.Misc.getCountryPrefix;

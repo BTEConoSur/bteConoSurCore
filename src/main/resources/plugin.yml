@@ -6,6 +6,8 @@ loadbefore:
   - WorldGuard
   - WorldEdit
 commands:
+  help:
+    description: Obtén ayuda de todos los comandos del servidor.
   lobby:
     description: Teletranspórtate a alguno de los lobbies.
   assets:

@@ -14,7 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.player.data.PlayerData;
@@ -29,7 +29,8 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
 
 public class Project {
-    private String country = null;
+    private Country country = null;
+    private String oldCountry = null;
     private String difficulty = null;
     private OfflinePlayer owner = null;
     private Set<OfflinePlayer> members = null;
@@ -63,7 +64,8 @@ public class Project {
                 this.owner = Bukkit.getOfflinePlayer(UUID.fromString((String) projectData.get("owner")));
             }
             if (projectData.containsKey("country")) {
-                this.country = (String) projectData.get("country");
+                this.oldCountry = (String) projectData.get("country");
+                this.country = new Country((String) projectData.get("country"));
             }
             if (projectData.containsKey("tag")) {
                 this.tag = (String) projectData.get("tag");
@@ -86,7 +88,7 @@ public class Project {
     }
 
     public Project(String country, String difficulty, List<BlockVector2D> points) {
-        this.country = country;
+        this.oldCountry = country;
         this.generateID();
         this.points = points;
         this.difficulty = difficulty;
@@ -122,7 +124,7 @@ public class Project {
                 this.owner = Bukkit.getOfflinePlayer((UUID.fromString((String) projectData.get("owner"))));
             }
             if (projectData.containsKey("country")) {
-                this.country = (String) projectData.get("country");
+                this.oldCountry = (String) projectData.get("country");
             }
             if (projectData.containsKey("tag")) {
                 this.tag = (String) projectData.get("tag");
@@ -154,7 +156,11 @@ public class Project {
 
     // --- GETTERS ---
 
-    public String getCountry() {
+    public String getOldCountry() {
+        return oldCountry;
+    }
+
+    public Country getCountry() {
         return country;
     }
 
@@ -240,10 +246,10 @@ public class Project {
     }
 
     public BlockVector2D getAverageCoordinate() {
-        Double minX = this.points.get(0).getX();
-        Double maxX = this.points.get(0).getX();
-        Double minZ = this.points.get(0).getZ();
-        Double maxZ = this.points.get(0).getZ();
+        double minX = this.points.get(0).getX();
+        double maxX = this.points.get(0).getX();
+        double minZ = this.points.get(0).getZ();
+        double maxZ = this.points.get(0).getZ();
 
         for (BlockVector2D point : this.points) {
             if (point.getX() > maxX) {
@@ -272,8 +278,8 @@ public class Project {
         }
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setOldCountry(String oldCountry) {
+        this.oldCountry = oldCountry;
     }
 
     public void setDifficulty(String difficulty) {
@@ -364,11 +370,11 @@ public class Project {
             YamlManager tags = new YamlManager(pluginFolder, "projectTags/tags.yml");
 
             if (oldTag != null) {
-                tags.removeFromList(new Country(this.country).getAbbreviation() + "_" + this.oldTag, this.id);
+                tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.oldTag, this.id);
             }
 
             if (tag != null) {
-                tags.removeFromList(new Country(this.country).getAbbreviation() + "_" + this.tag, this.id);
+                tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.tag, this.id);
             }
 
             tags.write();
@@ -472,16 +478,16 @@ public class Project {
             project.deleteValue("tag");
 
             if (oldTag != null) {
-                tags.removeFromList(new Country(this.country).getAbbreviation() + "_" + this.oldTag, this.id);
+                tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.oldTag, this.id);
             }
         } else {
             project.setValue("tag", this.tag);
 
             if (oldTag != null) {
-               tags.removeFromList(new Country(this.country).getAbbreviation() + "_" + this.oldTag, this.id);
+               tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.oldTag, this.id);
             }
 
-            tags.addToList(new Country(this.country).getAbbreviation() + "_" + this.tag, this.id, false);
+            tags.addToList(new Country(this.oldCountry).getAbbreviation() + "_" + this.tag, this.id, false);
         }
 
         tags.write();
@@ -557,10 +563,10 @@ public class Project {
             }
         }
 
-        if (this.country == null) {
+        if (this.oldCountry == null) {
             project.deleteValue("country");
         } else {
-            project.setValue("country", this.country);
+            project.setValue("country", this.oldCountry);
         }
 
         project.write();

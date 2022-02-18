@@ -107,6 +107,10 @@ public class Misc {
         return item;
     }
 
+    public static String getSimplePrefix(String name, String color) {
+        return "§f[§" + color + name.toUpperCase() + "§f] §7>>§r ";
+    }
+
     public static ItemStack getCustomHead(String name, String lore, String value) {
         ItemStack head = new ItemStack(Material.SKULL_ITEM,1,(byte) SkullType.PLAYER.ordinal());
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();

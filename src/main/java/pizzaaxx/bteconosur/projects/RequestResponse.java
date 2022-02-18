@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
 
 import java.util.*;
@@ -62,8 +62,8 @@ public class RequestResponse extends ListenerAdapter {
                     }
                     dscMessage = dscMessage.replace(".0", "");
 
-                    getLogsChannel(project.getCountry()).sendMessage(dscMessage).queue();
-                    getLogsChannel(project.getCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
+                    getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
+                    getLogsChannel(project.getOldCountry()).sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
 
 
                     requestsClicks.remove(e.getMessage().getId());
@@ -119,7 +119,7 @@ public class RequestResponse extends ListenerAdapter {
                         }
                         dscMessage = dscMessage.replace(".0", "");
 
-                        getLogsChannel(project.getCountry()).sendMessage(dscMessage).queue();
+                        getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
 
                     } catch (Exception exception) {
                         exception.printStackTrace();

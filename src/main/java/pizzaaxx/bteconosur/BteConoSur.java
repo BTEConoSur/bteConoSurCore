@@ -18,6 +18,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
+import pizzaaxx.bteconosur.discord.DiscordHandler;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.join.Join;
@@ -28,9 +29,11 @@ import pizzaaxx.bteconosur.presets.PresetsEvent;
 import pizzaaxx.bteconosur.presets.PresetsCommand;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
-import pizzaaxx.bteconosur.ranks.Prefix;
+import pizzaaxx.bteconosur.ranks.PrefixCommand;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
+import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.teleport.PWarp;
 import pizzaaxx.bteconosur.testing.Testing;
@@ -52,6 +55,7 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
+    public static DiscordHandler discord;
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
@@ -61,9 +65,6 @@ public final class BteConoSur extends JavaPlugin {
     public void onEnable() {
 
         getLogger().info("Enabling  BTE Cono Sur!");
-
-        Configuration configuration = new Configuration(this, "config");
-        Config config = new Config(configuration);
 
         registerListeners(
                 new Join(playerRegistry),
@@ -76,17 +77,17 @@ public final class BteConoSur extends JavaPlugin {
                 new Events(),
                 new Scoreboard(),
                 new GetCommand(),
-                new Prefix(),
-                new LobbyCommand()
+                new PrefixCommand(),
+                new LobbyCommand(),
+                new EventsCommand()
         );
 
-        getCommand("btecs_reload").setExecutor(config);
         getCommand("project").setExecutor(new ProjectsCommand());
         getCommand("link").setExecutor(new LinkMinecraft());
         getCommand("unlink").setExecutor(new LinkMinecraft());
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
-        getCommand("prefix").setExecutor(new Prefix());
+        getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chats.Command());
         getCommand("nickname").setExecutor(new NickNameCommand());
         getCommand("test").setExecutor(new Testing());
@@ -110,6 +111,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("assets").setExecutor(new LobbyCommand());
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
+        getCommand("help").setExecutor(new HelpCommand());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -160,6 +162,10 @@ public final class BteConoSur extends JavaPlugin {
             e.printStackTrace();
         }
 
+        Configuration configuration = new Configuration(this, "config");
+        Config config = new Config(configuration);
+        getCommand("btecs_reload").setExecutor(config);
+
         JDABuilder chile = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("chile"));
         chile.setStatus(OnlineStatus.ONLINE);
         chile.setActivity(Activity.playing("IP: bteconosur.com"));
@@ -182,6 +188,8 @@ public final class BteConoSur extends JavaPlugin {
         online.setColor(new Color(0, 255, 42));
         online.setTitle("¡El servidor ya está online!");
         online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
+
+        discord = new DiscordHandler();
 
         gateway.sendMessageEmbeds(online.build()).queue();
 

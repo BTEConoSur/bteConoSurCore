@@ -41,7 +41,8 @@ public class Config implements CommandExecutor {
 
     public void reload() {
         maxProjectsPerPlayer = configuration.getInt("max-project-per-player");
-        maxProjectPoints = configuration.getInt("max-project-per-points");
+        maxProjectPoints = configuration.getInt("max-project-points");
+        maxProjectMembers = configuration.getInt("max-members-per-project");
         easyPoints = configuration.getInt("easy-points");
         mediumPoints = configuration.getInt("medium-points");
         hardPoints = configuration.getInt("hard-points");
@@ -60,7 +61,7 @@ public class Config implements CommandExecutor {
         logsPy = conoSurBot.getTextChannelById(logsSection.getLong("py"));
         logsPe = conoSurBot.getTextChannelById(logsSection.getLong("pe"));
 
-        gateway = conoSurBot.getTextChannelById(configuration.getLong("gateway-channel"));
+        gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));
     }
 
     @Override

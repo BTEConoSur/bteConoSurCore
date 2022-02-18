@@ -74,7 +74,7 @@ public class ProjectCommand implements EventListener {
 
                                     // PAIS
 
-                                    embed.addField(":globe_with_meridians: País:", ":flag_" + Misc.getCountryPrefix(project.getCountry()) + ": " + WordUtils.capitalize(project.getCountry()), false);
+                                    embed.addField(":globe_with_meridians: País:", ":flag_" + Misc.getCountryPrefix(project.getOldCountry()) + ": " + WordUtils.capitalize(project.getOldCountry()), false);
 
                                     // ETIQUETA
 
@@ -179,7 +179,7 @@ public class ProjectCommand implements EventListener {
                                     Project project = new Project(str);
 
                                     String line = "• :flag_" +
-                                            Misc.getCountryPrefix(project.getCountry()) +
+                                            Misc.getCountryPrefix(project.getOldCountry()) +
                                             ": " +
                                             project.getId();
 

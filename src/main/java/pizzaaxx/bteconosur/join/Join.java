@@ -6,8 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import pizzaaxx.bteconosur.PlayerRegistry;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -42,7 +42,7 @@ public class Join implements Listener {
         Player player = event.getPlayer();
         event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
-        ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
+        ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
         PlayerData playerData = serverPlayer.getData();
 
         String dataName = (String) playerData.getData("name");
@@ -95,9 +95,9 @@ public class Join implements Listener {
         // NOTIFICACIONES
 
         if (player.hasPlayedBefore()) {
-            player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
 
             if (serverPlayer.getNotifications().size() > 0) {
+                player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
                 int i = 1;
                 for (String notif : serverPlayer.getNotifications()) {
                     player.sendMessage(i + ". " + notif.replace("&", "§"));
@@ -108,6 +108,7 @@ public class Join implements Listener {
                 playerData.deleteData("notifications");
                 playerData.save();
             } else if (!serverPlayer.hasDiscordUser()) {
+                player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
                 player.sendMessage("§c                   No tienes notificaciones nuevas.");
                 player.sendMessage(" ");
             }
@@ -135,7 +136,7 @@ public class Join implements Listener {
         serverPlayer.updateScoreboard();
 
         for (Player online : Bukkit.getOnlinePlayers()) {
-            ServerPlayer serverPlayerOnline = playerRegistry.get(online.getUniqueId());
+            ServerPlayer serverPlayerOnline = new ServerPlayer(player.getUniqueId());
             if (serverPlayerOnline.getScoreboard().equals("server")) {
                 serverPlayerOnline.updateScoreboard();
             }

@@ -5,7 +5,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class Streamer implements CommandExecutor {
     public static String streamerPrefix = "§f[§aSTREAMER§f] §7>>§r ";

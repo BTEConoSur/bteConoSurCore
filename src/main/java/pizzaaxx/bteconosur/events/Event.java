@@ -10,9 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.helper.Pair;
+import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
@@ -197,6 +198,9 @@ public class Event {
         List<String> names = new ArrayList<>();
         for (OfflinePlayer player : participants) {
             ServerPlayer serverPlayer = new ServerPlayer(player);
+            if (serverPlayer.newGetPrimaryGroup() == ServerPlayer.PrimaryGroup.DEFAULT && !(serverPlayer.getSecondaryGroups().contains("evento"))) {
+                serverPlayer.addSecondaryGroup("evento");
+            }
             names.add(serverPlayer.getName());
             if (!player.isOnline()) {
                 // TODO FIX ¡
@@ -244,6 +248,14 @@ public class Event {
         for (OfflinePlayer player : participants) {
             ServerPlayer serverPlayer = new ServerPlayer(player);
             names.add(serverPlayer.getName());
+            PlayerData playerData = new PlayerData(player);
+            if (serverPlayer.getSecondaryGroups().contains("evento")) {
+                if (playerData.getList("events") != null && playerData.getList("events").size() == 1) {
+                    serverPlayer.removeSecondaryGroup("evento");
+                }
+            }
+            playerData.removeFromList("events", this.country.getCountry());
+            playerData.save();
             if (!player.isOnline()) {
                 serverPlayer.sendNotification(eventsPrefix + "El evento §a**" + this.name +  "**§f de §a" + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + "§f acaba de terminar. ¡Gracias por participar!");
             }

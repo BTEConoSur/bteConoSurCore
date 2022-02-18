@@ -12,7 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
@@ -105,7 +105,7 @@ public class Events implements Listener, EventListener {
                             targetChats.add(new ServerPlayer(target).getChat().getName());
                         }
 
-                        message = message.replace(word, "§a~" + s.getDisplayName() + "~");
+                        message = message.replace(word, "§a~" + s.getChatManager().getDisplayName() + "~");
                     }
                 }
             }
@@ -119,7 +119,7 @@ public class Events implements Listener, EventListener {
                     try {
                         Project project = new Project(name.replace("project_", ""));
 
-                        country = new Country(project.getCountry());
+                        country = new Country(project.getOldCountry());
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
@@ -143,7 +143,7 @@ public class Events implements Listener, EventListener {
                     }
                 }
 
-                String finalMessage = String.join(" ", s.getPrefixes()) + bRankPrefix + "§f <" + s.getDisplayName() + "§f> " + message.replace("~", "");
+                String finalMessage = String.join(" ", s.getPrefixes()) + bRankPrefix + "§f <" + s.getChatManager().getDisplayName() + "§f> " + message.replace("~", "");
 
 
                 if (chat.getName().equals("global")) {

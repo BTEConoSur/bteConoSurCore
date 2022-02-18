@@ -3,8 +3,8 @@ package pizzaaxx.bteconosur.listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import pizzaaxx.bteconosur.PlayerRegistry;
-import pizzaaxx.bteconosur.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class AsyncPlayerPreLoginListener implements Listener {
 
