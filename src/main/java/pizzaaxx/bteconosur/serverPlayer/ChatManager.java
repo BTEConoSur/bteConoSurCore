@@ -1,13 +1,18 @@
 package pizzaaxx.bteconosur.serverPlayer;
 
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.chats.Chat;
+import pizzaaxx.bteconosur.chats.ChatRegistry;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 
 public class ChatManager {
     private final DataManager data;
     private final ServerPlayer serverPlayer;
+    private boolean hide;
 
     public ChatManager(ServerPlayer s) {
         data = s.getDataManager();
@@ -16,25 +21,26 @@ public class ChatManager {
 
     public Chat getChat() {
         if (data.contains("chat")) {
-            return new Chat(data.getString("chat"));
+            return chatRegistry.get(data.getString("chat"));
         }
-        return new Chat("global");
+        return chatRegistry.get("global");
     }
 
-    public void setChat(@NotNull Chat chat) {
-        data.set("chat", chat.getName());
+    public void setChat(@NotNull String chat) {
+        data.set("chat", chat);
         data.save();
+        chatRegistry.movePlayer(serverPlayer, chat);
     }
 
     public Chat getDefaultChat() {
         if (data.contains("defaultChat")) {
-            return new Chat(data.getString("defaultChat"));
+            return chatRegistry.get(data.getString("defaultChat"));
         }
-        return new Chat("global");
+        return chatRegistry.get("global");
     }
 
-    public void setDefaultChat(@NotNull Chat chat) {
-        data.set("defaultChat", chat.getName());
+    public void setDefaultChat(@NotNull String chat) {
+        data.set("defaultChat", chat);
         data.save();
     }
 
@@ -56,7 +62,11 @@ public class ChatManager {
     }
 
     public void setNick(String nick) {
-        data.set("nickname", nick.replace("§", "&"));
+        if (nick == null || nick.equals(serverPlayer.getName())) {
+            data.set("nickname", null);
+        } else {
+            data.set("nickname", nick.replace("§", "&"));
+        }
         data.save();
     }
 
@@ -64,5 +74,32 @@ public class ChatManager {
         String normalName = serverPlayer.getName();
         String nick = getNick();
         return (nick.equals(normalName) ? normalName : nick);
+    }
+
+    public List<String> getSecondaryPrefixes() {
+        List<String> prefixes = new ArrayList<>();
+        serverPlayer.getGroupsManager().getSecondaryGroups().forEach(group -> prefixes.add(group.getAsPrefix()));
+        return prefixes;
+    }
+
+    public String getMainPrefix() {
+        return serverPlayer.getGroupsManager().getPrimaryGroup().getAsPrefix();
+    }
+
+    public List<String> getAllPrefixes() {
+        List<String> prefixes = new ArrayList<>();
+        prefixes.add(getMainPrefix());
+        prefixes.addAll(getSecondaryPrefixes());
+        prefixes.add(getCountryPrefix());
+        return prefixes;
+    }
+
+    public boolean toggleChat() {
+        hide = !hide;
+        return hide;
+    }
+
+    public boolean isHidden() {
+        return hide;
     }
 }

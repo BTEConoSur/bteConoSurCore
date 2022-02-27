@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.omg.CORBA.ARG_IN;
+import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.Country;
@@ -48,8 +50,12 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static pizzaaxx.bteconosur.Config.gateway;
+import static pizzaaxx.bteconosur.country.Country.countryNames;
 import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
@@ -62,6 +68,8 @@ public final class BteConoSur extends JavaPlugin {
     public static File pluginFolder = null;
     public static String key;
     public static PlayerRegistry playerRegistry = new PlayerRegistry();
+    public static ChatRegistry chatRegistry = new ChatRegistry();
+    public static Map<Country, Guild> guilds = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -164,6 +172,10 @@ public final class BteConoSur extends JavaPlugin {
             e.printStackTrace();
         }
 
+        Configuration guildsSection = new Configuration(this, "discord/guilds");
+        countryNames.forEach(name -> guilds.put(new Country(name), conoSurBot.getGuildById(guildsSection.getString(name))));
+
+
         Configuration configuration = new Configuration(this, "config");
         Config config = new Config(configuration);
         getCommand("btecs_reload").setExecutor(config);
@@ -194,6 +206,14 @@ public final class BteConoSur extends JavaPlugin {
         discord = new DiscordHandler();
 
         gateway.sendMessageEmbeds(online.build()).queue();
+
+        chatRegistry.register("global");
+        chatRegistry.register("argentina");
+        chatRegistry.register("bolivia");
+        chatRegistry.register("chile");
+        chatRegistry.register("paraguay");
+        chatRegistry.register("peru");
+        chatRegistry.register("uruguay");
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Scoreboard::checkAutoScoreboards, 300, 300);
     }

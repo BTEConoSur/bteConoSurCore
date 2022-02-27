@@ -2,35 +2,56 @@ package pizzaaxx.bteconosur.chats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.serverPlayer.ChatManager;
+import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
 
 public class Chat {
 
-    private static final String SECTION_LINE = "§7>+--------------+[-< ~ >-]+--------------+<";
-
     private final String name;
-    private final Set<Player> members = new HashSet<>();
+    private final Set<UUID> membersUUID = new HashSet<>();
 
     public Chat(String name) {
         this.name = name;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (new PlayerData(player).getData("chat").equals(this.name)) {
-                members.add(player);
+                membersUUID.add(player.getUniqueId());
             }
         }
+    }
+
+    public String toString() {
+        return name;
+    }
+
+    public int getMembersAmount() {
+        return membersUUID.size();
+    }
+
+    public void removeMember(Player player) {
+        if (membersUUID.contains(player.getUniqueId())) {
+            membersUUID.remove(player.getUniqueId());
+            String name = new ServerPlayer(player).getName();
+            broadcast(chatsPrefix + "§a" + name + "§f ha abandonado el chat.");
+        }
+
     }
 
     // GETTER
 
     public Set<Player> getMembers() {
+        Set<Player> members = new HashSet<>();
+        membersUUID.forEach(uuid -> members.add(Bukkit.getPlayer(uuid)));
         return members;
     }
 
@@ -53,28 +74,57 @@ public class Chat {
         return null;
     }
 
-
-    public void addPlayer(Player player) {
-        if (!(this.members.contains(player))) {
-            for (Player memberOld : new ServerPlayer(player).getChat().getMembers()) {
-                if (memberOld != player) {
-                    memberOld.sendMessage(chatsPrefix + "§a" + new ServerPlayer(player).getName() + "§f ha abandonado el chat.");
-                }
-            }
-
-            for (Player member : this.members) {
-                member.sendMessage(chatsPrefix + "§a" + new ServerPlayer(player).getName() + "§f se ha unido al chat.");
-            }
-
-            members.add(player);
-        }
+    public boolean equals(Chat chat) {
+        return (getName().equals(chat.getName()));
     }
 
-    public void sendMessage(String message) {
-        for (Player member : this.members) {
-            if (!(new ServerPlayer(member).isChatHidden())) {
-                member.sendMessage(message);
+    public void addMember(Player player) {
+        if (!membersUUID.contains(player.getUniqueId())) {
+            String name = new ServerPlayer(player).getName();
+            broadcast(chatsPrefix + "§a" + name + "§f se ha unido al chat.");
+            membersUUID.add(player.getUniqueId());
+        }
+
+    }
+
+    // [CHAT] CHILE >> [ADMIN] [CHILE] <PIZZAAXX> TEST
+
+    public void sendMessage(String message, ServerPlayer serverPlayer) {
+        ChatManager cManager = serverPlayer.getChatManager();
+        PointsManager pManager = serverPlayer.getPointsManager();
+        Country country = null;
+        String cName = getName();
+        if (!cName.equals("global")) {
+            if (cName.startsWith("project_")) {
+                try {
+                    Project project = new Project(cName.replace("project_", ""));
+                    country = project.getCountry();
+                } catch (Exception e) {
+                    Bukkit.getConsoleSender().sendMessage("No se pudo encontrar el proyecto " + cName.replace("project_", "").toUpperCase());
+                    return;
+                }
+            } else {
+                country = new Country(cName);
             }
         }
+        Chat pChat = cManager.getChat();
+        String msg = (!this.equals(pChat) ? chatsPrefix + " " + pChat.getFormattedName() + " §r>> " : "" ) + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getCountry().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
+        membersUUID.forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
+            ServerPlayer s = new ServerPlayer(player);
+            if (!s.getChatManager().isHidden()) {
+                player.sendMessage(msg);
+            }
+        });
+    }
+
+    public void broadcast(String message) {
+        membersUUID.forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
+            ServerPlayer s = new ServerPlayer(player);
+            if (!s.getChatManager().isHidden()) {
+                player.sendMessage(message);
+            }
+        });
     }
 }

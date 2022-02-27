@@ -5,14 +5,12 @@ import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class CountryPlayer implements Comparable<CountryPlayer> {
 
-    private int points;
-    private ServerPlayer player;
-    private Country country;
+    private final int points;
+    private final ServerPlayer player;
 
     public CountryPlayer(ServerPlayer s, Country country) {
         this.player = s;
-        this.points = s.getPoints(country);
-        this.country = country;
+        this.points = s.getPointsManager().getPoints(country);
     }
 
     public int getPoints() {
@@ -21,10 +19,6 @@ public class CountryPlayer implements Comparable<CountryPlayer> {
 
     public ServerPlayer getPlayer() {
         return player;
-    }
-
-    public Country getCountry() {
-        return country;
     }
 
     @Override

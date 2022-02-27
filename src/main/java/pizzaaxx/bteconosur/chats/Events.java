@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.projects.Project;
@@ -22,6 +23,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
@@ -83,12 +85,13 @@ public class Events implements Listener, EventListener {
         e.setCancelled(true);
         Player p = e.getPlayer();
         ServerPlayer s = new ServerPlayer(p);
+        ChatManager manager = s.getChatManager();
 
         if (!(s.isChatHidden())) {
-            List<String> targetChats = new ArrayList<>();
+            List<Chat> targetChats = new ArrayList<>();
             List<Player> pingedPlayers = new ArrayList<>();
 
-            targetChats.add(s.getChat().getName());
+            targetChats.add(manager.getChat());
 
             String message = ChatColor.stripColor(e.getMessage());
 
@@ -102,7 +105,7 @@ public class Events implements Listener, EventListener {
                         }
 
                         if (!(targetChats.contains(new ServerPlayer(target).getChat().getName()))) {
-                            targetChats.add(new ServerPlayer(target).getChat().getName());
+                            targetChats.add(new ServerPlayer(target).getChat());
                         }
 
                         message = message.replace(word, "§a~" + s.getChatManager().getDisplayName() + "~");
@@ -110,41 +113,7 @@ public class Events implements Listener, EventListener {
                 }
             }
 
-            for (String name : targetChats) {
-                Chat chat = new Chat(name);
-
-                Country country = null;
-
-                if (name.startsWith("project_")) {
-                    try {
-                        Project project = new Project(name.replace("project_", ""));
-
-                        country = new Country(project.getOldCountry());
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-                } else if (!name.equals("global")) {
-                    country = new Country(name);
-                }
-
-                String bRankPrefix = "";
-                if (country != null && !country.getCountry().equals("argentina")) {
-                    if (s.getBuilderRank(country) != null) {
-                        String bRank = s.getBuilderRank(country);
-                        if (bRank.equals("maestro")) {
-                            bRankPrefix = "§f [§6MAESTRO§f]";
-                        }
-                        if (bRank.equals("veterano")) {
-                            bRankPrefix = "§f [§eVETERANO§f]";
-                        }
-                        if (bRank.equals("avanzado")) {
-                            bRankPrefix = "§f [§1AVANZADO§f]";
-                        }
-                    }
-                }
-
-                String finalMessage = String.join(" ", s.getPrefixes()) + bRankPrefix + "§f <" + s.getChatManager().getDisplayName() + "§f> " + message.replace("~", "");
-
+            for (Chat chat : targetChats) {
 
                 if (chat.getName().equals("global")) {
                     List<String> strings = new ArrayList<>();
@@ -161,7 +130,7 @@ public class Events implements Listener, EventListener {
                     gateway.sendMessage(String.join("", strings)).queue();
                 }
 
-                chat.sendMessage(finalMessage);
+                chat.sendMessage(message, s);
             }
 
             for (Player player : pingedPlayers) {
@@ -189,7 +158,7 @@ public class Events implements Listener, EventListener {
                 if (!(e.getAuthor().isBot()) && !(e.getMessage().getContentDisplay().startsWith("/"))) {
                     ChatColor color = ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "discord/chatColors.yml").get(e.getMember().getRoles().get(0).getId()));
 
-                    new Chat("global").sendMessage("[§bDISCORD§f] §7>> §r" + color + e.getMember().getEffectiveName() + ": §r" + e.getMessage().getContentDisplay());
+                    chatRegistry.get("global").sendMessage("[§bDISCORD§f] §7>> §r" + color + e.getMember().getEffectiveName() + ": §r" + e.getMessage().getContentDisplay());
                 }
             }
         }

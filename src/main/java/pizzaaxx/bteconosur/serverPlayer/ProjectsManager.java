@@ -13,12 +13,14 @@ import static pizzaaxx.bteconosur.country.Country.countryNames;
 
 public class ProjectsManager {
 
+    private final ServerPlayer serverPlayer;
     private final DataManager data;
     private final Map<Country, List<String>> projects = new HashMap<>();
     private final Map<Country, Integer> finishedProjects = new HashMap<>();
 
     public ProjectsManager(ServerPlayer s) {
         data = s.getDataManager();
+        serverPlayer = s;
 
         if (data.contains("projects")) {
             ConfigurationSection projectsSection = data.getConfigurationSection("projects");
@@ -46,9 +48,7 @@ public class ProjectsManager {
     public List<String> getAllProjects() {
         List<String> allProjects = new ArrayList<>();
 
-        for (Map.Entry<Country, List<String>> entry : projects.entrySet()) {
-            allProjects.addAll(entry.getValue());
-        }
+        projects.forEach((key, value) -> allProjects.addAll(value));
 
         return allProjects;
     }
@@ -61,15 +61,17 @@ public class ProjectsManager {
         projects.get(project.getCountry()).add(project.getId());
         data.set("projects", project);
         data.save();
+        serverPlayer.getGroupsManager().checkGroups();
     }
 
     public void removeProject(Project project) {
         projects.get(project.getCountry()).remove(project.getId());
         data.set("projects", project);
         data.save();
+        serverPlayer.getGroupsManager().checkGroups();
     }
 
-    public int getAllFinishedProjects() {
+    public int getTotalFinishedProjects() {
         int total = 0;
         for (Map.Entry<Country, Integer> entry : finishedProjects.entrySet()) {
             total = total + entry.getValue();
@@ -79,6 +81,28 @@ public class ProjectsManager {
 
     public int getFinishedProjects(Country country) {
         return finishedProjects.get(country);
+    }
+
+    public int getTotalProjects() {
+        return getAllProjects().size();
+    }
+
+    public Map<Country, List<String>> getOwnedProjects() {
+        Map<Country, List<String>> ownedProjects = new HashMap<>();
+        projects.forEach((country, ps) -> {
+            List<String> owned = new ArrayList<>();
+            ps.forEach(id -> {
+                try {
+                    Project project = new Project(id);
+
+                    if (project.getOwner() == serverPlayer.getPlayer()) {
+                        owned.add(id);
+                    }
+                } catch (Exception ignored) {}
+            });
+            ownedProjects.put(country, owned);
+        });
+        return ownedProjects;
     }
 
 }

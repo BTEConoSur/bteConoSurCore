@@ -15,10 +15,9 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 ;
 import java.util.*;
 
+import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.Config.logsPe;
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Country {
@@ -276,5 +275,9 @@ public class Country {
             }
         }
         return null;
+    }
+
+    public Guild getGuild() {
+        return guilds.get(this);
     }
 }

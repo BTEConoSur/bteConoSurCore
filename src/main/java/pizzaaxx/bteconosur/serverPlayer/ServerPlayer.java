@@ -43,6 +43,8 @@ public class ServerPlayer {
     private ChatManager chatManager;
     private PointsManager pointsManager;
     private ProjectsManager projectsManager;
+    private GroupsManager groupsManager;
+    private DiscordManager discordManager;
 
     // CONSTRUCTOR
 
@@ -83,9 +85,24 @@ public class ServerPlayer {
     // MANAGERS
 
     public void loadManagers() {
-        dataManager = new DataManager(this);
-        chatManager = new ChatManager(this);
-        projectsManager = new ProjectsManager(this);
+        if (dataManager == null) {
+            dataManager = new DataManager(this);
+        }
+        if (chatManager ==  null) {
+            chatManager = new ChatManager(this);
+        }
+        if (projectsManager == null) {
+            projectsManager = new ProjectsManager(this);
+        }
+        if (groupsManager == null) {
+            groupsManager = new GroupsManager(this);
+        }
+        if (pointsManager == null) {
+            pointsManager = new PointsManager(this);
+        }
+        if (discordManager == null) {
+            discordManager = new DiscordManager(this);
+        }
     }
 
     public DataManager getDataManager() {
@@ -95,6 +112,15 @@ public class ServerPlayer {
             return manager;
         }
         return dataManager;
+    }
+
+    public DiscordManager getDiscordManager() {
+        if (discordManager == null) {
+            DiscordManager manager = new DiscordManager(this);
+            discordManager = manager;
+            return manager;
+        }
+        return discordManager;
     }
 
     public ChatManager getChatManager() {
@@ -113,6 +139,25 @@ public class ServerPlayer {
             return manager;
         }
         return projectsManager;
+    }
+
+    public GroupsManager getGroupsManager() {
+        if (groupsManager == null) {
+            GroupsManager manager = new GroupsManager(this);
+            groupsManager = manager;
+            return manager;
+        }
+        return groupsManager;
+    }
+
+
+    public PointsManager getPointsManager() {
+        if (pointsManager == null) {
+            PointsManager manager = new PointsManager(this);
+            pointsManager = manager;
+            return manager;
+        }
+        return pointsManager;
     }
 
     /////////
@@ -347,42 +392,6 @@ public class ServerPlayer {
             return ((Map<String, String>) data.getData("discord")).get("discriminator");
         }
         return null;
-    }
-
-    public Chat getDefaultChat() {
-        return new Chat((String) data.getData("defaultChat"));
-    }
-
-    public Chat getChat() {
-        return new Chat((String) data.getData("chat"));
-    }
-
-    public Boolean isChatHidden() {
-        return (Boolean) data.getData("hideChat");
-    }
-
-    public void setChatHidden(Boolean hide) {
-        data.setData("hideChat", hide);
-        data.save();
-        if (getScoreboard().equals("me")) {
-            updateScoreboard();
-        }
-    }
-
-    public void setDefaultChat(String chat) {
-        data.setData("defaultChat", chat);
-        data.save();
-    }
-
-    public void setChat(String chat) {
-        new Chat(chat).addPlayer((Player) this.player);
-
-        data.setData("chat", chat);
-        data.save();
-
-        if (getScoreboard().equals("me")) {
-            updateScoreboard();
-        }
     }
 
     // GROUPS AND PERMISSIONS

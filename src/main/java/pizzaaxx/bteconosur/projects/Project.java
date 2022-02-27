@@ -10,14 +10,17 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.apache.commons.lang3.builder.Diff;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.io.*;
@@ -29,20 +32,47 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
 
 public class Project {
-    private Country country = null;
+    private final Country country;
+    private final Difficulty difficulty;
+    private final Boolean pending;
+    private final Set<UUID> membersUUID = new HashSet<>();
+    private final String id;
+    private final Configuration config;
     private String oldCountry = null;
-    private String difficulty = null;
+    private UUID ownerUUID = null;
     private OfflinePlayer owner = null;
     private Set<OfflinePlayer> members = null;
     private String name = null;
-    private Boolean pending = false;
     private List<BlockVector2D> points = null;
-    private String id = null;
-    private String tag = null;
-    private String oldTag = null;
+    private Tag tag = null;
+    private Tag oldTag = null;
     private Set<OfflinePlayer> removedMembers = new HashSet<>();
 
+    public enum Difficulty {
+        FACIL, INTERMEDIO, DIFICIL;
+
+        public int getPoints() {
+            return Config.points.get(this);
+        }
+    }
+
+    public enum Tag {
+        EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES;
+
+
+    }
+
     // CONSTRUCTORS
+
+    public Project(String id) {
+        config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+
+        country = new Country(config.getString("country"));
+
+        difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+
+
+    }
 
     public Project(String id) throws Exception {
         File file = new File(pluginFolder, "projects/project_" + id + ".yml");
@@ -62,6 +92,8 @@ public class Project {
             }
             if (projectData.containsKey("owner")) {
                 this.owner = Bukkit.getOfflinePlayer(UUID.fromString((String) projectData.get("owner")));
+                this.ownerUUID = UUID.fromString((String) projectData.get("owner"));
+                // TODO CHANGE TO UUID AND USE NEW YAML MANAGER
             }
             if (projectData.containsKey("country")) {
                 this.oldCountry = (String) projectData.get("country");

@@ -1,11 +1,18 @@
 package pizzaaxx.bteconosur;
 
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.yaml.Configuration;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 
@@ -14,9 +21,11 @@ public class Config implements CommandExecutor {
     public static int maxProjectsPerPlayer;
     public static int maxProjectPoints;
     public static int easyPoints;
+    public static Map<Project.Difficulty, Integer> points = new HashMap<>();
     public static int mediumPoints;
     public static int hardPoints;
     public static int maxProjectMembers;
+    // TODO SWITCH TO USE DIFFICULTY ENUM
 
     public static TextChannel requestsAr;
     public static TextChannel requestsBo;
@@ -34,6 +43,8 @@ public class Config implements CommandExecutor {
 
     private final Configuration configuration;
 
+    public static Map<String, String> groupsPrefixes = new HashMap<>();
+
     public Config(Configuration configuration) {
         this.configuration = configuration;
         reload();
@@ -43,9 +54,10 @@ public class Config implements CommandExecutor {
         maxProjectsPerPlayer = configuration.getInt("max-project-per-player");
         maxProjectPoints = configuration.getInt("max-project-points");
         maxProjectMembers = configuration.getInt("max-members-per-project");
-        easyPoints = configuration.getInt("easy-points");
-        mediumPoints = configuration.getInt("medium-points");
-        hardPoints = configuration.getInt("hard-points");
+        ConfigurationSection pointsSection = configuration.getConfigurationSection("points");
+        points.put(Project.Difficulty.FACIL, pointsSection.getInt("facil"));
+        points.put(Project.Difficulty.INTERMEDIO, pointsSection.getInt("intermedio"));
+        points.put(Project.Difficulty.DIFICIL, pointsSection.getInt("dificil"));
 
         ConfigurationSection requestSection = configuration.getConfigurationSection("request");
         requestsAr = conoSurBot.getTextChannelById(requestSection.getLong("ar"));
@@ -62,6 +74,11 @@ public class Config implements CommandExecutor {
         logsPe = conoSurBot.getTextChannelById(logsSection.getLong("pe"));
 
         gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));
+
+        Configuration colors = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "chat/colors");
+        for (String key : colors.getKeys(false)) {
+            groupsPrefixes.put(key, "[§" + colors.getString(key) + key.toUpperCase() + "]");
+        }
     }
 
     @Override
