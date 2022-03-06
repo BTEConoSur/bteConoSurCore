@@ -95,7 +95,7 @@ public class ProjectsManager {
                 try {
                     Project project = new Project(id);
 
-                    if (project.getOwner() == serverPlayer.getPlayer()) {
+                    if (project.getOwnerOld() == serverPlayer.getPlayer()) {
                         owned.add(id);
                     }
                 } catch (Exception ignored) {}

@@ -14,8 +14,8 @@ import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
@@ -116,13 +116,13 @@ public class ScoreboardManager {
                         if (project.getTag() != null) {
                             lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().replace("_", " ")));
                         }
-                        if (project.getOwner() != null) {
-                            lines.add("§aLíder: §f" + new ServerPlayer(project.getOwner()).getName());
+                        if (project.getOwnerOld() != null) {
+                            lines.add("§aLíder: §f" + new ServerPlayer(project.getOwnerOld()).getName());
                         }
-                        if (project.getMembers() != null) {
+                        if (project.getMembersOld() != null) {
                             lines.add("§aMiembros: §f");
                             int i = 0;
-                            for (OfflinePlayer member : project.getMembers()) {
+                            for (OfflinePlayer member : project.getMembersOld()) {
                                 lines.add("- " + new ServerPlayer(member).getName());
                                 i++;
                                 if (i >= 9) {
@@ -216,13 +216,50 @@ public class ScoreboardManager {
         }
     }
 
-    public boolean toggle() {
+    public boolean toggleHidden() {
         hidden = !hidden;
-        scoreboard.set("hidden", hidden);
-        data.set("scoreboard", scoreboard);
-        data.save();
         update();
+        save();
         return hidden;
     }
 
+    public boolean toggleAuto() {
+        auto = !auto;
+        save();
+        return auto;
+    }
+
+    public boolean isAuto() {
+        return auto;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public ScoreboardType getType() {
+        return type;
+    }
+
+    public void setAuto(boolean auto) {
+        this.auto = auto;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+        update();
+    }
+
+    public void setType(ScoreboardType type) {
+        this.type = type;
+        update();
+    }
+
+    public void save() {
+        scoreboard.set("type", type.toString().toLowerCase());
+        scoreboard.set("hidden", hidden);
+        scoreboard.set("auto", auto);
+        data.set("scoreboard", scoreboard);
+        data.save();
+    }
 }

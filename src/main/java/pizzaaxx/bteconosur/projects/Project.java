@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur.projects;
 
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.RegionGroup;
 import com.sk89q.worldguard.protection.flags.StateFlag;
@@ -10,43 +9,37 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.apache.commons.lang3.builder.Diff;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Config;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
-import java.io.*;
+import java.io.File;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
-import static pizzaaxx.bteconosur.yaml.YamlManager.getYamlData;
 
 public class Project {
     private final Country country;
-    private final Difficulty difficulty;
-    private final Boolean pending;
-    private final Set<UUID> membersUUID = new HashSet<>();
+    private Difficulty difficulty;
+    private Boolean pending;
     private final String id;
     private final Configuration config;
-    private String oldCountry = null;
-    private UUID ownerUUID = null;
-    private OfflinePlayer owner = null;
-    private Set<OfflinePlayer> members = null;
+    private final Set<UUID> members = new HashSet<>();
+    private UUID owner = null;
     private String name = null;
     private List<BlockVector2D> points = null;
     private Tag tag = null;
-    private Tag oldTag = null;
-    private Set<OfflinePlayer> removedMembers = new HashSet<>();
 
     public enum Difficulty {
         FACIL, INTERMEDIO, DIFICIL;
@@ -58,184 +51,134 @@ public class Project {
 
     public enum Tag {
         EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES;
+    }
 
+    // CHECKER
 
+    public static boolean projectExists(String id) {
+        return new File(pluginFolder, "projects/" + id + ".yml").exists();
+    }
+
+    public static boolean isProjectAt(Location location) {
+        Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(location).getRegions();
+        List<String> projects = new ArrayList<>();
+
+        for (ProtectedRegion region : regions) {
+            if (region.getId().startsWith("project_")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // CONSTRUCTORS
 
     public Project(String id) {
-        config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
 
-        country = new Country(config.getString("country"));
+        if (new File(pluginFolder, "projects/" + id + ".yml").exists()) {
 
-        difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
-
-
-    }
-
-    public Project(String id) throws Exception {
-        File file = new File(pluginFolder, "projects/project_" + id + ".yml");
-
-        if (file.isFile()) {
             this.id = id;
-            Map<String, Object> projectData = getYamlData(file, "");
 
-            if (projectData.containsKey("name")) {
-                this.name = (String) projectData.get("name");
-            }
-            if (projectData.containsKey("pending")) {
-                this.pending = (Boolean) projectData.get("pending");
-            }
-            if (projectData.containsKey("difficulty")) {
-                this.difficulty = (String) projectData.get("difficulty");
-            }
-            if (projectData.containsKey("owner")) {
-                this.owner = Bukkit.getOfflinePlayer(UUID.fromString((String) projectData.get("owner")));
-                this.ownerUUID = UUID.fromString((String) projectData.get("owner"));
-                // TODO CHANGE TO UUID AND USE NEW YAML MANAGER
-            }
-            if (projectData.containsKey("country")) {
-                this.oldCountry = (String) projectData.get("country");
-                this.country = new Country((String) projectData.get("country"));
-            }
-            if (projectData.containsKey("tag")) {
-                this.tag = (String) projectData.get("tag");
+            config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+
+            country = new Country(config.getString("country"));
+
+            difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+
+            pending = config.getBoolean("pending");
+
+            if (config.contains("members")) {
+                config.getStringList("members").forEach(uuid -> members.add(UUID.fromString(uuid)));
             }
 
-            if (projectData.containsKey("members")) {
-                this.members = new HashSet<>();
-                for (String uuid : (List<String>) projectData.get("members")) {
-                    this.members.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
-                }
+            if (config.contains("owner")) {
+                owner = UUID.fromString(config.getString("owner"));
             }
 
-            RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
-            if (manager.hasRegion("project_" + id)) {
-                this.points = manager.getRegion("project_" + id).getPoints();
+            if (config.contains("name")) {
+                name = config.getString("name");
             }
-        } else {
-            throw new Exception();
+
+            if (config.contains("tag")) {
+                tag = Tag.valueOf(config.getString("tag").toUpperCase());
+            }
+
+            points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
         }
     }
 
-    public Project(String country, String difficulty, List<BlockVector2D> points) {
-        this.oldCountry = country;
-        this.generateID();
-        this.points = points;
+    public Project(Location location) {
+        Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(location).getRegions();
+        List<String> projects = new ArrayList<>();
+
+        regions.forEach(region -> {
+            if (region.getId().startsWith("project_")) {
+                projects.add(region.getId().replace("project_", ""));
+            }
+        });
+        Collections.sort(projects);
+
+        this(projects.get(0));
+    }
+
+    public Project(BlockVector2D location) {
+        this(new Location(mainWorld, location.getX(), 100, location.getZ()));
+    }
+
+    public Project(Country country, Difficulty difficulty, List<BlockVector2D> points) {
+        this.country = country;
         this.difficulty = difficulty;
-    }
 
-    public Project(Location loc) throws Exception {
+        String rndmID = generateCode(6);
         RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
-        ApplicableRegionSet regionSet = regions.getApplicableRegions(loc);
-        Set<ProtectedRegion> regionList = regionSet.getRegions();
-        String id = null;
-        for (ProtectedRegion r : regionList) {
-            if (r.getId().startsWith("project_")) {
-                id = r.getId().replace("project_", "");
-                break;
-            }
+
+        while (regions.hasRegion("project_" + rndmID)) {
+            rndmID = generateCode(6);
         }
-        if (id != null) {
-            File file = new File(Bukkit.getServer().getPluginManager().getPlugin("bteConoSur").getDataFolder(), "projects/project_" + id + ".yml");
+        this.id = rndmID;
 
-            this.id = id;
-
-            Map<String, Object> projectData = getYamlData(file, "");
-            if (projectData.containsKey("name")) {
-                this.name = (String) projectData.get("name");
-            }
-            if (projectData.containsKey("pending")) {
-                this.pending = (Boolean) projectData.get("pending");
-            }
-            if (projectData.containsKey("difficulty")) {
-                this.difficulty = (String) projectData.get("difficulty");
-            }
-            if (projectData.containsKey("owner")) {
-                this.owner = Bukkit.getOfflinePlayer((UUID.fromString((String) projectData.get("owner"))));
-            }
-            if (projectData.containsKey("country")) {
-                this.oldCountry = (String) projectData.get("country");
-            }
-            if (projectData.containsKey("tag")) {
-                this.tag = (String) projectData.get("tag");
-            }
-
-            if (projectData.containsKey("members")) {
-                this.members = new HashSet<>();
-                for (String uuid : (List<String>) projectData.get("members")) {
-                    this.members.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
-                }
-            }
-
-            RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
-            if (manager.hasRegion("project_" + id)) {
-                this.points = manager.getRegion("project_" + id).getPoints();
-
-            }
-        } else {
-            throw new Exception();
-        }
+        this.points = points;
     }
 
     // CLAIMED
 
     public boolean isClaimed() {
-        return (this.owner != null || this.members != null || this.pending);
+        return (this.owner != null || !this.members.isEmpty() || this.pending);
     }
 
 
     // --- GETTERS ---
 
-    public String getOldCountry() {
-        return oldCountry;
-    }
-
     public Country getCountry() {
         return country;
     }
 
-    public String getDifficulty() {
-        return this.difficulty;
+    public Difficulty getDifficulty() {
+        return difficulty;
     }
 
-    public OfflinePlayer getOwner() {
-        return this.owner;
-    }
-
-    public Set<OfflinePlayer> getMembers() {
-        return this.members;
-    }
-
-    public String getTag() {
-        return this.tag;
+    public Tag getTag() {
+        return tag;
     }
 
     public String getName() {
-        if (this.name != null) {
-            return this.name;
-        } else if (this.id != null) {
-            return this.id;
+        if (name != null) {
+            return name;
         }
-        return null;
-
+        return this.id;
     }
 
     public String getName(boolean formatted) {
-        if (this.name != null) {
+        if (name != null) {
             return this.name;
-        } else if (this.id != null) {
-            if (formatted) {
-                return this.id.toUpperCase();
-            }
-            return this.id;
         }
-        return null;
-
+        if (formatted) {
+            return this.id.toUpperCase();
+        }
+        return this.id;
     }
 
-    public Boolean isPending() {
+    public boolean isPending() {
         return this.pending;
     }
 
@@ -248,7 +191,7 @@ public class Project {
     }
 
     public String getImageUrl() {
-        if (this.points != null && this.points.size() > 1) {
+        if (points != null && points.size() > 1) {
             List<String> coords = new ArrayList<>();
             for (BlockVector2D point : this.points) {
                 coords.add(new Coords2D(point).getLat() + "," + new Coords2D(point).getLon());
@@ -260,21 +203,15 @@ public class Project {
     }
 
     public List<OfflinePlayer> getAllMembers() {
-        List<OfflinePlayer> allMembers;
-        if (this.members != null) {
-            allMembers = new ArrayList<>(this.members);
-        } else {
-            allMembers = new ArrayList<>();
+        List<OfflinePlayer> allMembers = new ArrayList<>();
+        members.forEach(uuid -> allMembers.add(Bukkit.getOfflinePlayer(uuid)));
+        if (owner != null) {
+            allMembers.add(Bukkit.getOfflinePlayer(owner));
         }
-
-        if (this.owner != null) {
-            allMembers.add(this.owner);
-        }
-        if (allMembers.size() == 0) {
+        if (allMembers.isEmpty()) {
             return null;
         }
         return allMembers;
-
     }
 
     public BlockVector2D getAverageCoordinate() {
@@ -298,32 +235,23 @@ public class Project {
             }
         }
 
-        return new BlockVector2D((minX + maxX) / 2, (minZ + maxZ) / 2);
+
+
+        BlockVector2D coord = new BlockVector2D((minX + maxX) / 2, (minZ + maxZ) / 2);
+        if (getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).contains(coord)) {
+            return coord;
+        }
+        return points.get(0);
     }
 
     // --- SETTERS ---
 
-    public void setTag(String tag) {
-        if (this.tag != tag) {
-            this.oldTag = this.tag;
-            this.tag = tag;
-        }
+    public void setTag(Tag tag) {
+        this.tag = tag;
     }
 
-    public void setOldCountry(String oldCountry) {
-        this.oldCountry = oldCountry;
-    }
-
-    public void setDifficulty(String difficulty) {
+    public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
-    }
-
-    public void setOwner(OfflinePlayer owner) {
-        this.owner = owner;
-    }
-
-    public void setMembers(Set<OfflinePlayer> members) {
-        this.members = members;
     }
 
     public void setName(String name) {
@@ -338,21 +266,9 @@ public class Project {
         this.points = points;
     }
 
-    public void generateID() {
-        if (this.id == null) {
-            String rndmID = generateCode(6);
-            RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
-
-            while (regions.hasRegion("project_" + rndmID)) {
-                rndmID = generateCode(6);
-            }
-            this.id = rndmID;
-        }
-    }
-
     // --- ADDERS ---
     public void addMember(OfflinePlayer player) {
-        this.members.add(player);
+        members.add(player.getUniqueId());
     }
 
     public void addPoint(BlockVector2D point) {
@@ -362,24 +278,11 @@ public class Project {
     // REMOVERS
 
     public void removeMember(OfflinePlayer player) {
-        this.members.remove(player);
+        this.membersOld.remove(player);
         this.removedMembers.add(player);
-        if (this.members.size() == 0) {
-            this.members = null;
+        if (this.membersOld.size() == 0) {
+            this.membersOld = null;
         }
-    }
-
-    public void removePoint(BlockVector2D point) {
-        this.points.remove(point);
-        if (this.points.size() == 0) {
-            this.points = null;
-        }
-    }
-
-    // --- PUTTERS ---
-
-    public void putPoint(int index, BlockVector2D point) {
-        this.points.add(index, point);
     }
 
     // DELETE PROJECT
@@ -478,18 +381,27 @@ public class Project {
 
     // UPLOAD PROJECT
 
+    public void save() {
+        Configuration project = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+
+        project.set("difficulty", difficulty.toString().toLowerCase());
+
+        project.set("pending", pending);
+
+        project.set("country", country);
+
+        project.set("name", name);
+
+        project.set("owner", owner);
+
+        project.set("members", (members.isEmpty() ? null : members));
+
+        project.save();
+    }
+
     public void upload() {
-        if (this.id == null) {
-            this.generateID();
-        }
 
         YamlManager project = new YamlManager(pluginFolder, "projects/project_" + this.id + ".yml");
-
-        if (this.difficulty == null) {
-            project.deleteValue("difficulty");
-        } else {
-            project.setValue("difficulty", this.difficulty);
-        }
 
         if (this.difficulty == null) {
             project.deleteValue("difficulty");
@@ -542,24 +454,24 @@ public class Project {
             pending.write();
         }
 
-        if (this.owner == null) {
+        if (this.ownerOld == null) {
             project.deleteValue("owner");
         } else {
-            project.setValue("owner", this.owner.getUniqueId().toString());
-            PlayerData owner = new PlayerData(this.owner);
+            project.setValue("owner", this.ownerOld.getUniqueId().toString());
+            PlayerData owner = new PlayerData(this.ownerOld);
             owner.addToList("projects", this.id, false);
             owner.save();
-            ServerPlayer s = new ServerPlayer(this.owner);
+            ServerPlayer s = new ServerPlayer(this.ownerOld);
             s.updateRanks();
             if (s.getScoreboard().equals("me")) {
                 s.updateScoreboard();
             }
         }
 
-        if (this.members == null) {
+        if (this.membersOld == null) {
             project.deleteValue("members");
         } else {
-            for (OfflinePlayer p : this.members) {
+            for (OfflinePlayer p : this.membersOld) {
                 project.addToList("members", p.getUniqueId().toString(), false);
                 PlayerData member = new PlayerData(p);
                 member.addToList("projects", this.id, false);
@@ -657,13 +569,13 @@ public class Project {
     // EMPTY PROJECT
 
     public void empty() {
-        if (this.members != null) {
-            this.removedMembers.addAll(this.members);
+        if (this.membersOld != null) {
+            this.removedMembers.addAll(this.membersOld);
         }
-        if (this.owner != null) {
-            this.removedMembers.add(this.owner);
+        if (this.ownerOld != null) {
+            this.removedMembers.add(this.ownerOld);
         }
-        this.members = null;
-        this.owner = null;
+        this.membersOld = null;
+        this.ownerOld = null;
     }
 }

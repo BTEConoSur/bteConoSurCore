@@ -193,7 +193,7 @@ public class PlayerCommand extends ListenerAdapter {
                             }
 
                             for (Project project : serverPlayer.getProjects()) {
-                                if (project.getOwner() != serverPlayer.getPlayer()) {
+                                if (project.getOwnerOld() != serverPlayer.getPlayer()) {
                                     projects.add("• :flag_" + new Country(project.getOldCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                                 }
                                 if (projects.size() >= 15) {

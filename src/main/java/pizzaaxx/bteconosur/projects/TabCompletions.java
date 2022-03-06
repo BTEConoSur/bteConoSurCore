@@ -36,11 +36,11 @@ public class TabCompletions implements TabCompleter {
                             completions.add("claim");
                         }
 
-                        if (project.getOwner() != null) {
+                        if (project.getOwnerOld() != null) {
                             completions.add("request");
                         }
 
-                        if (project.getOwner() == p) {
+                        if (project.getOwnerOld() == p) {
                             completions.add("add");
                             completions.add("remove");
                             completions.add("transfer");

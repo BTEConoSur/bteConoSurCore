@@ -51,7 +51,7 @@ public class RequestResponse extends ListenerAdapter {
                     }
 
                     Project project = new Project(Misc.getCountryAtLocation(points.get(0)), e.getComponentId(), points);
-                    project.setOwner(target);
+                    project.setOwnerOld(target);
                     project.upload();
 
                     new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");

@@ -123,6 +123,7 @@ public class GroupsManager {
             primaryGroup = group;
             data.set("primaryGroup", group.toString());
             data.save();
+            serverPlayer.getScoreboardManager().update();
         }
     }
 
@@ -139,6 +140,7 @@ public class GroupsManager {
             data.set("secondaryGroups", groups);
             data.save();
             addLuckPermsGroup(group.toString());
+            serverPlayer.getScoreboardManager().update();
         }
     }
 
@@ -151,6 +153,7 @@ public class GroupsManager {
             data.set("secondaryGroups", (groups.isEmpty() ? null : groups));
             data.save();
             removeLuckPermsGroup(group.toString());
+            serverPlayer.getScoreboardManager().update();
         }
     }
 

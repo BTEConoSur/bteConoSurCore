@@ -219,10 +219,10 @@ public class ProjectsCommand implements CommandExecutor {
                 Project project;
                 try {
                     project = new Project(p.getLocation());
-                    if (project.getOwner() != null) {
-                        if (project.getOwner() == p) {
+                    if (project.getOwnerOld() != null) {
+                        if (project.getOwnerOld() == p) {
                             p.sendMessage(projectsPrefix + "Ya eres dueñ@ de este proyecto.");
-                        } else if (project.getMembers().contains(p)) {
+                        } else if (project.getMembersOld().contains(p)) {
                             p.sendMessage("Alguien más ya es dueñ@ de este proyecto. Usa §a/p request §fpara solicitar unirte.");
                         }
                     } else if (new ServerPlayer(p).getOwnedProjects().size() >= maxProjectsPerPlayer){
@@ -232,7 +232,7 @@ public class ProjectsCommand implements CommandExecutor {
                             p.sendMessage(projectsPrefix + "En tu rango solo puedes reclamar proyectos fáciles.");
                             return true;
                         }
-                        project.setOwner(p);
+                        project.setOwnerOld(p);
                         project.upload();
 
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
@@ -297,12 +297,12 @@ public class ProjectsCommand implements CommandExecutor {
                 Project project = null;
                 try {
                     project = new Project(p.getLocation());
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
                             return true;
                         }
-                        if (project.getMembers() == null || (project.getMembers() != null && project.getAllMembers().size() < maxProjectMembers)) {
+                        if (project.getMembersOld() == null || (project.getMembersOld() != null && project.getAllMembers().size() < maxProjectMembers)) {
                             if (args.length >= 2) {
                                 if (Bukkit.getOfflinePlayer(args[1]).isOnline()) {
                                     Player target = Bukkit.getPlayer(args[1]);
@@ -346,14 +346,14 @@ public class ProjectsCommand implements CommandExecutor {
                 Project project = null;
                 try {
                     project = new Project(p.getLocation());
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
                             return true;
                         }
-                        if (project.getMembers() != null) {
+                        if (project.getMembersOld() != null) {
                             if (args.length >= 2) {
-                                if (project.getMembers().contains(Bukkit.getOfflinePlayer(args[1]))) {
+                                if (project.getMembersOld().contains(Bukkit.getOfflinePlayer(args[1]))) {
                                     OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
                                     project.removeMember(target);
                                     project.upload();
@@ -395,13 +395,13 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
                             return true;
                         }
                         if (args.length >= 2) {
-                            if (project.getMembers().contains(Bukkit.getOfflinePlayer(args[1]))) {
+                            if (project.getMembersOld().contains(Bukkit.getOfflinePlayer(args[1]))) {
                                 if (Bukkit.getOfflinePlayer(args[1]).isOnline()) {
                                     if (transferConfirmation.contains(p)) {
                                         transferConfirmation.remove(p);
@@ -414,7 +414,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                                         project.addMember(p);
                                         project.removeMember(target);
-                                        project.setOwner(target);
+                                        project.setOwnerOld(target);
                                         project.upload();
 
                                         p.sendMessage(projectsPrefix + "Has transferido el proyecto §a" + project.getName() + " §fa §a" + target.getName() + "§f.");
@@ -454,7 +454,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (leaveConfirmation.contains(p)) {
                             leaveConfirmation.remove(p);
                             project.empty();
@@ -466,8 +466,8 @@ public class ProjectsCommand implements CommandExecutor {
                             playerData.save();
                             getLogsChannel(project.getOldCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
 
-                            if (project.getMembers() != null) {
-                                for (OfflinePlayer member : project.getMembers()) {
+                            if (project.getMembersOld() != null) {
+                                for (OfflinePlayer member : project.getMembersOld()) {
                                     playerData = new PlayerData(member);
                                     playerData.removeFromList("projects", project.getId());
                                     playerData.save();
@@ -480,7 +480,7 @@ public class ProjectsCommand implements CommandExecutor {
                             leaveConfirmation.add(p);
                             p.sendMessage(projectsPrefix + "§cEsta acción no se puede deshacer. §fUsa el comando de nuevo para confirmar.");
                         }
-                    } else if (project.getMembers() != null && project.getMembers().contains(p)) {
+                    } else if (project.getMembersOld() != null && project.getMembersOld().contains(p)) {
                         project.removeMember(p);
                         project.upload();
 
@@ -490,7 +490,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         p.sendMessage(projectsPrefix + "Has abandonado el proyecto §a" + project.getName() + "§f.");
 
-                        new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha abandonado tu proyecto **§a" + project.getName(true) + "§f**.");
+                        new ServerPlayer(project.getOwnerOld()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha abandonado tu proyecto **§a" + project.getName(true) + "§f**.");
 
                         getLogsChannel(project.getOldCountry()).sendMessage(":outbox_tray: **" + s.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
                     } else {
@@ -557,11 +557,11 @@ public class ProjectsCommand implements CommandExecutor {
                                     p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
 
 
-                                    ServerPlayer owner = new ServerPlayer(project.getOwner());
+                                    ServerPlayer owner = new ServerPlayer(project.getOwnerOld());
 
                                     owner.addPoints(new Country(project.getOldCountry()), amount);
 
-                                    PlayerData playerData = new PlayerData(project.getOwner());
+                                    PlayerData playerData = new PlayerData(project.getOwnerOld());
                                     Integer finishedProjects;
                                     if (playerData.getData("finished_projects_" + project.getOldCountry()) != null) {
                                         finishedProjects = (Integer) playerData.getData("finished_projects_" + project.getOldCountry());
@@ -575,8 +575,8 @@ public class ProjectsCommand implements CommandExecutor {
                                     owner.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
                                     owner.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + owner.getPoints(new Country(project.getOldCountry())));
 
-                                    if (project.getMembers() != null) {
-                                        for (OfflinePlayer member : project.getMembers()) {
+                                    if (project.getMembersOld() != null) {
+                                        for (OfflinePlayer member : project.getMembersOld()) {
                                             ServerPlayer m = new ServerPlayer(member);
                                             m.addPoints(new Country(project.getOldCountry()), amount);
 
@@ -653,7 +653,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (!(project.isPending())) {
                             if (args.length > 1 && args[1].matches("[a-zA-Z0-9_-]{1,32}")) {
                                 project.setName(args[1]);
@@ -730,7 +730,7 @@ public class ProjectsCommand implements CommandExecutor {
                 try {
                     Project project = new Project(p.getLocation());
 
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         if (!(project.isPending())) {
                             if (finishConfirmation.contains(p)) {
                                 finishConfirmation.remove(p);
@@ -739,9 +739,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                                 p.sendMessage(projectsPrefix + "Has marcado el proyecto §a" + project.getName() + "§f como terminado.");
 
-                                if  (project.getMembers() != null) {
-                                    for (OfflinePlayer member : project.getMembers()) {
-                                        new ServerPlayer(member).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(project.getOwner()).getName() + "§f** ha marcado el proyecto **§a" + project.getName(true) + "§f** como terminado.");
+                                if  (project.getMembersOld() != null) {
+                                    for (OfflinePlayer member : project.getMembersOld()) {
+                                        new ServerPlayer(member).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(project.getOwnerOld()).getName() + "§f** ha marcado el proyecto **§a" + project.getName(true) + "§f** como terminado.");
                                     }
                                 }
 
@@ -843,30 +843,30 @@ public class ProjectsCommand implements CommandExecutor {
                     page.newLine();
 
 
-                    if (project.getOwner() != null) {
+                    if (project.getOwnerOld() != null) {
                         page.add(BookUtil.TextBuilder.of("Líder: ")
                                 .color(ChatColor.GREEN)
                                 .style(ChatColor.BOLD)
                                 .build()
                         );
-                        page.add(BookUtil.TextBuilder.of(project.getOwner().getName())
-                                .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwner()).getLore()))
+                        page.add(BookUtil.TextBuilder.of(project.getOwnerOld().getName())
+                                .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwnerOld()).getLore()))
                                 .build()
                         );
                         page.newLine();
                     }
                     
                     int i = 1;
-                    if (project.getMembers() != null) {
+                    if (project.getMembersOld() != null) {
                         page.add("§a§lMiembro(s): §r");
-                        for (OfflinePlayer member : project.getMembers()) {
+                        for (OfflinePlayer member : project.getMembersOld()) {
                             page.add(
                                     BookUtil.TextBuilder.of(new ServerPlayer(member).getName())
                                             .onHover(BookUtil.HoverAction.showText(new ServerPlayer(member).getLore()))
                                             .build()
                             );
 
-                            if (i < project.getMembers().size()) {
+                            if (i < project.getMembersOld().size()) {
                                 page.add(", ");
                             }
                             i++;
@@ -923,23 +923,23 @@ public class ProjectsCommand implements CommandExecutor {
 
                         page.add("§a§lLíder: §r");
                         page.add(
-                                BookUtil.TextBuilder.of(new ServerPlayer(project.getOwner()).getName())
-                                        .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwner()).getLore()))
+                                BookUtil.TextBuilder.of(new ServerPlayer(project.getOwnerOld()).getName())
+                                        .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwnerOld()).getLore()))
                                         .build()
                         );
                         page.newLine();
 
                         int i = 1;
-                        if (project.getMembers() != null) {
+                        if (project.getMembersOld() != null) {
                             page.add("§a§lMiembro(s): §r");
-                            for (OfflinePlayer member : project.getMembers()) {
+                            for (OfflinePlayer member : project.getMembersOld()) {
                                 page.add(
                                         BookUtil.TextBuilder.of(new ServerPlayer(member).getName())
                                                 .onHover(BookUtil.HoverAction.showText(new ServerPlayer(member).getLore()))
                                                 .build()
                                 );
 
-                                if (i < project.getMembers().size()) {
+                                if (i < project.getMembersOld().size()) {
                                     page.add(", ");
                                 }
                                 i++;
@@ -964,7 +964,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwner() == p) {
+                    if (project.getOwnerOld() == p) {
                         Inventory gui = Bukkit.createInventory(null, 53, "Proyecto " + project.getName(true));
 
                         List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
@@ -993,9 +993,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwner() != null) {
+                    if (project.getOwnerOld() != null) {
                         if (!(project.getAllMembers().contains(p))) {
-                            new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
+                            new ServerPlayer(project.getOwnerOld()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
                         } else {
                             p.sendMessage(projectsPrefix + "Ya eres parte de este proyecto.");
                         }
@@ -1100,15 +1100,15 @@ public class ProjectsCommand implements CommandExecutor {
                             notif = notif + "> " + Math.floor(point.getX()) + " " + Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY()) + " " + Math.floor(point.getZ()) + "\n";
                         }
 
-                        if (project.getOwner() != null) {
-                            new ServerPlayer(project.getOwner()).sendNotification(notif);
+                        if (project.getOwnerOld() != null) {
+                            new ServerPlayer(project.getOwnerOld()).sendNotification(notif);
                         }
 
                         getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
                         return true;
                     } else if (p.hasPermission("bteconosur.projects.redefine")) {
 
-                        if (project.getOwner() != p) {
+                        if (project.getOwnerOld() != p) {
                             p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                             return true;
                         }

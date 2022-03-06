@@ -60,8 +60,8 @@ public class ProjectCommand implements EventListener {
 
                                     // THUMBNAIL
 
-                                    if (project.getOwner() != null) {
-                                        embed.setThumbnail("https://mc-heads.net/head/" + project.getOwner().getUniqueId().toString());
+                                    if (project.getOwnerOld() != null) {
+                                        embed.setThumbnail("https://mc-heads.net/head/" + project.getOwnerOld().getUniqueId().toString());
                                     }
 
                                     // NOMBRE
@@ -120,15 +120,15 @@ public class ProjectCommand implements EventListener {
 
                                     // LIDER
 
-                                    if (project.getOwner() != null) {
-                                        embed.addField(":crown: Líder:", ((String) new PlayerData(project.getOwner()).getData("name")).replace("_", "\\_"), false);
+                                    if (project.getOwnerOld() != null) {
+                                        embed.addField(":crown: Líder:", ((String) new PlayerData(project.getOwnerOld()).getData("name")).replace("_", "\\_"), false);
                                     }
 
                                     // MIEMBROS
 
-                                    if (project.getMembers() != null) {
+                                    if (project.getMembersOld() != null) {
                                         List<String> members = new ArrayList<>();
-                                        for (OfflinePlayer player : project.getMembers()) {
+                                        for (OfflinePlayer player : project.getMembersOld()) {
                                             members.add(((String) new PlayerData(player).getData("name")).replace("_", "\\_"));
                                         }
                                         embed.addField(":busts_in_silhouette: Miembros:", String.join(", ", members), false);

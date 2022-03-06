@@ -43,8 +43,8 @@ public class ProjectActionBar implements Listener {
                             color = ChatColor.RED;
                         }
 
-                        if (project.getOwner() != null) {
-                            player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwner()).getName());
+                        if (project.getOwnerOld() != null) {
+                            player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwnerOld()).getName());
                         }
 
                         break;

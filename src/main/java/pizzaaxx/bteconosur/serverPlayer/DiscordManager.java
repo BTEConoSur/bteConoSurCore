@@ -113,6 +113,10 @@ public class DiscordManager {
         data.save();
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public String getName() {
         return name;
     }
