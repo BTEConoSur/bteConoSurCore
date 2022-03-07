@@ -31,10 +31,10 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Project {
     private final Country country;
-    private Difficulty difficulty;
-    private Boolean pending;
     private final String id;
     private final Configuration config;
+    private Difficulty difficulty;
+    private Boolean pending;
     private final Set<UUID> members = new HashSet<>();
     private UUID owner = null;
     private String name = null;
@@ -71,44 +71,8 @@ public class Project {
         return false;
     }
 
-    // CONSTRUCTORS
-
-    public Project(String id) {
-
-        if (new File(pluginFolder, "projects/" + id + ".yml").exists()) {
-
-            this.id = id;
-
-            config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
-
-            country = new Country(config.getString("country"));
-
-            difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
-
-            pending = config.getBoolean("pending");
-
-            if (config.contains("members")) {
-                config.getStringList("members").forEach(uuid -> members.add(UUID.fromString(uuid)));
-            }
-
-            if (config.contains("owner")) {
-                owner = UUID.fromString(config.getString("owner"));
-            }
-
-            if (config.contains("name")) {
-                name = config.getString("name");
-            }
-
-            if (config.contains("tag")) {
-                tag = Tag.valueOf(config.getString("tag").toUpperCase());
-            }
-
-            points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
-        }
-    }
-
-    public Project(Location location) {
-        Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(location).getRegions();
+    public static String getProjectAt(Location loc) {
+        Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(loc).getRegions();
         List<String> projects = new ArrayList<>();
 
         regions.forEach(region -> {
@@ -116,28 +80,70 @@ public class Project {
                 projects.add(region.getId().replace("project_", ""));
             }
         });
+
         Collections.sort(projects);
 
-        this(projects.get(0));
+        return projects.get(0);
+    }
+
+    // CONSTRUCTORS
+
+
+    public Project(String id) {
+
+        this.id = id;
+
+        this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+
+        this.country = new Country(config.getString("country"));
+
+        difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+
+        pending = config.getBoolean("pending");
+
+        if (config.contains("members")) {
+            config.getStringList("members").forEach(uuid -> members.add(UUID.fromString(uuid)));
+        }
+
+        if (config.contains("owner")) {
+            owner = UUID.fromString(config.getString("owner"));
+        }
+
+        if (config.contains("name")) {
+            name = config.getString("name");
+        }
+
+        if (config.contains("tag")) {
+            tag = Tag.valueOf(config.getString("tag").toUpperCase());
+        }
+
+        points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
+    }
+
+    public Project(Location location) {
+        this(getProjectAt(location));
     }
 
     public Project(BlockVector2D location) {
-        this(new Location(mainWorld, location.getX(), 100, location.getZ()));
+        this(getProjectAt(new Location(mainWorld, location.getX(), 100, location.getZ())));
     }
 
     public Project(Country country, Difficulty difficulty, List<BlockVector2D> points) {
         this.country = country;
         this.difficulty = difficulty;
+        this.points = points;
 
         String rndmID = generateCode(6);
-        RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
 
+        RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
         while (regions.hasRegion("project_" + rndmID)) {
             rndmID = generateCode(6);
         }
+
         this.id = rndmID;
 
-        this.points = points;
+        // TODO SEE IMPLEMENTATION OF THIS IN PROJECT REQUEST, PROBABLY DELETE ON REJECTION
+        this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConSur"), "projects/" + id);
     }
 
     // CLAIMED
@@ -145,7 +151,6 @@ public class Project {
     public boolean isClaimed() {
         return (this.owner != null || !this.members.isEmpty() || this.pending);
     }
-
 
     // --- GETTERS ---
 
