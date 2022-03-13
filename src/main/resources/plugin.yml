@@ -74,7 +74,7 @@ commands:
     aliases: c
     permission: bteconosur.chat
   prefix:
-    description: Define tu país.
+    description: Define el nick de tu país.
     permission: bteconosur.prefix
     aliases: pais
   demote:
