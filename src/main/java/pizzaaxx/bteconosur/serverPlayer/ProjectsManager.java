@@ -59,14 +59,14 @@ public class ProjectsManager {
 
     public void addProject(Project project) {
         projects.get(project.getCountry()).add(project.getId());
-        data.set("projects", project);
+        data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
     }
 
     public void removeProject(Project project) {
         projects.get(project.getCountry()).remove(project.getId());
-        data.set("projects", project);
+        data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
     }
@@ -95,7 +95,7 @@ public class ProjectsManager {
                 try {
                     Project project = new Project(id);
 
-                    if (project.getOwnerOld() == serverPlayer.getPlayer()) {
+                    if (project.getOwner() == serverPlayer.getPlayer().getUniqueId()) {
                         owned.add(id);
                     }
                 } catch (Exception ignored) {}
