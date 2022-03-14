@@ -1,12 +1,9 @@
 package pizzaaxx.bteconosur.projects;
 
 import com.google.common.collect.Lists;
-import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Polygonal2DRegion;
-import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
 import com.sk89q.worldedit.world.World;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,34 +16,31 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
-import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pizzaaxx.bteconosur.Config;
+import pizzaaxx.bteconosur.coords.Coords2D;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.worldedit.Methods;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.Color;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
+import static pizzaaxx.bteconosur.BteConoSur.key;
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.Config.*;
-import static pizzaaxx.bteconosur.BteConoSur.*;
-import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
-import static pizzaaxx.bteconosur.misc.Misc.*;
+import static pizzaaxx.bteconosur.misc.Misc.getCountryAtLocation;
+import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.points.PlayerPoints.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
 import static pizzaaxx.bteconosur.worldedit.Methods.polyRegion;
@@ -124,13 +118,13 @@ public class ProjectsCommand implements CommandExecutor {
 
                     p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f.");
 
-                    String dscMessage = ":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "` en las coordenadas: \n";
+                    StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "` en las coordenadas: \n");
                     for (BlockVector2D point : project.getPoints()) {
-                        dscMessage = dscMessage + "> " + Math.floor(point.getX()) + " " + Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY()) + " " + Math.floor(point.getZ()) + "\n";
+                        dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                     }
-                    dscMessage = dscMessage.replace(".0", "");
+                    dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
 
-                    project.getCountry().getLogs().sendMessage(dscMessage).queue();
+                    project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
 
                     return true;
                 } else if (p.hasPermission("bteconosur.projects.create")) {
@@ -494,7 +488,7 @@ public class ProjectsCommand implements CommandExecutor {
                                 if (args[1].equals("accept") || args[1].equals("aceptar")) {
                                     // ADD POINTS
 
-                                    Integer amount = project.getDifficulty().getPoints();
+                                    int amount = project.getDifficulty().getPoints();
 
                                     country.getLogs().sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
                                     p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
@@ -513,7 +507,6 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     for (OfflinePlayer member : project.getMembers()) {
                                         ServerPlayer m = new ServerPlayer(member);
-                                        ProjectsManager mProjectsManager = m.getProjectsManager();
                                         PointsManager mPointsManager = m.getPointsManager();
                                         mPointsManager.addPoints(country, amount);
 
@@ -702,7 +695,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     page.newLine();
 
-                    if (project.getName() != project.getId()) {
+                    if (!Objects.equals(project.getName(), project.getId())) {
                         page.add(BookUtil.TextBuilder.of("Nombre: ")
                                 .color(ChatColor.GREEN)
                                 .style(ChatColor.BOLD)
@@ -811,15 +804,18 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
-                if (s.getProjects().size() != 0) {
+                if (projectsManager.getAllProjects().size() != 0) {
                     BookUtil.BookBuilder book = BookUtil.writtenBook();
 
                     List<BaseComponent[]> pages = new ArrayList<>();
 
-                    for (Project project : s.getProjects()) {
+                    for (String id : projectsManager.getAllProjects()) {
+
+                        Project project = new Project(id);
+
                         BookUtil.PageBuilder page = new BookUtil.PageBuilder();
 
-                        if (project.getName() != project.getId()) {
+                        if (!Objects.equals(project.getName(), project.getId())) {
                             page.add("§a§lNombre: §r" + project.getName());
                             page.newLine();
                         }
@@ -827,10 +823,10 @@ public class ProjectsCommand implements CommandExecutor {
                         page.add("§a§lID: §r" + project.getId());
                         page.newLine();
 
-                        page.add("§a§lDificultad: §r" + project.getDifficulty().toUpperCase());
+                        page.add("§a§lDificultad: §r" + project.getDifficulty().toString().toUpperCase());
                         page.newLine();
 
-                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getOldCountry().replace("peru", "perú")));
+                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getCountry().getName().replace("peru", "perú")));
                         page.newLine();
 
                         page.add("§a§lCoordenadas: §r\n");
@@ -844,24 +840,27 @@ public class ProjectsCommand implements CommandExecutor {
 
 
                         page.add("§a§lLíder: §r");
+                        ServerPlayer sOwner = new ServerPlayer(project.getOwner());
                         page.add(
-                                BookUtil.TextBuilder.of(new ServerPlayer(project.getOwnerOld()).getName())
-                                        .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwnerOld()).getLore()))
+                                BookUtil.TextBuilder.of(sOwner.getName())
+                                        .onHover(BookUtil.HoverAction.showText(sOwner.getLore()))
                                         .build()
                         );
                         page.newLine();
 
                         int i = 1;
-                        if (project.getMembersOld() != null) {
+                        List<OfflinePlayer> members = project.getMembers();
+                        if (!members.isEmpty()) {
                             page.add("§a§lMiembro(s): §r");
-                            for (OfflinePlayer member : project.getMembersOld()) {
+                            for (OfflinePlayer member : members) {
+                                ServerPlayer sMember = new ServerPlayer(member);
                                 page.add(
-                                        BookUtil.TextBuilder.of(new ServerPlayer(member).getName())
-                                                .onHover(BookUtil.HoverAction.showText(new ServerPlayer(member).getLore()))
+                                        BookUtil.TextBuilder.of(sMember.getName())
+                                                .onHover(BookUtil.HoverAction.showText(sMember.getLore()))
                                                 .build()
                                 );
 
-                                if (i < project.getMembersOld().size()) {
+                                if (i < members.size()) {
                                     page.add(", ");
                                 }
                                 i++;
@@ -886,7 +885,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwnerOld() == p) {
+                    if (project.getOwner() == p) {
                         Inventory gui = Bukkit.createInventory(null, 53, "Proyecto " + project.getName(true));
 
                         List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
@@ -915,9 +914,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    if (project.getOwnerOld() != null) {
+                    if (project.getOwner() != null) {
                         if (!(project.getAllMembers().contains(p))) {
-                            new ServerPlayer(project.getOwnerOld()).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(p).getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
+                            new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + s.getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
                         } else {
                             p.sendMessage(projectsPrefix + "Ya eres parte de este proyecto.");
                         }
@@ -945,47 +944,29 @@ public class ProjectsCommand implements CommandExecutor {
                 try {
                     Project project = new Project(p.getLocation());
 
-                    Region region = null;
-                    try {
-                        region = getSelection(p);
-                    } catch (IncompleteRegionException e) {
-                        p.sendMessage(projectsPrefix + "§cSelecciona un área primero.");
-                    }
-
                     // GET POINTS
 
-                    List<BlockVector2D> points = new ArrayList<>();
-
-                    if (region instanceof CuboidRegion) {
-                        CuboidRegion cuboidRegion = (CuboidRegion) region;
-                        Vector first = cuboidRegion.getPos1();
-                        Vector second = cuboidRegion.getPos2();
-
-                        points.add(new BlockVector2D(first.getX(), first.getZ()));
-                        points.add(new BlockVector2D(second.getX(), first.getZ()));
-                        points.add(new BlockVector2D(second.getX(), second.getZ()));
-                        points.add(new BlockVector2D(first.getX(), second.getZ()));
-                    } else if (region instanceof Polygonal2DRegion) {
-                        points = ((Polygonal2DRegion) region).getPoints();
-                    } else {
+                    List<BlockVector2D> points;
+                    try {
+                        points = polyRegion(getSelection(p)).getPoints();
+                    } catch (IncompleteRegionException e) {
+                        p.sendMessage(projectsPrefix + "Selecciona un área primero.");
+                        return true;
+                    } catch (IllegalArgumentException e) {
                         p.sendMessage(projectsPrefix + "Debes seleccionar una region cúbica o poligonal.");
                         return true;
                     }
 
-                    if (points.size() < 3) {
-                        p.sendMessage(projectsPrefix + "Selecciona un área primero.");
-                        return true;
-                    }
-
                     if (points.size() > maxProjectPoints) {
-                        p.sendMessage(projectsPrefix + "La selección no puede tener más de 15 puntos.");
+                        p.sendMessage(projectsPrefix + "La selección no puede tener más de " + maxProjectPoints + " puntos.");
                         return true;
                     }
 
                     if (p.hasPermission("bteconosur.projects.manage.redefine")) {
 
-                        if (!s.getPermissionCountries().contains(project.getOldCountry())) {
+                        if (!s.getPermissionCountries().contains(project.getCountry())) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
+                            return true;
                         }
 
                         if (project.isPending()) {
@@ -1003,54 +984,40 @@ public class ProjectsCommand implements CommandExecutor {
                             return true;
                         }
 
-                        project.setDifficulty(args[1]);
+                        project.setDifficulty(Project.Difficulty.valueOf(args[1]));
                         project.setPoints(points);
 
-                        project.upload();
+                        project.save();
                         // SEND MESSAGES
 
-                        p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId() + "§f redefinido con dificultad §a" + project.getDifficulty().toUpperCase()  + "§f.");
+                        p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId() + "§f redefinido con dificultad §a" + project.getDifficulty().toString().toUpperCase()  + "§f.");
 
-                        String dscMessage = ":clipboard: **" + p.getName() + "** ha redefinido el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "` en las coordenadas: \n";
+                        StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha redefinido el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "` en las coordenadas: \n");
                         for (BlockVector2D point : project.getPoints()) {
-                            dscMessage = dscMessage + "> " + Math.floor(point.getX()) + " " + Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY()) + " " + Math.floor(point.getZ()) + "\n";
+                            dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }
-                        dscMessage = dscMessage.replace(".0", "");
+                        dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
 
-                        String notif = "Tu proyecto **§a" + project.getName(true) + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toUpperCase() + "§f** en las coordenadas: \n";
+                        StringBuilder notif = new StringBuilder("Tu proyecto **§a" + project.getName(true) + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toString().toUpperCase() + "§f** en las coordenadas: \n");
                         for (BlockVector2D point : project.getPoints()) {
-                            notif = notif + "> " + Math.floor(point.getX()) + " " + Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY()) + " " + Math.floor(point.getZ()) + "\n";
+                            notif.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }
 
-                        if (project.getOwnerOld() != null) {
-                            new ServerPlayer(project.getOwnerOld()).sendNotification(notif);
+                        if (project.getOwner() != null) {
+                            new ServerPlayer(project.getOwner()).sendNotification(notif.toString());
                         }
 
-                        getLogsChannel(project.getOldCountry()).sendMessage(dscMessage).queue();
+                        project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
                         return true;
                     } else if (p.hasPermission("bteconosur.projects.redefine")) {
 
-                        if (project.getOwnerOld() != p) {
+                        if (project.getOwner() != p) {
                             p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                             return true;
                         }
 
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
-                            return true;
-                        }
-
-                        String channelId;
-                        if (project.getOldCountry().equals("argentina")) {
-                            channelId = "932074847016718426";
-                        } else if (project.getOldCountry().equals("bolivia")) {
-                            channelId = "932074847016718426";
-                        } else if (project.getOldCountry().equals("chile")) {
-                            channelId = "932074847016718426";
-                        } else if (project.getOldCountry().equals("peru")) {
-                            channelId = "932074847016718426";
-                        } else {
-                            p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
                             return true;
                         }
 
@@ -1109,7 +1076,7 @@ public class ProjectsCommand implements CommandExecutor {
                         message.setEmbeds(request.build());
                         message.setActionRows(actionRow);
 
-                        conoSurBot.getTextChannelById(channelId).sendMessage(message.build()).queue();
+                        project.getCountry().getRequests().sendMessage(message.build()).queue();
 
                         p.sendMessage(projectsPrefix + "Se ha enviado una solicitud para redefinir tu proyecto.");
                     } else {
@@ -1120,28 +1087,30 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
+            // TODO DISCORD TAG COMMAND
+
             if (args[0].equals("tag") || args[0].equals("etiqueta")) {
                 if (p.hasPermission("bteconosur.projects.manage.tag")) {
                     try {
                         Project project = new Project(p.getLocation());
 
-                        if (!(s.getPermissionCountries().contains(project.getOldCountry()))) {
+                        if (!(s.getPermissionCountries().contains(project.getCountry()))) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         }
 
                         if (args.length > 1) {
                             if (args[1].equals("edificios") || args[1].equals("departamentos") || args[1].equals("casas") || args[1].equals("parques") || args[1].equals("establecimientos") || args[1].equals("carreteras") || args[1].equals("centros_comerciales")) {
-                                project.setTag(args[1]);
-                                project.upload();
+                                project.setTag(Project.Tag.valueOf(args[1]));
+                                project.save();
 
-                                new Country(project.getOldCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
+                                project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
 
                                 p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
                             } else if (args[1].equals("delete")) {
                                 project.setTag(null);
-                                project.upload();
+                                project.save();
 
-                                new Country(project.getOldCountry()).getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
+                                project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
 
                                 p.sendMessage(projectsPrefix + "Has eliminado la etiqueta del proyecto §a" + project.getId() + "§f.");
 
