@@ -2,11 +2,9 @@ package pizzaaxx.bteconosur.serverPlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import sun.security.x509.AVA;
 
 import java.util.*;
 
@@ -40,7 +38,7 @@ public class PointsManager {
         if (old != points) {
             countriesPoints.put(country, points);
             Map<String, Integer> map = new HashMap<>();
-            countriesPoints.forEach((key, value) -> map.put(key.getCountry(), value));
+            countriesPoints.forEach((key, value) -> map.put(key.getName(), value));
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);

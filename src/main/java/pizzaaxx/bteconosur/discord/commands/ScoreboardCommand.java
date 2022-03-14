@@ -23,7 +23,7 @@ public class ScoreboardCommand implements EventListener {
                     if (args[0].equals("scoreboard")) {
                         Country country;
                         if (args.length > 1) {
-                            if (new Country(args[1]).getCountry() != null) {
+                            if (new Country(args[1]).getName() != null) {
                                 country = new Country(args[1]);
                             } else {
                                 EmbedBuilder error = new EmbedBuilder();
@@ -43,7 +43,7 @@ public class ScoreboardCommand implements EventListener {
                             country = new Country(e.getGuild());
                         }
 
-                        if (country.getCountry().equals("argentina")) {
+                        if (country.getName().equals("argentina")) {
                             EmbedBuilder error = new EmbedBuilder();
                             error.setColor(new Color(255,0,0));
                             error.setAuthor("Argentina no trabaja con puntos.");
@@ -53,7 +53,7 @@ public class ScoreboardCommand implements EventListener {
 
                         EmbedBuilder top = new EmbedBuilder();
                         top.setColor(new Color(0, 255, 42));
-                        top.setTitle("Jugadores con el mayor puntaje de " + country.getCountry().replace("peru", "perú").toUpperCase());
+                        top.setTitle("Jugadores con el mayor puntaje de " + country.getName().replace("peru", "perú").toUpperCase());
                         int i = 1;
                         for (ServerPlayer s : country.getScoreboard()) {
                             String emoji;

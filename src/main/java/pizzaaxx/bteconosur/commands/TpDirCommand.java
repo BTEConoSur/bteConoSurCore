@@ -67,7 +67,7 @@ public class TpDirCommand implements CommandExecutor {
 
                         Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
 
-                        if (new Country(coords.toBlockVector2D()).getCountry().equals("global")) {
+                        if (new Country(coords.toBlockVector2D()).getName().equals("global")) {
                             p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
                             return;
                         }

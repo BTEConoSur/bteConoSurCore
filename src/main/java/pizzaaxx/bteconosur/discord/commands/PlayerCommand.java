@@ -103,8 +103,8 @@ public class PlayerCommand extends ListenerAdapter {
                             embedBuilder
                                     .setColor(new Color(0, 255, 42))
                                     .addField("Status:", ":green_circle: Online", false)
-                                    .addField("Coordenadas:", (country.getCountry().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " " + coords.getX() + ", " + coords.getZ(), false)
-                                    .addField("Coordenadas geográficas:", (country.getCountry().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " [" + coords.getLat() + ", " + coords.getLon() + "](" + "https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")", false);
+                                    .addField("Coordenadas:", (country.getName().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " " + coords.getX() + ", " + coords.getZ(), false)
+                                    .addField("Coordenadas geográficas:", (country.getName().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " [" + coords.getLat() + ", " + coords.getLon() + "](" + "https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")", false);
 
                             String chatType;
                             String chatName = serverPlayer.getChat().getName();

@@ -7,11 +7,8 @@ import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.yaml.Configuration;
-
-import java.util.Objects;
 
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 
@@ -134,7 +131,7 @@ public class DiscordManager {
             loadUser();
             Guild guild = country.getGuild();
             Member member = guild.getMember(user);
-            Role role = guild.getRoleById(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/ranks").getConfigurationSection(country.getCountry()).getString("builder"));
+            Role role = guild.getRoleById(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/ranks").getConfigurationSection(country.getName()).getString("builder"));
             if (serverPlayer.getPointsManager().getPoints(country) >= 15) {
                 if (!member.getRoles().contains(role)) {
                     country.getGuild().addRoleToMember(member, role).queue();

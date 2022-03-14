@@ -17,13 +17,10 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.player.data.PlayerData;
-import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
 import pizzaaxx.bteconosur.serverPlayer.ScoreboardManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.io.File;
 import java.util.*;
@@ -160,8 +157,8 @@ public class Project {
 
     // --- GETTERS ---
 
-    public UUID getOwner() {
-        return owner;
+    public OfflinePlayer getOwner() {
+        return Bukkit.getOfflinePlayer(owner);
     }
 
     public Country getCountry() {
@@ -219,14 +216,14 @@ public class Project {
 
     public List<OfflinePlayer> getAllMembers() {
         List<OfflinePlayer> allMembers = new ArrayList<>();
-        members.forEach(uuid -> allMembers.add(Bukkit.getOfflinePlayer(uuid)));
-        if (owner != null) {
-            allMembers.add(Bukkit.getOfflinePlayer(owner));
-        }
-        if (allMembers.isEmpty()) {
-            return null;
-        }
+        allMembers.addAll(getMembers());
         return allMembers;
+    }
+
+    public List<OfflinePlayer> getMembers() {
+        List<OfflinePlayer> members = new ArrayList<>();
+        this.members.forEach(uuid -> members.add(Bukkit.getOfflinePlayer(uuid)));
+        return members;
     }
 
     public BlockVector2D getAverageCoordinate() {
@@ -287,6 +284,10 @@ public class Project {
         this.points = points;
     }
 
+    public void setOwner(OfflinePlayer player) {
+        this.owner = player.getUniqueId();
+    }
+
     // --- ADDERS ---
     public void addMember(OfflinePlayer player) {
         UUID uuid = player.getUniqueId();
@@ -318,108 +319,79 @@ public class Project {
 
         if (pending) {
             Configuration pending = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-            if (pending.contains(country.getCountry())) {
-                List<String> pendingProjects = pending.getStringList(country.getCountry());
+            if (pending.contains(country.getName())) {
+                List<String> pendingProjects = pending.getStringList(country.getName());
                 pendingProjects.remove(id);
-                pending.set(country.getCountry(), pendingProjects);
+                pending.set(country.getName(), pendingProjects);
                 pending.save();
             }
         }
 
         Configuration tags = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projectTags/tags");
         if (tag != null) {
-
+            String tagName = tag.toString().toLowerCase();
+            if (tags.contains(tagName)) {
+                ConfigurationSection tag = tags.getConfigurationSection(tagName);
+                // COUNTRY
+                List<String> country = tag.getStringList(this.country.getName());
+                country.remove(id);
+                tag.set(this.country.getName(), country);
+                tags.set(tagName, tag);
+            }
         }
+        if (oldTag != null) {
+            String tagName = oldTag.toString().toLowerCase();
+            if (tags.contains(tagName)) {
+                ConfigurationSection tag = tags.getConfigurationSection(tagName);
+                // COUNTRY
+                List<String> country = tag.getStringList(this.country.getName());
+                country.remove(id);
+                tag.set(this.country.getName(), country);
+                tags.set(tagName, tag);
+            }
+            oldTag = null;
+        }
+        tags.save();
+
+        if (owner != null) {
+            ServerPlayer s = new ServerPlayer(owner);
+            s.getProjectsManager().removeProject(this);
+        }
+
+        for (UUID uuid : members) {
+            ServerPlayer s = new ServerPlayer(uuid);
+            s.getProjectsManager().removeProject(this);
+        }
+
+        for (UUID uuid : removedMembers) {
+            ServerPlayer s = new ServerPlayer(uuid);
+            s.getProjectsManager().removeProject(this);
+            removedMembers.clear();
+        }
+
+        Set<ScoreboardManager> insideManagers = new HashSet<>();
+
+        for (Player p : getPlayersInRegion("project_" + id)) {
+            ScoreboardManager manager = new ServerPlayer(p).getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                insideManagers.add(manager);
+            }
+        }
+
+        RegionManager manager = getWorldGuard().getRegionManager(mainWorld);
+        if (manager.hasRegion("project_" + id)) {
+            manager.removeRegion("project_" + id);
+        }
+
+        for (ScoreboardManager m : insideManagers) {
+            m.update();
+        }
+
     }
 
-    public void delete() {
-        File file = new File(pluginFolder, "projects/" + id + ".yml");
-
-        if (file.isFile()) {
-            file.delete();
-        }
-
-        YamlManager pending = new YamlManager(pluginFolder, "pending_projects/pending.yml");
-
-        pending.removeFromList("pending", this.id);
-
-        pending.write();
-
-        // TAGS
-        YamlManager tags = new YamlManager(pluginFolder, "projectTags/tags.yml");
-
-        if (oldTag != null) {
-            tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.oldTag, this.id);
-        }
-
-        if (tag != null) {
-            tags.removeFromList(new Country(this.oldCountry).getAbbreviation() + "_" + this.tag, this.id);
-        }
-
-        tags.write();
-
-        if (getAllMembers() != null) {
-            for (OfflinePlayer p : getAllMembers()) {
-                PlayerData playerData = new PlayerData(p);
-
-                playerData.removeFromList("projects", this.id);
-
-                playerData.save();
-
-                ServerPlayer s = new ServerPlayer(p);
-                s.updateRanks();
-                if (s.getScoreboard().equals("me")) {
-                    s.updateScoreboard();
-                }
-
-                if (s.getChat().getName().replace("project_", "").equals(this.id)) {
-                    s.setChat("global");
-                }
-                if (s.getDefaultChat().getName().replace("project_", "").equals(this.id)) {
-                    s.setDefaultChat("global");
-                }
-            }
-        }
-
-        if (this.removedMembers != null) {
-            for (OfflinePlayer member : this.removedMembers) {
-                PlayerData playerData = new PlayerData(member);
-
-                playerData.removeFromList("projects", this.id);
-
-                playerData.save();
-
-                ServerPlayer s = new ServerPlayer(member);
-                s.updateRanks();
-                if (s.getScoreboard().equals("me")) {
-                    s.updateScoreboard();
-                }
-
-                if (s.getChat().getName().replace("project_", "").equals(this.id)) {
-                    s.setChat("global");
-                }
-                if (s.getDefaultChat().getName().replace("project_", "").equals(this.id)) {
-                    s.setDefaultChat("global");
-                }
-            }
-        }
-
-        List<ServerPlayer> inside = new ArrayList<>();
-        RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            ServerPlayer p = new ServerPlayer(player);
-            if (regions.getApplicableRegions(player.getLocation()).getRegions().contains(regions.getRegion("project_" + this.id)) && p.getScoreboard().equals("project")) {
-                inside.add(p);
-            }
-        }
-
-        if (regions.hasRegion("project_" + this.id)) {
-            regions.removeRegion("project_" + this.id);
-        }
-
-        for (ServerPlayer s : inside) {
-            s.updateScoreboard();
-        }
+    public void transfer(OfflinePlayer target) {
+        members.add(owner);
+        owner = target.getUniqueId();
     }
 
     // UPLOAD PROJECT
@@ -432,9 +404,9 @@ public class Project {
         project.set("pending", pending);
         if (pending) {
             Configuration pending = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-            List<String> pendingProjects = (pending.contains(country.getCountry()) ? pending.getStringList(country.getCountry()) : new ArrayList<>());
+            List<String> pendingProjects = (pending.contains(country.getName()) ? pending.getStringList(country.getName()) : new ArrayList<>());
             pendingProjects.add(id);
-            pending.set(country.getCountry(), pendingProjects);
+            pending.set(country.getName(), pendingProjects);
             pending.save();
         }
 
@@ -454,9 +426,9 @@ public class Project {
 
         RegionManager manager = getWorldGuard().getRegionManager(mainWorld);
         DefaultDomain domain = new DefaultDomain();
-        members.forEach(uuid -> {
-            domain.addPlayer(uuid);
-            ServerPlayer s = new ServerPlayer(Bukkit.getOfflinePlayer(uuid));
+        for (OfflinePlayer member : getAllMembers()) {
+            domain.addPlayer(member.getUniqueId());
+            ServerPlayer s = new ServerPlayer(member);
             ProjectsManager pManager = s.getProjectsManager();
             if (!pManager.getAllProjects().contains(id)) {
                 s.getProjectsManager().addProject(this);
@@ -465,13 +437,14 @@ public class Project {
                     sManager.update();
                 }
             }
-        });
+        }
+
         ProtectedRegion region;
         if (manager.hasRegion("project_" + id) && manager.getRegion("project_" + id).getPoints() == points) {
             region = manager.getRegion("project_" + id);
 
             if (pending) {
-                region.setMembers(new DefaultDomain());
+                region.setMembers(null);
             } else {
                 if (region.getMembers() != domain) {
                     region.setMembers(domain);
@@ -494,49 +467,48 @@ public class Project {
                 region.setMembers(domain);
             }
 
-            manager.addRegion(region);
         }
+        manager.addRegion(region);
 
         // REMOVED STUFF
-
 
         // TAG
 
         Configuration tags = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projectTags/tags");
         if (oldTag != null) {
             String tagName = oldTag.toString().toLowerCase();
-            List<String> projects = tags.getStringList(tagName);
-            projects.remove(id);
-            tags.set(tagName, projects);
+            if (tags.contains(tagName)) {
+                ConfigurationSection tag = tags.getConfigurationSection(tagName);
+                // COUNTRY
+                List<String> country = tag.getStringList(this.country.getName());
+                country.remove(id);
+                tag.set(this.country.getName(), country);
+                tags.set(tagName, tag);
+            }
+            oldTag = null;
         }
         if (tag != null) {
             String tagName = tag.toString().toLowerCase();
-            List<String> projects = tags.getStringList(tagName);
-            if (!projects.contains(id)) {
-                projects.add(id);
-                tags.set(tagName, projects);
+            if (tags.contains(tagName)) {
+                ConfigurationSection tag = tags.getConfigurationSection(tagName);
+                // COUNTRY
+                List<String> country = tag.getStringList(this.country.getName());
+                if (!country.contains(id)) {
+                    country.remove(id);
+                    tag.set(this.country.getName(), country);
+                    tags.set(tagName, tag);
+                }
             }
         }
         tags.save();
 
         // MEMBERS
 
-        removedMembers.forEach(uuid -> {
-            ServerPlayer s = new ServerPlayer(Bukkit.getOfflinePlayer(uuid))
-            ProjectsManager pManager = s.getProjectsManager();
-            pManager.removeProject(this);
-            ScoreboardManager sManager = s.getScoreboardManager();
-            if (sManager.getType() == ScoreboardManager.ScoreboardType.ME) {
-                sManager.update();
-            }
-            ChatManager cManager = s.getChatManager();
-            if (cManager.getChat().getName().equals("project_" + id)) {
-                cManager.setChat("global");
-            }
-            if (cManager.getDefaultChat().getName().equals("project_" + id)) {
-                cManager.setDefaultChat("global");
-            }
-        });
+        for (UUID uuid : removedMembers) {
+            ServerPlayer s = new ServerPlayer(uuid);
+            s.getProjectsManager().removeProject(this);
+        }
+        removedMembers.clear();
 
         for (Player p : getPlayersInRegion("project_" + id)) {
             ScoreboardManager sManager = new ServerPlayer(p).getScoreboardManager();

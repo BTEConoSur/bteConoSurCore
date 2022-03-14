@@ -15,7 +15,6 @@ import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
@@ -162,7 +161,7 @@ public class ScoreboardManager {
                     if (poManager.getMaxPoints().getValue() > 0) {
                         lines.add("§aPuntos:§f");
 
-                        poManager.getSorted().forEach((country, points) -> lines.add("- " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + ": " + poManager.getPoints(country)));
+                        poManager.getSorted().forEach((country, points) -> lines.add("- " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + poManager.getPoints(country)));
                     }
 
                     lines.add("§aProyectos activos: §f" + prManager.getTotalProjects());
@@ -171,7 +170,7 @@ public class ScoreboardManager {
                 case TOP:
                     Country country = new Country(((Player) serverPlayer.getPlayer()).getLocation());
 
-                    if (!country.getCountry().equals("global") && !country.getCountry().equals("argentina")) {
+                    if (!country.getName().equals("global") && !country.getName().equals("argentina")) {
 
                         int i = 1;
                         for (ServerPlayer s : country.getScoreboard()) {

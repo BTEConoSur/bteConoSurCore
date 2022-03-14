@@ -19,8 +19,8 @@ import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 
 public class ServerPlayer {
 
-    private UUID uuid;
-    private DataManager dataManager;
+    private final UUID uuid;
+    private final DataManager dataManager;
     private ChatManager chatManager;
     private PointsManager pointsManager;
     private ProjectsManager projectsManager;
@@ -34,7 +34,10 @@ public class ServerPlayer {
         this.uuid = uuid;
 
         if (playerRegistry.exists(uuid)) {
-            playerRegistry.get(uuid);
+            ServerPlayer origin = playerRegistry.get(uuid);
+            this.dataManager = origin.getDataManager();
+        } else {
+            this.dataManager = new DataManager(this);
         }
         if (storeManagers) {
             loadManagers();
@@ -44,19 +47,26 @@ public class ServerPlayer {
     public ServerPlayer(UUID uuid) {
         this.uuid = uuid;
 
+
         if (playerRegistry.exists(uuid)) {
-            playerRegistry.get(uuid);
+            ServerPlayer origin = playerRegistry.get(uuid);
+            this.dataManager = origin.getDataManager();
+        } else {
+            this.dataManager = new DataManager(this);
         }
     }
 
     public ServerPlayer(OfflinePlayer p) {
-        new ServerPlayer(p.getUniqueId());
+        this(p.getUniqueId());
     }
 
     public ServerPlayer(User user) throws Exception {
+        this(getPlayerFromDiscordUser(user));
+    }
+
+    public static OfflinePlayer getPlayerFromDiscordUser(User user) throws Exception {
         if (DiscordManager.isLinked(user.getId())) {
-            OfflinePlayer player = DiscordManager.getFromID(user.getId());
-            new ServerPlayer(player.getUniqueId());
+            return(DiscordManager.getFromID(user.getId()));
         } else {
             throw new Exception();
         }
@@ -65,9 +75,6 @@ public class ServerPlayer {
     // MANAGERS
 
     public void loadManagers() {
-        if (dataManager == null) {
-            dataManager = new DataManager(this);
-        }
         if (chatManager ==  null) {
             chatManager = new ChatManager(this);
         }
@@ -98,11 +105,6 @@ public class ServerPlayer {
     }
 
     public DataManager getDataManager() {
-        if (dataManager == null) {
-            DataManager manager = new DataManager(this);
-            dataManager = manager;
-            return manager;
-        }
         return dataManager;
     }
 
@@ -214,26 +216,26 @@ public class ServerPlayer {
         return null;
     }
 
-    public List<String> getPermissionCountries() {
+    public List<Country> getPermissionCountries() {
         Player p = Bukkit.getPlayer(uuid);
-        List<String> permissionCountries = new ArrayList<>();
+        List<Country> permissionCountries = new ArrayList<>();
         if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-            permissionCountries.add("argentina");
+            permissionCountries.add(new Country("argentina"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-            permissionCountries.add("bolivia");
+            permissionCountries.add(new Country("bolivia"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-            permissionCountries.add("chile");
+            permissionCountries.add(new Country("chile"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-            permissionCountries.add("peru");
+            permissionCountries.add(new Country("peru"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.py")) {
-            permissionCountries.add("paraguay");
+            permissionCountries.add(new Country("paraguay"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
-            permissionCountries.add("uruguay");
+            permissionCountries.add(new Country("uruguay"));
         }
         return permissionCountries;
     }

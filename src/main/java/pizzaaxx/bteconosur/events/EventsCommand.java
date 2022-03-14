@@ -69,7 +69,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                         Country country = null;
                         if (args.length > 1) {
                             country = new Country(args[1]);
-                            if (country.getCountry() == null) {
+                            if (country.getName() == null) {
                                 p.sendMessage(eventsPrefix + "Introduce un país válido.");
                                 return true;
                             }
@@ -113,7 +113,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         }
                                     }
                                     PlayerData playerData = new PlayerData(player);
-                                    playerData.addToList("events", country.getCountry(), false);
+                                    playerData.addToList("events", country.getName(), false);
                                     playerData.save();
                                 } else {
                                     player.sendMessage(eventsPrefix + "Necesitas al menos §a" + event.getMinPoints() + "§f puntos para unirte al evento.");
@@ -128,7 +128,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                         Country country = null;
                         if (args.length > 1) {
                             country = new Country(args[1]);
-                            if (country.getCountry() == null) {
+                            if (country.getName() == null) {
                                 p.sendMessage(eventsPrefix + "Introduce un país válido.");
                                 return true;
                             }
@@ -164,7 +164,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         s.removeSecondaryGroup("evento");
                                     }
                                 }
-                                playerData.removeFromList("events", country.getCountry());
+                                playerData.removeFromList("events", country.getName());
                                 playerData.save();
 
                                 event.removeParticipant(player);
@@ -217,7 +217,7 @@ public class EventsCommand implements CommandExecutor, Listener {
             if (args.length > 0) {
                 if (countryAbbreviations.contains(args[0])) {
                     Country pais = new Country(args[0]);
-                    final String country = pais.getCountry();
+                    final String country = pais.getName();
                     if (args.length > 1) {
                         Event event = new Event(pais);
                         if (args[1].equals("name")) {

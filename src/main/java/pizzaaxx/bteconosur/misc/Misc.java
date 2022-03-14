@@ -41,49 +41,33 @@ public class Misc {
         COUNTRIES.put("uruguay", "uy");
     }
 
-    public static String getCountryAtLocation(BlockVector2D loc) {
+    public static Country getCountryAtLocation(BlockVector2D loc) {
         return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ()));
     }
 
-    public static String getCountryAtLocation(Location loc) {
+    public static Country getCountryAtLocation(Location loc) {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         Set<ProtectedRegion> regions = regionManager.getApplicableRegions(loc).getRegions();
         if (regions.contains(regionManager.getRegion("argentina"))) {
-            return "argentina";
+            return new Country("argentina");
         }
         if (regions.contains(regionManager.getRegion("bolivia"))) {
-            return "bolivia";
+            return new Country("bolivia");
         }
         if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            return "chile";
+            return new Country("chile");
         }
         if (regions.contains(regionManager.getRegion("paraguay"))) {
-            return "paraguay";
+            return new Country("paraguay");
         }
         if (regions.contains(regionManager.getRegion("peru"))) {
-            return "peru";
+            return new Country("peru");
         }
         if (regions.contains(regionManager.getRegion("uruguay"))) {
-            return "uruguay";
+            return new Country("uruguay");
         }
         return null;
 
-    }
-
-    public static TextChannel getLogsChannel(String country) {
-        if (country.equals("argentina")) {
-            return logsAr;
-        }
-        if (country.equals("bolivia")) {
-            return logsBo;
-        }
-        if (country.equals("chile")) {
-            return logsCl;
-        }
-        if (country.equals("peru")) {
-            return logsPe;
-        }
-        return null;
     }
 
     public static String getCountryPrefix(String country) {

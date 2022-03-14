@@ -8,9 +8,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.chats.Chat;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 ;
 import java.util.*;
@@ -21,7 +22,7 @@ import static pizzaaxx.bteconosur.Config.logsPe;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Country {
-    private String country;
+    private String name;
 
     public static List<String> countryNames = Arrays.asList("argentina", "bolivia", "chile", "paraguay", "peru", "uruguay");
     public static List<String> countryAbbreviations = Arrays.asList("ar", "bo", "cl", "py", "pe", "uy", "gl");
@@ -30,32 +31,32 @@ public class Country {
     // CONSTRUCTOR
     public Country(String country) {
         if (country.matches("[a-z]{2}")) {
-            this.country = null;
+            this.name = null;
             if (country.equals("ar")) {
-                this.country = "argentina";
+                this.name = "argentina";
             }
             if (country.equals("bo")) {
-                this.country = "bolivia";
+                this.name = "bolivia";
             }
             if (country.equals("cl")) {
-                this.country = "chile";
+                this.name = "chile";
             }
             if (country.equals("py")) {
-                this.country = "paraguay";
+                this.name = "paraguay";
             }
             if (country.equals("pe")) {
-                this.country = "peru";
+                this.name = "peru";
             }
             if (country.equals("uy")) {
-                this.country = "uruguay";
+                this.name = "uruguay";
             }
             if (country.equals("gl")) {
-                this.country = "global";
+                this.name = "global";
             }
         } else {
-            this.country = null;
+            this.name = null;
             if (country.equals("argentina") || country.equals("bolivia") || country.equals("chile") || country.equals("paraguay") || country.equals("peru") || country.equals("uruguay") || country.equals("global")) {
-                this.country = country;
+                this.name = country;
             }
         }
     }
@@ -64,20 +65,20 @@ public class Country {
         String id = guild.getId();
         switch (id) {
             case "692607124210974760":
-                this.country = "argentina";
+                this.name = "argentina";
                 break;
             case "762309020517531698":
-                this.country = "bolivia";
+                this.name = "bolivia";
                 break;
             case "807694451530924073":
                 // TODO CHANGE THIS BEFORE DEPLOY
-                this.country = "chile";
+                this.name = "chile";
                 break;
             case "695044514066464828":
-                this.country = "peru";
+                this.name = "peru";
                 break;
             case "696154248593014815":
-                this.country = "uruguay";
+                this.name = "uruguay";
                 break;
         }
     }
@@ -86,19 +87,19 @@ public class Country {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         Set<ProtectedRegion> regions = regionManager.getApplicableRegions(loc).getRegions();
         if (regions.contains(regionManager.getRegion("argentina"))) {
-            this.country = "argentina";
+            this.name = "argentina";
         } else if (regions.contains(regionManager.getRegion("bolivia"))) {
-            this.country = "bolivia";
+            this.name = "bolivia";
         } else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            this.country = "chile";
+            this.name = "chile";
         } else if (regions.contains(regionManager.getRegion("paraguay"))) {
-            this.country = "paraguay";
+            this.name = "paraguay";
         } else if (regions.contains(regionManager.getRegion("peru"))) {
-            this.country = "peru";
+            this.name = "peru";
         } else if (regions.contains(regionManager.getRegion("uruguay"))) {
-            this.country = "uruguay";
+            this.name = "uruguay";
         } else {
-            this.country = "global";
+            this.name = "global";
         }
     }
 
@@ -107,34 +108,34 @@ public class Country {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         Set<ProtectedRegion> regions = regionManager.getApplicableRegions(location).getRegions();
         if (regions.contains(regionManager.getRegion("argentina"))) {
-            this.country = "argentina";
+            this.name = "argentina";
         } else if (regions.contains(regionManager.getRegion("bolivia"))) {
-            this.country = "bolivia";
+            this.name = "bolivia";
         } else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            this.country = "chile";
+            this.name = "chile";
         } else if (regions.contains(regionManager.getRegion("paraguay"))) {
-            this.country = "paraguay";
+            this.name = "paraguay";
         } else if (regions.contains(regionManager.getRegion("peru"))) {
-            this.country = "peru";
+            this.name = "peru";
         } else if (regions.contains(regionManager.getRegion("uruguay"))) {
-            this.country = "uruguay";
+            this.name = "uruguay";
         } else {
-            this.country = "global";
+            this.name = "global";
         }
     }
 
     // GETTERS
 
     public String getIcon() {
-        return (String) new YamlManager(pluginFolder, "discord/countryIcons.yml").getValue(country);
+        return (String) new YamlManager(pluginFolder, "discord/countryIcons.yml").getValue(name);
     }
 
-    public String getCountry() {
-        return this.country;
+    public String getName() {
+        return this.name;
     }
 
     public Chat getChat() {
-        return new Chat(this.country);
+        return new Chat(this.name);
     }
 
     public Set<Player> getPlayers() {
@@ -142,9 +143,9 @@ public class Country {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         for (Player player : Bukkit.getOnlinePlayers()) {
             Set<ProtectedRegion> regions = regionManager.getApplicableRegions(player.getLocation()).getRegions();
-            if (this.country.equals("chile") && (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp")))) {
+            if (this.name.equals("chile") && (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp")))) {
                 players.add(player);
-            } else if (regions.contains(regionManager.getRegion(this.country))) {
+            } else if (regions.contains(regionManager.getRegion(this.name))) {
                 players.add(player);
             }
         }
@@ -152,77 +153,77 @@ public class Country {
     }
 
     public TextChannel getLogs() {
-        if (this.country.equals("argentina")) {
+        if (this.name.equals("argentina")) {
             return logsAr;
         }
-        if (this.country.equals("bolivia")) {
+        if (this.name.equals("bolivia")) {
             return logsBo;
         }
-        if (this.country.equals("chile")) {
+        if (this.name.equals("chile")) {
             return logsCl;
         }
-        if (this.country.equals("paraguay")) {
+        if (this.name.equals("paraguay")) {
             return logsPy;
         }
-        if (this.country.equals("peru")) {
+        if (this.name.equals("peru")) {
             return logsPe;
         }
-        if (this.country.equals("uruguay")) {
+        if (this.name.equals("uruguay")) {
             return logsUy;
         }
         return null;
     }
 
     public TextChannel getRequests() {
-        if (this.country.equals("argentina")) {
+        if (this.name.equals("argentina")) {
             return requestsAr;
         }
-        if (this.country.equals("bolivia")) {
+        if (this.name.equals("bolivia")) {
             return requestsBo;
         }
-        if (this.country.equals("chile")) {
+        if (this.name.equals("chile")) {
             return requestsCl;
         }
-        if (this.country.equals("paraguay")) {
+        if (this.name.equals("paraguay")) {
             return requestsPy;
         }
-        if (this.country.equals("peru")) {
+        if (this.name.equals("peru")) {
             return requestsPe;
         }
-        if (this.country.equals("uruguay")) {
+        if (this.name.equals("uruguay")) {
             return requestsUy;
         }
         return null;
     }
 
     public String getAbbreviation() {
-        if (this.country.equals("argentina")) {
+        if (this.name.equals("argentina")) {
             return "ar";
         }
-        if (this.country.equals("bolivia")) {
+        if (this.name.equals("bolivia")) {
             return "bo";
         }
-        if (this.country.equals("chile")) {
+        if (this.name.equals("chile")) {
             return "cl";
         }
-        if (this.country.equals("paraguay")) {
+        if (this.name.equals("paraguay")) {
             return "py";
         }
-        if (this.country.equals("peru")) {
+        if (this.name.equals("peru")) {
             return "pe";
         }
-        if (this.country.equals("uruguay")) {
+        if (this.name.equals("uruguay")) {
             return "uy";
         }
         return null;
     }
 
-    public List<ServerPlayer> getScoreboard() {
-        List<ServerPlayer> scoreboard = new ArrayList<>();
+    public List<PointsManager> getScoreboard() {
+        List<PointsManager> scoreboard = new ArrayList<>();
 
-        YamlManager yaml = new YamlManager(pluginFolder, "points/max.yml");
-        for (String uuid : (List<String>) yaml.getList(getAbbreviation() + "_max")) {
-            scoreboard.add(new ServerPlayer(Bukkit.getOfflinePlayer(UUID.fromString(uuid))));
+        Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
+        for (String uuid : max.getStringList(getAbbreviation() + "_max")) {
+            scoreboard.add(new ServerPlayer(UUID.fromString(uuid)).getPointsManager());
         }
 
         return scoreboard;
@@ -230,47 +231,47 @@ public class Country {
 
     public String getPrefix(Boolean abb) {
         if (abb) {
-            if (this.country.equals("argentina")) {
+            if (this.name.equals("argentina")) {
                 return "§b[§fA§eR§fG§b]§r";
             }
-            if (this.country.equals("bolivia")) {
+            if (this.name.equals("bolivia")) {
                 return "§c[B§eO§2L]§r";
             }
-            if (this.country.equals("chile")) {
+            if (this.name.equals("chile")) {
                 return "§9[C§fH§cI]§r";
             }
-            if (this.country.equals("paraguay")) {
+            if (this.name.equals("paraguay")) {
                 return "§4[§fPGY§9]§r";
             }
-            if (this.country.equals("peru")) {
+            if (this.name.equals("peru")) {
                 return "§4[PER§4]§r";
             }
-            if (this.country.equals("uruguay")) {
+            if (this.name.equals("uruguay")) {
                 return "§e[§fU§9R§fY§9]§r";
             }
-            if (this.country.equals("global")) {
+            if (this.name.equals("global")) {
                 return "§7[INT]§r";
             }
         } else {
-            if (this.country.equals("argentina")) {
+            if (this.name.equals("argentina")) {
                 return "§b[AR§fGE§eN§fTI§bNA]§r";
             }
-            if (this.country.equals("bolivia")) {
+            if (this.name.equals("bolivia")) {
                 return "§4[BO§eLIV§2IA]§r";
             }
-            if (this.country.equals("chile")) {
+            if (this.name.equals("chile")) {
                 return "§9[C§fHIL§cE]§r";
             }
-            if (this.country.equals("paraguay")) {
+            if (this.name.equals("paraguay")) {
                 return "§4[P§fAR§7AG§fUA§1Y]§r";
             }
-            if (this.country.equals("peru")) {
+            if (this.name.equals("peru")) {
                 return "§4[P§fER§4Ú]§r";
             }
-            if (this.country.equals("uruguay")) {
+            if (this.name.equals("uruguay")) {
                 return "§f[§eU§fR§9U§fG§9U§fA§9Y§f]§r";
             }
-            if (this.country.equals("global")) {
+            if (this.name.equals("global")) {
                 return "§7[INTERNACIONAL]§r";
             }
         }

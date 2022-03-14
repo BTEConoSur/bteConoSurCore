@@ -62,6 +62,12 @@ public class ProjectsManager {
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
+        if (serverPlayer.getPlayer().isOnline()) {
+            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+                manager.update();
+            }
+        }
     }
 
     public void removeProject(Project project) {
@@ -69,6 +75,19 @@ public class ProjectsManager {
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
+        if (serverPlayer.getPlayer().isOnline()) {
+            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+                manager.update();
+            }
+        }
+        ChatManager cManager = serverPlayer.getChatManager();
+        if (cManager.getChat().getName().equals("project_" + project.getId())) {
+            cManager.setChat("global");
+        }
+        if (cManager.getDefaultChat().getName().equals("project_" + project.getId())) {
+            cManager.setDefaultChat("global");
+        }
     }
 
     public int getTotalFinishedProjects() {
@@ -83,6 +102,11 @@ public class ProjectsManager {
         return finishedProjects.get(country);
     }
 
+    public void addFinishedProject(Country country) {
+        int actual = finishedProjects.get(country);
+        finishedProjects.put(country, actual + 1);
+    }
+
     public int getTotalProjects() {
         return getAllProjects().size();
     }
@@ -95,7 +119,7 @@ public class ProjectsManager {
                 try {
                     Project project = new Project(id);
 
-                    if (project.getOwner() == serverPlayer.getPlayer().getUniqueId()) {
+                    if (project.getOwner() == serverPlayer.getPlayer()) {
                         owned.add(id);
                     }
                 } catch (Exception ignored) {}

@@ -51,7 +51,7 @@ public class TabCompletions implements TabCompleter {
 
                         }
 
-                        if (s.getPermissionCountries().contains(new Country(p.getLocation()).getCountry())) {
+                        if (s.getPermissionCountries().contains(new Country(p.getLocation()).getName())) {
                             if (project.isPending()) {
                                 completions.add("review");
                             }
@@ -68,7 +68,7 @@ public class TabCompletions implements TabCompleter {
                         completions.add("pending");
                     }
 
-                    if (s.getPermissionCountries().contains(new Country(p.getLocation()).getCountry())) {
+                    if (s.getPermissionCountries().contains(new Country(p.getLocation()).getName())) {
                         completions.add("delete");
                     }
                 }

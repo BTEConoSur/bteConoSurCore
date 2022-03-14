@@ -55,25 +55,25 @@ public class PRandom implements Listener {
                     pRandomGui.setItem(i, glass);
                 }
 
-                int available = getAvailableProjectsWithTag("edificios", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                int available = getAvailableProjectsWithTag("edificios", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(10, getCustomHead("§aEdificios", "§fEdificios de oficinas y otros edificios de gran magnitud.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWY2YmIzYWQ4ZGFmMGMxNDk5YjVlNDZkY2Y0MTc2YzgzNDU0MzU1M2ExYTgxODAwOWU3Njc1ZTg5NjI5NWUxYSJ9fX0="));
 
-                available = getAvailableProjectsWithTag("casas", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("casas", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(11, getCustomHead("§aCasas", "§fBarrios residenciales y/o con tiendas y empresas de menor tamaño.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Y3Y2RlZWZjNmQzN2ZlY2FiNjc2YzU4NGJmNjIwODMyYWFhYzg1Mzc1ZTlmY2JmZjI3MzcyNDkyZDY5ZiJ9fX0="));
 
-                available = getAvailableProjectsWithTag("departamentos", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("departamentos", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(12, getCustomHead("§aDepartamentos", "§fEdificios residenciales, hoteles, y otros edificios de tamaño medio.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDk5MTBjZjYwMGQyMWEwNDA0ZDlkZjRiMGQ2NTllZDQ4NDE4NmFlMDYxNDI3MGY3YTY0MjlmNzA0ZDBiZGJjOSJ9fX0="));
 
-                available = getAvailableProjectsWithTag("cetros_comerciales", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("cetros_comerciales", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(13, getCustomHead("§aCentros comerciales", "§fFranjas comerciales, malls, supermercados, fábricas.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTAzYmQwMDQyMTcyOWNkNjM1Y2QzYjQ4MjQzNDMwYWQ0N2NmNzA3MDE4YTU5MTZmZjU5NTQ5ZDVlY2Q2Zjg3OSJ9fX0="));
 
-                available = getAvailableProjectsWithTag("establecimientos", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("establecimientos", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(14, getCustomHead("§aEstablecimientos", "§fColegios, universidades, bancos, museos, estaciones, lugares históricos, iglesias, etc.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWVlOGQ2ZjVjYjdhMzVhNGRkYmRhNDZmMDQ3ODkxNWRkOWViYmNlZjkyNGViOGNhMjg4ZTkxZDE5YzhjYiJ9fX0="));
 
-                available = getAvailableProjectsWithTag("parques", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("parques", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(15, getCustomHead("§aParques", "§fGrandes áreas verdes y otros lugares abiertos como canchas de deportes o cerros.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWExZmJlZjNkMGM1MWFkNmM3MTNhYTIwYzQyZGIxODM0MzRjZWM0ZmI2M2E1YTNlYWExMDFhZDNjNWY3NWQxNSJ9fX0="));
 
-                available = getAvailableProjectsWithTag("carreteras", new Country(e.getWhoClicked().getLocation()).getCountry(), difficulty).size();
+                available = getAvailableProjectsWithTag("carreteras", new Country(e.getWhoClicked().getLocation()).getName(), difficulty).size();
                 pRandomGui.setItem(16, getCustomHead("§aCarreteras", "§fCarreteras, caminos, túneles, puentes, intersecciones, etc.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGRjMGJmZmZiNTg1YjNkNGU2ZThkM2Y5Y2JiMzAzZGUyZjUyZjIwMTQ4OGQ4MjEwZmE4Y2RjNDBiYmFkNTg4ZCJ9fX0="));
 
                 pRandomGui.setItem(26, getCustomHead("Volver", null, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzdhZWU5YTc1YmYwZGY3ODk3MTgzMDE1Y2NhMGIyYTdkNzU1YzYzMzg4ZmYwMTc1MmQ1ZjQ0MTlmYzY0NSJ9fX0="));
@@ -103,7 +103,7 @@ public class PRandom implements Listener {
                     tag = "carreteras";
                 }
 
-                List<Project> projects = getAvailableProjectsWithTag(tag, new Country(e.getWhoClicked().getLocation()).getCountry(), pRandomDifficulties.get((Player) e.getWhoClicked()));
+                List<Project> projects = getAvailableProjectsWithTag(tag, new Country(e.getWhoClicked().getLocation()).getName(), pRandomDifficulties.get((Player) e.getWhoClicked()));
                 Player p = (Player) e.getWhoClicked();
 
                 if (projects.size() > 0) {
@@ -128,7 +128,7 @@ public class PRandom implements Listener {
                     p.sendMessage(projectsPrefix + "Usa §a/project claim §fpara reclamar el proyecto.");
                 } else {
                     p.closeInventory();
-                    p.sendMessage(projectsPrefix + "No hay proyectos §a" + pRandomDifficulties.get((Player) e.getWhoClicked()).replace("dificil", "§aDIFÍCILES").replace("facil", "§aFÁCILES").replace("intermiedio", "§aINTERMEDIOS") + "§f de tipo §a" + tag.replace("_", " ").toUpperCase() + "§f disponibles en §a" + new Country(e.getWhoClicked().getLocation()).getCountry().toUpperCase() + "§f.");
+                    p.sendMessage(projectsPrefix + "No hay proyectos §a" + pRandomDifficulties.get((Player) e.getWhoClicked()).replace("dificil", "§aDIFÍCILES").replace("facil", "§aFÁCILES").replace("intermiedio", "§aINTERMEDIOS") + "§f de tipo §a" + tag.replace("_", " ").toUpperCase() + "§f disponibles en §a" + new Country(e.getWhoClicked().getLocation()).getName().toUpperCase() + "§f.");
                     BukkitRunnable runnable = new BukkitRunnable() {
                         @Override
                         public void run() {

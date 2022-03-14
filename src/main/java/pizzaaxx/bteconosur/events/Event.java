@@ -46,7 +46,7 @@ public class Event {
 
     public Event(Country country) {
         this.country = country;
-        String c = country.getCountry();
+        String c = country.getName();
         yaml = new YamlManager(pluginFolder, "events.yml");
         status = Status.valueOf(((String) yaml.getValue(c + ".status")).toUpperCase());
         name = (String) yaml.getValue(c + ".name");
@@ -139,7 +139,7 @@ public class Event {
     }
 
     public void setNewRegion(List<BlockVector2D> points) {
-        ProtectedPolygonalRegion newRegion = new ProtectedPolygonalRegion("evento_" + country.getCountry(), points, -8000, 8000);
+        ProtectedPolygonalRegion newRegion = new ProtectedPolygonalRegion("evento_" + country.getName(), points, -8000, 8000);
         newRegion.setFlags(this.region.getFlags());
         DefaultDomain defaultDomain = new DefaultDomain();
         for (OfflinePlayer player : this.participants) {
@@ -161,7 +161,7 @@ public class Event {
     }
 
     public void save() {
-        String c = country.getCountry();
+        String c = country.getName();
         yaml.setValue(c + ".name", this.name);
         yaml.setValue(c + ".date", this.date);
         yaml.setValue(c + ".image", this.image);
@@ -187,7 +187,7 @@ public class Event {
         region.setMembers(defaultDomain);
 
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
-        if (regionManager.getRegion("evento_" + country.getCountry()) != region) {
+        if (regionManager.getRegion("evento_" + country.getName()) != region) {
             regionManager.addRegion(region);
         }
     }
@@ -204,12 +204,12 @@ public class Event {
             names.add(serverPlayer.getName());
             if (!player.isOnline()) {
                 // TODO FIX ¡
-                serverPlayer.sendNotification(eventsPrefix + "¡El evento §a**" + this.name +  " (" + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + ")**§f acaba de empezar! Usa §a`/event`§f para ir.");
+                serverPlayer.sendNotification(eventsPrefix + "¡El evento §a**" + this.name +  " (" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ")**§f acaba de empezar! Usa §a`/event`§f para ir.");
             }
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(">+-----------+[-< §5EVENTO§f >-]+-----------+<");
-            player.sendMessage("§d¡El evento de " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + " acaba de iniciar!");
+            player.sendMessage("§d¡El evento de " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + " acaba de iniciar!");
             player.sendMessage("§aNombre: §f" + this.getName());
             player.sendMessage("§aFecha: §f" + this.getDate());
             player.sendMessage("§aPuntos mínimos: §f" + this.getMinPoints());
@@ -222,7 +222,7 @@ public class Event {
         embed.setDescription("Usa `/event` en el servidor para ir al evento y `/event join` para unirte.");
         embed.setColor(new Color(0,255,43));
         embed.setThumbnail(country.getIcon());
-        embed.setTitle("¡El evento \"" + name + "\" de " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + " acaba de empezar!");
+        embed.setTitle("¡El evento \"" + name + "\" de " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + " acaba de empezar!");
         embed.addField(":calendar: Fecha:", this.date, false);
         embed.addField(":round_pushpin: Coordenadas:", tp.getBlockX() + " " + tp.getBlockY() + " " + tp.getBlockZ(), false);
         embed.addField(":chart_with_upwards_trend: Puntos mínimos para participar:", minPoints.toString(), false);
@@ -254,22 +254,22 @@ public class Event {
                     serverPlayer.removeSecondaryGroup("evento");
                 }
             }
-            playerData.removeFromList("events", this.country.getCountry());
+            playerData.removeFromList("events", this.country.getName());
             playerData.save();
             if (!player.isOnline()) {
-                serverPlayer.sendNotification(eventsPrefix + "El evento §a**" + this.name +  "**§f de §a" + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + "§f acaba de terminar. ¡Gracias por participar!");
+                serverPlayer.sendNotification(eventsPrefix + "El evento §a**" + this.name +  "**§f de §a" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "§f acaba de terminar. ¡Gracias por participar!");
             }
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(">+-----------+[-< §5EVENTO§f >-]+-----------+<");
-            player.sendMessage("¡El evento §a" + name + "§f de §a" + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + "§f acaba de terminar!");
+            player.sendMessage("¡El evento §a" + name + "§f de §a" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "§f acaba de terminar!");
             player.sendMessage(">+-----------+[-< ====== >-]+-----------+<");
         }
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(new Color(255,0,0));
         embed.setThumbnail(country.getIcon());
-        embed.setTitle("¡El evento \"" + name + "\" de " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + " acaba de terminar!");
+        embed.setTitle("¡El evento \"" + name + "\" de " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + " acaba de terminar!");
         if (names.size() > 0) {
             embed.addField(":busts_in_silhouette: Participantes finales:", String.join(", ", names), false);
         } else {
@@ -289,7 +289,7 @@ public class Event {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(">+-----------+[-< §5EVENTO§f >-]+-----------+<");
-            player.sendMessage("§d¡Hay un nuevo evento preparado en " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + "!");
+            player.sendMessage("§d¡Hay un nuevo evento preparado en " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "!");
             player.sendMessage("§aNombre: §f" + this.getName());
             player.sendMessage("§aFecha: §f" + this.getDate());
             player.sendMessage("§aPuntos mínimos: §f" + this.getMinPoints());
@@ -301,7 +301,7 @@ public class Event {
         embed.setDescription("Usa `/event` en el servidor para ir al evento y `/event join` para unirte.");
         embed.setColor(new Color(0,255,43));
         embed.setThumbnail(country.getIcon());
-        embed.setTitle("¡Nuevo evento \"" + name + "\" preparado en " + StringUtils.capitalize(country.getCountry().replace("peru", "perú")) + "!");
+        embed.setTitle("¡Nuevo evento \"" + name + "\" preparado en " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "!");
         embed.addField(":calendar: Fecha:", this.date, false);
         embed.addField(":round_pushpin: Coordenadas:", tp.getBlockX() + " " + tp.getBlockY() + " " + tp.getBlockZ(), false);
         embed.addField(":chart_with_upwards_trend: Puntos mínimos para participar:", minPoints.toString(), false);

@@ -108,7 +108,7 @@ public class Chat {
             }
         }
         Chat pChat = cManager.getChat();
-        String msg = (!this.equals(pChat) ? chatsPrefix + " " + pChat.getFormattedName() + " §r>> " : "" ) + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getCountry().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
+        String msg = (!this.equals(pChat) ? chatsPrefix + " " + pChat.getFormattedName() + " §r>> " : "" ) + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getName().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
         membersUUID.forEach(uuid -> {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
