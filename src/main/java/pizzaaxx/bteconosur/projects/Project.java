@@ -217,6 +217,9 @@ public class Project {
     public List<OfflinePlayer> getAllMembers() {
         List<OfflinePlayer> allMembers = new ArrayList<>();
         allMembers.addAll(getMembers());
+        if (owner != null) {
+            allMembers.add(Bukkit.getOfflinePlayer(owner));
+        }
         return allMembers;
     }
 
