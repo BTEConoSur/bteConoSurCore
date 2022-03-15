@@ -13,9 +13,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.serverPlayer.ChatManager;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
+import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Events implements Listener, EventListener {
 
@@ -87,7 +87,7 @@ public class Events implements Listener, EventListener {
         ServerPlayer s = new ServerPlayer(p);
         ChatManager manager = s.getChatManager();
 
-        if (!(s.isChatHidden())) {
+        if (!(manager.isHidden())) {
             List<Chat> targetChats = new ArrayList<>();
             List<Player> pingedPlayers = new ArrayList<>();
 
@@ -104,8 +104,9 @@ public class Events implements Listener, EventListener {
                             pingedPlayers.add(target);
                         }
 
-                        if (!(targetChats.contains(new ServerPlayer(target).getChat().getName()))) {
-                            targetChats.add(new ServerPlayer(target).getChat());
+                        ServerPlayer sTarget = new ServerPlayer(target);
+                        if (!(targetChats.contains(sTarget.getChatManager().getChat()))) {
+                            targetChats.add(sTarget.getChatManager().getChat());
                         }
 
                         message = message.replace(word, "§a~" + s.getChatManager().getDisplayName() + "~");
@@ -119,10 +120,14 @@ public class Events implements Listener, EventListener {
                     List<String> strings = new ArrayList<>();
                     strings.add(":speech_balloon: **");
 
-                    strings.add("[" + YamlManager.getYamlData(pluginFolder, "discord/groupEmojis.yml").get(s.getPrimaryGroup()) + "] ");
+                    GroupsManager groupsManager = s.getGroupsManager();
 
-                    for (String group : s.getSecondaryGroups()) {
-                        strings.add("[" + YamlManager.getYamlData(pluginFolder, "discord/groupEmojis.yml").get(group) + "] ");
+                    Configuration emojis = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/groupEmojis.yml");
+
+                    strings.add("[" + emojis.getString(groupsManager.getPrimaryGroup().toString()) + "] ");
+
+                    for (GroupsManager.SecondaryGroup group : groupsManager.getSecondaryGroups()) {
+                        strings.add("[" + emojis.getString(group.toString()) + "] ");
 
                     }
                     strings.add(s.getName() + ":** " + ChatColor.stripColor(message.replace("~", "**")));
@@ -134,8 +139,9 @@ public class Events implements Listener, EventListener {
             }
 
             for (Player player : pingedPlayers) {
-                if (new ServerPlayer(player).isChatHidden()) {
-                    p.sendMessage(BookUtil.TextBuilder.of(chatsPrefix + "§a" + new ServerPlayer(player).getName() + "tiene el chat oculto. ").build(),
+                ServerPlayer sPlayer = new ServerPlayer(player);
+                if (sPlayer.getChatManager().isHidden()) {
+                    p.sendMessage(BookUtil.TextBuilder.of(chatsPrefix + "§a" + sPlayer.getName() + "tiene el chat oculto. ").build(),
                             BookUtil.TextBuilder.of("§a[ENVIAR POR PRIVADO]")
                                     .onHover(BookUtil.HoverAction.showText("Haz click para enviar el menaje por privado."))
                                     .onClick(BookUtil.ClickAction.runCommand("/msg " + new ServerPlayer(player).getName() + ChatColor.stripColor(e.getMessage())))

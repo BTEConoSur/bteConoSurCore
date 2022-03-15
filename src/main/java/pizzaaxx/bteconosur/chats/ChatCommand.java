@@ -12,7 +12,7 @@ import pizzaaxx.bteconosur.projects.Project;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Command implements CommandExecutor {
+public class ChatCommand implements CommandExecutor {
     public static String chatsPrefix = "§f[§aCHAT§f] §7>>§r ";
     public static Map<String, String> chatInvites = new HashMap<>();
 

@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import pizzaaxx.bteconosur.chats.ChatCommand;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
@@ -97,7 +98,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
-        getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chats.Command());
+        getCommand("chat").setExecutor(new ChatCommand());
         getCommand("nickname").setExecutor(new NickNameCommand());
         getCommand("test").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());

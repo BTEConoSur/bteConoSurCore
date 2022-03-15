@@ -11,7 +11,7 @@ import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
+import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Join implements Listener {
 

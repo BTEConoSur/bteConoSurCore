@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static pizzaaxx.bteconosur.chats.Command.chatsPrefix;
+import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Chat {
 

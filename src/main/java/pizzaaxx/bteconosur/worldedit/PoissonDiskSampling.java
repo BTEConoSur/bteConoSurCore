@@ -133,11 +133,7 @@ public class PoissonDiskSampling {
                 BlockVector2D newPoint = new BlockVector2D(newX, newZ);
 
                 if (isValid(newPoint)) {
-                    try {
-                        tryToPlace(newPoint);
-                    } catch (MaxChangedBlocksException e) {
-                        throw e;
-                    }
+                    tryToPlace(newPoint);
                     active.add(newPoint);
                     found = true;
                     insertPoint(newPoint);
