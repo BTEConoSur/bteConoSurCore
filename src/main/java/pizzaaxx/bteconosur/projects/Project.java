@@ -52,6 +52,25 @@ public class Project {
         }
     }
 
+    public static Map<Tag, List<String>> getAvailableProjects(Country country, Difficulty difficulty) {
+        Map<Tag, List<String>> projects = new HashMap<>();
+
+        for (Tag tag : Tag.values()) {
+            String tagName = tag.toString().toLowerCase();
+
+            Configuration tags = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projectTags/tags");
+            if (tags.contains(tagName)) {
+                for (String id : tags.getConfigurationSection(tagName).getStringList(country.getName())) {
+                    Project project = new Project(id);
+                    if (project.getOwner() == null && project.getDifficulty() == difficulty) {
+                        projects.get(tag).add(id);
+                    }
+                }
+            }
+        }
+        return projects;
+    }
+
     public enum Tag {
         EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES;
     }

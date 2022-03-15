@@ -35,16 +35,16 @@ public class ProjectActionBar implements Listener {
                         Project project = new Project(to);
 
                         ChatColor color;
-                        if (project.getDifficulty().equals("facil")) {
+                        if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
                             color = ChatColor.GREEN;
-                        } else if (project.getDifficulty().equals("intermedio")) {
+                        } else if (project.getDifficulty().toString().equalsIgnoreCase("intermedio")) {
                             color = ChatColor.YELLOW;
                         } else {
                             color = ChatColor.RED;
                         }
 
-                        if (project.getOwnerOld() != null) {
-                            player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwnerOld()).getName());
+                        if (project.getOwner() != null) {
+                            player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwner()).getName());
                         }
 
                         break;

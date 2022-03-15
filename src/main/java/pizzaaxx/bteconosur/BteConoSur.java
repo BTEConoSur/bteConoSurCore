@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.omg.CORBA.ARG_IN;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
@@ -36,6 +35,7 @@ import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PrefixCommand;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
+import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
@@ -50,7 +50,6 @@ import pizzaaxx.bteconosur.yaml.YamlManager;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +80,7 @@ public final class BteConoSur extends JavaPlugin {
                 new ProjectActionBar(),
                 new OnTeleport(),
                 new PresetsEvent(),
-                new PRandom(),
+                new pFind(),
                 new PresetsEvent(),
                 new ShortCuts(playerRegistry),
                 new Events(),
@@ -235,8 +234,8 @@ public final class BteConoSur extends JavaPlugin {
 
     public static void broadcast(String message) {
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
-            ServerPlayer s = new ServerPlayer(p);
-            if (!(s.isChatHidden())) {
+            ChatManager chatManager = new ServerPlayer(p).getChatManager();
+            if (!(chatManager.isHidden())) {
                 p.sendMessage(message);
             }
         }
@@ -244,8 +243,8 @@ public final class BteConoSur extends JavaPlugin {
 
     public static void broadcast(BaseComponent message) {
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
-            ServerPlayer s = new ServerPlayer(p);
-            if (!(s.isChatHidden())) {
+            ChatManager chatManager = new ServerPlayer(p).getChatManager();
+            if (!(chatManager.isHidden())) {
                 p.sendMessage(message);
             }
         }

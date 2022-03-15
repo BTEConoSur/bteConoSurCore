@@ -26,41 +26,37 @@ public class TabCompletions implements TabCompleter {
                     completions.add("create");
                     completions.add("tutorial");
 
-                    try {
-                        Project project = new Project(p.getLocation());
+                    Project project = new Project(p.getLocation());
 
-                        completions.add("leave");
-                        completions.add("borders");
+                    completions.add("leave");
+                    completions.add("borders");
 
-                        if (!(project.isPending())) {
-                            completions.add("claim");
+                    if (!(project.isPending())) {
+                        completions.add("claim");
+                    }
+
+                    if (project.getOwner() != null) {
+                        completions.add("request");
+                    }
+
+                    if (project.getOwner() == p) {
+                        completions.add("add");
+                        completions.add("remove");
+                        completions.add("transfer");
+                        completions.add("name");
+                        completions.add("redefine");
+                        completions.add("finish");
+                        completions.add("redefine");
+
+                    }
+
+                    if (s.getPermissionCountries().contains(new Country(p.getLocation()))) {
+                        if (project.isPending()) {
+                            completions.add("review");
                         }
-
-                        if (project.getOwnerOld() != null) {
-                            completions.add("request");
+                        if (p.hasPermission("bteconosur.projects.manage.tag")) {
+                            completions.add("tag");
                         }
-
-                        if (project.getOwnerOld() == p) {
-                            completions.add("add");
-                            completions.add("remove");
-                            completions.add("transfer");
-                            completions.add("name");
-                            completions.add("redefine");
-                            completions.add("finish");
-                            completions.add("redefine");
-
-                        }
-
-                        if (s.getPermissionCountries().contains(new Country(p.getLocation()).getName())) {
-                            if (project.isPending()) {
-                                completions.add("review");
-                            }
-                            if (p.hasPermission("bteconosur.projects.manage.tag")) {
-                                completions.add("tag");
-                            }
-
-                        }
-                    } catch (Exception e) {
 
                     }
 
@@ -68,7 +64,7 @@ public class TabCompletions implements TabCompleter {
                         completions.add("pending");
                     }
 
-                    if (s.getPermissionCountries().contains(new Country(p.getLocation()).getName())) {
+                    if (s.getPermissionCountries().contains(new Country(p.getLocation()))) {
                         completions.add("delete");
                     }
                 }
