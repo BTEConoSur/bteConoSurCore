@@ -13,21 +13,28 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Chat {
 
     private final String name;
-    private final Set<UUID> membersUUID = new HashSet<>();
+    private Set<UUID> membersUUID = new HashSet<>();
 
     public Chat(String name) {
         this.name = name;
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (new PlayerData(player).getData("chat").equals(this.name)) {
-                membersUUID.add(player.getUniqueId());
+        if (chatRegistry.contains(name)) {
+            this.membersUUID = chatRegistry.get(name).membersUUID;
+        } else {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (new ServerPlayer(player).getChatManager().getChat().getName().equals(name)) {
+                    membersUUID.add(player.getUniqueId());
+                }
             }
+            chatRegistry.register(this);
         }
+
+
     }
 
     public String toString() {

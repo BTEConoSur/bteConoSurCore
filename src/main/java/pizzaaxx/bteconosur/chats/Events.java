@@ -10,22 +10,22 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Events implements Listener, EventListener {
@@ -162,9 +162,9 @@ public class Events implements Listener, EventListener {
             MessageReceivedEvent e = (MessageReceivedEvent) event;
             if (e.getTextChannel() == gateway) {
                 if (!(e.getAuthor().isBot()) && !(e.getMessage().getContentDisplay().startsWith("/"))) {
-                    ChatColor color = ChatColor.getByChar((String) YamlManager.getYamlData(pluginFolder, "discord/chatColors.yml").get(e.getMember().getRoles().get(0).getId()));
+                    ChatColor color = ChatColor.getByChar(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/chatColors").getString(e.getMember().getRoles().get(0).getId()));
 
-                    chatRegistry.get("global").sendMessage("[§bDISCORD§f] §7>> §r" + color + e.getMember().getEffectiveName() + ": §r" + e.getMessage().getContentDisplay());
+                    new Chat("global").broadcast("[§bDISCORD§f] §7>> §r" + color + e.getMember().getEffectiveName() + ": §r" + e.getMessage().getContentDisplay());
                 }
             }
         }

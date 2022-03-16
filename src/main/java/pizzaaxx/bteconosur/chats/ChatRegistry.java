@@ -27,6 +27,13 @@ public class ChatRegistry {
         }
     }
 
+    public void register(@NotNull Chat chat) {
+        String name = chat.getName();
+        if (!registry.containsKey(name)) {
+            registry.put(name, chat);
+        }
+    }
+
     public Chat get(@NotNull String name) {
         return registry.get(name);
     }
@@ -38,5 +45,9 @@ public class ChatRegistry {
             oldChat.removeMember((Player) player.getPlayer());
             newChat.addMember((Player) player.getPlayer());
         }
+    }
+
+    public boolean contains(@NotNull String name) {
+        return registry.containsKey(name);
     }
 }
