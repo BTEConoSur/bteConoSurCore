@@ -12,6 +12,7 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class RegionEvents {
+
     public static Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
