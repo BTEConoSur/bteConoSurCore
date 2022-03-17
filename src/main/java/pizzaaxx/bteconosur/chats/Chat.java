@@ -90,12 +90,9 @@ public class Chat {
     }
 
     public void addMember(Player player) {
-        if (!membersUUID.contains(player.getUniqueId())) {
             String name = new ServerPlayer(player).getName();
             broadcast(chatsPrefix + "§a" + name + "§f se ha unido al chat.");
             membersUUID.add(player.getUniqueId());
-        }
-
     }
 
     // [CHAT] CHILE >> [ADMIN] [CHILE] <PIZZAAXX> TEST
