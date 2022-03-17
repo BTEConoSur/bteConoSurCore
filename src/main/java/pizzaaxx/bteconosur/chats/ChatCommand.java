@@ -29,20 +29,20 @@ public class ChatCommand implements CommandExecutor {
         Chat pChat = manager.getChat();
 
         if (args.length == 0) {
-            p.sendMessage(chatsPrefix + "Estás en el chat §a" + pChat.getFormattedName() + "§f.");
+            p.sendMessage(CHAT_PREFIX + "Estás en el chat §a" + pChat.getFormattedName() + "§f.");
         } else {
             if (args[0].equalsIgnoreCase("argentina") || args[0].equalsIgnoreCase("bolivia") || args[0].equalsIgnoreCase("chile") || args[0].equalsIgnoreCase("paraguay") || args[0].equalsIgnoreCase("peru") || args[0].equalsIgnoreCase("uruguay") || args[0].equalsIgnoreCase("global")) {
                 if (!(pChat.getName().equals(args[0]))) {
                     manager.setChat(args[0]);
 
-                    p.sendMessage(chatsPrefix + "Te has unido al chat de §a" + args[0].toUpperCase() + "§f. §7(Jugadores: " + manager.getChat().getMembersAmount() + ")");
+                    p.sendMessage(CHAT_PREFIX + "Te has unido al chat de §a" + args[0].toUpperCase() + "§f. §7(Jugadores: " + manager.getChat().getMembersAmount() + ")");
 
                 } else {
-                    p.sendMessage(chatsPrefix + "Ya estás en este chat.");
+                    p.sendMessage(CHAT_PREFIX + "Ya estás en este chat.");
                 }
             } else if (Bukkit.getOfflinePlayer(args[0]).isOnline()) {
                 ServerPlayer target = new ServerPlayer(Bukkit.getPlayer(args[0]));
-                p.sendMessage(chatsPrefix + "§a" + target.getName() + "§f está en el chat §a" + target.getChatManager().getChat().getFormattedName() + "§f.");
+                p.sendMessage(CHAT_PREFIX + "§a" + target.getName() + "§f está en el chat §a" + target.getChatManager().getChat().getFormattedName() + "§f.");
             } else if (args[0].equalsIgnoreCase("project") || args[0].equalsIgnoreCase("proyecto")) {
                 try {
                     Project project = new Project(p.getLocation());
@@ -51,34 +51,34 @@ public class ChatCommand implements CommandExecutor {
                         if (!(pChat.getName().equals(args[0]))) {
                             manager.setChat("project_" + project.getId());
 
-                            p.sendMessage(chatsPrefix + "Te has unido al chat del proyecto §a" + project.getName(true) + "§f. §7(Jugadores: " + manager.getChat().getMembersAmount() + ")");
+                            p.sendMessage(CHAT_PREFIX + "Te has unido al chat del proyecto §a" + project.getName(true) + "§f. §7(Jugadores: " + manager.getChat().getMembersAmount() + ")");
                         } else {
-                            p.sendMessage(chatsPrefix + "Ya estás en este chat.");
+                            p.sendMessage(CHAT_PREFIX + "Ya estás en este chat.");
                         }
                     } else {
-                        p.sendMessage(chatsPrefix + "No puedes unirte al chat de un proyecto del que no eres miembro a menos que te inviten.");
+                        p.sendMessage(CHAT_PREFIX + "No puedes unirte al chat de un proyecto del que no eres miembro a menos que te inviten.");
                     }
                 } catch (Exception exception) {
-                    p.sendMessage(chatsPrefix + "No estás dentro de ningún proyecto.");
+                    p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto.");
                 }
             } else if (args[0].equals("toggle") || args[0].equals("alternar")) {
                 if (p.hasPermission("bteconosur.chat.toggle")) {
                     if (manager.toggleChat()) {
-                        p.sendMessage(chatsPrefix + "Has ocultado el chat.");
+                        p.sendMessage(CHAT_PREFIX + "Has ocultado el chat.");
                     } else {
-                        p.sendMessage(chatsPrefix + "Ahora puedes ver el chat.");
+                        p.sendMessage(CHAT_PREFIX + "Ahora puedes ver el chat.");
                     }
                 } else {
-                    p.sendMessage(chatsPrefix + "§cNo tienes permiso para hacer eso.");
+                    p.sendMessage(CHAT_PREFIX + "§cNo tienes permiso para hacer eso.");
                 }
             } else if (args[0].equals("default") || args[0].equals("predeterminado")) {
                 if (args.length > 1) {
                     if (args[1].equalsIgnoreCase("argentina") || args[1].equalsIgnoreCase("bolivia") || args[1].equalsIgnoreCase("chile") || args[1].equalsIgnoreCase("paraguay") || args[1].equalsIgnoreCase("peru") || args[1].equalsIgnoreCase("uruguay") || args[1].equalsIgnoreCase("global")) {
                         if (!(manager.getDefaultChat().getName().equals(args[1]))) {
                             manager.setDefaultChat(args[1]);
-                            p.sendMessage(chatsPrefix + "Chat predeterminado establecido en el chat §a" + args[1].toUpperCase() + "§f.");
+                            p.sendMessage(CHAT_PREFIX + "Chat predeterminado establecido en el chat §a" + args[1].toUpperCase() + "§f.");
                         } else {
-                            p.sendMessage(chatsPrefix + "Este ya es tu chat predeterminado.");
+                            p.sendMessage(CHAT_PREFIX + "Este ya es tu chat predeterminado.");
                         }
                     } else if (args[1].equalsIgnoreCase("project") || args[1].equals("proyecto")) {
                         try {
@@ -88,26 +88,26 @@ public class ChatCommand implements CommandExecutor {
                                 if (!(manager.getDefaultChat().getName().equals("project_" + project.getId()))) {
                                     manager .setDefaultChat("project_" + project.getId());
 
-                                    p.sendMessage(chatsPrefix + "Chat predeterminado establecido en el chat del proyecto §a" + project.getName(true) + "§f.");
+                                    p.sendMessage(CHAT_PREFIX + "Chat predeterminado establecido en el chat del proyecto §a" + project.getName(true) + "§f.");
                                 } else {
-                                    p.sendMessage(chatsPrefix + "Este ya es tu chat predeterminado.");
+                                    p.sendMessage(CHAT_PREFIX + "Este ya es tu chat predeterminado.");
                                 }
                             } else {
-                                p.sendMessage(chatsPrefix + "Solo los miembros del proyecto pueden establecer el chat del proyecto como predeterminado.");
+                                p.sendMessage(CHAT_PREFIX + "Solo los miembros del proyecto pueden establecer el chat del proyecto como predeterminado.");
                             }
                         } catch (Exception exception) {
-                            p.sendMessage(chatsPrefix + "No estás dentro de ningún proyecto.");
+                            p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto.");
                         }
                     } else {
-                        p.sendMessage(chatsPrefix + "Posibles chats: §aGLOBAL§f, §aARGENTINA§f, §aBOLIVIA§f, §aCHILE§f, §aPARAGUAY§f, §aPERU§f, §aURUGUAY§f, §aPROJECT§f.");
+                        p.sendMessage(CHAT_PREFIX + "Posibles chats: §aGLOBAL§f, §aARGENTINA§f, §aBOLIVIA§f, §aCHILE§f, §aPARAGUAY§f, §aPERU§f, §aURUGUAY§f, §aPROJECT§f.");
                     }
                 } else {
                     if (!(pChat.equals(manager.getDefaultChat()))) {
                         manager.setChat(manager.getDefaultChat().getName());
 
-                        p.sendMessage(chatsPrefix + "Te has unido a tu chat predeterminado: §a" + manager.getChat().getFormattedName());
+                        p.sendMessage(CHAT_PREFIX  + "Te has unido a tu chat predeterminado: §a" + manager.getChat().getFormattedName());
                     } else {
-                        p.sendMessage(chatsPrefix + "Ya estás en tu chat predeterminado.");
+                        p.sendMessage(CHAT_PREFIX + "Ya estás en tu chat predeterminado.");
                     }
                 }
             } else if (args[0].equals("invite") || args[0].equals("invitar")) {
@@ -116,7 +116,7 @@ public class ChatCommand implements CommandExecutor {
                         Player target = Bukkit.getPlayer(args[1]);
 
                         if (new ServerPlayer(target).getChatManager().getChat().equals(pChat)) {
-                            p.sendMessage(chatsPrefix + "El jugador ya se encuentra en tu chat.");
+                            p.sendMessage(CHAT_PREFIX + "El jugador ya se encuentra en tu chat.");
                             return true;
                         }
 
@@ -128,14 +128,14 @@ public class ChatCommand implements CommandExecutor {
 
                         chatInvites.put(code, pChat.getName());
 
-                        p.sendMessage(chatsPrefix + "Has invitado a §a" + new ServerPlayer(target).getName() + "§f a tu chat.");
+                        p.sendMessage(CHAT_PREFIX + "Has invitado a §a" + new ServerPlayer(target).getName() + "§f a tu chat.");
 
-                        target.sendMessage(chatsPrefix + "§a" + s.getName() + "§f te ha invitado a su chat (" + pChat.getFormattedName() + "). Usa §a/chat" + code + "§f para unirte.");
+                        target.sendMessage(CHAT_PREFIX + "§a" + s.getName() + "§f te ha invitado a su chat (" + pChat.getFormattedName() + "). Usa §a/chat" + code + "§f para unirte.");
                     } else {
-                        p.sendMessage(chatsPrefix + "El jugador no está online.");
+                        p.sendMessage(CHAT_PREFIX + "El jugador no está online.");
                     }
                 } else {
-                    p.sendMessage(chatsPrefix + "Introduce un jugador a invitar.");
+                    p.sendMessage(CHAT_PREFIX + "Introduce un jugador a invitar.");
                 }
             } else {
                 if (args[0].matches("[a-z]{6}") && chatInvites.containsKey(args[0])) {
@@ -144,12 +144,12 @@ public class ChatCommand implements CommandExecutor {
 
                         Chat newChat = manager.getChat();
 
-                        p.sendMessage(chatsPrefix + "Te has unido al chat §a" + newChat.getFormattedName() + "§f. §7(Jugadores: " + newChat.getMembersAmount() + ")");
+                        p.sendMessage(CHAT_PREFIX + "Te has unido al chat §a" + newChat.getFormattedName() + "§f. §7(Jugadores: " + newChat.getMembersAmount() + ")");
                     } else {
-                        p.sendMessage(chatsPrefix + "Ya estás en este chat.");
+                        p.sendMessage(CHAT_PREFIX + "Ya estás en este chat.");
                     }
                 } else {
-                    p.sendMessage(chatsPrefix + "Código de invitación inválido.");
+                    p.sendMessage(CHAT_PREFIX + "Código de invitación inválido.");
                 }
             }
         }

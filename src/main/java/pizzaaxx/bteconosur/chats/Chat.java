@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
+import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
 import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Chat {
@@ -91,7 +92,7 @@ public class Chat {
 
     public void addMember(Player player) {
             String name = new ServerPlayer(player).getName();
-            broadcast(chatsPrefix + "§a" + name + "§f se ha unido al chat.");
+            broadcast(CHAT_PREFIX + "§a" + name + "§f se ha unido al chat.");
             membersUUID.add(player.getUniqueId());
     }
 
@@ -116,7 +117,7 @@ public class Chat {
             }
         }
         Chat pChat = cManager.getChat();
-        String msg = (!this.equals(pChat) ? chatsPrefix + " " + pChat.getFormattedName() + " §r>> " : "") + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getName().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
+        String msg = (!this.equals(pChat) ? CHAT_PREFIX + " " + pChat.getFormattedName() + " §r>> " : "") + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getName().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
         membersUUID.forEach(uuid -> {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
