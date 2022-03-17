@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatCommand implements CommandExecutor {
-    public static String chatsPrefix = "§f[§aCHAT§f] §7>>§r ";
+
+    public static final String CHAT_PREFIX = "§f[§aCHAT§f] §7>>§r ";
     public static Map<String, String> chatInvites = new HashMap<>();
 
     @Override
