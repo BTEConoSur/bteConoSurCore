@@ -100,28 +100,19 @@ public class ScoreboardManager {
                     try {
                         Project project = new Project(p.getLocation());
 
-                        ChatColor color;
-                        if (project.getDifficulty().equals("facil")) {
-                            color = ChatColor.GREEN;
-                        } else if (project.getDifficulty().equals("intermedio")) {
-                            color = ChatColor.YELLOW;
-                        } else {
-                            color = ChatColor.RED;
-                        }
-
                         lines.add(" ");
-                        lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().replace("facil", "fácil").replace("dificil", "difícil")));
-                        lines.add("§aPaís: §f" + StringUtils.capitalize(project.getOldCountry()));
+                        lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().toString().toLowerCase().replace("facil", "fácil").replace("dificil", "difícil")));
+                        lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry().getName()));
                         if (project.getTag() != null) {
-                            lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().replace("_", " ")));
+                            lines.add("§aEtiqueta: §f" + StringUtils.capitalize(project.getTag().toString().replace("_", " ")));
                         }
-                        if (project.getOwnerOld() != null) {
-                            lines.add("§aLíder: §f" + new ServerPlayer(project.getOwnerOld()).getName());
+                        if (project.getOwner() != null) {
+                            lines.add("§aLíder: §f" + new ServerPlayer(project.getOwner()).getName());
                         }
-                        if (project.getMembersOld() != null) {
+                        if (!project.getMembers().isEmpty()) {
                             lines.add("§aMiembros: §f");
                             int i = 0;
-                            for (OfflinePlayer member : project.getMembersOld()) {
+                            for (OfflinePlayer member : project.getMembers()) {
                                 lines.add("- " + new ServerPlayer(member).getName());
                                 i++;
                                 if (i >= 9) {
@@ -173,28 +164,23 @@ public class ScoreboardManager {
                     if (!country.getName().equals("global") && !country.getName().equals("argentina")) {
 
                         int i = 1;
-                        for (ServerPlayer s : country.getScoreboard()) {
+                        for (PointsManager pointsManager : country.getScoreboard()) {
 
                             ChatColor c = ChatColor.WHITE;
 
-                            if (s.getBuilderRank(country) != null) {
-                                String bRank = s.getBuilderRank(country);
-                                switch (bRank) {
-                                    case "builder":
-                                        c = ChatColor.BLUE;
-                                        break;
-                                    case "avanzado":
-                                        c = ChatColor.DARK_BLUE;
-                                        break;
-                                    case "veterano":
-                                        c = ChatColor.YELLOW;
-                                        break;
-                                    case "maestro":
-                                        c = ChatColor.GOLD;
-                                        break;
+                            if (pointsManager.getPoints(country) >= 15) {
+                                int points = pointsManager.getPoints(country);
+                                if (points >= 1000) {
+                                    c = ChatColor.GOLD;
+                                } else if (points >= 500) {
+                                    c = ChatColor.YELLOW;
+                                } else if (points >= 150) {
+                                    c = ChatColor.DARK_BLUE;
+                                } else {
+                                    c = ChatColor.BLUE;
                                 }
                             }
-                            lines.add(i + ". §a" + s.getPoints(country) + " §7- " + c + s.getName());
+                            lines.add(i + ". §a" + pointsManager.getPoints(country) + " §7- " + c + pointsManager.getServerPlayer().getName());
                             i++;
                         }
 

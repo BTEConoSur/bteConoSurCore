@@ -29,6 +29,10 @@ public class PointsManager {
         }
     }
 
+    public ServerPlayer getServerPlayer() {
+        return serverPlayer;
+    }
+
     public int getPoints(Country country) {
         return countriesPoints.getOrDefault(country, 0);
     }
