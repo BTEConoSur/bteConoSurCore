@@ -9,11 +9,15 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.serverPlayer.DataManager;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
@@ -29,7 +33,6 @@ import static pizzaaxx.bteconosur.misc.Misc.getMapURL;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class ServerEvent {
-    git
     private Status status;
     private String name;
     private String date;
@@ -38,7 +41,8 @@ public class ServerEvent {
     private String image;
     private List<OfflinePlayer> participants = new ArrayList<>();
     private ProtectedPolygonalRegion region;
-    private final YamlManager yaml;
+    private final Configuration yaml;
+    private final ConfigurationSection countrySection;
     private final Country country;
 
     enum Status {
@@ -48,14 +52,17 @@ public class ServerEvent {
     public ServerEvent(Country country) {
         this.country = country;
         String c = country.getName();
-        yaml = new YamlManager(pluginFolder, "events.yml");
-        status = Status.valueOf(((String) yaml.getValue(c + ".status")).toUpperCase());
-        name = (String) yaml.getValue(c + ".name");
-        date = (String) yaml.getValue(c + ".date");
-        image = (String) yaml.getValue(c + ".image");
-        minPoints = (Integer) yaml.getValue(c + ".minPoints");
-        tp = new Location(mainWorld, (double) yaml.getValue(c + ".tp.x"), (double) yaml.getValue(c + ".tp.y"), (double) yaml.getValue(c + ".tp.z"));
-        for (String uuid : (List<String>) yaml.getValue(c + ".participants")) {
+        yaml = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "events");
+        countrySection = yaml.getConfigurationSection(c);
+
+        status = Status.valueOf(countrySection.getString("status").toUpperCase());
+        name = countrySection.getString("name");
+        date = countrySection.getString("date");
+        image = countrySection.getString("image");
+        minPoints = countrySection.getInt("minPoints");
+        ConfigurationSection tpSection = countrySection.getConfigurationSection("tp");
+        tp = new Location(mainWorld, tpSection.getDouble("x"), tpSection.getDouble("y"), tpSection.getDouble("z"));
+        for (String uuid : countrySection.getStringList("participants")) {
             participants.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
         }
         region = (ProtectedPolygonalRegion) getWorldGuard().getRegionManager(mainWorld).getRegion("evento_" + c);
@@ -102,17 +109,7 @@ public class ServerEvent {
     }
 
     public void setStatus(String status) {
-        switch (status) {
-            case "ready":
-                this.setStatus(Status.READY);
-                break;
-            case "off":
-                this.setStatus(Status.OFF);
-                break;
-            case "on":
-                this.setStatus(Status.ON);
-                break;
-        }
+        this.status = Status.valueOf(status.toUpperCase());
     }
 
     public Location getTp() {
@@ -162,22 +159,24 @@ public class ServerEvent {
     }
 
     public void save() {
-        String c = country.getName();
-        yaml.setValue(c + ".name", this.name);
-        yaml.setValue(c + ".date", this.date);
-        yaml.setValue(c + ".image", this.image);
-        yaml.setValue(c + ".status", this.status.toString());
-        yaml.setValue(c + ".minPoints", this.minPoints);
+        countrySection.set("name", this.name);
+        countrySection.set("date", this.date);
+        countrySection.set("image", this.image);
+        countrySection.set("status", this.status.toString());
+        countrySection.set("minPoints", this.minPoints);
         List<String> uuids = new ArrayList<>();
         for (OfflinePlayer player : this.participants) {
             uuids.add(player.getUniqueId().toString());
         }
-        yaml.setValue(c + ".participants", uuids);
-        yaml.setValue(c + ".tp.x", this.tp.getX());
-        yaml.setValue(c + ".tp.y", this.tp.getY());
-        yaml.setValue(c + ".tp.z", this.tp.getZ());
+        countrySection.set("participants", uuids);
+        ConfigurationSection tpSection = countrySection.getConfigurationSection("tp");
+        tpSection.set("x", this.tp.getX());
+        tpSection.set("y", this.tp.getY());
+        tpSection.set("z", this.tp.getZ());
 
-        yaml.write();
+        countrySection.set("tp", tpSection);
+
+        yaml.set(country.getName(), countrySection);
 
         DefaultDomain defaultDomain = new DefaultDomain();
         if (this.status == Status.ON) {
@@ -199,12 +198,12 @@ public class ServerEvent {
         List<String> names = new ArrayList<>();
         for (OfflinePlayer player : participants) {
             ServerPlayer serverPlayer = new ServerPlayer(player);
-            if (serverPlayer.newGetPrimaryGroup() == ServerPlayer.PrimaryGroup.DEFAULT && !(serverPlayer.getSecondaryGroups().contains("evento"))) {
-                serverPlayer.addSecondaryGroup("evento");
+            GroupsManager groupsManager = serverPlayer.getGroupsManager();
+            if (groupsManager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT && !(groupsManager.getSecondaryGroups().contains(GroupsManager.SecondaryGroup.EVENTO))) {
+                groupsManager.addSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
             }
             names.add(serverPlayer.getName());
             if (!player.isOnline()) {
-                // TODO FIX ¡
                 serverPlayer.sendNotification(eventsPrefix + "¡El evento §a**" + this.name +  " (" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ")**§f acaba de empezar! Usa §a`/event`§f para ir.");
             }
         }
@@ -248,15 +247,16 @@ public class ServerEvent {
         List<String> names = new ArrayList<>();
         for (OfflinePlayer player : participants) {
             ServerPlayer serverPlayer = new ServerPlayer(player);
+            DataManager data = serverPlayer.getDataManager();
+            GroupsManager groups = serverPlayer.getGroupsManager();
             names.add(serverPlayer.getName());
-            PlayerData playerData = new PlayerData(player);
-            if (serverPlayer.getSecondaryGroups().contains("evento")) {
-                if (playerData.getList("events") != null && playerData.getList("events").size() == 1) {
-                    serverPlayer.removeSecondaryGroup("evento");
+            if (groups.getSecondaryGroups().contains(GroupsManager.SecondaryGroup.EVENTO)) {
+                if (data.getStringList("events").size() == 1) {
+                    groups.removeSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
                 }
             }
-            playerData.removeFromList("events", this.country.getName());
-            playerData.save();
+            data.set("events", data.getStringList("events").remove(this.country.getName()));
+            data.save();
             if (!player.isOnline()) {
                 serverPlayer.sendNotification(eventsPrefix + "El evento §a**" + this.name +  "**§f de §a" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "§f acaba de terminar. ¡Gracias por participar!");
             }

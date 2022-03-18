@@ -123,7 +123,10 @@ public class GroupsManager {
             primaryGroup = group;
             data.set("primaryGroup", group.toString());
             data.save();
-            serverPlayer.getScoreboardManager().update();
+            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+                serverPlayer.getScoreboardManager().update();
+            }
         }
     }
 
@@ -140,7 +143,10 @@ public class GroupsManager {
             data.set("secondaryGroups", groups);
             data.save();
             addLuckPermsGroup(group.toString());
-            serverPlayer.getScoreboardManager().update();
+            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+                serverPlayer.getScoreboardManager().update();
+            }
         }
     }
 
@@ -153,7 +159,10 @@ public class GroupsManager {
             data.set("secondaryGroups", (groups.isEmpty() ? null : groups));
             data.save();
             removeLuckPermsGroup(group.toString());
-            serverPlayer.getScoreboardManager().update();
+            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+                serverPlayer.getScoreboardManager().update();
+            }
         }
     }
 
@@ -194,6 +203,7 @@ public class GroupsManager {
         PrimaryGroup actual = getPrimaryGroup();
         if (actual != PrimaryGroup.ADMIN) {
             setPrimaryGroup(PrimaryGroup.fromInt(actual.getPriority() + 1));
+            secondaryGroups.remove(SecondaryGroup.EVENTO);
         }
     }
 

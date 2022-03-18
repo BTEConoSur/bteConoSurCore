@@ -16,13 +16,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.serverPlayer.DataManager;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import java.util.*;
-import java.util.List;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.country.Country.countryAbbreviations;
@@ -92,7 +92,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                         if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (!event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
-                                if (s.getMaxPoints() >= event.getMinPoints()) {
+                                if (s.getPointsManager().getMaxPoints().getValue() >= event.getMinPoints()) {
                                     event.addParticipant(player);
                                     event.save();
                                     player.sendMessage(eventsPrefix + "¡Te has unido al evento \"" + event.getName() + "\"! ¡Esperamos que te diviertas!");
@@ -102,19 +102,24 @@ public class EventsCommand implements CommandExecutor, Listener {
                                                 ((Player) offlinePlayer).sendMessage(eventsPrefix + "¡§a" + s.getChatManager().getDisplayName() + "§f se ha unido al evento §a" + event.getName() + "§f.");
                                             }
                                         }
-                                        if (s.newGetPrimaryGroup() == ServerPlayer.PrimaryGroup.DEFAULT) {
-                                            s.addSecondaryGroup("evento");
+                                        GroupsManager groupsManager = s.getGroupsManager();
+                                        if (groupsManager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT) {
+                                            groupsManager.addSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
                                         }
                                     } else {
-                                        if (s.hasDiscordUser()) {
+                                        if (s.getDiscordManager().isLinked()) {
                                             player.sendMessage(eventsPrefix + "Recibirás una notificación por Discord cuando el evento comience.");
                                         } else {
                                             player.sendMessage(eventsPrefix + "Se te dejará una notificación en Minecraft cuando el evento comience.");
                                         }
                                     }
-                                    PlayerData playerData = new PlayerData(player);
-                                    playerData.addToList("events", country.getName(), false);
-                                    playerData.save();
+                                    DataManager data = s.getDataManager();
+                                    List<String> events = data.getStringList("events");
+                                    if (!events.contains(country.getName())) {
+                                        events.add(country.getName());
+                                        data.set("events", events);
+                                        data.save();
+                                    }
                                 } else {
                                     player.sendMessage(eventsPrefix + "Necesitas al menos §a" + event.getMinPoints() + "§f puntos para unirte al evento.");
                                 }
@@ -151,7 +156,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                         if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
-                                PlayerData playerData = new PlayerData(player);
+                                DataManager data = s.getDataManager();
                                 player.sendMessage(eventsPrefix + "Has abandonado el evento \"" + event.getName() + "\".");
                                 if (event.getStatus() == ServerEvent.Status.ON) {
                                     for (OfflinePlayer offlinePlayer : event.getParticipants()) {
@@ -159,13 +164,13 @@ public class EventsCommand implements CommandExecutor, Listener {
                                             ((Player) offlinePlayer).sendMessage(eventsPrefix + "§a" + s.getChatManager().getDisplayName() + "§f ha abandonado el evento §a" + event.getName() + "§f.");
                                         }
                                     }
-                                    // TODO CHECK IF EVENT GROUP WHEN PROMOTING TO POSTULANTE
-                                    if (s.newGetPrimaryGroup() == ServerPlayer.PrimaryGroup.DEFAULT && playerData.getList("events").size() == 1) {
-                                        s.removeSecondaryGroup("evento");
+                                    GroupsManager groupsManager = s.getGroupsManager();
+                                    if (groupsManager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT && s.getDataManager().getStringList("events").size() == 1) {
+                                        groupsManager.removeSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
                                     }
                                 }
-                                playerData.removeFromList("events", country.getName());
-                                playerData.save();
+                                data.set("events", data.getStringList("events").remove(country.getName()));
+                                data.save();
 
                                 event.removeParticipant(player);
                                 event.save();
