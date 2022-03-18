@@ -22,7 +22,7 @@ import static pizzaaxx.bteconosur.Config.logsPe;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Country {
-    private String name;
+    private final String name;
 
     public static List<String> countryNames = Arrays.asList("argentina", "bolivia", "chile", "paraguay", "peru", "uruguay");
     public static List<String> countryAbbreviations = Arrays.asList("ar", "bo", "cl", "py", "pe", "uy", "gl");
@@ -31,32 +31,34 @@ public class Country {
     // CONSTRUCTOR
     public Country(String country) {
         if (country.matches("[a-z]{2}")) {
-            this.name = null;
-            if (country.equals("ar")) {
-                this.name = "argentina";
-            }
-            if (country.equals("bo")) {
-                this.name = "bolivia";
-            }
-            if (country.equals("cl")) {
-                this.name = "chile";
-            }
-            if (country.equals("py")) {
-                this.name = "paraguay";
-            }
-            if (country.equals("pe")) {
-                this.name = "peru";
-            }
-            if (country.equals("uy")) {
-                this.name = "uruguay";
-            }
-            if (country.equals("gl")) {
-                this.name = "global";
+            switch (country) {
+                case "ar":
+                    this.name = "argentina";
+                    break;
+                case "bo":
+                    this.name = "bolivia";
+                    break;
+                case "cl":
+                    this.name = "chile";
+                    break;
+                case "py":
+                    this.name = "paraguay";
+                    break;
+                case "pe":
+                    this.name = "peru";
+                    break;
+                case "uy":
+                    this.name = "uruguay";
+                    break;
+                default:
+                    this.name = "global";
+                    break;
             }
         } else {
-            this.name = null;
             if (country.equals("argentina") || country.equals("bolivia") || country.equals("chile") || country.equals("paraguay") || country.equals("peru") || country.equals("uruguay") || country.equals("global")) {
                 this.name = country;
+            } else {
+                this.name = "global";
             }
         }
     }
@@ -77,7 +79,7 @@ public class Country {
             case "695044514066464828":
                 this.name = "peru";
                 break;
-            case "696154248593014815":
+            default:
                 this.name = "uruguay";
                 break;
         }
@@ -104,24 +106,7 @@ public class Country {
     }
 
     public Country(BlockVector2D vector) {
-        Location location = new Location(mainWorld, vector.getX(), 100.0, vector.getZ());
-        RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
-        Set<ProtectedRegion> regions = regionManager.getApplicableRegions(location).getRegions();
-        if (regions.contains(regionManager.getRegion("argentina"))) {
-            this.name = "argentina";
-        } else if (regions.contains(regionManager.getRegion("bolivia"))) {
-            this.name = "bolivia";
-        } else if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            this.name = "chile";
-        } else if (regions.contains(regionManager.getRegion("paraguay"))) {
-            this.name = "paraguay";
-        } else if (regions.contains(regionManager.getRegion("peru"))) {
-            this.name = "peru";
-        } else if (regions.contains(regionManager.getRegion("uruguay"))) {
-            this.name = "uruguay";
-        } else {
-            this.name = "global";
-        }
+        this(new Location(mainWorld, vector.getX(), 100.0, vector.getZ()));
     }
 
     // GETTERS
