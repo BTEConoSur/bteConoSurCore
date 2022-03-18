@@ -22,15 +22,14 @@ import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.discord.DiscordHandler;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.link.LinkDiscord;
 import pizzaaxx.bteconosur.link.LinkMinecraft;
 import pizzaaxx.bteconosur.points.Scoreboard;
-import pizzaaxx.bteconosur.presets.PresetsEvent;
 import pizzaaxx.bteconosur.presets.PresetsCommand;
+import pizzaaxx.bteconosur.presets.PresetsEvent;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PrefixCommand;
@@ -63,7 +62,6 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
-    public static DiscordHandler discord;
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
@@ -203,7 +201,6 @@ public final class BteConoSur extends JavaPlugin {
         online.setTitle("¡El servidor ya está online!");
         online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
 
-        discord = new DiscordHandler();
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
