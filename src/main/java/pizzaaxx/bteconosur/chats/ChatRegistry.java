@@ -22,7 +22,7 @@ public class ChatRegistry {
     }
 
     public void register(@NotNull String name) {
-        registry.put(name, new Chat(name));
+        register(new Chat(name));
     }
 
     public void register(@NotNull Chat chat) {
