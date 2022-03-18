@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur.serverPlayer;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.chats.Chat;
-import pizzaaxx.bteconosur.chats.ChatRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +20,9 @@ public class ChatManager {
 
     public Chat getChat() {
         if (data.contains("chat")) {
-            return chatRegistry.get(data.getString("chat"));
+            return new Chat(data.getString("chat"));
         }
-        return chatRegistry.get("global");
+        return new Chat("global");
     }
 
     public void setChat(@NotNull String chat) {
@@ -34,9 +33,9 @@ public class ChatManager {
 
     public Chat getDefaultChat() {
         if (data.contains("defaultChat")) {
-            return chatRegistry.get(data.getString("defaultChat"));
+            return new Chat(data.getString("defaultChat"));
         }
-        return chatRegistry.get("global");
+        return new Chat("global");
     }
 
     public void setDefaultChat(@NotNull String chat) {
@@ -57,6 +56,10 @@ public class ChatManager {
         data.save();
     }
 
+    public boolean hasNick() {
+        return data.contains("nickname");
+    }
+
     public String getNick() {
         return data.getString("nickname").replace("&", "§");
     }
@@ -68,6 +71,10 @@ public class ChatManager {
             data.set("nickname", nick.replace("§", "&"));
         }
         data.save();
+        ScoreboardManager sManager = serverPlayer.getScoreboardManager();
+        if (sManager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            serverPlayer.getScoreboardManager().update();
+        }
     }
 
     public String getDisplayName() {

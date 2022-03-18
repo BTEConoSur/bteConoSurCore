@@ -100,6 +100,20 @@ public class ScoreboardManager {
                     try {
                         Project project = new Project(p.getLocation());
 
+                        ChatColor c;
+                        switch (project.getDifficulty()) {
+                            case FACIL:
+                                c = ChatColor.GREEN;
+                                break;
+                            case INTERMEDIO:
+                                c = ChatColor.YELLOW;
+                                break;
+                            default:
+                                c = ChatColor.RED;
+                                break;
+                        }
+                        title = c + project.getName(true);
+
                         lines.add(" ");
                         lines.add("§aDificultad: §f" + StringUtils.capitalize(project.getDifficulty().toString().toLowerCase().replace("facil", "fácil").replace("dificil", "difícil")));
                         lines.add("§aPaís: §f" + StringUtils.capitalize(project.getCountry().getName()));
@@ -126,6 +140,13 @@ public class ScoreboardManager {
                     }
                     break;
                 case ME:
+                    ChatManager chatManager = serverPlayer.getChatManager();
+                    if (chatManager.hasNick()) {
+                        title = ChatColor.GREEN + serverPlayer.getChatManager().getNick();
+                    } else {
+                        title = ChatColor.GREEN + serverPlayer.getName();
+                    }
+
                     lines.add(" ");
 
                     ChatManager cManager = serverPlayer.getChatManager();
