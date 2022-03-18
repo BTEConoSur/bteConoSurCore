@@ -8,6 +8,7 @@ import pizzaaxx.bteconosur.coords.Coords2D;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 public class GoogleMapsCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 

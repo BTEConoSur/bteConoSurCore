@@ -24,6 +24,7 @@ public class NightVisionCommand implements CommandExecutor {
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1));
             p.sendMessage("§aVisión nocturna activada.");
         }
+
         return true;
     }
 }

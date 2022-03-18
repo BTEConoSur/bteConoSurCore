@@ -5,8 +5,6 @@ import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jdk.nashorn.internal.ir.Block;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,14 +16,12 @@ import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.projects.Project;
-import pizzaaxx.bteconosur.ranks.Points;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
-import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Misc {
