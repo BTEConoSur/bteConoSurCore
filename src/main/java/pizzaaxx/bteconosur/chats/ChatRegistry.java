@@ -22,9 +22,7 @@ public class ChatRegistry {
     }
 
     public void register(@NotNull String name) {
-        if (!registry.containsKey(name)) {
-            registry.put(name, new Chat(name));
-        }
+        registry.put(name, new Chat(name));
     }
 
     public void register(@NotNull Chat chat) {
