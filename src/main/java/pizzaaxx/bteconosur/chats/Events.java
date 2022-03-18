@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Events implements Listener, EventListener {
 
@@ -141,7 +140,7 @@ public class Events implements Listener, EventListener {
             for (Player player : pingedPlayers) {
                 ServerPlayer sPlayer = new ServerPlayer(player);
                 if (sPlayer.getChatManager().isHidden()) {
-                    p.sendMessage(BookUtil.TextBuilder.of(chatsPrefix + "§a" + sPlayer.getName() + "tiene el chat oculto. ").build(),
+                    p.sendMessage(BookUtil.TextBuilder.of(ChatCommand.CHAT_PREFIX + "§a" + sPlayer.getName() + "tiene el chat oculto. ").build(),
                             BookUtil.TextBuilder.of("§a[ENVIAR POR PRIVADO]")
                                     .onHover(BookUtil.HoverAction.showText("Haz click para enviar el menaje por privado."))
                                     .onClick(BookUtil.ClickAction.runCommand("/msg " + new ServerPlayer(player).getName() + ChatColor.stripColor(e.getMessage())))
@@ -152,7 +151,7 @@ public class Events implements Listener, EventListener {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_XYLOPHONE, 1, 1);
             }
         } else {
-            p.sendMessage(chatsPrefix + "No puedes hablar mientras tienes el chat oculto.");
+            p.sendMessage(ChatCommand.CHAT_PREFIX + "No puedes hablar mientras tienes el chat oculto.");
         }
     }
 
