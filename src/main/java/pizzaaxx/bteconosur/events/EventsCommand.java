@@ -49,7 +49,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                     p.closeInventory();
                 } else {
                     String name = ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replace("Perú", "Peru").toLowerCase();
-                    Event event = new Event(new Country(name));
+                    ServerEvent event = new ServerEvent(new Country(name));
                     p.closeInventory();
                     p.teleport(event.getTp());
                     p.sendMessage(eventsPrefix + "¡Bienvenido al evento §a" + event.getName() + " (" + StringUtils.capitalize(name.replace("peru", "perú") + ")§f!"));
@@ -88,15 +88,15 @@ public class EventsCommand implements CommandExecutor, Listener {
                                 return true;
                             }
                         }
-                        Event event = new Event(country);
-                        if (event.getStatus() != Event.Status.OFF) {
+                        ServerEvent event = new ServerEvent(country);
+                        if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (!event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
                                 if (s.getMaxPoints() >= event.getMinPoints()) {
                                     event.addParticipant(player);
                                     event.save();
                                     player.sendMessage(eventsPrefix + "¡Te has unido al evento \"" + event.getName() + "\"! ¡Esperamos que te diviertas!");
-                                    if (event.getStatus() == Event.Status.ON) {
+                                    if (event.getStatus() == ServerEvent.Status.ON) {
                                         for (OfflinePlayer offlinePlayer : event.getParticipants()) {
                                             if (offlinePlayer.isOnline() && offlinePlayer != player) {
                                                 ((Player) offlinePlayer).sendMessage(eventsPrefix + "¡§a" + s.getChatManager().getDisplayName() + "§f se ha unido al evento §a" + event.getName() + "§f.");
@@ -147,13 +147,13 @@ public class EventsCommand implements CommandExecutor, Listener {
                                 return true;
                             }
                         }
-                        Event event = new Event(country);
-                        if (event.getStatus() != Event.Status.OFF) {
+                        ServerEvent event = new ServerEvent(country);
+                        if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
                                 PlayerData playerData = new PlayerData(player);
                                 player.sendMessage(eventsPrefix + "Has abandonado el evento \"" + event.getName() + "\".");
-                                if (event.getStatus() == Event.Status.ON) {
+                                if (event.getStatus() == ServerEvent.Status.ON) {
                                     for (OfflinePlayer offlinePlayer : event.getParticipants()) {
                                         if (offlinePlayer.isOnline() && offlinePlayer != player) {
                                             ((Player) offlinePlayer).sendMessage(eventsPrefix + "§a" + s.getChatManager().getDisplayName() + "§f ha abandonado el evento §a" + event.getName() + "§f.");
@@ -185,26 +185,26 @@ public class EventsCommand implements CommandExecutor, Listener {
                     }
                     gui.setItem(26, Misc.getCustomHead("§fSalir", null, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzdhZWU5YTc1YmYwZGY3ODk3MTgzMDE1Y2NhMGIyYTdkNzU1YzYzMzg4ZmYwMTc1MmQ1ZjQ0MTlmYzY0NSJ9fX0="));
 
-                    Event event = new Event(new Country("argentina"));
-                    gui.setItem(10, Misc.getCustomHead("§a§lArgentina", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkMDMzZGM1ZjY3NWFkNTFiYzA2YzdhMTk0OWMzNWExZDM3ZTQ4YTJlMWMyNzg5YzJjZjdkMzBlYzU4ZjMyYyJ9fX0="));
+                    ServerEvent event = new ServerEvent(new Country("argentina"));
+                    gui.setItem(10, Misc.getCustomHead("§a§lArgentina", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkMDMzZGM1ZjY3NWFkNTFiYzA2YzdhMTk0OWMzNWExZDM3ZTQ4YTJlMWMyNzg5YzJjZjdkMzBlYzU4ZjMyYyJ9fX0="));
 
-                    event = new Event(new Country("bolivia"));
-                    gui.setItem(11, Misc.getCustomHead("§a§lBolivia", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmQyYzlmOTg2MThjZDVmN2RiZjBjMWE1NGVlMDk0NzQ2NjJiNzEzYjVhYTI2NWM4NWVmYmZjNDY0MThlOTE1In19fQ=="));
+                    event = new ServerEvent(new Country("bolivia"));
+                    gui.setItem(11, Misc.getCustomHead("§a§lBolivia", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmQyYzlmOTg2MThjZDVmN2RiZjBjMWE1NGVlMDk0NzQ2NjJiNzEzYjVhYTI2NWM4NWVmYmZjNDY0MThlOTE1In19fQ=="));
 
-                    event = new Event(new Country("chile"));
-                    gui.setItem(12, Misc.getCustomHead("§a§lChile", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTAzNTk0YzBjMTE2YjA1ZDc1NjA2MGEyMjM5ODM3NzQ3ODg4NzMyMjY5MzVkOTYyNzExYmMzZTI1ODQ2ZGM2YiJ9fX0="));
+                    event = new ServerEvent(new Country("chile"));
+                    gui.setItem(12, Misc.getCustomHead("§a§lChile", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTAzNTk0YzBjMTE2YjA1ZDc1NjA2MGEyMjM5ODM3NzQ3ODg4NzMyMjY5MzVkOTYyNzExYmMzZTI1ODQ2ZGM2YiJ9fX0="));
 
-                    event = new Event(new Country("paraguay"));
-                    gui.setItem(13, Misc.getCustomHead("§a§lParaguay", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE3OGRlNjkxYjUwOGQ2MjQ5MTA5ZmM1NGFmNmZiYTQ5YmFhODM3N2FkMzcwNjEyZWQ2MTdkNzdkZDZhZDU4OCJ9fX0="));
+                    event = new ServerEvent(new Country("paraguay"));
+                    gui.setItem(13, Misc.getCustomHead("§a§lParaguay", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE3OGRlNjkxYjUwOGQ2MjQ5MTA5ZmM1NGFmNmZiYTQ5YmFhODM3N2FkMzcwNjEyZWQ2MTdkNzdkZDZhZDU4OCJ9fX0="));
 
-                    event = new Event(new Country("peru"));
-                    gui.setItem(14, Misc.getCustomHead("§a§lPerú", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRkMDNiZDQ0MTBiYWJkYzY4MjQ5M2IzYzJiYmEyNmU3MzBlNmJjNjU4ZDM4ODhlNzliZjcxMmY4NTMifX19"));
+                    event = new ServerEvent(new Country("peru"));
+                    gui.setItem(14, Misc.getCustomHead("§a§lPerú", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRkMDNiZDQ0MTBiYWJkYzY4MjQ5M2IzYzJiYmEyNmU3MzBlNmJjNjU4ZDM4ODhlNzliZjcxMmY4NTMifX19"));
 
-                    event = new Event(new Country("uruguay"));
-                    gui.setItem(15, Misc.getCustomHead("§a§lUruguay", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjg0NDA1OTdjNGJjMmFhZDYwMGE1NDYwNGRjN2IxZmI3NzEzNDNlMDIyZTZhMmUwMjJmOTBlNDBjYzI1ZjlmOCJ9fX0="));
+                    event = new ServerEvent(new Country("uruguay"));
+                    gui.setItem(15, Misc.getCustomHead("§a§lUruguay", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjg0NDA1OTdjNGJjMmFhZDYwMGE1NDYwNGRjN2IxZmI3NzEzNDNlMDIyZTZhMmUwMjJmOTBlNDBjYzI1ZjlmOCJ9fX0="));
 
-                    event = new Event(new Country("global"));
-                    gui.setItem(16, Misc.getCustomHead("§a§lGlobal", (event.getStatus() == Event.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == Event.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOThkYWExZTNlZDk0ZmYzZTMzZTFkNGM2ZTQzZjAyNGM0N2Q3OGE1N2JhNGQzOGU3NWU3YzkyNjQxMDYifX19"));
+                    event = new ServerEvent(new Country("global"));
+                    gui.setItem(16, Misc.getCustomHead("§a§lGlobal", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOThkYWExZTNlZDk0ZmYzZTMzZTFkNGM2ZTQzZjAyNGM0N2Q3OGE1N2JhNGQzOGU3NWU3YzkyNjQxMDYifX19"));
 
                     player.openInventory(gui);
                 }
@@ -219,7 +219,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                     Country pais = new Country(args[0]);
                     final String country = pais.getName();
                     if (args.length > 1) {
-                        Event event = new Event(pais);
+                        ServerEvent event = new ServerEvent(pais);
                         if (args[1].equals("name")) {
                             if (args.length > 2) {
                                 String name = String.join(" ", Arrays.asList(args).subList(2, args.length));
@@ -251,12 +251,12 @@ public class EventsCommand implements CommandExecutor, Listener {
                         } else if (args[1].equals("status")) {
                             if (args.length > 2) {
                                 if (args[2].equals("stop") || args[2].equals("off") || args[2].equals("terminar")) {
-                                    if (event.getStatus() != Event.Status.OFF) {
+                                    if (event.getStatus() != ServerEvent.Status.OFF) {
                                         if (stopConfirm.contains(p)) {
                                             stopConfirm.remove(p);
                                             event.stop();
                                             p.sendMessage("Has terminado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f.");
-                                        } else if (event.getStatus() == Event.Status.READY) {
+                                        } else if (event.getStatus() == ServerEvent.Status.READY) {
                                             stopConfirm.add(p);
                                             p.sendMessage(eventsPrefix + "§cToda la configuración del evento se perderá.§f Usa el comando de nuevo para confirmar.");
                                         } else {
@@ -265,7 +265,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         }
                                     }
                                 } else if (args[2].equals("ready") || args[2].equals("listo") || args[2].equals("preparado")) {
-                                    if (event.getStatus() == Event.Status.OFF) {
+                                    if (event.getStatus() == ServerEvent.Status.OFF) {
                                         if (readyConfirm.contains(p)) {
                                             readyConfirm.remove(p);
 
@@ -288,7 +288,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         p.sendMessage(eventsPrefix + "Sólo puedes hacer esto cuando el proyecto está apagado.");
                                     }
                                 } else if (args[2].equals("start") || args[2].equals("on") || args[2].equals("empezar")) {
-                                    if (event.getStatus() == Event.Status.READY) {
+                                    if (event.getStatus() == ServerEvent.Status.READY) {
                                         if (startConfirm.contains(p)) {
                                             startConfirm.remove(p);
 
@@ -333,7 +333,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                             }
 
                         } else if (args[1].equals("redefine")) {
-                            if (event.getStatus() != Event.Status.ON) {
+                            if (event.getStatus() != ServerEvent.Status.ON) {
                                 if (p instanceof Player) {
                                     Player player = (Player) p;
 
@@ -361,7 +361,7 @@ public class EventsCommand implements CommandExecutor, Listener {
 
                         } else if (args[1].equals("minpoints")) {
                             if (args.length > 2) {
-                                if (event.getStatus() == Event.Status.ON) {
+                                if (event.getStatus() == ServerEvent.Status.ON) {
                                     p.sendMessage(eventsPrefix + "No puedes cambiar esto mientras un evento está activo.");
                                     return true;
                                 }

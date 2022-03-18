@@ -28,7 +28,8 @@ import static pizzaaxx.bteconosur.events.EventsCommand.eventsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.getMapURL;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
-public class Event {
+public class ServerEvent {
+    git
     private Status status;
     private String name;
     private String date;
@@ -44,7 +45,7 @@ public class Event {
         READY, OFF, ON
     }
 
-    public Event(Country country) {
+    public ServerEvent(Country country) {
         this.country = country;
         String c = country.getName();
         yaml = new YamlManager(pluginFolder, "events.yml");
