@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.HashMap;
@@ -43,17 +44,7 @@ public class LinkMinecraft implements CommandExecutor {
                     if (discordLinks.containsKey(args[0])) {
                         User user = discordLinks.get(args[0]);
 
-                        PlayerData playerData = new PlayerData(p);
-                        Map<String, String> discord = new HashMap<>();
-                        discord.put("id", user.getId());
-                        discord.put("name", user.getName());
-                        discord.put("discriminator", user.getDiscriminator());
-                        playerData.setData("discord", discord);
-                        playerData.save();
-
-                        Map<String, Object> linkData = YamlManager.getYamlData(pluginFolder, "link/links.yml");
-                        linkData.put(user.getId(), p.getUniqueId());
-                        YamlManager.writeYaml(pluginFolder, "link/links.yml", linkData);
+                        new ServerPlayer(p).getDiscordManager().connect(user);
 
                         p.sendMessage(linkPrefix + "Se ha conectado exitosamente la cuenta de Minecraft §a" + p.getName() + "§f a la cuenta de Discord §a" + user.getName() + "#" + user.getDiscriminator() + "§f.");
                         p.sendMessage(linkPrefix + "Desde ahora recibirás las notificaciones del servidor por medio de Discord.");
@@ -69,14 +60,8 @@ public class LinkMinecraft implements CommandExecutor {
         if (command.getName().equals("unlink")) {
             Map<String, Object> linkData = YamlManager.getYamlData(pluginFolder, "link/links.yml");
             if (linkData.containsValue(p.getUniqueId())) {
-                PlayerData playerData = new PlayerData(p);
 
-                String userId = (String) playerData.getData("discord");
-                linkData.remove(userId);
-                YamlManager.writeYaml(pluginFolder, "links/links.yml", linkData);
-
-                playerData.deleteData("discord");
-                playerData.save();
+                new ServerPlayer(p).getDiscordManager().disconnect();
 
                 p.sendMessage(linkPrefix + "Se ha desconectado exitosamente tu cuenta de Minecraft de tu cuenta de Discord.");
             } else {
