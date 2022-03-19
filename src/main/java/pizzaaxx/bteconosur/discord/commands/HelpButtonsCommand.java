@@ -31,7 +31,6 @@ public class HelpButtonsCommand extends ListenerAdapter {
                     help.setDescription("Usa `/help [comando]` para obtener más información de cada comando.");
 
                     YamlManager yaml = new YamlManager(pluginFolder, "help.yml");
-
                     Map<Character, java.util.List<String>> map = new HashMap<>();
 
                     for (Map.Entry<String, Object> entry : ((Map<String, Object>) yaml.getValue(e.getButton().getId())).entrySet()) {
