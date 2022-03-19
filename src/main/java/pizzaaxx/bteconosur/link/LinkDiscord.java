@@ -5,17 +5,15 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.player.data.PlayerData;
-import pizzaaxx.bteconosur.yaml.YamlManager;
+import pizzaaxx.bteconosur.serverPlayer.DiscordManager;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.link.LinkMinecraft.minecraftLinks;
 import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
 
@@ -55,17 +53,8 @@ public class LinkDiscord implements EventListener {
                                 if (minecraftLinks.containsKey(args[1])) {
                                     OfflinePlayer player = minecraftLinks.get(args[1]);
 
-                                    PlayerData playerData = new PlayerData(player);
-                                    Map<String, String> discord = new HashMap<>();
-                                    discord.put("id", e.getAuthor().getId());
-                                    discord.put("name", e.getAuthor().getName());
-                                    discord.put("discriminator", e.getAuthor().getDiscriminator());
-                                    playerData.setData("discord", discord);
-                                    playerData.save();
-
-                                    Map<String, Object> linkData = YamlManager.getYamlData(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link/links.yml");
-                                    linkData.put(e.getAuthor().getId(), player.getUniqueId().toString());
-                                    YamlManager.writeYaml(Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder(), "link/links.yml", linkData);
+                                    DiscordManager manager = new ServerPlayer(player).getDiscordManager();
+                                    manager.connect(e.getAuthor());
 
                                     EmbedBuilder success = new EmbedBuilder();
                                     success.setColor(new Color(0, 255, 42));
@@ -83,21 +72,18 @@ public class LinkDiscord implements EventListener {
                     }
 
                     if (args[0].equals("unlink")) {
-                        Map<String, Object> linkData = YamlManager.getYamlData(pluginFolder, "link/links.yml");
-                        if (linkData.containsKey(e.getAuthor().getId())) {
-                            PlayerData playerData = new PlayerData(Bukkit.getPlayer((String) linkData.get(e.getAuthor().getId())));
+                        try {
+                            DiscordManager manager = new ServerPlayer(e.getAuthor()).getDiscordManager();
 
-                            linkData.remove(e.getAuthor().getId());
-                            YamlManager.writeYaml(pluginFolder, "links/links.yml", linkData);
-
-                            playerData.deleteData("discord");
-                            playerData.save();
+                            manager.disconnect();
 
                             EmbedBuilder success = new EmbedBuilder();
                             success.setColor(new Color(0, 255, 42));
                             success.setAuthor("Se ha desconectado exitosamente tu cuenta de Discord de tu cuenta de Minecraft.");
                             e.getTextChannel().sendMessageEmbeds(success.build()).queue();
-                        } else {
+
+
+                        } catch (Exception ex) {
                             EmbedBuilder error = new EmbedBuilder();
                             error.setColor(new Color(255, 0, 0));
                             error.setAuthor("Tu cuenta de Discord no está conectada a ninguna cuenta de Minecraft.");
