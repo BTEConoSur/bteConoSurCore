@@ -92,8 +92,6 @@ public class Chat {
             membersUUID.add(player.getUniqueId());
     }
 
-    // [CHAT] CHILE >> [ADMIN] [CHILE] <PIZZAAXX> TEST
-
     public void sendMessage(String message, ServerPlayer serverPlayer) {
         ChatManager cManager = serverPlayer.getChatManager();
         PointsManager pManager = serverPlayer.getPointsManager();
