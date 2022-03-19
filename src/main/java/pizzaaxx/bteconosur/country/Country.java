@@ -1,5 +1,11 @@
 package pizzaaxx.bteconosur.country;
 
+import org.bukkit.entity.Player;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class Country {
 
     private final String name;
@@ -8,6 +14,8 @@ public class Country {
     private final String abbreviation;
     private final String requestChannelId;
     private final String guildId;
+
+    private final Set<UUID> players;
 
     public Country(String name,
                    String img,
@@ -21,6 +29,16 @@ public class Country {
         this.requestChannelId = requestChannelId;
         this.abbreviation = abbreviation;
         this.guildId = guildId;
+
+        players = new HashSet<>();
+    }
+
+    public void addPlayer(Player player) {
+        players.add(player.getUniqueId());
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player.getUniqueId());
     }
 
     public String getName() {
@@ -45,6 +63,10 @@ public class Country {
 
     public String getGuildId() {
         return guildId;
+    }
+
+    public Set<UUID> getPlayers() {
+        return players;
     }
 
 }

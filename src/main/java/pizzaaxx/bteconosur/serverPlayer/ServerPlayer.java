@@ -28,6 +28,8 @@ public class ServerPlayer {
     private DiscordManager discordManager;
     private ScoreboardManager scoreboardManager;
 
+    private final String actualCountry = "";
+
     // CONSTRUCTOR
 
     public ServerPlayer(UUID uuid, boolean storeManagers) {

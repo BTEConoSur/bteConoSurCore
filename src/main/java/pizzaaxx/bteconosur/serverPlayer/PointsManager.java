@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.serverPlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -10,14 +11,11 @@ import java.util.*;
 
 public class PointsManager {
 
-<<<<<<< HEAD
     private final TreeMap<OldCountry, Integer> countriesPoints = new TreeMap<>();
-=======
+
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
 
-
     private final TreeMap<Country, Integer> countriesPoints = new TreeMap<>();
->>>>>>> 915ceed177239321717e3f531946a8ab347f44e0
     private final ServerPlayer serverPlayer;
     private final DataManager data;
 
