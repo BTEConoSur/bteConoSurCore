@@ -30,7 +30,7 @@ public class Scoreboard implements Listener, CommandExecutor {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        new ServerPlayer(e.getPlayer()).updateScoreboard();
+        new ServerPlayer(e.getPlayer()).getScoreboardManager().update();
     }
 
     public void checkScoreboardMovement(Location from, Location to, Player player) {
@@ -56,11 +56,12 @@ public class Scoreboard implements Listener, CommandExecutor {
         }
 
         ServerPlayer s = new ServerPlayer(player);
-        if (project && s.getScoreboard().equals("project")) {
+        ScoreboardManager manager = s.getScoreboardManager();
+        if (project && manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    s.updateScoreboard();
+                    manager.update();
                 }
             };
             runnable.runTaskLater(Bukkit.getPluginManager().getPlugin("bteConoSur"), 1);
@@ -68,14 +69,14 @@ public class Scoreboard implements Listener, CommandExecutor {
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (s.getScoreboard().equals("top")) {
-                        s.updateScoreboard();
+                    if (manager.getType() == ScoreboardManager.ScoreboardType.TOP) {
+                        manager.update();
                     }
 
                     for (Player oPlayer : Bukkit.getOnlinePlayers()) {
                         ServerPlayer p = new ServerPlayer(oPlayer);
-                        if (p.getScoreboard().equals("server")) {
-                            p.updateScoreboard();
+                        if (p.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.SERVER) {
+                            p.getScoreboardManager().update();
                         }
                     }
                 }
@@ -115,7 +116,7 @@ public class Scoreboard implements Listener, CommandExecutor {
                         if (manager.toggleAuto()) {
                             p.sendMessage(scoreboardPrefix + "Has desactivado el §oscoreboard§f automático.");
                         } else {
-                            s.setScoreboardHide(false);
+                            manager.setHidden(false);
                             p.sendMessage(scoreboardPrefix + "Has activado el §oscoreboard§f automático.");
                         }
                     } else {
