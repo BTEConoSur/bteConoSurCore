@@ -10,22 +10,21 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.serverPlayer.*;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.helper.DataTime;
 import pizzaaxx.bteconosur.helper.DateHelper;
 import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -107,14 +106,14 @@ public class PlayerCommand extends ListenerAdapter {
                                     .addField("Coordenadas geográficas:", (country.getName().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " [" + coords.getLat() + ", " + coords.getLon() + "](" + "https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")", false);
 
                             String chatType;
-                            String chatName = serverPlayer.getChat().getName();
+                            String chatName = serverPlayer.getChatManager().getChat().getName();
 
                             if (chatName.startsWith("project_")) {
                                 chatType = ":tools:";
                             } else {
                                 chatType = (chatName.equals("global") ? ":earth_americas:" : ":flag_" + new Country(chatName).getAbbreviation() + ":");
                             }
-                            embedBuilder.addField("Chat:", chatType + " " + serverPlayer.getChat().getFormattedName(), false);
+                            embedBuilder.addField("Chat:", chatType + " " + serverPlayer.getChatManager().getChat().getFormattedName(), false);
 
                             try {
                                 file[0] = new URL("https://open.mapquestapi.com/staticmap/v4/getmap?key=" + key + "&size=1280,720&type=sat&scalebar=false&imagetype=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&xis=https://cravatar.eu/helmavatar/" + player.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon()).openStream();
@@ -140,68 +139,82 @@ public class PlayerCommand extends ListenerAdapter {
 
                         }
 
-                        if (serverPlayer.hasDiscordUser()) {
-                            embedBuilder.addField("Discord:", serverPlayer.getDiscordUser().getAsMention(), false);
+                        if (serverPlayer.getDiscordManager().isLinked()) {
+                            DiscordManager dscManager = serverPlayer.getDiscordManager();
+                            dscManager.loadUser();
+                            embedBuilder.addField("Discord:", serverPlayer.getDiscordManager().getUser().getAsMention(), false);
                         } else {
                             embedBuilder.addField("Discord:", "No conectado.", false);
                         }
 
-                        embedBuilder.addField("Rango:",
-                                new YamlManager(pluginFolder, "discord/groupEmojis.yml").getValue(serverPlayer.getPrimaryGroup()) + " " + serverPlayer.getPrimaryGroup().replace("default", "visita").toUpperCase(), false);
+                        GroupsManager groups = serverPlayer.getGroupsManager();
 
-                        if (serverPlayer.getSecondaryGroups().size() > 0) {
+                        embedBuilder.addField("Rango:",
+                                new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/groupEmojis").getString(groups.getPrimaryGroup().toString()) + " " + groups.getPrimaryGroup().toString().replace("default", "visita").toUpperCase(), false);
+
+                        if (groups.getSecondaryGroups().size() > 0) {
                             List<String> ranks = new ArrayList<>();
-                            for (String rank : serverPlayer.getSecondaryGroups()) {
-                                ranks.add(new YamlManager(pluginFolder, "discord/groupEmojis.yml").getValue(rank) + " " + rank.replace("donator", "donador").toUpperCase());
+                            for (GroupsManager.SecondaryGroup secondaryGroup : groups.getSecondaryGroups()) {
+                                ranks.add(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/groupEmojis").getString(secondaryGroup.toString()) + " " + secondaryGroup.toString().toUpperCase());
                             }
                             embedBuilder.addField("Rangos secundarios:", String.join("\n", ranks), false);
                         }
 
-                        if (serverPlayer.getMaxPoints() > 0) {
+                        PointsManager pointsManager = serverPlayer.getPointsManager();
+                        if (pointsManager.getMaxPoints().getValue() > 0) {
                             List<String> points = new ArrayList<>();
-                            List<CountryPlayer> list = new ArrayList<>();
-                            for (String c : "bolivia chile paraguay peru uruguay".split(" ")) {
-                                if (serverPlayer.getPoints(new Country(c)) > 0) {
-                                    list.add(new CountryPlayer(serverPlayer, new Country(c)));
-                                }
-                            }
 
-                            Collections.sort(list);
 
-                            for (CountryPlayer countryPlayer : list) {
+                            for (Map.Entry<Country, Integer> entry : pointsManager.getSorted().entrySet()) {
                                 String bRank;
-                                if (countryPlayer.getPoints() >= 1000) {
+                                if (entry.getValue() >= 1000) {
                                     bRank = ":gem:";
-                                } else if (countryPlayer.getPoints() >= 500) {
+                                } else if (entry.getValue() >= 500) {
                                     bRank = ":crossed_swords:";
-                                } else if (countryPlayer.getPoints() >= 150) {
+                                } else if (entry.getValue() >= 150) {
                                     bRank = ":hammer_pick:";
                                 } else {
                                     bRank = ":hammer:";
                                 }
-                                points.add("• :flag_" + countryPlayer.getCountry().getAbbreviation() + ": " + bRank + " " + StringUtils.capitalize(countryPlayer.getCountry().getCountry().replace("peru", "perú")) + ": " + serverPlayer.getPoints(countryPlayer.getCountry()));
+                                points.add("• :flag_" + entry.getKey().getAbbreviation() + ": " + bRank + " " + StringUtils.capitalize(entry.getKey().getName().replace("peru", "perú")) + ": " + entry.getValue());
                             }
+
                             embedBuilder.addField("Puntos:", String.join("\n", points), false);
                         }
 
-                        embedBuilder.addField("Proyectos terminados:", Integer.toString(serverPlayer.getTotalFinishedProjects()), false);
+                        ProjectsManager projects = serverPlayer.getProjectsManager();
 
-                        if (serverPlayer.getProjects().size() > 0) {
-                            List<String> projects = new ArrayList<>();
-                            for (Project project : serverPlayer.getOwnedProjects()) {
-                                projects.add("• :flag_" + new Country(project.getOldCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
-                            }
+                        embedBuilder.addField("Proyectos terminados:", Integer.toString(projects.getTotalFinishedProjects()), false);
 
-                            for (Project project : serverPlayer.getProjects()) {
-                                if (project.getOwnerOld() != serverPlayer.getPlayer()) {
-                                    projects.add("• :flag_" + new Country(project.getOldCountry()).getAbbreviation() + ": " + project.getDifficulty().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
-                                }
-                                if (projects.size() >= 15) {
-                                    projects.add("y " + (serverPlayer.getProjects().size() - 15) + " más...");
+                        List<String> allProjects = projects.getAllProjects();
+                        if (allProjects.size() > 0) {
+                            List<String> projectsLines = new ArrayList<>();
+                            boolean max = false;
+
+                            for (String id : projects.getAllOwnedProjects()) {
+                                Project project = new Project(id);
+                                projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
+                                if (projectsLines.size() >= 15) {
+                                    projectsLines.add("y " + (allProjects.size() - 15) + " más...");
+                                    max = true;
                                     break;
                                 }
                             }
-                            embedBuilder.addField("Proyectos activos (Total: " + serverPlayer.getProjects().size() + "):", String.join("\n", projects), false);
+
+
+                            if (!max) {
+                                for (String id : allProjects) {
+                                    Project project = new Project(id);
+                                    if (project.getOwner() != serverPlayer.getPlayer()) {
+                                        projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
+                                    }
+                                    if (projectsLines.size() >= 15) {
+                                        projectsLines.add("y " + (allProjects.size() - 15) + " más...");
+                                        break;
+                                    }
+                                }
+                            }
+                            embedBuilder.addField("Proyectos activos (Total: " + allProjects.size() + "):", String.join("\n", projectsLines), false);
                         }
 
                         embedBuilder.setThumbnail("https://mc-heads.net/head/" + serverPlayer.getPlayer().getUniqueId());

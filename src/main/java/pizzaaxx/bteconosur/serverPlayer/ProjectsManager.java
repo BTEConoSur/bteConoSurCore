@@ -116,17 +116,31 @@ public class ProjectsManager {
         projects.forEach((country, ps) -> {
             List<String> owned = new ArrayList<>();
             ps.forEach(id -> {
-                try {
-                    Project project = new Project(id);
+                Project project = new Project(id);
 
-                    if (project.getOwner() == serverPlayer.getPlayer()) {
-                        owned.add(id);
-                    }
-                } catch (Exception ignored) {}
+                if (project.getOwner() == serverPlayer.getPlayer()) {
+                    owned.add(id);
+                }
             });
             ownedProjects.put(country, owned);
         });
         return ownedProjects;
+    }
+
+    public List<String> getAllOwnedProjects() {
+        List<String> owned = new ArrayList<>();
+
+        for (Map.Entry<Country, List<String>> list : projects.entrySet()) {
+            for (String id : list.getValue()) {
+                Project project = new Project(id);
+
+                if (project.getOwner() == serverPlayer.getPlayer()) {
+                    owned.add(id);
+                }
+            }
+        }
+
+        return owned;
     }
 
 }
