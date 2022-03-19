@@ -6,12 +6,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.player.data.PlayerData;
+import pizzaaxx.bteconosur.serverPlayer.*;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
+import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
 
 public class Join implements Listener {
 
@@ -26,9 +24,9 @@ public class Join implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
 
-            String scoreboard = serverPlayer.getScoreboard();
-            if (scoreboard.equals("server")) {
-                serverPlayer.updateScoreboard();
+            ScoreboardManager.ScoreboardType scoreboard = serverPlayer.getScoreboardManager().getType();
+            if (scoreboard == ScoreboardManager.ScoreboardType.SERVER) {
+                serverPlayer.getScoreboardManager().update();
             }
 
         }
@@ -43,46 +41,45 @@ public class Join implements Listener {
         event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
-        PlayerData playerData = serverPlayer.getData();
+        DataManager data = serverPlayer.getDataManager();
 
-        String dataName = (String) playerData.getData("name");
-        if (!dataName.equals(player.getName())) {
-            playerData.setData("name", player.getName());
+        if (!data.getString("name").equals(player.getName())) {
+            data.set("name", player.getName());
         }
 
-        if (playerData.getData("primaryGroup") == null) {
-            playerData.setData("primaryGroup", "default");
+        if (data.get("primaryGroup") == null) {
+            data.set("primaryGroup", "default");
         }
 
-        if (playerData.getData("chat") == null) {
-            playerData.setData("chat", "global");
+        if (data.get("chat") == null) {
+            data.set("chat", "global");
         }
 
-        if (playerData.getData("defaultChat") == null) {
-            playerData.setData("defaultChat", "global");
+        if (data.get("defaultChat") == null) {
+            data.set("defaultChat", "global");
         }
 
-        if (playerData.getData("hideChat") == null) {
-            playerData.setData("hideChat", false);
+        if (data.get("hideChat") == null) {
+            data.set("hideChat", false);
         }
 
-        if (playerData.getData("increment") == null) {
-            playerData.setData("increment", 1);
+        if (data.get("increment") == null) {
+            data.set("increment", 1);
         }
 
-        if (playerData.getData("hideScoreboard") == null) {
-            playerData.setData("hideScoreboard", false);
+        if (data.get("hideScoreboard") == null) {
+            data.set("hideScoreboard", false);
         }
 
-        if (playerData.getData("scoreboard") == null) {
-            playerData.setData("scoreboard", "server");
+        if (data.get("scoreboard") == null) {
+            data.set("scoreboard", "server");
         }
 
-        if (playerData.getData("scoreboardAuto") == null) {
-            playerData.setData("scoreboardAuto", true);
+        if (data.get("scoreboardAuto") == null) {
+            data.set("scoreboardAuto", true);
         }
 
-        playerData.save();
+        data.save();
 
         // SEND MESSAGES
 
@@ -105,9 +102,9 @@ public class Join implements Listener {
                     i++;
                 }
 
-                playerData.deleteData("notifications");
-                playerData.save();
-            } else if (!serverPlayer.hasDiscordUser()) {
+                data.set("notifications", null);
+                data.save();
+            } else if (!serverPlayer.getDiscordManager().isLinked()) {
                 player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
                 player.sendMessage("§c                   No tienes notificaciones nuevas.");
                 player.sendMessage(" ");
@@ -116,7 +113,7 @@ public class Join implements Listener {
 
         // DISCORD
 
-        if (!(serverPlayer.hasDiscordUser())) {
+        if (!serverPlayer.getDiscordManager().isLinked()) {
             player.sendMessage(">+-----------------+[-< DISCORD >-]+-----------------+<");
             player.sendMessage(BookUtil.TextBuilder.of("§f               §f").build(), BookUtil.TextBuilder.of("§f[§aHAZ CLICK PARA CONECTAR TU CUENTA§f]").onHover(BookUtil.HoverAction.showText("Haz click para conectar tu cuenta.")).onClick(BookUtil.ClickAction.runCommand("/link")).build());
             player.sendMessage(" ");
@@ -126,19 +123,21 @@ public class Join implements Listener {
 
         // SET PLAYER'S CHAT TO DEFAULT
 
-        if (!(serverPlayer.getChat().getName().equals(serverPlayer.getDefaultChat().getName()))) {
-            serverPlayer.setChat(serverPlayer.getDefaultChat().getName());
+        ChatManager manager = serverPlayer.getChatManager();
+        if (!manager.getChat().equals(manager.getDefaultChat())) {
+            manager.setChat(manager.getDefaultChat().getName());
 
-            player.sendMessage(chatsPrefix + "Te has unido al chat §a" + serverPlayer.getChat().getFormattedName() + "§f. §7(Jugadores: " + serverPlayer.getChat().getMembers().size() + ")");
+            player.sendMessage(CHAT_PREFIX + "Te has unido al chat §a" + manager.getChat().getFormattedName() + "§f. §7(Jugadores: " + manager.getChat().getMembers().size() + ")");
         }
 
-        serverPlayer.updateData();
-        serverPlayer.updateScoreboard();
+        if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.ME) {
+            serverPlayer.getScoreboardManager().update();
+        }
 
         for (Player online : Bukkit.getOnlinePlayers()) {
-            ServerPlayer serverPlayerOnline = new ServerPlayer(player.getUniqueId());
-            if (serverPlayerOnline.getScoreboard().equals("server")) {
-                serverPlayerOnline.updateScoreboard();
+            ServerPlayer serverPlayerOnline = new ServerPlayer(online.getUniqueId());
+            if (serverPlayerOnline.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.SERVER) {
+                serverPlayerOnline.getScoreboardManager().update();
             }
         }
     }
