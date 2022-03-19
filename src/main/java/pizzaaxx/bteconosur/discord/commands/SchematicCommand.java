@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import java.awt.*;
@@ -26,7 +27,7 @@ public class SchematicCommand implements EventListener {
                         try {
                             ServerPlayer s = new ServerPlayer(e.getAuthor());
 
-                            if (s.getPrimaryGroup().equals("builder") || s.getPrimaryGroup().equals("mod") || s.getPrimaryGroup().equals("admin")) {
+                            if (s.getGroupsManager().getPrimaryGroup().getPriority() >= 3) {
                                 if (args.length > 1) {
                                     File schematic = new File(Bukkit.getPluginManager().getPlugin("WorldEdit").getDataFolder(), "schematics/" + args[1] + ".schematic");
 

@@ -41,7 +41,7 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.misc.Misc.getCountryAtLocation;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
-import static pizzaaxx.bteconosur.points.PlayerPoints.pointsPrefix;
+import static pizzaaxx.bteconosur.serverPlayer.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
 import static pizzaaxx.bteconosur.worldedit.Methods.polyRegion;
 

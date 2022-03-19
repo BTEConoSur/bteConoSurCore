@@ -8,9 +8,10 @@ import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.discord;
-
 public class PointsManager {
+
+    public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
+
 
     private final TreeMap<Country, Integer> countriesPoints = new TreeMap<>();
     private final ServerPlayer serverPlayer;
