@@ -230,7 +230,7 @@ public final class BteConoSur extends JavaPlugin {
                                                     section.getString("name"),
                                                     section.getString("icon"),
                                                     section.getString("prefix"),
-                                                    section.getString("request_channel_id")
+                                                    section.getString("request_channel_id"),
                                                     section.getString("abbreviation"),
                                                     section.getString("guild_id")
                                             )
