@@ -119,27 +119,6 @@ public class Misc {
         return head;
     }
 
-    public static List<Project> getAvailableProjectsWithTag(String tag, String country, String difficulty) {
-        List<Project> projects = new ArrayList<>();
-
-        YamlManager tags = new YamlManager(pluginFolder, "projectTags/tags.yml");
-
-        List<String> candidates = (List<String>) tags.getList(new OldCountry(country).getAbbreviation() + "_" + tag);
-
-        for (String candidate : candidates) {
-            try {
-                Project project = new Project(candidate);
-
-                if (!(project.isClaimed()) && project.getDifficulty().equals(difficulty)) {
-                    projects.add(project);
-                }
-            } catch (Exception e) {
-                Bukkit.getConsoleSender().sendMessage("No se ha podido encontrar el proyecto §a" + candidate + "§f.");
-            }
-        }
-        return projects;
-    }
-
     @SafeVarargs
     public static String getMapURL(Pair<List<BlockVector2D>, String>... polygons) {
         List<String> shapes = new ArrayList<>();

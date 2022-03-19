@@ -14,8 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.ChatCommand;
@@ -41,6 +39,7 @@ import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.serverPlayer.ScoreboardManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.teleport.PWarp;
@@ -237,7 +236,7 @@ public final class BteConoSur extends JavaPlugin {
                                     );
                                 });
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Scoreboard::checkAutoScoreboards, 300, 300);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
     }
 
     @Override

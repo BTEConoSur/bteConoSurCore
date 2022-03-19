@@ -14,6 +14,7 @@ import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -22,12 +23,27 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class ScoreboardManager {
 
+    public static List<ScoreboardType> scoreboardsOrder = Arrays.asList(ScoreboardType.SERVER, ScoreboardType.ME, ScoreboardType.PROJECT, ScoreboardType.TOP);
     private final ServerPlayer serverPlayer;
     private final DataManager data;
     private final ConfigurationSection scoreboard;
     private ScoreboardType type;
     private boolean auto;
     private boolean hidden;
+
+    public static void checkAutoScoreboards() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ServerPlayer s = new ServerPlayer(player);
+            ScoreboardManager manager = s.getScoreboardManager();
+            if (manager.isAuto()) {
+                if (scoreboardsOrder.indexOf(manager.getType()) + 1 != scoreboardsOrder.size()) {
+                    manager.setType(scoreboardsOrder.get(scoreboardsOrder.indexOf(manager.getType()) + 1));
+                } else {
+                    manager.setType(scoreboardsOrder.get(0));
+                }
+            }
+        }
+    }
 
     public enum ScoreboardType {
         ME, PROJECT, SERVER, TOP
