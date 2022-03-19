@@ -6,7 +6,6 @@ import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.HashSet;
@@ -15,7 +14,6 @@ import java.util.UUID;
 
 import static pizzaaxx.bteconosur.BteConoSur.chatRegistry;
 import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
-import static pizzaaxx.bteconosur.chats.ChatCommand.chatsPrefix;
 
 public class Chat {
 
@@ -34,8 +32,6 @@ public class Chat {
             }
             chatRegistry.register(this);
         }
-
-
     }
 
     public String toString() {
@@ -50,7 +46,7 @@ public class Chat {
         if (membersUUID.contains(player.getUniqueId())) {
             membersUUID.remove(player.getUniqueId());
             String name = new ServerPlayer(player).getName();
-            broadcast(chatsPrefix + "§a" + name + "§f ha abandonado el chat.");
+            broadcast(CHAT_PREFIX + "§a" + name + "§f ha abandonado el chat.");
         }
 
     }

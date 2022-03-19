@@ -7,10 +7,6 @@ public class ProjectRegistry {
 
     private final Map<String, Project> projects = new HashMap<>();
 
-    public void a() {
-
-    }
-
     public void register(Project project) {
         projects.put(project.getId(), project);
     }
