@@ -1,7 +1,5 @@
 package pizzaaxx.bteconosur.projects;
 
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,14 +10,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
-import java.util.Set;
-
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
+import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
 
 public class ProjectActionBar implements Listener {
 
     public void actionBar(Location from, Location to, Player player) {
+<<<<<<< HEAD
         RegionManager regions =
                 getWorldGuard().getRegionContainer().get(mainWorld);
 
@@ -34,6 +30,13 @@ public class ProjectActionBar implements Listener {
                 if (region.getId().startsWith("project_")) {
                     Project project = new Project(to);
 
+=======
+        for (ProtectedRegion region : getEnteredRegions(from, to)) {
+            if (region.getId().startsWith("project_")) {
+                try {
+                    Project project = new Project(to);
+
+>>>>>>> 915ceed177239321717e3f531946a8ab347f44e0
                     ChatColor color;
                     if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
                         color = ChatColor.GREEN;
@@ -48,6 +51,11 @@ public class ProjectActionBar implements Listener {
                     }
 
                     break;
+<<<<<<< HEAD
+=======
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+>>>>>>> 915ceed177239321717e3f531946a8ab347f44e0
                 }
             }
         }

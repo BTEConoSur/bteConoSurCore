@@ -5,8 +5,14 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
+<<<<<<< HEAD
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
+=======
+import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.serverPlayer.DiscordManager;
+import pizzaaxx.bteconosur.serverPlayer.PointsManager;
+>>>>>>> 915ceed177239321717e3f531946a8ab347f44e0
 
 import java.awt.*;
 
@@ -55,9 +61,9 @@ public class ScoreboardCommand implements EventListener {
                         top.setColor(new Color(0, 255, 42));
                         top.setTitle("Jugadores con el mayor puntaje de " + country.getName().replace("peru", "perú").toUpperCase());
                         int i = 1;
-                        for (ServerPlayer s : country.getScoreboard()) {
+                        for (PointsManager pointsManager : country.getScoreboard()) {
                             String emoji;
-                            int points = s.getPoints(country);
+                            int points = pointsManager.getPoints(country);
                             if (points >= 1000) {
                                 emoji = ":gem:";
                             } else if (points >= 500) {
@@ -67,9 +73,9 @@ public class ScoreboardCommand implements EventListener {
                             } else {
                                 emoji = ":hammer:";
                             }
-                            top.addField("#" + i + " " + emoji + " " + s.getName() + " " + (s.hasDiscordUser() ? "- " + s.getDiscordName() + "#" + s.getDiscordDiscriminator() : ""),
-                                   "Puntos: `" + s.getPoints(country) + "`\nProyectos terminados: `" + s.getFinishedProjects(country) + "`",
-                                    false);
+                            DiscordManager dsc = pointsManager.getServerPlayer().getDiscordManager();
+                            top.addField("#" + i + " " + emoji + " " + pointsManager.getServerPlayer().getName() + " " + (dsc.isLinked() ? "- " + pointsManager.getServerPlayer().getDiscordManager().isLinked() + "#" + dsc.getDiscriminator() : ""),
+                                   "Puntos: `" + pointsManager.getPoints(country) + "`\nProyectos terminados: `" + pointsManager.getServerPlayer().getProjectsManager().getFinishedProjects(country) + "`", false);
                             i++;
                         }
                         e.getTextChannel().sendMessageEmbeds(top.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();

@@ -5,7 +5,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +15,8 @@ import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.yaml.Configuration;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
@@ -47,10 +51,10 @@ public class ProjectCommand implements EventListener {
 
                                     EmbedBuilder embed = new EmbedBuilder();
 
-                                    if (project.getDifficulty().equals("dificil")) {
+                                    if (project.getDifficulty() ==  Project.Difficulty.DIFICIL) {
                                         embed.setColor(new Color(255, 0, 0));
                                         embed.addField(":tools: Dificultad: ", ":red_circle: Difícil", false);
-                                    } else if (project.getDifficulty().equals("intermedio")) {
+                                    } else if (project.getDifficulty() == Project.Difficulty.INTERMEDIO) {
                                         embed.setColor(new Color(255, 220, 0));
                                         embed.addField(":tools: Dificultad: ", ":yellow_circle: Intermedio", false);
                                     } else {
@@ -60,8 +64,8 @@ public class ProjectCommand implements EventListener {
 
                                     // THUMBNAIL
 
-                                    if (project.getOwnerOld() != null) {
-                                        embed.setThumbnail("https://mc-heads.net/head/" + project.getOwnerOld().getUniqueId().toString());
+                                    if (project.getOwner() != null) {
+                                        embed.setThumbnail("https://mc-heads.net/head/" + project.getOwner().getUniqueId().toString());
                                     }
 
                                     // NOMBRE
@@ -74,12 +78,12 @@ public class ProjectCommand implements EventListener {
 
                                     // PAIS
 
-                                    embed.addField(":globe_with_meridians: País:", ":flag_" + Misc.getCountryPrefix(project.getOldCountry()) + ": " + WordUtils.capitalize(project.getOldCountry()), false);
+                                    embed.addField(":globe_with_meridians: País:", ":flag_" + project.getCountry().getAbbreviation() + ": " + StringUtils.capitalize(project.getCountry().getName()), false);
 
                                     // ETIQUETA
 
                                     if (project.getTag() != null) {
-                                        embed.addField(":label: Etiqueta:", project.getTag()
+                                        embed.addField(":label: Etiqueta:", project.getTag().toString().toLowerCase()
                                                 .replace("edificios", ":cityscape: Edificios")
                                                 .replace("casas", ":house_with_garden: Casas")
                                                 .replace("departamentos", ":hotel: Departamentos")
@@ -120,16 +124,16 @@ public class ProjectCommand implements EventListener {
 
                                     // LIDER
 
-                                    if (project.getOwnerOld() != null) {
-                                        embed.addField(":crown: Líder:", ((String) new PlayerData(project.getOwnerOld()).getData("name")).replace("_", "\\_"), false);
+                                    if (project.getOwner() != null) {
+                                        embed.addField(":crown: Líder:", new ServerPlayer(project.getOwner()).getName(), false);
                                     }
 
                                     // MIEMBROS
 
-                                    if (project.getMembersOld() != null) {
+                                    if (!project.getMembers().isEmpty()) {
                                         List<String> members = new ArrayList<>();
-                                        for (OfflinePlayer player : project.getMembersOld()) {
-                                            members.add(((String) new PlayerData(player).getData("name")).replace("_", "\\_"));
+                                        for (OfflinePlayer player : project.getMembers()) {
+                                            members.add(new ServerPlayer(player).getName());
                                         }
                                         embed.addField(":busts_in_silhouette: Miembros:", String.join(", ", members), false);
                                     }
@@ -172,14 +176,14 @@ public class ProjectCommand implements EventListener {
 
                             List<String> lines = new ArrayList<>();
 
-                            List<String> projects = (List<String>) YamlManager.getYamlData(pluginFolder, "pending_projects/pending.yml").get("pending");
+                            List<String> projects = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending").getStringList("pending");
 
                             for (String str : projects) {
                                 try {
                                     Project project = new Project(str);
 
                                     String line = "• :flag_" +
-                                            Misc.getCountryPrefix(project.getOldCountry()) +
+                                            project.getCountry().getAbbreviation() +
                                             ": " +
                                             project.getId();
 
