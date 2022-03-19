@@ -8,14 +8,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class HelpButtonsCommand extends ListenerAdapter {
 
@@ -32,16 +29,16 @@ public class HelpButtonsCommand extends ListenerAdapter {
                     help.setTitle("Ayuda de comandos de " + StringUtils.capitalize(e.getButton().getId()));
                     help.setDescription("Usa `/help [comando]` para obtener más información de cada comando.");
 
-                    YamlManager yaml = new YamlManager(pluginFolder, "help.yml");
+                    Configuration yaml = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "help");
 
                     Map<Character, java.util.List<String>> map = new HashMap<>();
 
-                    for (Map.Entry<String, Object> entry : ((Map<String, Object>) yaml.getValue(e.getButton().getId())).entrySet()) {
+                    for (Map.Entry<String, Object> entry : yaml.getConfigurationSection(e.getButton().getId()).getValues(false).entrySet()) {
                         if (map.containsKey(entry.getKey().charAt(0))) {
-                            map.get(entry.getKey().charAt(0)).add("• `/" + entry.getKey() + "`: " + yaml.getValue(e.getButton().getId() + "." + entry.getKey() + ".description"));
+                            map.get(entry.getKey().charAt(0)).add("• `/" + entry.getKey() + "`: " + yaml.getString(e.getButton().getId() + "." + entry.getKey() + ".description"));
                         } else {
                             List<String> lines = new ArrayList<>();
-                            lines.add("• `/" + entry.getKey() + "`: " + yaml.getValue(e.getButton().getId() + "." + entry.getKey() + ".description"));
+                            lines.add("• `/" + entry.getKey() + "`: " + yaml.getString(e.getButton().getId() + "." + entry.getKey() + ".description"));
                             map.put(entry.getKey().charAt(0), lines);
                         }
                     }
