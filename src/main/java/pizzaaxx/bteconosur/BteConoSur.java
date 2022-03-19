@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,9 +22,12 @@ import pizzaaxx.bteconosur.chats.ChatCommand;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
+import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.events.EventsCommand;
+import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.link.LinkDiscord;
 import pizzaaxx.bteconosur.link.LinkMinecraft;
@@ -68,6 +72,10 @@ public final class BteConoSur extends JavaPlugin {
     public static PlayerRegistry playerRegistry = new PlayerRegistry();
     public static ChatRegistry chatRegistry = new ChatRegistry();
     public static Map<OldCountry, Guild> guilds = new HashMap<>();
+
+    private CountryRegistry countryRegistry;
+    private Configuration configuration;
+    private Configuration configurationCountries;
 
     @Override
     public void onEnable() {
@@ -138,11 +146,10 @@ public final class BteConoSur extends JavaPlugin {
         );
 
         // GUI
-        ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
-        ItemMeta gMeta = glass.getItemMeta();
-        gMeta.setDisplayName(" ");
-        glass.setItemMeta(gMeta);
-        background = glass;
+
+        background = ItemBuilder.of(Material.STAINED_GLASS_PANE, 1, 15)
+                .name(" ")
+                .build();
 
         // DISCORD BOT
         JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));
@@ -173,8 +180,7 @@ public final class BteConoSur extends JavaPlugin {
         Configuration guildsSection = new Configuration(this, "discord/guilds");
         countryNames.forEach(name -> guilds.put(new OldCountry(name), conoSurBot.getGuildById(guildsSection.getString(name))));
 
-
-        Configuration configuration = new Configuration(this, "config");
+        configuration = new Configuration(this, "config");
         Config config = new Config(configuration);
         getCommand("btecs_reload").setExecutor(config);
 
@@ -201,7 +207,6 @@ public final class BteConoSur extends JavaPlugin {
         online.setTitle("¡El servidor ya está online!");
         online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
 
-
         gateway.sendMessageEmbeds(online.build()).queue();
 
         chatRegistry.register("global");
@@ -211,6 +216,26 @@ public final class BteConoSur extends JavaPlugin {
         chatRegistry.register("paraguay");
         chatRegistry.register("peru");
         chatRegistry.register("uruguay");
+
+        countryRegistry = new CountryRegistry();
+        configurationCountries = new Configuration(this, "countries.yml");
+
+        configurationCountries.getConfigurationSection("countries")
+                        .getKeys(false)
+                                .forEach(path -> {
+                                    ConfigurationSection section = configurationCountries.getConfigurationSection(path);
+
+                                    countryRegistry.add(
+                                            new Country(
+                                                    section.getString("name"),
+                                                    section.getString("icon"),
+                                                    section.getString("prefix"),
+                                                    section.getString("request_channel_id")
+                                                    section.getString("abbreviation"),
+                                                    section.getString("guild_id")
+                                            )
+                                    );
+                                });
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Scoreboard::checkAutoScoreboards, 300, 300);
     }

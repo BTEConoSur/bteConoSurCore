@@ -3,4 +3,6 @@ countries:
     prefix: "cl"
     icon: ""
     logs: ""
-    abbreviation: ""
+    abbreviation: "cl"
+    request_channel_id: ""
+    guid_id: ""

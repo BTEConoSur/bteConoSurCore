@@ -75,6 +75,8 @@ public class Config implements CommandExecutor {
 
         gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));
 
+
+
         Configuration colors = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "chat/colors");
         for (String key : colors.getKeys(false)) {
             groupsPrefixes.put(key, "[§" + colors.getString(key) + key.toUpperCase() + "]");
