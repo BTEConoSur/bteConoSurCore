@@ -16,7 +16,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
 import pizzaaxx.bteconosur.serverPlayer.ScoreboardManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
@@ -31,7 +31,7 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegi
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Project {
-    private final Country country;
+    private final OldCountry country;
     private final String id;
     private final Configuration config;
     private Difficulty difficulty;
@@ -52,7 +52,7 @@ public class Project {
         }
     }
 
-    public static Map<Tag, List<String>> getAvailableProjects(Country country, Difficulty difficulty) {
+    public static Map<Tag, List<String>> getAvailableProjects(OldCountry country, Difficulty difficulty) {
         Map<Tag, List<String>> projects = new HashMap<>();
 
         for (Tag tag : Tag.values()) {
@@ -117,7 +117,7 @@ public class Project {
 
         this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
 
-        this.country = new Country(config.getString("country"));
+        this.country = new OldCountry(config.getString("country"));
 
         difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
 
@@ -150,7 +150,7 @@ public class Project {
         this(getProjectAt(new Location(mainWorld, location.getX(), 100, location.getZ())));
     }
 
-    public Project(Country country, Difficulty difficulty, List<BlockVector2D> points) {
+    public Project(OldCountry country, Difficulty difficulty, List<BlockVector2D> points) {
         this.country = country;
         this.difficulty = difficulty;
         this.points = points;
@@ -180,7 +180,7 @@ public class Project {
         return Bukkit.getOfflinePlayer(owner);
     }
 
-    public Country getCountry() {
+    public OldCountry getCountry() {
         return country;
     }
 

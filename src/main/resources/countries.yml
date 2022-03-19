@@ -1,0 +1,6 @@
+countries:
+  chile:
+    prefix: "cl"
+    icon: ""
+    logs: ""
+    abbreviation: ""

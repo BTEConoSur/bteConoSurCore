@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
 
@@ -21,10 +21,10 @@ public class ScoreboardCommand implements EventListener {
                 String[] args = fullCommand.replaceFirst("/", "").split(" ");
                 if (args.length > 0) {
                     if (args[0].equals("scoreboard")) {
-                        Country country;
+                        OldCountry country;
                         if (args.length > 1) {
-                            if (new Country(args[1]).getName() != null) {
-                                country = new Country(args[1]);
+                            if (new OldCountry(args[1]).getName() != null) {
+                                country = new OldCountry(args[1]);
                             } else {
                                 EmbedBuilder error = new EmbedBuilder();
                                 error.setColor(new Color(255,0,0));
@@ -40,7 +40,7 @@ public class ScoreboardCommand implements EventListener {
                                 e.getTextChannel().sendMessageEmbeds(uruguay.build()).reference(e.getMessage()).mentionRepliedUser(false).queue();
                                 return;
                             }
-                            country = new Country(e.getGuild());
+                            country = new OldCountry(e.getGuild());
                         }
 
                         if (country.getName().equals("argentina")) {

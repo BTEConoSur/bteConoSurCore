@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
@@ -126,7 +126,7 @@ public class DiscordManager {
         return id;
     }
 
-    public void checkDiscordBuilder(Country country) {
+    public void checkDiscordBuilder(OldCountry country) {
         if (linked) {
             loadUser();
             Guild guild = country.getGuild();

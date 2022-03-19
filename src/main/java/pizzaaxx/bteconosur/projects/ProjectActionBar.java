@@ -20,7 +20,8 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 public class ProjectActionBar implements Listener {
 
     public void actionBar(Location from, Location to, Player player) {
-        RegionManager regions = getWorldGuard().getRegionContainer().get(mainWorld);
+        RegionManager regions =
+                getWorldGuard().getRegionContainer().get(mainWorld);
 
         ApplicableRegionSet regionSet1 = regions.getApplicableRegions(from);
         Set<ProtectedRegion> regionList1 = regionSet1.getRegions();
@@ -31,26 +32,22 @@ public class ProjectActionBar implements Listener {
         for (ProtectedRegion region : regionList2) {
             if (!(regionList1.contains(region))) {
                 if (region.getId().startsWith("project_")) {
-                    try {
-                        Project project = new Project(to);
+                    Project project = new Project(to);
 
-                        ChatColor color;
-                        if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
-                            color = ChatColor.GREEN;
-                        } else if (project.getDifficulty().toString().equalsIgnoreCase("intermedio")) {
-                            color = ChatColor.YELLOW;
-                        } else {
-                            color = ChatColor.RED;
-                        }
-
-                        if (project.getOwner() != null) {
-                            player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwner()).getName());
-                        }
-
-                        break;
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                    ChatColor color;
+                    if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
+                        color = ChatColor.GREEN;
+                    } else if (project.getDifficulty().toString().equalsIgnoreCase("intermedio")) {
+                        color = ChatColor.YELLOW;
+                    } else {
+                        color = ChatColor.RED;
                     }
+
+                    if (project.getOwner() != null) {
+                        player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwner()).getName());
+                    }
+
+                    break;
                 }
             }
         }

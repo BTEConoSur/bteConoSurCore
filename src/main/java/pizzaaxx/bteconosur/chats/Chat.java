@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.chats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.serverPlayer.ChatManager;
 import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
@@ -97,7 +97,7 @@ public class Chat {
     public void sendMessage(String message, ServerPlayer serverPlayer) {
         ChatManager cManager = serverPlayer.getChatManager();
         PointsManager pManager = serverPlayer.getPointsManager();
-        Country country = null;
+        OldCountry country = null;
         String cName = getName();
         if (!cName.equals("global")) {
             if (cName.startsWith("project_")) {
@@ -109,7 +109,7 @@ public class Chat {
                     return;
                 }
             } else {
-                country = new Country(cName);
+                country = new OldCountry(cName);
             }
         }
         Chat pChat = cManager.getChat();

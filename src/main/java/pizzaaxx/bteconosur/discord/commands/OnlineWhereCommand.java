@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class OnlineWhereCommand implements EventListener {
                                 embed.setColor(new Color(0, 255, 42));
                                 List<String> xis = new ArrayList<>();
                                 for (String c : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
-                                    Country country = new Country(c);
+                                    OldCountry country = new OldCountry(c);
                                     List<String> names = new ArrayList<>();
                                     for (Player p : country.getPlayers()) {
                                         names.add(p.getName().replace("_", "\\_"));

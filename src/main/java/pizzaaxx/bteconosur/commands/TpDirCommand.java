@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class TpDirCommand implements CommandExecutor {
 
                         Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
 
-                        if (new Country(coords.toBlockVector2D()).getName().equals("global")) {
+                        if (new OldCountry(coords.toBlockVector2D()).getName().equals("global")) {
                             p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
                             return;
                         }

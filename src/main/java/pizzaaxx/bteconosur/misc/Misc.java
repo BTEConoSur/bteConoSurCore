@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.YamlManager;
@@ -37,30 +37,30 @@ public class Misc {
         COUNTRIES.put("uruguay", "uy");
     }
 
-    public static Country getCountryAtLocation(BlockVector2D loc) {
+    public static OldCountry getCountryAtLocation(BlockVector2D loc) {
         return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ()));
     }
 
-    public static Country getCountryAtLocation(Location loc) {
+    public static OldCountry getCountryAtLocation(Location loc) {
         RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
         Set<ProtectedRegion> regions = regionManager.getApplicableRegions(loc).getRegions();
         if (regions.contains(regionManager.getRegion("argentina"))) {
-            return new Country("argentina");
+            return new OldCountry("argentina");
         }
         if (regions.contains(regionManager.getRegion("bolivia"))) {
-            return new Country("bolivia");
+            return new OldCountry("bolivia");
         }
         if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            return new Country("chile");
+            return new OldCountry("chile");
         }
         if (regions.contains(regionManager.getRegion("paraguay"))) {
-            return new Country("paraguay");
+            return new OldCountry("paraguay");
         }
         if (regions.contains(regionManager.getRegion("peru"))) {
-            return new Country("peru");
+            return new OldCountry("peru");
         }
         if (regions.contains(regionManager.getRegion("uruguay"))) {
-            return new Country("uruguay");
+            return new OldCountry("uruguay");
         }
         return null;
 
@@ -124,7 +124,7 @@ public class Misc {
 
         YamlManager tags = new YamlManager(pluginFolder, "projectTags/tags.yml");
 
-        List<String> candidates = (List<String>) tags.getList(new Country(country).getAbbreviation() + "_" + tag);
+        List<String> candidates = (List<String>) tags.getList(new OldCountry(country).getAbbreviation() + "_" + tag);
 
         for (String candidate : candidates) {
             try {

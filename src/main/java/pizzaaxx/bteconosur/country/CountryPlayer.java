@@ -8,7 +8,7 @@ public class CountryPlayer implements Comparable<CountryPlayer> {
     private final int points;
     private final ServerPlayer player;
 
-    public CountryPlayer(ServerPlayer s, Country country) {
+    public CountryPlayer(ServerPlayer s, OldCountry country) {
         this.player = s;
         this.points = s.getPointsManager().getPoints(country);
     }

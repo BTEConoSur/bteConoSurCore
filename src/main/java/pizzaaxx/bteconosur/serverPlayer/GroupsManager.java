@@ -5,17 +5,14 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
 import org.apache.commons.lang.StringUtils;
-import pizzaaxx.bteconosur.country.Country;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.Config.groupsPrefixes;
-import static pizzaaxx.bteconosur.country.Country.countryNames;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.*;
 
 public class GroupsManager {

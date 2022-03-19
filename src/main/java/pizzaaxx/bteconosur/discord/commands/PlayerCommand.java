@@ -12,13 +12,11 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.serverPlayer.*;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.country.CountryPlayer;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.DataTime;
 import pizzaaxx.bteconosur.helper.DateHelper;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
 import java.io.IOException;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.BteConoSur.key;
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 
 public class PlayerCommand extends ListenerAdapter {
@@ -96,7 +93,7 @@ public class PlayerCommand extends ListenerAdapter {
 
                         if (offlinePlayer.isOnline()) {
                             org.bukkit.entity.Player player = offlinePlayer.getPlayer();
-                            Country country = new Country(player.getLocation());
+                            OldCountry country = new OldCountry(player.getLocation());
                             Coords2D coords = new Coords2D(player.getLocation());
 
                             embedBuilder
@@ -111,7 +108,7 @@ public class PlayerCommand extends ListenerAdapter {
                             if (chatName.startsWith("project_")) {
                                 chatType = ":tools:";
                             } else {
-                                chatType = (chatName.equals("global") ? ":earth_americas:" : ":flag_" + new Country(chatName).getAbbreviation() + ":");
+                                chatType = (chatName.equals("global") ? ":earth_americas:" : ":flag_" + new OldCountry(chatName).getAbbreviation() + ":");
                             }
                             embedBuilder.addField("Chat:", chatType + " " + serverPlayer.getChatManager().getChat().getFormattedName(), false);
 
@@ -165,7 +162,7 @@ public class PlayerCommand extends ListenerAdapter {
                             List<String> points = new ArrayList<>();
 
 
-                            for (Map.Entry<Country, Integer> entry : pointsManager.getSorted().entrySet()) {
+                            for (Map.Entry<OldCountry, Integer> entry : pointsManager.getSorted().entrySet()) {
                                 String bRank;
                                 if (entry.getValue() >= 1000) {
                                     bRank = ":gem:";

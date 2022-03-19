@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.serverPlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
@@ -12,7 +12,7 @@ import static pizzaaxx.bteconosur.BteConoSur.discord;
 
 public class PointsManager {
 
-    private final TreeMap<Country, Integer> countriesPoints = new TreeMap<>();
+    private final TreeMap<OldCountry, Integer> countriesPoints = new TreeMap<>();
     private final ServerPlayer serverPlayer;
     private final DataManager data;
 
@@ -24,7 +24,7 @@ public class PointsManager {
         if (data.contains("points")) {
             ConfigurationSection pointsSection = data.getConfigurationSection("points");
             for (String key : pointsSection.getKeys(false)) {
-                countriesPoints.put(new Country(key), pointsSection.getInt(key));
+                countriesPoints.put(new OldCountry(key), pointsSection.getInt(key));
             }
         }
     }
@@ -33,11 +33,11 @@ public class PointsManager {
         return serverPlayer;
     }
 
-    public int getPoints(Country country) {
+    public int getPoints(OldCountry country) {
         return countriesPoints.getOrDefault(country, 0);
     }
 
-    public void setPoints(Country country, int points) {
+    public void setPoints(OldCountry country, int points) {
         int old = countriesPoints.get(country);
         if (old != points) {
             countriesPoints.put(country, points);
@@ -53,21 +53,21 @@ public class PointsManager {
 
     }
 
-    public int addPoints(Country country, int points) {
+    public int addPoints(OldCountry country, int points) {
         int newAmount = getPoints(country) + points;
         setPoints(country, newAmount);
         return newAmount;
     }
 
-    public int removePoints(Country country, int points) {
+    public int removePoints(OldCountry country, int points) {
         int newAmount = getPoints(country) - points;
         setPoints(country, newAmount);
         return newAmount;
     }
 
-    public Map.Entry<Country, Integer> getMaxPoints() {
-        Map.Entry<Country, Integer> max = null;
-        for (Map.Entry<Country, Integer> entry : countriesPoints.entrySet()) {
+    public Map.Entry<OldCountry, Integer> getMaxPoints() {
+        Map.Entry<OldCountry, Integer> max = null;
+        for (Map.Entry<OldCountry, Integer> entry : countriesPoints.entrySet()) {
             if (max == null || entry.getValue().compareTo(max.getValue()) > 0) {
                 max = entry;
             }
@@ -75,11 +75,11 @@ public class PointsManager {
         return max;
     }
 
-    public TreeMap<Country, Integer> getSorted() {
+    public TreeMap<OldCountry, Integer> getSorted() {
         return countriesPoints;
     }
 
-    public void checkTop(Country country) {
+    public void checkTop(OldCountry country) {
         CountryPlayer cPlayer = new CountryPlayer(serverPlayer, country);
         Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
         List<CountryPlayer> players = new ArrayList<>();

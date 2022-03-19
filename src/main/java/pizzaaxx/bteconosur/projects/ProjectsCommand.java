@@ -23,7 +23,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
@@ -86,7 +86,7 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
-                Country country = new Country(points.get(0));
+                OldCountry country = new OldCountry(points.get(0));
 
                 if (country.getName().equals("global")) {
                     p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
@@ -110,7 +110,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    Project project = new Project(new Country(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1]), points);
+                    Project project = new Project(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1]), points);
 
                     project.save();
 
@@ -478,7 +478,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 try {
                     Project project = new Project(p.getLocation());
-                    Country country = project.getCountry();
+                    OldCountry country = project.getCountry();
 
                     if (s.getPermissionCountries().contains(project.getCountry())) {
 
@@ -597,7 +597,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
 
                 Configuration pendingConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-                List<String> pending = pendingConfig.getStringList(new Country(p.getLocation()).getName());
+                List<String> pending = pendingConfig.getStringList(new OldCountry(p.getLocation()).getName());
                 if (!pending.isEmpty()) {
                     BookUtil.BookBuilder book = BookUtil.writtenBook();
 

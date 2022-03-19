@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.ranks;
 
 import org.bukkit.Bukkit;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.*;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 
 public class Points {
-    public static List<ServerPlayer> getScoreboard(Country country) {
+    public static List<ServerPlayer> getScoreboard(OldCountry country) {
         List<ServerPlayer> scoreboard = new ArrayList<>();
 
         YamlManager yaml = new YamlManager(pluginFolder, "points/max.yml");
@@ -21,7 +21,7 @@ public class Points {
         return scoreboard;
     }
 
-    public static void checkTop(ServerPlayer s, Country country) {
+    public static void checkTop(ServerPlayer s, OldCountry country) {
         Map<ServerPlayer, Integer> top = new HashMap<>();
         for (ServerPlayer m : getScoreboard(country)) {
             top.put(m, m.getPoints(country));

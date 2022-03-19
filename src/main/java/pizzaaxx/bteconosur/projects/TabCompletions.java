@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,7 @@ public class TabCompletions implements TabCompleter {
 
                     }
 
-                    if (s.getPermissionCountries().contains(new Country(p.getLocation()))) {
+                    if (s.getPermissionCountries().contains(new OldCountry(p.getLocation()))) {
                         if (project.isPending()) {
                             completions.add("review");
                         }
@@ -64,7 +64,7 @@ public class TabCompletions implements TabCompleter {
                         completions.add("pending");
                     }
 
-                    if (s.getPermissionCountries().contains(new Country(p.getLocation()))) {
+                    if (s.getPermissionCountries().contains(new OldCountry(p.getLocation()))) {
                         completions.add("delete");
                     }
                 }

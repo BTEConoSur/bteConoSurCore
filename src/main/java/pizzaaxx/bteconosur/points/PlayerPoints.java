@@ -5,7 +5,6 @@ import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.player.data.PlayerData;
 
 import static pizzaaxx.bteconosur.misc.Misc.getCountryPrefix;
-import static pizzaaxx.bteconosur.misc.Misc.getLogsChannel;
 
 public class PlayerPoints {
 

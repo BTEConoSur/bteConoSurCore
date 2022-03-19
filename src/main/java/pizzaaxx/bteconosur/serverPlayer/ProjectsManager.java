@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.serverPlayer;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.ArrayList;
@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.country.Country.countryNames;
+import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 
 public class ProjectsManager {
 
     private final ServerPlayer serverPlayer;
     private final DataManager data;
-    private final Map<Country, List<String>> projects = new HashMap<>();
-    private final Map<Country, Integer> finishedProjects = new HashMap<>();
+    private final Map<OldCountry, List<String>> projects = new HashMap<>();
+    private final Map<OldCountry, Integer> finishedProjects = new HashMap<>();
 
     public ProjectsManager(ServerPlayer s) {
         data = s.getDataManager();
@@ -26,7 +26,7 @@ public class ProjectsManager {
             ConfigurationSection projectsSection = data.getConfigurationSection("projects");
             for (String country : countryNames) {
                 if (projectsSection.contains(country)) {
-                    projects.put(new Country(country), (List<String>) projectsSection.getList(country));
+                    projects.put(new OldCountry(country), (List<String>) projectsSection.getList(country));
                 }
             }
         }
@@ -35,7 +35,7 @@ public class ProjectsManager {
             ConfigurationSection finishedProjectsSection = data.getConfigurationSection("finishedProjects");
             for (String country : countryNames) {
                 if (finishedProjectsSection.contains(country)) {
-                    finishedProjects.put(new Country(country), finishedProjectsSection.getInt(country));
+                    finishedProjects.put(new OldCountry(country), finishedProjectsSection.getInt(country));
                 }
             }
         }
@@ -53,7 +53,7 @@ public class ProjectsManager {
         return allProjects;
     }
 
-    public List<String> getProjects(Country country) {
+    public List<String> getProjects(OldCountry country) {
         return projects.get(country);
     }
 
@@ -92,17 +92,17 @@ public class ProjectsManager {
 
     public int getTotalFinishedProjects() {
         int total = 0;
-        for (Map.Entry<Country, Integer> entry : finishedProjects.entrySet()) {
+        for (Map.Entry<OldCountry, Integer> entry : finishedProjects.entrySet()) {
             total = total + entry.getValue();
         }
         return total;
     }
 
-    public int getFinishedProjects(Country country) {
+    public int getFinishedProjects(OldCountry country) {
         return finishedProjects.get(country);
     }
 
-    public void addFinishedProject(Country country) {
+    public void addFinishedProject(OldCountry country) {
         int actual = finishedProjects.get(country);
         finishedProjects.put(country, actual + 1);
     }
@@ -111,8 +111,8 @@ public class ProjectsManager {
         return getAllProjects().size();
     }
 
-    public Map<Country, List<String>> getOwnedProjects() {
-        Map<Country, List<String>> ownedProjects = new HashMap<>();
+    public Map<OldCountry, List<String>> getOwnedProjects() {
+        Map<OldCountry, List<String>> ownedProjects = new HashMap<>();
         projects.forEach((country, ps) -> {
             List<String> owned = new ArrayList<>();
             ps.forEach(id -> {
@@ -130,7 +130,7 @@ public class ProjectsManager {
     public List<String> getAllOwnedProjects() {
         List<String> owned = new ArrayList<>();
 
-        for (Map.Entry<Country, List<String>> list : projects.entrySet()) {
+        for (Map.Entry<OldCountry, List<String>> list : projects.entrySet()) {
             for (String id : list.getValue()) {
                 Project project = new Project(id);
 

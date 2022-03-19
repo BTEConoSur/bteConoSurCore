@@ -10,7 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.ArrayList;
@@ -180,7 +180,7 @@ public class ScoreboardManager {
                     lines.add("§aProyectos terminados: §f" + prManager.getTotalFinishedProjects());
                     break;
                 case TOP:
-                    Country country = new Country(((Player) serverPlayer.getPlayer()).getLocation());
+                    OldCountry country = new OldCountry(((Player) serverPlayer.getPlayer()).getLocation());
 
                     if (!country.getName().equals("global") && !country.getName().equals("argentina")) {
 

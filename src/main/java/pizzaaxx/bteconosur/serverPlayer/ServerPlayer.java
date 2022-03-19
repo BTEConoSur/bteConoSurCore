@@ -8,7 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
 import java.util.ArrayList;
@@ -178,7 +178,7 @@ public class ServerPlayer {
         if (pointsManager.getMaxPoints().getValue() != null) {
             lines.add("§aPuntos:§r");
             for (String country : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
-                int points = projectsManager.getProjects(new Country(country)).size();
+                int points = projectsManager.getProjects(new OldCountry(country)).size();
                 if (points != 0) {
                     lines.add("· " + StringUtils.capitalize(country) + ": " + points);
                 }
@@ -216,26 +216,26 @@ public class ServerPlayer {
         return null;
     }
 
-    public List<Country> getPermissionCountries() {
+    public List<OldCountry> getPermissionCountries() {
         Player p = Bukkit.getPlayer(uuid);
-        List<Country> permissionCountries = new ArrayList<>();
+        List<OldCountry> permissionCountries = new ArrayList<>();
         if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-            permissionCountries.add(new Country("argentina"));
+            permissionCountries.add(new OldCountry("argentina"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-            permissionCountries.add(new Country("bolivia"));
+            permissionCountries.add(new OldCountry("bolivia"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-            permissionCountries.add(new Country("chile"));
+            permissionCountries.add(new OldCountry("chile"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-            permissionCountries.add(new Country("peru"));
+            permissionCountries.add(new OldCountry("peru"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.py")) {
-            permissionCountries.add(new Country("paraguay"));
+            permissionCountries.add(new OldCountry("paraguay"));
         }
         if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
-            permissionCountries.add(new Country("uruguay"));
+            permissionCountries.add(new OldCountry("uruguay"));
         }
         return permissionCountries;
     }

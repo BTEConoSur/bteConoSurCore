@@ -21,7 +21,7 @@ import pizzaaxx.bteconosur.chats.ChatCommand;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.join.Join;
@@ -54,7 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.country.Country.countryNames;
+import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
@@ -67,7 +67,7 @@ public final class BteConoSur extends JavaPlugin {
     public static String key;
     public static PlayerRegistry playerRegistry = new PlayerRegistry();
     public static ChatRegistry chatRegistry = new ChatRegistry();
-    public static Map<Country, Guild> guilds = new HashMap<>();
+    public static Map<OldCountry, Guild> guilds = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -171,7 +171,7 @@ public final class BteConoSur extends JavaPlugin {
         }
 
         Configuration guildsSection = new Configuration(this, "discord/guilds");
-        countryNames.forEach(name -> guilds.put(new Country(name), conoSurBot.getGuildById(guildsSection.getString(name))));
+        countryNames.forEach(name -> guilds.put(new OldCountry(name), conoSurBot.getGuildById(guildsSection.getString(name))));
 
 
         Configuration configuration = new Configuration(this, "config");

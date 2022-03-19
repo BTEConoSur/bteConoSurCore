@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +56,7 @@ public class pFind implements Listener {
                     pRandomGui.setItem(i, glass);
                 }
 
-                Country country = new Country(e.getWhoClicked().getLocation());
+                OldCountry country = new OldCountry(e.getWhoClicked().getLocation());
                 Map<Project.Tag, List<String>> availableProjects = getAvailableProjects(country, difficulty);
                 int available = availableProjects.get(EDIFICIOS).size();
                 pRandomGui.setItem(10, getCustomHead("§aEdificios", "§fEdificios de oficinas y otros edificios de gran magnitud.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWY2YmIzYWQ4ZGFmMGMxNDk5YjVlNDZkY2Y0MTc2YzgzNDU0MzU1M2ExYTgxODAwOWU3Njc1ZTg5NjI5NWUxYSJ9fX0="));
@@ -106,7 +106,7 @@ public class pFind implements Listener {
                     tag = CARRETERAS;
                 }
 
-                List<String> projects = getAvailableProjects(new Country(e.getWhoClicked().getLocation()), pRandomDifficulties.get((Player) e.getWhoClicked())).get(tag);
+                List<String> projects = getAvailableProjects(new OldCountry(e.getWhoClicked().getLocation()), pRandomDifficulties.get((Player) e.getWhoClicked())).get(tag);
                 Player p = (Player) e.getWhoClicked();
 
                 if (projects.size() > 0) {
@@ -132,7 +132,7 @@ public class pFind implements Listener {
                     p.sendMessage(projectsPrefix + "Usa §a/project claim §fpara reclamar el proyecto.");
                 } else {
                     p.closeInventory();
-                    p.sendMessage(projectsPrefix + "No hay proyectos §a" + pRandomDifficulties.get((Player) e.getWhoClicked()).toString().replace("dificil", "§aDIFÍCILES").replace("facil", "§aFÁCILES").replace("intermiedio", "§aINTERMEDIOS") + "§f de tipo §a" + tag.toString().replace("_", " ").toUpperCase() + "§f disponibles en §a" + new Country(e.getWhoClicked().getLocation()).getName().toUpperCase() + "§f.");
+                    p.sendMessage(projectsPrefix + "No hay proyectos §a" + pRandomDifficulties.get((Player) e.getWhoClicked()).toString().replace("dificil", "§aDIFÍCILES").replace("facil", "§aFÁCILES").replace("intermiedio", "§aINTERMEDIOS") + "§f de tipo §a" + tag.toString().replace("_", " ").toUpperCase() + "§f disponibles en §a" + new OldCountry(e.getWhoClicked().getLocation()).getName().toUpperCase() + "§f.");
                     BukkitRunnable runnable = new BukkitRunnable() {
                         @Override
                         public void run() {

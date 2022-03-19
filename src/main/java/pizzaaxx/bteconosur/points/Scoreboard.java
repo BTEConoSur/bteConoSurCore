@@ -18,7 +18,7 @@ import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.country.Country.countryRegionNames;
+import static pizzaaxx.bteconosur.country.OldCountry.countryRegionNames;
 import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getLeftRegions;

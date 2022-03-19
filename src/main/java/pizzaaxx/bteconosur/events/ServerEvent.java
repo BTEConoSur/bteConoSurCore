@@ -14,11 +14,9 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.serverPlayer.DataManager;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
-import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
 import java.io.IOException;
@@ -43,13 +41,13 @@ public class ServerEvent {
     private ProtectedPolygonalRegion region;
     private final Configuration yaml;
     private final ConfigurationSection countrySection;
-    private final Country country;
+    private final OldCountry country;
 
     enum Status {
         READY, OFF, ON
     }
 
-    public ServerEvent(Country country) {
+    public ServerEvent(OldCountry country) {
         this.country = country;
         String c = country.getName();
         yaml = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "events");
