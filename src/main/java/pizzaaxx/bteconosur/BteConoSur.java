@@ -69,6 +69,7 @@ public final class BteConoSur extends JavaPlugin {
     public static File pluginFolder = null;
     public static String key;
     public static PlayerRegistry playerRegistry = new PlayerRegistry();
+    public static ProjectRegistry projectRegistry = new ProjectRegistry();
     public static ChatRegistry chatRegistry = new ChatRegistry();
     public static Map<OldCountry, Guild> guilds = new HashMap<>();
 

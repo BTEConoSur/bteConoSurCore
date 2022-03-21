@@ -110,36 +110,53 @@ public class Project {
 
     // CONSTRUCTORS
 
-
     public Project(String id) {
 
-        this.id = id;
+        if (projectRegistry.exists(id)) {
+            Project origin = projectRegistry.get(id);
 
-        this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+            this.id = origin.id;
+            this.country = origin.country;
+            this.config = origin.config;
+            this.difficulty = origin.difficulty;
+            this.pending = origin.pending;
+            if (!origin.members.isEmpty()) {
+                this.members.addAll(origin.members);
+            }
+            if (origin.owner != null) {
+                this.owner = origin.owner;
+            }
 
-        this.country = new OldCountry(config.getString("country"));
+        } else {
+            this.id = id;
 
-        difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+            this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
 
-        pending = config.getBoolean("pending");
+            this.country = new OldCountry(config.getString("country"));
 
-        if (config.contains("members")) {
-            config.getStringList("members").forEach(uuid -> members.add(UUID.fromString(uuid)));
+            difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+
+            pending = config.getBoolean("pending");
+
+            if (config.contains("members")) {
+                config.getStringList("members").forEach(uuid -> members.add(UUID.fromString(uuid)));
+            }
+
+            if (config.contains("owner")) {
+                owner = UUID.fromString(config.getString("owner"));
+            }
+
+            if (config.contains("name")) {
+                name = config.getString("name");
+            }
+
+            if (config.contains("tag")) {
+                tag = Tag.valueOf(config.getString("tag").toUpperCase());
+            }
+
+            points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
         }
 
-        if (config.contains("owner")) {
-            owner = UUID.fromString(config.getString("owner"));
-        }
-
-        if (config.contains("name")) {
-            name = config.getString("name");
-        }
-
-        if (config.contains("tag")) {
-            tag = Tag.valueOf(config.getString("tag").toUpperCase());
-        }
-
-        points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
     }
 
     public Project(Location location) {
