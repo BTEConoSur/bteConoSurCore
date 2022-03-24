@@ -69,12 +69,11 @@ public final class BteConoSur extends JavaPlugin {
     public static File pluginFolder = null;
     public static String key;
     public static PlayerRegistry playerRegistry = new PlayerRegistry();
-    public static ProjectRegistry projectRegistry = new ProjectRegistry();
+    public static ProjectRegistry projectRegistry;
     public static ChatRegistry chatRegistry = new ChatRegistry();
     public static Map<OldCountry, Guild> guilds = new HashMap<>();
 
     private CountryRegistry countryRegistry;
-    private Configuration configuration;
     private Configuration configurationCountries;
 
     @Override
@@ -180,7 +179,7 @@ public final class BteConoSur extends JavaPlugin {
         Configuration guildsSection = new Configuration(this, "discord/guilds");
         countryNames.forEach(name -> guilds.put(new OldCountry(name), conoSurBot.getGuildById(guildsSection.getString(name))));
 
-        configuration = new Configuration(this, "config");
+        Configuration configuration = new Configuration(this, "config");
         Config config = new Config(configuration);
         getCommand("btecs_reload").setExecutor(config);
 
@@ -238,6 +237,8 @@ public final class BteConoSur extends JavaPlugin {
                                 });
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
+
+        projectRegistry = new ProjectRegistry(this);
     }
 
     @Override

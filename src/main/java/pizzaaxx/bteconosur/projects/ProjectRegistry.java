@@ -1,6 +1,6 @@
 package pizzaaxx.bteconosur.projects;
 
-import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -8,8 +8,13 @@ import java.util.Map;
 
 public class ProjectRegistry {
 
+    private final Plugin plugin;
     private final Map<String, Project> projects = new HashMap<>();
     private final Map<String, Long> lastAccessed = new HashMap<>();
+
+    public ProjectRegistry(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     public void register(Project project) {
         projects.put(project.getId(), project);
@@ -42,6 +47,6 @@ public class ProjectRegistry {
                 }
             }
         };
-        runnable.runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("bteConoSur"), 12000);
+        runnable.runTaskLaterAsynchronously(plugin, 12000);
     }
 }

@@ -83,7 +83,6 @@ public class Project {
 
     public static boolean isProjectAt(Location location) {
         Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(location).getRegions();
-        List<String> projects = new ArrayList<>();
 
         for (ProtectedRegion region : regions) {
             if (region.getId().startsWith("project_")) {
@@ -426,6 +425,7 @@ public class Project {
             m.update();
         }
 
+        projectRegistry.remove(this.id);
     }
 
     public void transfer(OfflinePlayer target) {
@@ -436,6 +436,8 @@ public class Project {
     // UPLOAD PROJECT
 
     public void save() {
+        projectRegistry.register(this);
+
         Configuration project = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
 
         project.set("difficulty", difficulty.toString().toLowerCase());
