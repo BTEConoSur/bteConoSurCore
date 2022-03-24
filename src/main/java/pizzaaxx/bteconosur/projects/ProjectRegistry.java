@@ -3,14 +3,13 @@ package pizzaaxx.bteconosur.projects;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProjectRegistry {
 
     private final Map<String, Project> projects = new HashMap<>();
-    private final Map<String, Date> lastAccessed = new HashMap<>();
+    private final Map<String, Long> lastAccessed = new HashMap<>();
 
     public void register(Project project) {
         projects.put(project.getId(), project);
@@ -34,11 +33,11 @@ public class ProjectRegistry {
     }
 
     private void startTimer(Project project) {
-        lastAccessed.put(project.getId(), new Date(System.currentTimeMillis()));
+        lastAccessed.put(project.getId(), System.currentTimeMillis());
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
-                if (new Date(System.currentTimeMillis()).getTime() - lastAccessed.get(project.getId()).getTime() >= 500000) {
+                if (System.currentTimeMillis() - lastAccessed.get(project.getId()) >= 500000) {
                     remove(project.getId());
                 }
             }
