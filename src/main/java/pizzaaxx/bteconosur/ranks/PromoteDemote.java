@@ -10,8 +10,6 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
-import static pizzaaxx.bteconosur.ranks.Main.primaryGroupsList;
-
 public class PromoteDemote implements CommandExecutor {
     public static String promotePrefix = "§f[§2PROMOTE§f] §7>>§r ";
     public static String demotePrefix = "§f[§4DEMOTE§f] §7>>§r ";
@@ -32,12 +30,13 @@ public class PromoteDemote implements CommandExecutor {
                 if (Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
                     OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                     ServerPlayer s = new ServerPlayer(target);
-                    GroupsManager manager = s.getGroupsManager();
+                    GroupsManager tManager = s.getGroupsManager();
                     if (target != p) {
-                        if (pManager.getPrimaryGroup().getPriority() + 1 < manager.getPrimaryGroup().getPriority()) {
-                            manager.promote();
+                        int targetPriority = tManager.getPrimaryGroup().getPriority();
+                        if (targetPriority + 1 < pManager.getPrimaryGroup().getPriority() && targetPriority < GroupsManager.PrimaryGroup.ADMIN.getPriority()) {
+                            tManager.promote();
 
-                            p.sendMessage(promotePrefix + "Has promovido a §a" + s.getName() + "§f a §a" + manager.getPrimaryGroup().toString().replace("default", "visita").toUpperCase() + "§f.");
+                            p.sendMessage(promotePrefix + "Has promovido a §a" + s.getName() + "§f a §a" + tManager.getPrimaryGroup().toString().replace("default", "visita").toUpperCase() + "§f.");
                         } else {
                             p.sendMessage(promotePrefix + "No puedes promover a este jugador.");
                         }
@@ -59,15 +58,11 @@ public class PromoteDemote implements CommandExecutor {
                     ServerPlayer s = new ServerPlayer(target);
                     GroupsManager manager = s.getGroupsManager();
                     if (target != p) {
-                        int priority = manager.getPrimaryGroup().getPriority();
-                        if (pManager.getPrimaryGroup().getPriority() < priority) {
-                            if (priority != 0) {
-                                s.demote();
+                        int targetPriority = manager.getPrimaryGroup().getPriority();
+                        if (pManager.getPrimaryGroup().getPriority() > targetPriority && targetPriority > 0) {
+                            manager.demote();
 
-                                p.sendMessage(demotePrefix + "Has degradado a §a" + s.getName() + "§f a §a" + manager.getPrimaryGroup().toString().replace("default", "visita").toUpperCase() + "§f.");
-                            } else {
-                                p.sendMessage(demotePrefix + "No puedes degradar a este jugador.");
-                            }
+                            p.sendMessage(demotePrefix + "Has degradado a §a" + s.getName() + "§f a §a" + manager.getPrimaryGroup().toString().replace("default", "visita").toUpperCase() + "§f.");
                         } else {
                             p.sendMessage(demotePrefix + "No puedes degradar a este jugador.");
                         }

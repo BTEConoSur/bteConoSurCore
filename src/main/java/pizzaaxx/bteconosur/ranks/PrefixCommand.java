@@ -9,10 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
+import pizzaaxx.bteconosur.serverPlayer.ChatManager;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
@@ -27,11 +27,12 @@ public class PrefixCommand implements CommandExecutor, Listener {
             if (e.getCurrentItem() != background) {
                 Player p = (Player) e.getWhoClicked();
                 ServerPlayer s = new ServerPlayer(p);
+                ChatManager manager = s.getChatManager();
                 if (e.getSlot() == 35) {
                     e.getWhoClicked().closeInventory();
                 } else if (e.getSlot() == 22) {
                     if (s.getChatManager().getDisplayName() != null) {
-                        s.setCountryPrefix(null);
+                        manager.setCountryPrefix(null);
                         p.sendMessage(prefixPrefix + "Has eliminado tu prefijo de país.");
                     } else {
                         p.sendMessage(prefixPrefix + "No tienes un prefijo de país establecido.");
@@ -39,8 +40,8 @@ public class PrefixCommand implements CommandExecutor, Listener {
                     e.getWhoClicked().closeInventory();
                 } else {
                     String name = e.getCurrentItem().getItemMeta().getDisplayName();
-                    if (!Objects.equals(name, s.getCountryPrefix())) {
-                        s.setCountryPrefix(name.replace("§", "&"));
+                    if (!Objects.equals(name, manager.getCountryPrefix())) {
+                        manager.setCountryPrefix(name.replace("§", "&"));
                         p.sendMessage(prefixPrefix + "Has establecido tu prefijo de país en " + name + "§f.");
                     } else {
                         p.sendMessage(prefixPrefix + "Tu prefijo de país ya es el seleccionado.");

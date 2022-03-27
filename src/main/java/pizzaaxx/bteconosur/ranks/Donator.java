@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class Donator implements CommandExecutor {
@@ -16,20 +17,20 @@ public class Donator implements CommandExecutor {
             if (args.length > 0 && Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
                 OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                 ServerPlayer s = new ServerPlayer(target);
+                GroupsManager manager = s.getGroupsManager();
 
-                if (s.getSecondaryGroups().contains("donator")) {
-                    s.removeSecondaryGroup("donator");
+                if (manager.getSecondaryGroups().contains(GroupsManager.SecondaryGroup.DONADOR)) {
+                    manager.removeSecondaryGroup(GroupsManager.SecondaryGroup.DONADOR);
                     sender.sendMessage(donatorPrefix + "Has quitado el rango §aDONADOR§f a §a" + s.getName() + "§f.");
                     s.sendNotification(donatorPrefix + "Te han quitado el rango §a**DONADOR**§f.");
                 } else {
-                    s.addSecondaryGroup("donator");
+                    manager.addSecondaryGroup(GroupsManager.SecondaryGroup.DONADOR);
                     sender.sendMessage(donatorPrefix + "Has dado el rango §aDONADOR§f a §a" + s.getName() + "§f.");
                     s.sendNotification(donatorPrefix + "Te han dado el rango §a**DONADOR**§f. ¡Gracias por donar!");
                 }
             } else {
                 sender.sendMessage(donatorPrefix + "Introduce un jugador válido.");
             }
-
         return true;
     }
 }

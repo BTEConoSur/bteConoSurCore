@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 public class Streamer implements CommandExecutor {
@@ -16,13 +17,14 @@ public class Streamer implements CommandExecutor {
         if (args.length > 0 && Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
             ServerPlayer s = new ServerPlayer(target);
+            GroupsManager manager = s.getGroupsManager();
 
-            if (s.getSecondaryGroups().contains("streamer")) {
-                s.removeSecondaryGroup("streamer");
+            if (manager.getSecondaryGroups().contains(GroupsManager.SecondaryGroup.STREAMER)) {
+                manager.removeSecondaryGroup(GroupsManager.SecondaryGroup.STREAMER);
                 sender.sendMessage(streamerPrefix + "Has quitado el rango §aSTREAMER§f a §a" + s.getName() + "§f.");
                 s.sendNotification(streamerPrefix + "Te han quitado el rango §a**STREAMER**§f.");
             } else {
-                s.addSecondaryGroup("streamer");
+                manager.addSecondaryGroup(GroupsManager.SecondaryGroup.STREAMER);
                 sender.sendMessage(streamerPrefix + "Has dado el rango §aSTRAEMER§f a §a" + s.getName() + "§f.");
                 s.sendNotification(streamerPrefix + "Te han dado el rango §a**STREAMER**§f.");
             }
