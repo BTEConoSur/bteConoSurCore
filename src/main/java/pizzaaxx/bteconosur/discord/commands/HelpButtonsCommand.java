@@ -28,13 +28,8 @@ public class HelpButtonsCommand extends ListenerAdapter {
                     help.setColor(new Color(0,255,42));
                     help.setTitle("Ayuda de comandos de " + StringUtils.capitalize(e.getButton().getId()));
                     help.setDescription("Usa `/help [comando]` para obtener más información de cada comando.");
-
-<<<<<<< HEAD
-                    YamlManager yaml = new YamlManager(pluginFolder, "help.yml");
-=======
                     Configuration yaml = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "help");
 
->>>>>>> 3a79a4ad4951674f70f8cafcf807873d044e98f3
                     Map<Character, java.util.List<String>> map = new HashMap<>();
 
                     for (Map.Entry<String, Object> entry : yaml.getConfigurationSection(e.getButton().getId()).getValues(false).entrySet()) {
