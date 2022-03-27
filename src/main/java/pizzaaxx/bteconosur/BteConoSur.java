@@ -61,6 +61,7 @@ import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectRequestsIDs;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
@@ -97,6 +98,7 @@ public final class BteConoSur extends JavaPlugin {
                 new EventsCommand()
         );
 
+        getLogger().info("Registering commands...");
         getCommand("project").setExecutor(new ProjectsCommand());
         getCommand("link").setExecutor(new LinkMinecraft());
         getCommand("unlink").setExecutor(new LinkMinecraft());
@@ -236,9 +238,19 @@ public final class BteConoSur extends JavaPlugin {
                                     );
                                 });
 
+        getLogger().info("Starting automatic scoreboards checker sequence...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
         projectRegistry = new ProjectRegistry(this);
+
+        getLogger().info("Loading projects requests...");
+
+        Configuration requestsIDs = new Configuration(this, "projectsRequests");
+        for (String requestID : requestsIDs.getKeys(false)) {
+            projectRequestsIDs.put(requestID, requestsIDs.getString(requestID));
+            requestsIDs.set(requestID, null);
+        }
+        requestsIDs.save();
     }
 
     @Override
@@ -249,6 +261,12 @@ public final class BteConoSur extends JavaPlugin {
         online.setColor(new Color(255, 0, 0));
         online.setTitle("El servidor ha sido apagado.");
         online.setDescription("Te esperamos cuando vuelva a estar disponible.");
+
+        if (!projectRequestsIDs.isEmpty()) {
+            Configuration requestsIDs = new Configuration(this, "projectsRequests");
+            requestsIDs.set("", projectRequestsIDs);
+            requestsIDs.save();
+        }
 
         gateway.sendMessageEmbeds(online.build()).queue();
 

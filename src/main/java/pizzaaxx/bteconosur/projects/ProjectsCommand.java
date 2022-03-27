@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.serverPlayer.PointsManager;
 import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
@@ -52,6 +53,7 @@ public class ProjectsCommand implements CommandExecutor {
     public Set<Player> finishConfirmation = new HashSet<>();
     public Set<Player> deleteConfirmation = new HashSet<>();
     public static ItemStack background;
+    public static Map<String, String> projectRequestsIDs = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
@@ -133,6 +135,12 @@ public class ProjectsCommand implements CommandExecutor {
 
                         EmbedBuilder request = new EmbedBuilder();
                         request.setColor(new Color(0, 255, 42));
+
+                        String id = CodeGenerator.generateCode(6);
+
+                        request.setAuthor("ID de la solicitud: " + id);
+                        projectRequestsIDs.put(id, project.getId());
+
                         request.setTitle(new ServerPlayer(p).getName() + " quiere crear un proyecto.");
 
                         List<String> coords = new ArrayList<>();

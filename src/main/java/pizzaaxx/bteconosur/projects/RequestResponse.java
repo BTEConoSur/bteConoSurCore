@@ -11,9 +11,12 @@ import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
 
+import java.io.File;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectRequestsIDs;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
 public class RequestResponse extends ListenerAdapter {
@@ -23,6 +26,7 @@ public class RequestResponse extends ListenerAdapter {
     public void onButtonClick(ButtonClickEvent e) {
         if (e.getMessage().getEmbeds().size() > 0) {
             MessageEmbed embed = e.getMessage().getEmbeds().get(0);
+            String requestId = embed.getAuthor().getName();
             if (embed.getTitle().contains("quiere crear un proyecto")) {
                 if (requestsClicks.contains(e.getMessage().getId())) {
                     return;
@@ -36,6 +40,9 @@ public class RequestResponse extends ListenerAdapter {
                     new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido rechazada.");
 
                     e.getMessage().delete().queue();
+
+                    File file = new File(pluginFolder, "projects/" + projectRequestsIDs.get(requestId) + ".yml");
+                    file.delete();
                 } else {
                     String title = embed.getTitle();
                     OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
@@ -71,6 +78,7 @@ public class RequestResponse extends ListenerAdapter {
 
                     e.getMessage().delete().queue();
                 }
+                projectRequestsIDs.remove(requestId);
             }
 
             if (embed.getTitle().contains("quiere redefinir el proyecto")) {
