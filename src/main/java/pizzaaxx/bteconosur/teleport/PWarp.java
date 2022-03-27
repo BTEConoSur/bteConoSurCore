@@ -4,11 +4,10 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.player.data.PlayerData;
-
-import java.util.HashMap;
-import java.util.Map;
+import pizzaaxx.bteconosur.serverPlayer.DataManager;
+import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
@@ -19,27 +18,15 @@ public class PWarp implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                PlayerData pData =  new PlayerData(p);
+                DataManager data = new ServerPlayer(p).getDataManager();
                 if (args.length > 0) {
                     if (args[0].equals("set")) {
                         if (args.length > 1 && args[1].matches("[a-zA-Z0-9_]{1,32}") && !(args[1].equals("set")) && !(args[1].equals("delete")) && !(args[1].equals("list"))) {
-                            Map<String, Map<String, Integer>> pwarps;
-                            if (pData.getData("pwarps") != null) {
-                                pwarps = (Map<String, Map<String, Integer>>) pData.getData("pwarps");
-                            } else {
-                                pwarps = new HashMap<>();
-                            }
-
-                            Map<String, Integer> coordinates = new HashMap<>();
-
-                            coordinates.put("x", p.getLocation().getBlockX());
-                            coordinates.put("y", p.getLocation().getBlockY());
-                            coordinates.put("z", p.getLocation().getBlockZ());
-
-                            pwarps.put(args[1], coordinates);
-
-                            pData.setData("pwarps", pwarps);
-                            pData.save();
+                            Location loc = p.getLocation();
+                            data.set("pwarps." + args[1] + ".x", loc.getBlockX());
+                            data.set("pwarps." + args[1] + ".y", loc.getBlockY());
+                            data.set("pwarps." + args[1] + ".z", loc.getBlockZ());
+                            data.save();
 
                             p.sendMessage(pWarpPrefix + "Has establecido el warp personal §a" + args[1] + "§f en las coordenadas §a" + p.getLocation().getBlockX() + " " + p.getLocation().getBlockY() + " " + p.getLocation().getBlockZ() + "§f.");
                         } else {
@@ -48,32 +35,21 @@ public class PWarp implements CommandExecutor {
                     } else if (args[0].equals("delete")) {
                         if (args.length > 1 && args[1].matches("[a-zA-Z0-9_]{1,32}") && !(args[1].equals("set")) && !(args[1].equals("delete")) && !(args[1].equals("list"))) {
 
-                            if (pData.getData("pwarps") != null) {
-                                Map<String, Map<String, Integer>> pwarps = (Map<String, Map<String, Integer>>) pData.getData("pwarps");
+                            data.set("pwarps." + args[1], null);
+                            p.sendMessage(pWarpPrefix + "Has eliminado el warp personal §a" + args[1] + "§f.");
 
-                                pwarps.remove(args[1]);
-
-                                if (pwarps.size() > 0) {
-                                    pData.setData("pwarps", pwarps);
-                                } else {
-                                    pData.deleteData("pwarps");
-                                }
-
-                                pData.save();
-
-                                p.sendMessage(pWarpPrefix + "Has eliminado el warp personal §a" + args[1] + "§f.");
-                            }
                         } else {
                             p.sendMessage(pWarpPrefix + "Introduce un nombre válido.");
                         }
 
                     } else if (args[0].equals("list")) {
-                        if (pData.getData("pwarps") != null) {
+                        if (data.contains("pwarps")) {
                             p.sendMessage(">+-----------+[-< §6PWARPS §f>-]+-----------+<");
 
                             int i = 1;
-                            for (Map.Entry<String, Map<String, Integer>> entry : ((Map<String, Map<String, Integer>>) pData.getData("pwarps")).entrySet()) {
-                                p.sendMessage("§7" + i + ". §a" + entry.getKey() + "§7 - §f" + entry.getValue().get("x") + " " + entry.getValue().get("y") + " " + entry.getValue().get("z"));
+                            ConfigurationSection pwarps = data.getConfigurationSection("pwarps");
+                            for (String pwarp : pwarps.getKeys(false)) {
+                                p.sendMessage("§7" + i + ". §a" + pwarp + "§7 - §f" + pwarps.getInt(pwarp + ".x") + " " + pwarps.getInt(pwarp + ".y") + " " + pwarps.getInt(pwarp + ".z"));
                                 i++;
                             }
 
@@ -83,15 +59,14 @@ public class PWarp implements CommandExecutor {
                         }
                     } else {
                         if (args[0].matches("[a-zA-Z0-9_]{1,32}")) {
-                            if (pData.getData("pwarps") != null) {
-                                Map<String, Map<String, Integer>> pwarps = (Map<String, Map<String, Integer>>) pData.getData("pwarps");
+                            if (data.contains("pwarps")) {
+                                ConfigurationSection pwarps = data.getConfigurationSection("pwarps");
 
-                                if (pwarps.containsKey(args[0])) {
-                                    Map<String, Integer> coords = pwarps.get(args[0]);
+                                if (pwarps.contains(args[0])) {
 
-                                    int x = coords.get("x");
-                                    int y = coords.get("y");
-                                    int z = coords.get("z");
+                                    int x = pwarps.getInt(args[0] + ".x");
+                                    int y = pwarps.getInt(args[0] + ".x");
+                                    int z = pwarps.getInt(args[0] + ".x");
 
                                     p.teleport(new Location(mainWorld, x, y, z));
 
