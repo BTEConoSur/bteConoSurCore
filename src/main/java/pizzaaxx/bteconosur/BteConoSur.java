@@ -221,6 +221,7 @@ public final class BteConoSur extends JavaPlugin {
         countryRegistry = new CountryRegistry();
         configurationCountries = new Configuration(this, "countries.yml");
 
+        /*
         configurationCountries.getConfigurationSection("countries")
                         .getKeys(false)
                                 .forEach(path -> {
@@ -237,6 +238,7 @@ public final class BteConoSur extends JavaPlugin {
                                             )
                                     );
                                 });
+        */
 
         getLogger().info("Starting automatic scoreboards checker sequence...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);

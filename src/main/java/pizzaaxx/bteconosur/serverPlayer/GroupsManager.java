@@ -90,8 +90,8 @@ public class GroupsManager {
         data = s.getDataManager();
         primaryGroup = PrimaryGroup.valueOf(data.getString("primaryGroup").toUpperCase());
         if (data.contains("secondaryGroups")) {
-            for (String group : (List<String>) data.getList("secondaryGroups")) {
-                secondaryGroups.add(SecondaryGroup.valueOf(group));
+            for (String group : data.getStringList("secondaryGroups")) {
+                secondaryGroups.add(SecondaryGroup.valueOf(group.toUpperCase()));
             }
         }
     }

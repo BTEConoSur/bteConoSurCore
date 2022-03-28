@@ -1,7 +1,5 @@
 package pizzaaxx.bteconosur.serverPlayer;
 
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +10,7 @@ public class PlayerRegistry {
     private final Map<UUID, ServerPlayer> players = new HashMap<>();
 
     public void add(ServerPlayer serverPlayer) {
+        serverPlayer.loadManagers();
         players.put(serverPlayer.getId(), serverPlayer);
     }
 

@@ -11,11 +11,10 @@ import java.util.*;
 
 public class PointsManager {
 
-    private final TreeMap<OldCountry, Integer> countriesPoints = new TreeMap<>();
+    private final Map<OldCountry, Integer> countriesPoints = new HashMap<>();
 
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
 
-    private final TreeMap<Country, Integer> countriesPoints = new TreeMap<>();
     private final ServerPlayer serverPlayer;
     private final DataManager data;
 
@@ -78,8 +77,16 @@ public class PointsManager {
         return max;
     }
 
-    public TreeMap<OldCountry, Integer> getSorted() {
-        return countriesPoints;
+    public LinkedHashMap<OldCountry, Integer> getSorted() {
+        LinkedHashMap<OldCountry, Integer> sorted = new LinkedHashMap<>();
+        TreeMap<Integer, OldCountry> treeMap = new TreeMap<>();
+        for (Map.Entry<OldCountry, Integer> entry : countriesPoints.entrySet()) {
+            treeMap.put(entry.getValue(), entry.getKey());
+        }
+        for (Map.Entry<Integer, OldCountry> entry : treeMap.entrySet()) {
+            sorted.put(entry.getValue(), entry.getKey());
+        }
+        return sorted;
     }
 
     public void checkTop(OldCountry country) {

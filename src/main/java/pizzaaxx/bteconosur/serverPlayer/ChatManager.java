@@ -15,6 +15,7 @@ public class ChatManager {
 
     public ChatManager(ServerPlayer s) {
         data = s.getDataManager();
+        hide = data.getBoolean("hideChat");
         serverPlayer = s;
     }
 

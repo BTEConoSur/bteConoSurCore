@@ -55,7 +55,7 @@ public class ScoreboardManager {
 
         if (data.contains("scoreboard")) {
             scoreboard = data.getConfigurationSection("scoreboard");
-            type = ScoreboardType.valueOf((scoreboard.getString("type", ScoreboardType.SERVER.toString())).toUpperCase());
+            type = ScoreboardType.valueOf((scoreboard.getString("type", "server")).toUpperCase());
             auto = scoreboard.getBoolean("auto", true);
             hidden = scoreboard.getBoolean("hidden", false);
         } else {
@@ -227,7 +227,8 @@ public class ScoreboardManager {
                     }
                     break;
             }
-            if (Netherboard.instance().getBoard(p).getLines().values() != lines) {
+            Netherboard nb = Netherboard.instance();
+            if (!nb.hasBoard(p) || nb.getBoard(p).getLines().values() != lines) {
                 BPlayerBoard board = Netherboard.instance().createBoard(p, title);
                 board.setAll(lines.toArray(new String[0]));
             }

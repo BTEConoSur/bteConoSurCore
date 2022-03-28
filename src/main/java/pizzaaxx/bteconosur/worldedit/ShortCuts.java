@@ -7,8 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import pizzaaxx.bteconosur.serverPlayer.PlayerRegistry;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.player.data.PlayerData;
 
 public class ShortCuts implements Listener {
 
@@ -21,10 +19,7 @@ public class ShortCuts implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
-        PlayerData playerData = serverPlayer.getData();
-
-        int increment = (int) playerData.getData("increment");
+        int increment = playerRegistry.get(player.getUniqueId()).getDataManager().getInt("increment", 1);
 
         if (event.getItem().getType() == Material.WOOD_AXE) {
             if (event.getAction() == Action.LEFT_CLICK_AIR) {

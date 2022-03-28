@@ -41,6 +41,7 @@ public class Join implements Listener {
         event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
+        playerRegistry.add(serverPlayer);
         DataManager data = serverPlayer.getDataManager();
 
         if (!data.getString("name").equals(player.getName())) {
@@ -67,16 +68,16 @@ public class Join implements Listener {
             data.set("increment", 1);
         }
 
-        if (data.get("hideScoreboard") == null) {
-            data.set("hideScoreboard", false);
+        if (!data.contains("scordeboard.hidden")) {
+            data.set("scoreboard.hidden", false);
         }
 
-        if (data.get("scoreboard") == null) {
-            data.set("scoreboard", "server");
+        if (!data.contains("scordeboard.type")) {
+            data.set("scoreboard.type", "server");
         }
 
-        if (data.get("scoreboardAuto") == null) {
-            data.set("scoreboardAuto", true);
+        if (!data.contains("scordeboard.auto")) {
+            data.set("scoreboard.auto", true);
         }
 
         data.save();
