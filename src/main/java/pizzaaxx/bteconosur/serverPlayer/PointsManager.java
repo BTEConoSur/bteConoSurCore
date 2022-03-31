@@ -2,9 +2,8 @@ package pizzaaxx.bteconosur.serverPlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.CountryPlayer;
+import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.util.*;
@@ -79,13 +78,10 @@ public class PointsManager {
 
     public LinkedHashMap<OldCountry, Integer> getSorted() {
         LinkedHashMap<OldCountry, Integer> sorted = new LinkedHashMap<>();
-        TreeMap<Integer, OldCountry> treeMap = new TreeMap<>();
-        for (Map.Entry<OldCountry, Integer> entry : countriesPoints.entrySet()) {
-            treeMap.put(entry.getValue(), entry.getKey());
-        }
-        for (Map.Entry<Integer, OldCountry> entry : treeMap.entrySet()) {
-            sorted.put(entry.getValue(), entry.getKey());
-        }
+        countriesPoints.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .forEachOrdered(x -> sorted.put(x.getKey(), x.getValue()));
         return sorted;
     }
 

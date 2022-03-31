@@ -25,11 +25,6 @@ public class Chat {
         if (chatRegistry.contains(name)) {
             this.membersUUID = chatRegistry.get(name).membersUUID;
         } else {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (new ServerPlayer(player).getChatManager().getChat().getName().equals(name)) {
-                    membersUUID.add(player.getUniqueId());
-                }
-            }
             chatRegistry.register(this);
         }
     }
@@ -45,6 +40,7 @@ public class Chat {
     public void removeMember(Player player) {
         if (membersUUID.contains(player.getUniqueId())) {
             membersUUID.remove(player.getUniqueId());
+            chatRegistry.register(this);
             String name = new ServerPlayer(player).getName();
             broadcast(CHAT_PREFIX + "§a" + name + "§f ha abandonado el chat.");
         }
@@ -90,6 +86,7 @@ public class Chat {
             String name = new ServerPlayer(player).getName();
             broadcast(CHAT_PREFIX + "§a" + name + "§f se ha unido al chat.");
             membersUUID.add(player.getUniqueId());
+            chatRegistry.register(this);
     }
 
     public void sendMessage(String message, ServerPlayer serverPlayer) {
