@@ -12,7 +12,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +19,6 @@ import pizzaaxx.bteconosur.chats.ChatCommand;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
-import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
@@ -58,7 +56,6 @@ import java.util.Map;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
-import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectRequestsIDs;
@@ -185,15 +182,6 @@ public final class BteConoSur extends JavaPlugin {
         Config config = new Config(configuration);
         getCommand("btecs_reload").setExecutor(config);
 
-        JDABuilder chile = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("chile"));
-        chile.setStatus(OnlineStatus.ONLINE);
-        chile.setActivity(Activity.playing("IP: bteconosur.com"));
-        try {
-            chileBot = chile.build().awaitReady();
-        } catch (LoginException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
         key = (String) new YamlManager(pluginFolder, "key.yml").getValue("key");
 
         // LUCKPERMS
@@ -273,7 +261,6 @@ public final class BteConoSur extends JavaPlugin {
         gateway.sendMessageEmbeds(online.build()).queue();
 
         conoSurBot.shutdown();
-        chileBot.shutdown();
     }
 
     public static void broadcast(String message) {

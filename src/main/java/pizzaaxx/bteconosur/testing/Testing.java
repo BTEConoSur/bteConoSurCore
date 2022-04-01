@@ -11,7 +11,6 @@ import java.awt.*;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.discord.Bot.chileBot;
 
 public class Testing implements CommandExecutor {
     @Override
@@ -39,8 +38,6 @@ public class Testing implements CommandExecutor {
                 embed.addField(entry.getKey(), entry.getValue().replace("$i ", "").replace("~~", "\n"), (entry.getValue().startsWith("$i")));
             }
         }
-
-        chileBot.getTextChannelById((String) yaml.getValue("channel")).sendMessageEmbeds(embed.build()).queue();
 
         return true;
     }
