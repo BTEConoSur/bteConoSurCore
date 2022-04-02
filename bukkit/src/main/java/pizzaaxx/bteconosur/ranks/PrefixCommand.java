@@ -10,8 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.serverPlayer.ChatManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ChatManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.util.Objects;
 

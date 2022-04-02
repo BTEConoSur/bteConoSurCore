@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.serverPlayer;
+package pizzaaxx.bteconosur.server.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;

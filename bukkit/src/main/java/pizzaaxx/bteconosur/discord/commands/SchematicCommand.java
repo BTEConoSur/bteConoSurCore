@@ -6,8 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.awt.*;
 import java.io.File;

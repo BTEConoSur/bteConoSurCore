@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.chats;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.Map;

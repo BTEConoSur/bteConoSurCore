@@ -18,9 +18,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.serverPlayer.DataManager;
-import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.DataManager;
+import pizzaaxx.bteconosur.server.player.GroupsManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.util.*;
 

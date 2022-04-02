@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.country;
 
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 public class CountryPlayer implements Comparable<CountryPlayer> {
 

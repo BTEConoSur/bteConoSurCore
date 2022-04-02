@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.serverPlayer;
+package pizzaaxx.bteconosur.server.player;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

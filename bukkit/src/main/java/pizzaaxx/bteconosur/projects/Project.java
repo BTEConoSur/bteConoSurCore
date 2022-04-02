@@ -17,9 +17,9 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.serverPlayer.ProjectsManager;
-import pizzaaxx.bteconosur.serverPlayer.ScoreboardManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ProjectsManager;
+import pizzaaxx.bteconosur.server.player.ScoreboardManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.io.File;

@@ -15,9 +15,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.ChatManager;
-import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ChatManager;
+import pizzaaxx.bteconosur.server.player.GroupsManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 

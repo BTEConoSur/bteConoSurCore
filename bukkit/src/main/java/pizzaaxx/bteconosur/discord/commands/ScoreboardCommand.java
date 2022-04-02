@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.serverPlayer.DiscordManager;
-import pizzaaxx.bteconosur.serverPlayer.PointsManager;
+import pizzaaxx.bteconosur.server.player.DiscordManager;
+import pizzaaxx.bteconosur.server.player.PointsManager;
 
 import java.awt.*;
 

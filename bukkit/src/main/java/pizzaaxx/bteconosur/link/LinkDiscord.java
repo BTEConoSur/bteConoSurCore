@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.serverPlayer.DiscordManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.DiscordManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.awt.*;
 import java.util.HashMap;

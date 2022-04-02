@@ -4,13 +4,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import pizzaaxx.bteconosur.serverPlayer.DataManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.YamlManager;
-
-import java.util.Map;
-
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
+import pizzaaxx.bteconosur.server.player.DataManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 public class PresetsEvent implements Listener {
 

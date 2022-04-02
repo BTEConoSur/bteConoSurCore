@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.serverPlayer;
+package pizzaaxx.bteconosur.server.player;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.chats.Chat;

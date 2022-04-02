@@ -3,9 +3,9 @@ package pizzaaxx.bteconosur.chats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.serverPlayer.ChatManager;
-import pizzaaxx.bteconosur.serverPlayer.PointsManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.ChatManager;
+import pizzaaxx.bteconosur.server.player.PointsManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.HashSet;

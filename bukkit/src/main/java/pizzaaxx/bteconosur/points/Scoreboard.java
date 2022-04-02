@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.points;
 
-import com.avaje.ebeaninternal.server.lib.util.MailEvent;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,10 +13,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import pizzaaxx.bteconosur.serverPlayer.ScoreboardManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
-
-import java.util.*;
+import pizzaaxx.bteconosur.server.player.ScoreboardManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import static pizzaaxx.bteconosur.country.OldCountry.countryRegionNames;
 import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;

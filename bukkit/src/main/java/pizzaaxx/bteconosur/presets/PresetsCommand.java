@@ -4,8 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.serverPlayer.DataManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.DataManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 public class PresetsCommand implements CommandExecutor {
     public static String presetsPrefix = "§f[§3PRESETS§f] §7>>§r ";

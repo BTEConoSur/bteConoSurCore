@@ -5,8 +5,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
-import pizzaaxx.bteconosur.serverPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.GroupsManager;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 public class Donator implements CommandExecutor {
     public static String donatorPrefix = "§f[§dDONADOR§f] §7>>§r ";

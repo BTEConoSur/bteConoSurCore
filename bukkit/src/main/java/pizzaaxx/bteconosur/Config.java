@@ -7,10 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import pizzaaxx.bteconosur.projects.Project;
-import pizzaaxx.bteconosur.serverPlayer.GroupsManager;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
