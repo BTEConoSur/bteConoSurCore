@@ -99,6 +99,8 @@ public class WorldEditHelper {
             notdrawn = false;
         }
 
+        System.out.println("a");
+
         int max = Math.max(Math.max(dx, dy), dz);
         if (max == dx && notdrawn) {
             for (int domstep = 0; domstep <= dx; domstep++) {
