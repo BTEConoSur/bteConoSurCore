@@ -29,3 +29,7 @@ dependencies {
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
     implementation("fr.minuskube:netherboard-bukkit:1.2.2")
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
