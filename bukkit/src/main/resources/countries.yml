@@ -1,0 +1,8 @@
+countries:
+  chile:
+    prefix: "cl"
+    icon: ""
+    logs: ""
+    abbreviation: "cl"
+    request_channel_id: ""
+    guid_id: ""

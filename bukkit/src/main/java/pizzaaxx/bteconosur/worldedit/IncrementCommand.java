@@ -8,7 +8,7 @@ import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.wePrefix;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.WORLD_EDIT_PREFIX;
 
 public class IncrementCommand implements CommandExecutor {
 
@@ -35,13 +35,13 @@ public class IncrementCommand implements CommandExecutor {
                         data.set("increment", increment);
                         data.save();
 
-                        player.sendMessage(wePrefix + "Distancia de incremento establecida en §a" + data + "§f.");
+                        player.sendMessage(WORLD_EDIT_PREFIX+ "Distancia de incremento establecida en §a" + data + "§f.");
                     }
                 } else {
-                    player.sendMessage(wePrefix + "Introduce un distancia válida (No más de 3 dígitos).");
+                    player.sendMessage(WORLD_EDIT_PREFIX + "Introduce un distancia válida (No más de 3 dígitos).");
                 }
             } else {
-                player.sendMessage(wePrefix + "Introduce una distancia.");
+                player.sendMessage(WORLD_EDIT_PREFIX + "Introduce una distancia.");
             }
         }
 
