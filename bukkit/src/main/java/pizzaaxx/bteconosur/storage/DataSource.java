@@ -13,6 +13,10 @@ public class DataSource {
         this.source = source;
     }
 
+    public <T> T get(String name, Class<T> clazz) {
+        return clazz.cast(get(name));
+    }
+
     public String get(String name) {
         return source.get(name);
     }
