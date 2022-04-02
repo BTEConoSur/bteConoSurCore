@@ -26,27 +26,36 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class WorldEditHelper {
-    public static String wePrefix = "§f[§5WORLDEDIT§f] §7>>§r ";
 
-    public static Region getSelection(Player p) throws IncompleteRegionException {
-        com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), p);
+    public static final String WORLD_EDIT_PREFIX = "&f[&5WORLDEDIT&f] &7>>&r ";
+    public static final WorldEdit WORLD_EDIT_INSTANCE = WorldEdit.getInstance();
+    public static final WorldEditPlugin WORLD_EDIT_PLUGIN = (WorldEditPlugin) Bukkit.getPluginManager()
+            .getPlugin("WorldEdit");
 
-        WorldEdit worldEdit = WorldEdit.getInstance();
-        SessionManager manager = worldEdit.getSessionManager();
+    public static com.sk89q.worldedit.entity.Player transform(Player player) {
+        return new BukkitPlayer(WORLD_EDIT_PLUGIN, WORLD_EDIT_PLUGIN.getServerInterface(), player);
+    }
+
+    public static Region getSelection(Player player) throws IncompleteRegionException {
+        com.sk89q.worldedit.entity.Player actor =
+                transform(player);
+
+        SessionManager manager = WORLD_EDIT_INSTANCE.getSessionManager();
         LocalSession localSession = manager.get(actor);
-        Region region;
         World selectionWorld = localSession.getSelectionWorld();
-        region = localSession.getSelection(selectionWorld);
 
-        return region;
+        return localSession.getSelection(selectionWorld);
 
     }
 
     public static Polygonal2DRegion polyRegion(Region region) throws IllegalArgumentException, IncompleteRegionException {
         if (region instanceof Polygonal2DRegion) {
-            if (((Polygonal2DRegion) region).getPoints().size() < 3) {
+            Polygonal2DRegion polygonal2DRegion = (Polygonal2DRegion) region;
+
+            if (polygonal2DRegion.getPoints().size() < 3) {
                 throw new IncompleteRegionException();
             }
+
             return (Polygonal2DRegion) region;
         } else if (region instanceof CuboidRegion) {
             CuboidRegion cuboidRegion = (CuboidRegion) region;
@@ -65,23 +74,25 @@ public class WorldEditHelper {
         throw new IllegalArgumentException();
     }
 
-    public static void setSelection(Player p, Polygonal2DRegionSelector selector) {
-        com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), p);
+    public static void setSelection(Player player, Polygonal2DRegionSelector selector) {
+        com.sk89q.worldedit.entity.Player actor = transform(player);
 
-        WorldEdit worldEdit = WorldEdit.getInstance();
-        SessionManager manager = worldEdit.getSessionManager();
-        LocalSession localSession = manager.get(actor);
+        LocalSession localSession = getLocalSession(player);
         localSession.setRegionSelector((World) new BukkitWorld(mainWorld), selector);
         localSession.dispatchCUISelection(actor);
     }
 
-    public static LocalSession getLocalSession(Player p) {
-        com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), p);
-        return WorldEdit.getInstance().getSessionManager().get(actor);
+    public static LocalSession getLocalSession(Player player) {
+        com.sk89q.worldedit.entity.Player actor = transform(player);
+        return WORLD_EDIT_INSTANCE.getSessionManager().get(actor);
     }
 
-    public static EditSession getEditSession(Player p) {
-        return WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(mainWorld), getLocalSession(p).getBlockChangeLimit());
+    public static EditSession getEditSession(Player player) {
+        LocalSession localSession = getLocalSession(player);
+
+        return WORLD_EDIT_INSTANCE
+                .getEditSessionFactory()
+                .getEditSession((World) new BukkitWorld(mainWorld), localSession.getBlockChangeLimit());
     }
 
     public static void setBlocksInLine(Player p, Actor actor, EditSession editSession, Pattern pattern, Mask mask, Vector pos1, Vector pos2) {
@@ -98,8 +109,6 @@ public class WorldEditHelper {
             vset.add(new Vector(tipx, tipy, tipz));
             notdrawn = false;
         }
-
-        System.out.println("a");
 
         int max = Math.max(Math.max(dx, dy), dz);
         if (max == dx && notdrawn) {
@@ -127,8 +136,8 @@ public class WorldEditHelper {
         if (max == dz && notdrawn) {
             for (int domstep = 0; domstep <= dz; domstep++) {
                 tipz = z1 + domstep * (z2 - z1 > 0 ? 1 : -1);
-                tipy = (int) Math.round(y1 + domstep * ((double) dy) / ((double) dz) * (y2-y1>0 ? 1 : -1));
-                tipx = (int) Math.round(x1 + domstep * ((double) dx) / ((double) dz) * (x2-x1>0 ? 1 : -1));
+                tipy = (int) Math.round(y1 + domstep * ((double) dy) / ((double) dz) * (y2 - y1 > 0 ? 1 : -1));
+                tipx = (int) Math.round(x1 + domstep * ((double) dx) / ((double) dz) * (x2 - x1 > 0 ? 1 : -1));
 
                 vset.add(new Vector(tipx, tipy, tipz));
             }
@@ -143,7 +152,7 @@ public class WorldEditHelper {
                 try {
                     editSession.setBlock(point, pattern.apply(point));
                 } catch (MaxChangedBlocksException e) {
-                    p.sendMessage(wePrefix + "Límite de bloques alcanzado.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Límite de bloques alcanzado.");
                 }
             }
         }
