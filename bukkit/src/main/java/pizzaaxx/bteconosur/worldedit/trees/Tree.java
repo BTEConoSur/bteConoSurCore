@@ -27,7 +27,7 @@ import java.util.Random;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
-import static pizzaaxx.bteconosur.worldedit.Methods.getEditSession;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Tree {

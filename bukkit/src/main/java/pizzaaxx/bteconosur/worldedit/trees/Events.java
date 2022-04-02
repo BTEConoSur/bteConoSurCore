@@ -26,7 +26,7 @@ import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.Methods.*;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
 import static pizzaaxx.bteconosur.worldedit.trees.Tree.treePrefix;
 
 public class Events implements Listener, CommandExecutor {

@@ -29,7 +29,7 @@ import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.server.player.ProjectsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.worldedit.Methods;
+import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.yaml.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -43,8 +43,8 @@ import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.misc.Misc.getCountryAtLocation;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.server.player.PointsManager.pointsPrefix;
-import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
-import static pizzaaxx.bteconosur.worldedit.Methods.polyRegion;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
 
 public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
@@ -469,7 +469,7 @@ public class ProjectsCommand implements CommandExecutor {
                     int minY = p.getLocation().getBlockY() - 10;
 
                     Polygonal2DRegionSelector selector = new Polygonal2DRegionSelector((World) new BukkitWorld(mainWorld), project.getPoints(), minY, maxY);
-                    Methods.setSelection(p, selector);
+                    WorldEditHelper.setSelection(p, selector);
 
                     p.sendMessage(BookUtil.TextBuilder.of(projectsPrefix + "Mostrando los bordes del proyecto §a" + project.getName() + "§f. §eRequiere ").build(), BookUtil.TextBuilder.of("§e§nWorldEdit CUI").onClick(BookUtil.ClickAction.openUrl("https://www.curseforge.com/minecraft/mc-mods/worldeditcui-forge-edition-2/download/2629418")).build(), BookUtil.TextBuilder.of(".").color(ChatColor.YELLOW).build());
                 } catch (Exception e) {

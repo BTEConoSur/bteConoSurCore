@@ -26,7 +26,7 @@ import java.util.Set;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
-public class Methods {
+public class WorldEditHelper {
     public static String wePrefix = "§f[§5WORLDEDIT§f] §7>>§r ";
 
     public static Region getSelection(Player p) throws IncompleteRegionException {

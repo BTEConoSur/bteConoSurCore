@@ -8,7 +8,7 @@ import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
-import static pizzaaxx.bteconosur.worldedit.Methods.wePrefix;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.wePrefix;
 
 public class IncrementCommand implements CommandExecutor {
 

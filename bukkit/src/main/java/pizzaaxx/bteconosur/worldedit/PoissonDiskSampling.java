@@ -15,8 +15,8 @@ import java.util.Random;
 
 import static java.lang.Math.*;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.Methods.getEditSession;
-import static pizzaaxx.bteconosur.worldedit.Methods.getLocalSession;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getLocalSession;
 
 public class PoissonDiskSampling {
     private BlockVector2D[][] grid;

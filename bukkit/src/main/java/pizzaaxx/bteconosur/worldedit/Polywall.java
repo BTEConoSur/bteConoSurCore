@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldedit.Methods.*;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
 
 public class Polywall implements CommandExecutor {
     @Override

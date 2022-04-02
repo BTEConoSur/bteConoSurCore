@@ -27,8 +27,8 @@ import java.util.*;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.country.OldCountry.countryAbbreviations;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
-import static pizzaaxx.bteconosur.worldedit.Methods.getSelection;
-import static pizzaaxx.bteconosur.worldedit.Methods.polyRegion;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
+import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class EventsCommand implements CommandExecutor, Listener {
