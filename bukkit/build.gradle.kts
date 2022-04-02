@@ -8,11 +8,13 @@ version = "0.0.1"
 
 repositories {
     mavenCentral()
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://maven.enginehub.org/repo/")
     maven("https://jitpack.io")
     maven("https://maven.daporkchop.net/")
     maven("https://repo.opencollab.dev/snapshot/")
+    maven("https://maven.elmakers.com/repository/")
 }
 
 dependencies {
@@ -23,8 +25,7 @@ dependencies {
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:6.1.1-SNAPSHOT")
     compileOnly("com.sk89q.worldguard:worldguard-legacy:6.2")
     implementation("net.dv8tion:JDA:5.0.0-alpha.4")
-    implementation("com.github.BuildTheEarth:terraplusplus:terraplusplus:v1.1.0")
-    implementation("xyz.upperlevel.spigot.book:spigot-book-api:v1.1.0")
-    implementation("fr.minuskube:netherboard-bukki:1.2.2")
+    implementation("com.github.BuildTheEarth:terraplusplus:v1.1.0")
+    implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
+    implementation("fr.minuskube:netherboard-bukkit:1.2.2")
 }
-

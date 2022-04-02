@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.*;
-import pizzaaxx.bteconosur.serverPlayer.*;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.DataTime;
@@ -132,7 +131,7 @@ public class PlayerCommand extends ListenerAdapter {
                                             new Date()
                                     );
 
-                            embedBuilder.addField("Ultima vez conectado: ",
+                            embedBuilder.addField("Última vez conectado: ",
                                     (time.get(DateHelper.Type.MINUTE) > 0 ? "Hace " + (time.get(DateHelper.Type.HOUR) > 0 ? time.get(DateHelper.Type.HOUR) + " hora(s) y " : "") + time.get(DateHelper.Type.MINUTE) + " minuto(s)" : "Recién"), false);
 
                         }

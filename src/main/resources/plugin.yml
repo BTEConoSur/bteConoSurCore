@@ -63,7 +63,7 @@ commands:
     description: Texto predeterminado para tus comandos.
     aliases: preset
     permission: bteconosur.presets
-  test:
+  testing:
     description: Test
   nickname:
     description: Cambia tu apodo o el de otros.

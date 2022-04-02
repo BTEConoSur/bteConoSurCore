@@ -104,7 +104,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new ChatCommand());
         getCommand("nickname").setExecutor(new NickNameCommand());
-        getCommand("test").setExecutor(new Testing());
+        getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
