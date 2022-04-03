@@ -46,7 +46,6 @@ import pizzaaxx.bteconosur.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.worldedit.Polywall;
 import pizzaaxx.bteconosur.worldedit.ShortCuts;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -91,20 +90,20 @@ public final class BteConoSur extends JavaPlugin {
                 new Scoreboard(),
                 new GetCommand(),
                 new PrefixCommand(),
-                new LobbyCommand(),
+                new LobbyCommand(this),
                 new EventsCommand()
         );
 
         getLogger().info("Registering commands...");
         getCommand("project").setExecutor(new ProjectsCommand());
-        getCommand("link").setExecutor(new LinkMinecraft());
-        getCommand("unlink").setExecutor(new LinkMinecraft());
+        getCommand("link").setExecutor(new LinkMinecraft(this));
+        getCommand("unlink").setExecutor(new LinkMinecraft(this));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new ChatCommand());
         getCommand("nickname").setExecutor(new NickNameCommand());
-        getCommand("test").setExecutor(new Testing());
+        getCommand("test").setExecutor(new Testing(this));
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
@@ -121,11 +120,11 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("scoreboard").setExecutor(new Scoreboard());
         getCommand("tpdir").setExecutor(new TpDirCommand());
         getCommand("event").setExecutor(new EventsCommand());
-        getCommand("lobby").setExecutor(new LobbyCommand());
-        getCommand("assets").setExecutor(new LobbyCommand());
+        getCommand("lobby").setExecutor(new LobbyCommand(this));
+        getCommand("assets").setExecutor(new LobbyCommand(this));
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
-        getCommand("help").setExecutor(new HelpCommand());
+        getCommand("help").setExecutor(new HelpCommand(this));
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -150,13 +149,13 @@ public final class BteConoSur extends JavaPlugin {
                 .build();
 
         // DISCORD BOT
-        JDABuilder builder = JDABuilder.createDefault((String) new YamlManager(pluginFolder, "discord/token.yml").getValue("token"));
+        JDABuilder builder = JDABuilder.createDefault(new Configuration(this, "discord/token").getString("token"));
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
         builder.setStatus(OnlineStatus.ONLINE);
 
         registerDiscordListener(builder,
                 new LinkDiscord(),
-                new ProjectCommand(),
+                new ProjectCommand(this),
                 new RequestResponse(),
                 new Events(),
                 new ModsCommand(),
@@ -164,7 +163,7 @@ public final class BteConoSur extends JavaPlugin {
                 new PlayerCommand(),
                 new OnlineWhereCommand(),
                 new ScoreboardCommand(),
-                new HelpCommand(),
+                new HelpCommand(this),
                 new HelpButtonsCommand()
         );
 
@@ -182,7 +181,7 @@ public final class BteConoSur extends JavaPlugin {
         Config config = new Config(configuration);
         getCommand("btecs_reload").setExecutor(config);
 
-        key = (String) new YamlManager(pluginFolder, "key.yml").getValue("key");
+        key = new Configuration(this, "key").getString("key");
 
         // LUCKPERMS
 

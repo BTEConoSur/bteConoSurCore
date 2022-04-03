@@ -12,6 +12,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,8 +20,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.player.data.PlayerData;
 import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 
 import java.util.*;
@@ -59,7 +60,7 @@ public class Events implements Listener, CommandExecutor {
                             e.getPlayer().sendMessage(treePrefix + "Has conseguido el árbol §a" + StringUtils.capitalize(name) + "§f.");
                         }
 
-                    } catch (Exception exception) {
+                    } catch (Exception ignored) {
 
                     }
                 }
@@ -114,17 +115,18 @@ public class Events implements Listener, CommandExecutor {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 ServerPlayer s = new ServerPlayer(p);
-                PlayerData pData = new PlayerData(p);
+                DataManager data = s.getDataManager();
 
                 if (args.length > 0) {
                     if (args[0].equals("create")) {
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,20}") && !(args[1].equals("create")) && !(args[1].equals("delete")) && !(args[1].equals("add")) && !(args[1].equals("remove")) && !(args[1].equals("list"))) {
-                                Map<String, List<String>> treegroups;
-                                if (pData.getData("treegroups") != null) {
-                                    treegroups = (Map<String, List<String>>) pData.getData("treegroups");
-                                } else {
-                                    treegroups = new HashMap<>();
+                                Map<String, List<String>> treegroups = new HashMap<>();
+                                if (data.contains("treegroups")) {
+                                    ConfigurationSection treegroupsSection = data.getConfigurationSection("treegroups");
+                                    for (String key : treegroupsSection.getKeys(false)) {
+                                        treegroups.put(key, treegroupsSection.getStringList(key));
+                                    }
                                 }
 
                                 if (!(treegroups.containsKey(args[1]))) {
@@ -138,8 +140,8 @@ public class Events implements Listener, CommandExecutor {
                                             trees.add(treeName);
 
                                             treegroups.put(args[1], trees);
-                                            pData.setData("treegroups", treegroups);
-                                            pData.save();
+                                            data.set("treegroups", treegroups);
+                                            data.save();
 
                                             p.sendMessage(treePrefix + "Has creado el grupo de árboles §a" + args[1] + "§f.");
                                         } catch (Exception e) {
@@ -147,7 +149,6 @@ public class Events implements Listener, CommandExecutor {
                                         }
                                     } else {
                                         p.sendMessage(treePrefix + "Debes tener un árbol en la mano para crear un grupo.");
-
                                     }
                                 } else {
                                     p.sendMessage(treePrefix + "Este grupo de árboles ya existe. Elíminalo antes de volver a crearlo.");
@@ -161,19 +162,17 @@ public class Events implements Listener, CommandExecutor {
                     } else if (args[0].equals("delete")) {
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,20}") && !(args[1].equals("create")) && !(args[1].equals("delete")) && !(args[1].equals("add")) && !(args[1].equals("remove")) && !(args[1].equals("list"))) {
-                                Map<String, List<String>> treegroups;
-                                if (pData.getData("treegroups") != null) {
-                                    treegroups = (Map<String, List<String>>) pData.getData("treegroups");
+                                if (data.contains("treegroups")) {
+                                    Map<String, List<String>> treegroups = new HashMap<>();
+                                    ConfigurationSection treegroupsSection = data.getConfigurationSection("treegroups");
+                                    for (String key : treegroupsSection.getKeys(false)) {
+                                        treegroups.put(key, treegroupsSection.getStringList(key));
+                                    }
                                     if (treegroups.containsKey(args[1])) {
                                         treegroups.remove(args[1]);
 
-                                        if (treegroups.size() > 0) {
-                                            pData.setData("treegroups", treegroups);
-                                        } else {
-                                            pData.deleteData("treegroups");
-                                        }
-
-                                        pData.save();
+                                        data.set("treegroups", treegroups);
+                                        data.save();
 
                                         p.sendMessage(treePrefix + "Has eliminado el grupo de árboles §a" + args[1] + "§f.");
                                     }  else {
@@ -191,8 +190,12 @@ public class Events implements Listener, CommandExecutor {
                     } else if (args[0].equals("add")) {
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,20}") && !(args[1].equals("create")) && !(args[1].equals("delete")) && !(args[1].equals("add")) && !(args[1].equals("remove")) && !(args[1].equals("list"))) {
-                                if (pData.getData("treegroups") != null) {
-                                    Map<String, List<String>> treegroups = (Map<String, List<String>>) pData.getData("treegroups");
+                                if (data.contains("treegroups")) {
+                                    Map<String, List<String>> treegroups = new HashMap<>();
+                                    ConfigurationSection treegroupsSection = data.getConfigurationSection("treegroups");
+                                    for (String key : treegroupsSection.getKeys(false)) {
+                                        treegroups.put(key, treegroupsSection.getStringList(key));
+                                    }
                                     if (treegroups.containsKey(args[1])) {
                                         List<String> trees = treegroups.get(args[1]);
 
@@ -205,8 +208,8 @@ public class Events implements Listener, CommandExecutor {
                                                     trees.add(treeName);
 
                                                     treegroups.put(args[1], trees);
-                                                    pData.setData("treegroups", treegroups);
-                                                    pData.save();
+                                                    data.set("treegroups", treegroups);
+                                                    data.save();
 
                                                     p.sendMessage(treePrefix + "Has añadido el árbol §a" + treeName + "§f al grupo de árboles §a" + args[1] + "§f.");
                                                 } else {
@@ -233,8 +236,12 @@ public class Events implements Listener, CommandExecutor {
                     } else if (args[0].equals("remove")) {
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,20}") && !(args[1].equals("create")) && !(args[1].equals("delete")) && !(args[1].equals("add")) && !(args[1].equals("remove")) && !(args[1].equals("list"))) {
-                                if (pData.getData("treegroups") != null) {
-                                    Map<String, List<String>> treegroups = (Map<String, List<String>>) pData.getData("treegroups");
+                                if (data.contains("treegroups")) {
+                                    Map<String, List<String>> treegroups = new HashMap<>();
+                                    ConfigurationSection treegroupsSection = data.getConfigurationSection("treegroups");
+                                    for (String key : treegroupsSection.getKeys(false)) {
+                                        treegroups.put(key, treegroupsSection.getStringList(key));
+                                    }
                                     if (treegroups.containsKey(args[1])) {
                                         List<String> trees = treegroups.get(args[1]);
 
@@ -257,8 +264,8 @@ public class Events implements Listener, CommandExecutor {
                                                     treegroups.remove(args[1]);
                                                 }
 
-                                                pData.setData("treegroups", treegroups);
-                                                pData.save();
+                                                data.set("treegroups", treegroups);
+                                                data.save();
 
                                                 p.sendMessage(treePrefix + "Has quitado el árbol §a" + name + "§f del grupo de árboles §a" + args[1] + "§f.");
                                             } else {
@@ -282,9 +289,12 @@ public class Events implements Listener, CommandExecutor {
                     } else if (args[0].equals("list")) {
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,20}") && !(args[1].equals("create")) && !(args[1].equals("delete")) && !(args[1].equals("add")) && !(args[1].equals("remove")) && !(args[1].equals("list"))) {
-                                Map<String, List<String>> treegroups;
-                                if (pData.getData("treegroups") != null) {
-                                    treegroups = (Map<String, List<String>>) pData.getData("treegroups");
+                                if (data.contains("treegroups")) {
+                                    Map<String, List<String>> treegroups = new HashMap<>();
+                                    ConfigurationSection treegroupsSection = data.getConfigurationSection("treegroups");
+                                    for (String key : treegroupsSection.getKeys(false)) {
+                                        treegroups.put(key, treegroupsSection.getStringList(key));
+                                    }
                                     if (treegroups.containsKey(args[1])) {
                                         p.sendMessage(">+-------+[-< §a§lGRUPO DE ÁRBOLES §f>-]+-------+<");
 
@@ -305,12 +315,12 @@ public class Events implements Listener, CommandExecutor {
                                 p.sendMessage(treePrefix + "Introduce un nombre válido.");
                             }
                         } else {
-                            if (pData.getData("treegroups") != null) {
+                            if (data.contains("treegroups")) {
                                 p.sendMessage(">+-------+[-< §a§lGRUPOS DE ÁRBOLES §f>-]+-------+<");
 
                                 int i = 1;
-                                for (Map.Entry<String, List<String>> entry: ((Map<String, List<String>>) pData.getData("treegroups")).entrySet()) {
-                                    p.sendMessage("§7" + i + ". §a" + entry.getKey());
+                                for (String key : data.getConfigurationSection("treegroups").getKeys(false)) {
+                                    p.sendMessage("§7" + i + ". §a" + key);
                                     i++;
                                 }
 
@@ -333,7 +343,7 @@ public class Events implements Listener, CommandExecutor {
 
                                 p.sendMessage(treePrefix + "Has conseguido el árbol del grupo de árboles §a" + args[0] + "§f.");
                             } else {
-                                p.sendMessage(wePrefix + "El grupo de árboles introducido no existe.");
+                                p.sendMessage(WORLD_EDIT_PREFIX + "El grupo de árboles introducido no existe.");
                             }
                         } else {
                             p.sendMessage(treePrefix + "Introduce un nombre válido.");
@@ -349,7 +359,7 @@ public class Events implements Listener, CommandExecutor {
                 ServerPlayer s = new ServerPlayer(p);
 
                 List<Tree> trees = new ArrayList<>();
-                int radius = 2;
+                int radius;
 
                 if (args.length > 0 && args[0].matches("[0-9]{1,5}") && Integer.parseInt(args[0]) >= 2) {
                     radius = Integer.parseInt(args[0]);
@@ -361,7 +371,7 @@ public class Events implements Listener, CommandExecutor {
                             trees = s.getTreeGroup(args[1]);
 
                         } else {
-                            p.sendMessage(wePrefix + "El grupo de árboles introducido no existe.");
+                            p.sendMessage(WORLD_EDIT_PREFIX + "El grupo de árboles introducido no existe.");
                             return true;
                         }
                     } else {
@@ -370,22 +380,22 @@ public class Events implements Listener, CommandExecutor {
 
                             trees.add(tree);
                         } catch (Exception e) {
-                            p.sendMessage(wePrefix + "Introduce el nombre de un grupo de árboles o ten un árbol en la mano.");
+                            p.sendMessage(WORLD_EDIT_PREFIX + "Introduce el nombre de un grupo de árboles o ten un árbol en la mano.");
                             return true;
                         }
                     }
 
 
                 } else {
-                    p.sendMessage(wePrefix + "Introduce una distancia mínima (Mayor o igual a 2).");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Introduce una distancia mínima (Mayor o igual a 2).");
                     return true;
                 }
 
-                Region region = null;
+                Region region;
                 try {
                     region = getSelection(p);
                 } catch (IncompleteRegionException e) {
-                    p.sendMessage(wePrefix + "Selecciona un área primero.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona un área primero.");
                     return true;
                 }
 
@@ -393,12 +403,12 @@ public class Events implements Listener, CommandExecutor {
                 try {
                     sampling.generate();
                 } catch (MaxChangedBlocksException e) {
-                    p.sendMessage(wePrefix + "Límite de bloques alcanzado.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Límite de bloques alcanzado.");
                     return true;
                 }
 
 
-                p.sendMessage(wePrefix + "Árboles generados.");
+                p.sendMessage(WORLD_EDIT_PREFIX + "Árboles generados.");
             }
         }
         return true;

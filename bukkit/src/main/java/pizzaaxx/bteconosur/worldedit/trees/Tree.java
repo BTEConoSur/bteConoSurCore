@@ -15,14 +15,14 @@ import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pizzaaxx.bteconosur.yaml.YamlManager;
+import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Random;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
@@ -44,11 +44,12 @@ public class Tree {
     public Tree(String name) throws Exception {
         this.name = name;
 
-        if (new YamlManager(pluginFolder, "trees/data.yml").getValue(name) != null) {
-            Map<String, Object> data = (Map<String, Object>) new YamlManager(pluginFolder, "trees/data.yml").getValue(name);
-            xOffset = (Integer) data.get("xOffset");
-            yOffset = (Integer) data.get("yOffset");
-            zOffset = (Integer) data.get("zOffset");
+        Configuration data = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "trees/data");
+        if (data.contains(name)) {
+            ConfigurationSection tree = data.getConfigurationSection(name);
+            xOffset = tree.getInt("xOffset");
+            yOffset = tree.getInt("yOffset");
+            zOffset = tree.getInt("zOffset");
 
             schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
         } else {
@@ -63,11 +64,12 @@ public class Tree {
 
                 this.name = name;
 
-                if (new YamlManager(pluginFolder, "trees/data.yml").getValue(name) != null) {
-                    Map<String, Object> data = (Map<String, Object>) new YamlManager(pluginFolder, "trees/data.yml").getValue(name);
-                    xOffset = (Integer) data.get("xOffset");
-                    yOffset = (Integer) data.get("yOffset");
-                    zOffset = (Integer) data.get("zOffset");
+                Configuration data = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "trees/data");
+                if (data.contains(name)) {
+                    ConfigurationSection tree = data.getConfigurationSection(name);
+                    xOffset = tree.getInt("xOffset");
+                    yOffset = tree.getInt("yOffset");
+                    zOffset = tree.getInt("zOffset");
 
                     schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
                 } else {

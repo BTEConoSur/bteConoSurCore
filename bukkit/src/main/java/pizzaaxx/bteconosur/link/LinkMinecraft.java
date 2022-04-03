@@ -6,19 +6,24 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import pizzaaxx.bteconosur.server.player.DiscordManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.link.LinkDiscord.discordLinks;
 import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
 
 public class LinkMinecraft implements CommandExecutor {
     public static Map<String, OfflinePlayer> minecraftLinks = new HashMap<>();
     public static String linkPrefix = "[§9LINK§f] §7>> §f";
+    public final Plugin plugin;
+
+    public LinkMinecraft(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -57,10 +62,11 @@ public class LinkMinecraft implements CommandExecutor {
         }
 
         if (command.getName().equals("unlink")) {
-            Map<String, Object> linkData = YamlManager.getYamlData(pluginFolder, "link/links.yml");
-            if (linkData.containsValue(p.getUniqueId())) {
 
-                new ServerPlayer(p).getDiscordManager().disconnect();
+            DiscordManager manager = new ServerPlayer(p).getDiscordManager();
+
+            if (manager.isLinked()) {
+                manager.disconnect();
 
                 p.sendMessage(linkPrefix + "Se ha desconectado exitosamente tu cuenta de Minecraft de tu cuenta de Discord.");
             } else {

@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pizzaaxx.bteconosur.server.player.*;
-import pizzaaxx.bteconosur.serverPlayer.*;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;

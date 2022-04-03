@@ -5,7 +5,6 @@ import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -15,8 +14,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
-import pizzaaxx.bteconosur.projects.Project;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.lang.reflect.Field;
 import java.util.*;

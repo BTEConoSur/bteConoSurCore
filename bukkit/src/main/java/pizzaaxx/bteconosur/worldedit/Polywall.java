@@ -41,7 +41,7 @@ public class Polywall implements CommandExecutor {
                 try {
                     region = getSelection(p);
                 } catch (IncompleteRegionException e) {
-                    p.sendMessage(wePrefix + "Selecciona un área primero.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona un área primero.");
                     return true;
                 }
 
@@ -66,7 +66,7 @@ public class Polywall implements CommandExecutor {
                     try {
                         pattern = WorldEdit.getInstance().getPatternFactory().parseFromInput(args[0], parserContext);
                     } catch (InputParseException e) {
-                        p.sendMessage(wePrefix + "Patrón inválido.");
+                        p.sendMessage(WORLD_EDIT_PREFIX + "Patrón inválido.");
                         return true;
                     }
 
@@ -92,12 +92,12 @@ public class Polywall implements CommandExecutor {
                         minY = ((Polygonal2DRegion) region).getMinimumY();
                         points = ((Polygonal2DRegion) region).getPoints();
                     } else {
-                        p.sendMessage(wePrefix + "Debes seleccionar una region cúbica o poligonal.");
+                        p.sendMessage(WORLD_EDIT_PREFIX + "Debes seleccionar una region cúbica o poligonal.");
                         return true;
                     }
 
                     if (points.size() < 3) {
-                        p.sendMessage(wePrefix + "Selecciona un área primero.");
+                        p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona un área primero.");
                         return true;
                     }
 
@@ -115,9 +115,9 @@ public class Polywall implements CommandExecutor {
                         }
                     }
 
-                    p.sendMessage(wePrefix + "Paredes de la selección creadas.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Paredes de la selección creadas.");
                 } else {
-                    p.sendMessage(wePrefix + "Introduce un patrón de bloques.");
+                    p.sendMessage(WORLD_EDIT_PREFIX + "Introduce un patrón de bloques.");
                 }
             }
         }

@@ -18,10 +18,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
@@ -29,10 +28,16 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;
 
 public class HelpCommand implements EventListener, CommandExecutor {
+
+    private final Plugin plugin;
+
+    public HelpCommand(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     public String helpPrefix = getSimplePrefix("help", "6");
 
     @Override
@@ -55,17 +60,19 @@ public class HelpCommand implements EventListener, CommandExecutor {
 
                             e.getTextChannel().sendMessageEmbeds(choose.build()).setActionRows(actionRow).reference(e.getMessage()).mentionRepliedUser(false).queue();
                         } else {
-
-
-                            YamlManager yaml = new YamlManager(pluginFolder, "help.yml");
+                            Configuration yaml = new Configuration(plugin, "help");
                             String platform = null;
-                            if (((Map<String, Object>) yaml.getValue("minecraft")).containsKey(args[1])) {
+                            if (yaml.getConfigurationSection("minecraft").contains(args[1])) {
                                 platform = "minecraft";
-                            } else if (((Map<String, Object>) yaml.getValue("discord")).containsKey(args[1])) {
+                            } else if (yaml.getConfigurationSection("discord").contains(args[1])) {
                                 platform = "discord";
                             }
                             String path = platform + "." + String.join(".subcommands.", Arrays.asList(args).subList(1, args.length));
-                            Map<String, Object> command = (Map<String, Object>) yaml.getValue(path);
+                            Map<String, Object> command = new HashMap<>();
+                            ConfigurationSection commandSection = yaml.getConfigurationSection(path);
+                            for (String key : commandSection.getKeys(false)) {
+                                command.put(key, commandSection.get(key));
+                            }
 
                             if (platform != null && command != null) {
                                 EmbedBuilder help = new EmbedBuilder();

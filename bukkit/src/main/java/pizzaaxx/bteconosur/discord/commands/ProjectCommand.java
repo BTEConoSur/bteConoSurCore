@@ -9,12 +9,12 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 
 import java.awt.*;
 import java.io.IOException;
@@ -29,6 +29,13 @@ import java.util.concurrent.CompletableFuture;
 import static pizzaaxx.bteconosur.BteConoSur.*;
 
 public class ProjectCommand implements EventListener {
+
+    private final Plugin plugin;
+
+    public ProjectCommand(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof MessageReceivedEvent) {
@@ -167,7 +174,7 @@ public class ProjectCommand implements EventListener {
                     }
 
                     if (args[0].equals("pending")) {
-                        if (YamlManager.getYamlData(pluginFolder, "pending_projects/pending.yml").size() != 0) {
+                        if (new Configuration(plugin, "pending_projects/pending").getKeys(false).isEmpty()) {
                             EmbedBuilder pending = new EmbedBuilder();
                             pending.setColor(new Color(0, 255, 42));
 

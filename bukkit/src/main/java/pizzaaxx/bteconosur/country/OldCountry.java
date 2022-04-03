@@ -12,7 +12,6 @@ import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
-import pizzaaxx.bteconosur.yaml.YamlManager;
 ;
 import java.util.*;
 
@@ -113,7 +112,7 @@ public class OldCountry {
     // GETTERS
 
     public String getIcon() {
-        return (String) new YamlManager(pluginFolder, "discord/countryIcons.yml").getValue(name);
+        return new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/countryIcons").getString(name);
     }
 
     public String getName() {
