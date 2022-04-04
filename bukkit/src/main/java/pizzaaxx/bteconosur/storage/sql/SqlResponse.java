@@ -6,20 +6,20 @@ import java.util.Map;
 
 public class SqlResponse {
 
-    private final Map<Class<?>, SqlObjectAdapter<?>> adapters = new HashMap<>();
+    private final SqlAdapterRegistry sqlAdapterRegistry;
 
-    public <O> O response(Class<O> clazz, ResultSet resultSet) {
+    public SqlResponse(SqlAdapterRegistry sqlAdapterRegistry) {
+        this.sqlAdapterRegistry = sqlAdapterRegistry;
+    }
 
-        SqlObjectAdapter<O> adapter = (SqlObjectAdapter<O>) adapters.get(clazz);
+    public <T> T response(Class<T> clazz, ResultSet resultSet) {
+
+        SqlObjectAdapter<T> adapter = sqlAdapterRegistry.get(clazz);
         if (adapter != null) {
             return adapter.adapt(resultSet);
         }
 
         return null;
-    }
-
-    public <O> void registerAdapter(Class<O> clazz, SqlObjectAdapter<O> adapter) {
-        adapters.put(clazz, adapter);
     }
 
 }

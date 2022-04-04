@@ -4,5 +4,5 @@ import pizzaaxx.bteconosur.storage.ObjectAdapter;
 
 import java.sql.ResultSet;
 
-public interface SqlObjectAdapter<O> extends ObjectAdapter<O, ResultSet> {
+public interface SqlObjectAdapter<T> extends ObjectAdapter<T, ResultSet, > {
 }

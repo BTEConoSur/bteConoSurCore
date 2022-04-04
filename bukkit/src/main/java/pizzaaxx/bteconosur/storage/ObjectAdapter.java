@@ -1,9 +1,9 @@
 package pizzaaxx.bteconosur.storage;
 
-public interface ObjectAdapter<O, D> {
+public interface ObjectAdapter<T, O, I> {
 
-    O adapt(D data);
+    T adapt(O out);
 
-    void write(O object);
+    I write(T object);
 
 }

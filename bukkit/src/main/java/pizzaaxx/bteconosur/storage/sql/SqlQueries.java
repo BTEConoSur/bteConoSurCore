@@ -5,11 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SqlHelper {
+public class SqlQueries {
 
     private final Connection connection;
 
-    public SqlHelper(Connection connection) {
+    public SqlQueries(Connection connection) {
         this.connection = connection;
     }
 
