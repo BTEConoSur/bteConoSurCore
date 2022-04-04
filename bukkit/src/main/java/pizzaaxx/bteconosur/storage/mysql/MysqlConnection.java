@@ -10,7 +10,6 @@ import java.sql.SQLException;
 public class MysqlConnection implements DatabaseConnection<Connection> {
 
     private final DataSource source;
-    private final String prefix_url = "jdbc:mysql://";
 
     private Connection connection;
     private boolean statusConnection;
@@ -29,6 +28,7 @@ public class MysqlConnection implements DatabaseConnection<Connection> {
                 get("port", Integer.class);
 
         try {
+            String prefix_url = "jdbc:mysql://";
             connection = DriverManager.getConnection(prefix_url + host + ":" + port, user, password);
             statusConnection = true;
         } catch (SQLException e) {
