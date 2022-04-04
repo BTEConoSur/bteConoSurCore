@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.storage.query;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
