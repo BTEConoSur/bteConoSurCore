@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.storage.mysql;
+package pizzaaxx.bteconosur.storage.sql;
 
 public class FieldStatement<O> {
 

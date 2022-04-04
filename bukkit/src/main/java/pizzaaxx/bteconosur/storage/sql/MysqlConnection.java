@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.storage.mysql;
+package pizzaaxx.bteconosur.storage.sql;
 
 import pizzaaxx.bteconosur.storage.DataSource;
 import pizzaaxx.bteconosur.storage.connection.DatabaseConnection;

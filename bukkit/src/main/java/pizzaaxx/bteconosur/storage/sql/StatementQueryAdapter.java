@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.storage.mysql;
+package pizzaaxx.bteconosur.storage.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
