@@ -20,6 +20,7 @@ public class SqlQueries {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 

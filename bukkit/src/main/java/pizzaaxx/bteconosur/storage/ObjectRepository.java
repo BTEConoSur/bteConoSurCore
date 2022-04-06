@@ -1,16 +1,15 @@
 package pizzaaxx.bteconosur.storage;
 
+import pizzaaxx.bteconosur.server.player.Identifiable;
 import pizzaaxx.bteconosur.storage.query.CompoundQuery;
 import pizzaaxx.bteconosur.storage.query.Query;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface ObjectRepository<O> {
+public interface ObjectRepository<O extends Identifiable> {
 
     void save(O object);
-
-    O load(String identifier);
 
     default CompletableFuture<O> loadAsync(String identifier) {
         return query(
@@ -20,7 +19,9 @@ public interface ObjectRepository<O> {
 
     boolean exists(O object);
 
-    CompletableFuture<Void> saveAsync(O object);
+    default CompletableFuture<Void> saveAsync(O object) {
+        return CompletableFuture.runAsync(() -> save(object));
+    }
 
     CompletableFuture<O> query(CompoundQuery queries);
 

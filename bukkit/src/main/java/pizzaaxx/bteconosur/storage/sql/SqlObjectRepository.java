@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.storage.sql;
 
+import pizzaaxx.bteconosur.server.player.Identifiable;
 import pizzaaxx.bteconosur.storage.ObjectRepository;
 import pizzaaxx.bteconosur.storage.query.CompoundQuery;
 
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class SqlObjectRepository<O> implements ObjectRepository<O> {
+public class SqlObjectRepository<O extends Identifiable> implements ObjectRepository<O> {
 
     private String fundamentalQuery = "SELECT * FROM ";
 
@@ -40,16 +41,12 @@ public class SqlObjectRepository<O> implements ObjectRepository<O> {
 
     }
 
-    @Override
-    public O load(String identifier) {
-        return null;
-    }
 
     @Override
     public boolean exists(O object) {
         ResultSet resultSet = queries.preparedQuery(
                 QueryStatement.create()
-                        .insert(FieldStatement.of("id", String.class)),
+                        .insert(FieldStatement.of(object.getId(), String.class)),
                 fundamentalQuery.concat("WHERE id = ?")
         );
 
@@ -60,11 +57,6 @@ public class SqlObjectRepository<O> implements ObjectRepository<O> {
         }
 
         return false;
-    }
-
-    @Override
-    public CompletableFuture<Void> saveAsync(O object) {
-        return null;
     }
 
     @Override
