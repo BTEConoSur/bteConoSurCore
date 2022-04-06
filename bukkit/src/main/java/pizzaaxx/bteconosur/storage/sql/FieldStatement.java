@@ -18,4 +18,8 @@ public class FieldStatement<O> {
         return clazz;
     }
 
+    public static <O> FieldStatement<O> of(O object, Class<O> clazz) {
+        return new FieldStatement<>(object, clazz);
+    }
+
 }

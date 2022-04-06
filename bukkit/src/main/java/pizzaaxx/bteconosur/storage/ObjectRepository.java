@@ -18,6 +18,8 @@ public interface ObjectRepository<O> {
         );
     }
 
+    boolean exists(O object);
+
     CompletableFuture<Void> saveAsync(O object);
 
     CompletableFuture<O> query(CompoundQuery queries);

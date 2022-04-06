@@ -17,4 +17,8 @@ public class QueryStatement {
         return fieldsStatement;
     }
 
+    public static QueryStatement create() {
+        return new QueryStatement();
+    }
+
 }
