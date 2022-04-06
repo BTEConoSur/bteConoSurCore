@@ -40,14 +40,38 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     public void save(O object) {
         delete(object);
 
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(
+                        "INSERT INTO "
+                ).append(table)
+                .append(" (");
+
         SqlObjectAdapter<O>
                 sqlObjectAdapter = sqlAdapterRegistry.get(object.getClass());
 
         QueryStatement queryStatement =
                 sqlObjectAdapter.write(object);
 
+        for (FieldStatement<?> field : queryStatement.fields()) {
+            queryBuilder.append(field.getName())
+                    .append(",");
+        }
 
+        queryBuilder.deleteCharAt(
+                queryBuilder.length() - 1
+        );
 
+        for (int i = 0; i < queryStatement.fields().size(); i++) {
+            queryBuilder.append("?");
+
+            if (i < queryStatement.fields().size()) {
+                queryBuilder.append(",");
+            }
+        }
+
+        queries.preparedQuery(
+                queryStatement, queryBuilder.toString()
+        );
 
     }
 
@@ -59,7 +83,7 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
 
         queries.preparedQuery(
                 QueryStatement.create()
-                        .insert(FieldStatement.of(object.getId(), String.class)),
+                        .insert(FieldStatement.of("id", object.getId(), String.class)),
                 deleteQuery
         );
 
@@ -70,7 +94,7 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     public boolean exists(O object) {
         ResultSet resultSet = queries.preparedQuery(
                 QueryStatement.create()
-                        .insert(FieldStatement.of(object.getId(), String.class)),
+                        .insert(FieldStatement.of("id", object.getId(), String.class)),
                 fundamentalQuery.concat("WHERE id = ?")
         );
 

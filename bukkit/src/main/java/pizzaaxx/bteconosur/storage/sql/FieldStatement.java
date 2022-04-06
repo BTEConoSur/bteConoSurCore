@@ -24,7 +24,7 @@ public class FieldStatement<O> {
         return clazz;
     }
 
-    public static <O> FieldStatement<O> of(O object, Class<O> clazz, String name) {
+    public static <O> FieldStatement<O> of(String name, O object, Class<O> clazz) {
         return new FieldStatement<>(name, object, clazz);
     }
 
