@@ -9,6 +9,8 @@ import java.sql.SQLException;
 
 public class MysqlConnection implements DatabaseConnection<Connection> {
 
+    private static final String CLASS_NAME = "com.mysql.jdbc.Driver";
+
     private final DataSource source;
 
     private Connection connection;
@@ -16,7 +18,7 @@ public class MysqlConnection implements DatabaseConnection<Connection> {
 
     public MysqlConnection(DataSource source) throws ClassNotFoundException {
         this.source = source;
-        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName(CLASS_NAME);
     }
 
     @Override
