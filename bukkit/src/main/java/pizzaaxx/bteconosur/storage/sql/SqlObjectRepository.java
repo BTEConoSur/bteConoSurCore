@@ -38,6 +38,30 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
 
     @Override
     public void save(O object) {
+        delete(object);
+
+        SqlObjectAdapter<O>
+                sqlObjectAdapter = sqlAdapterRegistry.get(object.getClass());
+
+        QueryStatement queryStatement =
+                sqlObjectAdapter.write(object);
+
+
+
+
+    }
+
+    @Override
+    public void delete(O object) {
+
+        String deleteQuery = "DELETE FROM * "
+                + table + " WHERE id = ?";
+
+        queries.preparedQuery(
+                QueryStatement.create()
+                        .insert(FieldStatement.of(object.getId(), String.class)),
+                deleteQuery
+        );
 
     }
 

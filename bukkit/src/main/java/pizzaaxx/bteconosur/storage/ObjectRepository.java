@@ -11,6 +11,8 @@ public interface ObjectRepository<O extends Identifiable> {
 
     void save(O object);
 
+    void delete(O object);
+
     default CompletableFuture<O> loadAsync(String identifier) {
         return query(
                 CompoundQuery.simple(Query.of("contains", "id", identifier))
