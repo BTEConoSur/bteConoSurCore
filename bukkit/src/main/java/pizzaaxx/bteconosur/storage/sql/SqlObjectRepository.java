@@ -13,26 +13,26 @@ import java.util.concurrent.CompletableFuture;
 public class SqlObjectRepository<O extends Identifiable> implements ObjectRepository<O> {
 
     private String fundamentalQuery = "SELECT * FROM ";
+    private final SqlQueryInterpreter sqlQueryInterpreter = new SqlQueryInterpreter();
 
     private final Class<O> clazz;
 
-    private final SqlQueries queries;
+    private final SqlQueryWrapper queries;
     private final SqlAdapterRegistry sqlAdapterRegistry;
+    private  final SqlResponse sqlResponse;
     private final String table;
 
-    private final Connection connection;
-
     public SqlObjectRepository(Class<O> clazz,
-                               SqlQueries queries,
+                               SqlQueryWrapper queries,
                                SqlAdapterRegistry sqlAdapterRegistry,
-                               String table,
-                               Connection connection) {
+                               String table) {
         this.clazz = clazz;
         this.queries = queries;
         this.sqlAdapterRegistry = sqlAdapterRegistry;
         this.table = table;
         this.connection = connection;
 
+        sqlResponse = new SqlResponse(sqlAdapterRegistry);
         fundamentalQuery = fundamentalQuery.concat(table);
     }
 
@@ -109,11 +109,21 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
 
     @Override
     public CompletableFuture<O> query(CompoundQuery queries) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> {
+            String conditions = sqlQueryInterpreter.interpret(queries);
+            String query = fundamentalQuery + conditions;
+
+            ResultSet resultSet =
+                    this.queries.query(query);
+
+            return sqlResponse.response(clazz, resultSet);
+        });
     }
 
     @Override
     public CompletableFuture<List<O>> queryAll(CompoundQuery queries) {
-        return null;
+
+
+
     }
 }
