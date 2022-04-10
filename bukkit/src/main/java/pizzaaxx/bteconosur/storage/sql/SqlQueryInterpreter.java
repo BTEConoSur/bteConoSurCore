@@ -24,6 +24,7 @@ public class SqlQueryInterpreter {
                 return "WHERE " + query.get(0) + " = " + query.get(1);
                 break;
         }
+        return "";
     }
 
 }
