@@ -26,7 +26,7 @@ public class SqlResponse {
         return null;
     }
 
-    public <T extends Identifiable> List<T> response(Class<T> clazz, ResultSet resultSet) {
+    public <T extends Identifiable> List<T> responseAll(Class<T> clazz, ResultSet resultSet) {
 
         SqlObjectAdapter<T> adapter = sqlAdapterRegistry.get(clazz);
         if (adapter != null) {
