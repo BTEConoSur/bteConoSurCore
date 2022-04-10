@@ -3,7 +3,9 @@ package pizzaaxx.bteconosur.storage.sql;
 import pizzaaxx.bteconosur.server.player.Identifiable;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SqlResponse {
@@ -22,6 +24,17 @@ public class SqlResponse {
         }
 
         return null;
+    }
+
+    public <T extends Identifiable> List<T> response(Class<T> clazz, ResultSet resultSet) {
+
+        SqlObjectAdapter<T> adapter = sqlAdapterRegistry.get(clazz);
+        if (adapter != null) {
+            return adapter.adaptAll(resultSet);
+        }
+
+        return new ArrayList<>();
+
     }
 
 }

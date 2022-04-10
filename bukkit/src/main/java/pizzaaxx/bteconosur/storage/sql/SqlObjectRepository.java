@@ -122,8 +122,14 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
 
     @Override
     public CompletableFuture<List<O>> queryAll(CompoundQuery queries) {
+        return CompletableFuture.supplyAsync(() -> {
+            String conditions = sqlQueryInterpreter.interpret(queries);
+            String query = fundamentalQuery + conditions;
 
+            ResultSet resultSet =
+                    this.queries.query(query);
 
-
+            return sqlResponse.response(clazz, )
+        })
     }
 }
