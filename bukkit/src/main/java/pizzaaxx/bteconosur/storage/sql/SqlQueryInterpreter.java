@@ -22,7 +22,6 @@ public class SqlQueryInterpreter {
         switch (query.getOperation()) {
             case "exists":
                 return "WHERE " + query.get(0) + " = " + query.get(1);
-                break;
         }
         return "";
     }
