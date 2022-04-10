@@ -30,7 +30,6 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
         this.queries = queries;
         this.sqlAdapterRegistry = sqlAdapterRegistry;
         this.table = table;
-        this.connection = connection;
 
         sqlResponse = new SqlResponse(sqlAdapterRegistry);
         fundamentalQuery = fundamentalQuery.concat(table);
@@ -129,7 +128,7 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
             ResultSet resultSet =
                     this.queries.query(query);
 
-            return sqlResponse.response(clazz, )
-        })
+            return sqlResponse.responseAll(clazz, resultSet);
+        });
     }
 }
