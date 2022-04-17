@@ -3,7 +3,7 @@ package pizzaaxx.bteconosur.discord.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReference;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class HelpButtonsCommand extends ListenerAdapter {
 
     @Override
-    public void onButtonClick(ButtonClickEvent e) {
+    public void onButtonInteraction(ButtonInteractionEvent e) {
         Message message = e.getMessage();
         if (message.getEmbeds().size() > 0 && message.getEmbeds().get(0).getTitle() != null && Objects.equals(message.getEmbeds().get(0).getTitle(), "Elige qué comandos quieres ver.")) {
             MessageReference messageReference = e.getMessage().getMessageReference();

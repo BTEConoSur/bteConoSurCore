@@ -4,15 +4,18 @@ package pizzaaxx.bteconosur.projects;
 import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.misc.Misc;
+import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
@@ -23,7 +26,7 @@ public class RequestResponse extends ListenerAdapter {
     public Set<String> requestsClicks = new HashSet<>();
 
     @Override
-    public void onButtonClick(ButtonClickEvent e) {
+    public void onButtonInteraction(ButtonInteractionEvent e) {
         if (e.getMessage().getEmbeds().size() > 0) {
             MessageEmbed embed = e.getMessage().getEmbeds().get(0);
             String requestId = embed.getAuthor().getName();
