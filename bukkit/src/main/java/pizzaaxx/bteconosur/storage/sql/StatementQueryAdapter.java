@@ -23,7 +23,7 @@ public class StatementQueryAdapter {
                 preparedStatement.setLong(index, (long) fieldStatement.get());
                 break;
             case "Float":
-                preparedStatement.setFloat(index, (long) fieldStatement.get());
+                preparedStatement.setFloat(index, (float) fieldStatement.get());
                 break;
             case "Boolean":
                 preparedStatement.setBoolean(index, (boolean) fieldStatement.get());
