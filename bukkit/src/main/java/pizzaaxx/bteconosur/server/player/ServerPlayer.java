@@ -47,14 +47,7 @@ public class ServerPlayer {
     }
 
     public ServerPlayer(UUID uuid) {
-        this.uuid = uuid;
-
-        if (playerRegistry.exists(uuid)) {
-            ServerPlayer origin = playerRegistry.get(uuid);
-            this.dataManager = origin.getDataManager();
-        } else {
-            this.dataManager = new DataManager(this);
-        }
+        this(uuid, false);
     }
 
     public ServerPlayer(OfflinePlayer p) {

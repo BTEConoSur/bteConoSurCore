@@ -62,8 +62,6 @@ public class Configuration extends YamlConfiguration {
 
     private void createFile() {
 
-        System.out.println(fileName);
-
         try {
             File file = new File(folder, fileName);
 
