@@ -594,6 +594,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de nigún proyecto.");
                 }
             }

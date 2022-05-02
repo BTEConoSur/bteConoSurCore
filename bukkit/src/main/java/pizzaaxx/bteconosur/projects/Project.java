@@ -24,6 +24,7 @@ import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
@@ -438,30 +439,32 @@ public class Project {
     public void save() {
         projectRegistry.register(this);
 
-        Configuration project = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
+        config.set("difficulty", difficulty.toString().toLowerCase());
 
-        project.set("difficulty", difficulty.toString().toLowerCase());
-
-        project.set("pending", pending);
+        config.set("pending", pending);
         if (pending) {
             Configuration pending = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
             List<String> pendingProjects = (pending.contains(country.getName()) ? pending.getStringList(country.getName()) : new ArrayList<>());
-            pendingProjects.add(id);
+            if (!pendingProjects.contains(id)) {
+                pendingProjects.add(id);
+            }
             pending.set(country.getName(), pendingProjects);
             pending.save();
         }
 
-        project.set("country", country);
+        config.set("country", country.getName());
 
-        project.set("name", name);
+        config.set("name", name);
 
-        project.set("owner", owner);
+        config.set("owner", owner.toString());
 
-        project.set("members", (members.isEmpty() ? null : members));
+        config.set("members", (members.isEmpty() ? null : members.stream().map(UUID::toString).collect(Collectors.toList())));
 
-        project.set("tag", tag.toString().toLowerCase());
+        if (tag != null) {
+            config.set("tag", tag.toString().toLowerCase());
+        }
 
-        project.save();
+        config.save();
 
         // WORLDGUARD
 
