@@ -166,17 +166,14 @@ public class ServerPlayer {
         lines.add("-[ §a§l" + getName() + " §r]-");
         ProjectsManager projectsManager = getProjectsManager();
         lines.add("§aProyectos activos: §r" + projectsManager.getTotalProjects());
-        lines.add("§aProyectos terminados: §r" + projectsManager);
+        lines.add("§aProyectos terminados: §r" + projectsManager.getTotalFinishedProjects());
 
         PointsManager pointsManager = getPointsManager();
         if (pointsManager.getMaxPoints().getValue() != null) {
             lines.add("§aPuntos:§r");
-            for (String country : "argentina bolivia chile paraguay peru uruguay".split(" ")) {
-                int points = projectsManager.getProjects(new OldCountry(country)).size();
-                if (points != 0) {
-                    lines.add("· " + StringUtils.capitalize(country) + ": " + points);
-                }
-            }
+
+            pointsManager.getSorted().forEach((country, points) -> lines.add("· " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + pointsManager.getPoints(country)));
+
         }
 
         DiscordManager discordManager = getDiscordManager();

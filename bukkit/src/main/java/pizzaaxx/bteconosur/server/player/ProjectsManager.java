@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.server.player;
 
 import org.bukkit.configuration.ConfigurationSection;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.Project;
 
@@ -51,6 +52,10 @@ public class ProjectsManager {
         projects.forEach((key, value) -> allProjects.addAll(value));
 
         return allProjects;
+    }
+
+    public boolean hasProjectsIn(OldCountry country) {
+        return projects.containsKey(country);
     }
 
     public List<String> getProjects(OldCountry country) {
@@ -105,6 +110,14 @@ public class ProjectsManager {
     public void addFinishedProject(OldCountry country) {
         int actual = finishedProjects.get(country);
         finishedProjects.put(country, actual + 1);
+
+        Map<String, Integer> save = new HashMap<>();
+        for (Map.Entry<OldCountry, Integer> entry : finishedProjects.entrySet()) {
+            save.put(entry.getKey().getName(), entry.getValue());
+        }
+
+        data.set("finishedProjects", save);
+        data.save();
     }
 
     public int getTotalProjects() {

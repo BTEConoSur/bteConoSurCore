@@ -27,7 +27,7 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class WorldEditHelper {
 
-    public static final String WORLD_EDIT_PREFIX = "&f[&5WORLDEDIT&f] &7>>&r ";
+    public static final String WORLD_EDIT_PREFIX = "§f[§5WORLDEDIT§f] §7>>§r ";
     public static final WorldEdit WORLD_EDIT_INSTANCE = WorldEdit.getInstance();
     public static final WorldEditPlugin WORLD_EDIT_PLUGIN = (WorldEditPlugin) Bukkit.getPluginManager()
             .getPlugin("WorldEdit");
@@ -141,7 +141,6 @@ public class WorldEditHelper {
 
                 vset.add(new Vector(tipx, tipy, tipz));
             }
-            notdrawn = false;
         }
 
         for (Vector point : vset) {
@@ -157,6 +156,5 @@ public class WorldEditHelper {
             }
         }
 
-        WorldEdit.getInstance().getSessionManager().get(actor).remember(editSession);
     }
 }

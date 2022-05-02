@@ -115,6 +115,8 @@ public class Polywall implements CommandExecutor {
                         }
                     }
 
+                    WorldEdit.getInstance().getSessionManager().get(actor).remember(editSession);
+
                     p.sendMessage(WORLD_EDIT_PREFIX + "Paredes de la selección creadas.");
                 } else {
                     p.sendMessage(WORLD_EDIT_PREFIX + "Introduce un patrón de bloques.");

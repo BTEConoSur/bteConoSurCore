@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -240,6 +241,10 @@ public final class BteConoSur extends JavaPlugin {
             requestsIDs.set(requestID, null);
         }
         requestsIDs.save();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            playerRegistry.add(new ServerPlayer(player));
+        }
     }
 
     @Override

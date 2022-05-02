@@ -125,9 +125,8 @@ public class Join implements Listener {
         // SET PLAYER'S CHAT TO DEFAULT
 
         ChatManager manager = serverPlayer.getChatManager();
+        manager.setChat(manager.getDefaultChat().getName());
         if (!manager.getChat().equals(manager.getDefaultChat())) {
-            manager.setChat(manager.getDefaultChat().getName());
-
             player.sendMessage(CHAT_PREFIX + "Te has unido al chat §a" + manager.getChat().getFormattedName() + "§f. §7(Jugadores: " + manager.getChat().getMembers().size() + ")");
         }
 

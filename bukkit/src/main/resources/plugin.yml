@@ -1,10 +1,6 @@
 name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
-loadbefore:
-  - LuckPerms
-  - WorldGuard
-  - WorldEdit
 commands:
   help:
     description: Obtén ayuda de todos los comandos del servidor.

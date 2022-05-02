@@ -25,6 +25,7 @@ public class PointsManager {
         if (data.contains("points")) {
             ConfigurationSection pointsSection = data.getConfigurationSection("points");
             for (String key : pointsSection.getKeys(false)) {
+
                 countriesPoints.put(new OldCountry(key), pointsSection.getInt(key));
             }
         }

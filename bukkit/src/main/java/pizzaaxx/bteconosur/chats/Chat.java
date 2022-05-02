@@ -23,7 +23,7 @@ public class Chat {
     public Chat(String name) {
         this.name = name;
         if (chatRegistry.contains(name)) {
-            this.membersUUID = chatRegistry.get(name).membersUUID;
+            this.membersUUID = chatRegistry.get(name).getMembersUUID();
         } else {
             chatRegistry.register(this);
         }
@@ -35,6 +35,10 @@ public class Chat {
 
     public int getMembersAmount() {
         return membersUUID.size();
+    }
+
+    public Set<UUID> getMembersUUID() {
+        return membersUUID;
     }
 
     public void removeMember(Player player) {
@@ -83,13 +87,14 @@ public class Chat {
     }
 
     public void addMember(Player player) {
-            String name = new ServerPlayer(player).getName();
-            broadcast(CHAT_PREFIX + "§a" + name + "§f se ha unido al chat.");
-            membersUUID.add(player.getUniqueId());
-            chatRegistry.register(this);
+        String name = new ServerPlayer(player).getName();
+        broadcast(CHAT_PREFIX + "§a" + name + "§f se ha unido al chat.");
+        membersUUID.add(player.getUniqueId());
+        chatRegistry.register(this);
     }
 
     public void sendMessage(String message, ServerPlayer serverPlayer) {
+
         ChatManager cManager = serverPlayer.getChatManager();
         PointsManager pManager = serverPlayer.getPointsManager();
         OldCountry country = null;
@@ -109,13 +114,16 @@ public class Chat {
         }
         Chat pChat = cManager.getChat();
         String msg = (!this.equals(pChat) ? CHAT_PREFIX + " " + pChat.getFormattedName() + " §r>> " : "") + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getName().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
-        membersUUID.forEach(uuid -> {
+
+        for (UUID uuid : membersUUID) {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
+            Bukkit.getConsoleSender().sendMessage("Gets before check");
             if (!s.getChatManager().isHidden()) {
+                Bukkit.getConsoleSender().sendMessage("Gets before is not hidden");
                 player.sendMessage(msg);
             }
-        });
+        }
     }
 
     public void broadcast(String message) {

@@ -15,32 +15,32 @@ public class ChatManager {
 
     public ChatManager(ServerPlayer s) {
         data = s.getDataManager();
-        hide = data.getBoolean("hideChat");
+        hide = data.getBoolean("chat.hidden");
         serverPlayer = s;
     }
 
     public Chat getChat() {
-        if (data.contains("chat")) {
-            return new Chat(data.getString("chat"));
+        if (data.contains("chat.actual")) {
+            return new Chat(data.getString("chat.actual"));
         }
         return new Chat("global");
     }
 
     public void setChat(@NotNull String chat) {
-        data.set("chat", chat);
+        data.set("chat.actual", chat);
         data.save();
         chatRegistry.movePlayer(serverPlayer, chat);
     }
 
     public Chat getDefaultChat() {
-        if (data.contains("defaultChat")) {
-            return new Chat(data.getString("defaultChat"));
+        if (data.contains("chat.default")) {
+            return new Chat(data.getString("chat.default"));
         }
         return new Chat("global");
     }
 
     public void setDefaultChat(@NotNull String chat) {
-        data.set("defaultChat", chat);
+        data.set("chat.default", chat);
         data.save();
     }
 
@@ -104,6 +104,8 @@ public class ChatManager {
 
     public boolean toggleChat() {
         hide = !hide;
+        data.set("chat.hidden", hide);
+        data.save();
         return hide;
     }
 
