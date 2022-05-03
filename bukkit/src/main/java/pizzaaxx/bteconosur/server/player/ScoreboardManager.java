@@ -79,7 +79,7 @@ public class ScoreboardManager {
 
                     lines.add("§aIP: §fbteconosur.com");
                     lines.add(" ");
-
+x
                     lines.add("§aJugadores: §f" + Bukkit.getOnlinePlayers().size() + "/20");
 
                     int arg = 0;
