@@ -11,22 +11,24 @@ public class StatementQueryAdapter {
 
         switch (fieldStatement.getClazz().getSimpleName()) {
             case "String":
-                preparedStatement.setString(index, fieldStatement.get().toString());
+                System.out.println("Set index " + index + " field " + fieldStatement.get() + " name " + fieldStatement.getName());
+                preparedStatement.setString(index, (String) fieldStatement.get());
                 break;
             case "Integer":
-                preparedStatement.setInt(index, Integer.parseInt(fieldStatement.get().toString()));
+                preparedStatement.setInt(index, (int) fieldStatement.get());
                 break;
             case "Double":
-                preparedStatement.setDouble(index, Double.parseDouble(fieldStatement.get().toString()));
+                preparedStatement.setDouble(index, (double) fieldStatement.get());
                 break;
             case "Long":
-                preparedStatement.setLong(index, Long.parseLong(fieldStatement.get().toString()));
+                preparedStatement.setLong(index, (long) fieldStatement.get());
                 break;
             case "Float":
-                preparedStatement.setFloat(index, Float.parseFloat(fieldStatement.get().toString()));
-                break;
+                preparedStatement.setFloat(index, (long) fieldStatement.get());
             case "Boolean":
-                preparedStatement.setBoolean(index, Boolean.parseBoolean(fieldStatement.get().toString()));
+                preparedStatement.setBoolean(index, (boolean) fieldStatement.get());
         }
+
     }
+
 }

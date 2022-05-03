@@ -13,6 +13,15 @@ public class SqlQueryWrapper {
         this.connection = connection;
     }
 
+    public void simpleQuery(String sql) {
+        try {
+            connection.createStatement()
+                    .execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ResultSet query(String sql) {
         try {
             return connection.createStatement()
@@ -24,22 +33,47 @@ public class SqlQueryWrapper {
         return null;
     }
 
+    public int updateQuery(QueryStatement queryStatement,
+                            String sql) {
+
+        try {
+            PreparedStatement preparedStatement = generalPreparedQuery(queryStatement, sql);
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public PreparedStatement generalPreparedQuery(QueryStatement queryStatement, String sql) throws SQLException {
+        PreparedStatement preparedStatement =
+                connection.prepareStatement(sql);
+
+        System.out.println("Sql > " + sql + ";");
+
+        for (int i = 0; i < queryStatement.fields().size(); i++) {
+            FieldStatement<?> fieldStatement = queryStatement
+                    .fields().get(i);
+
+            System.out.println(fieldStatement.getName());
+
+            StatementQueryAdapter.adapt(
+                    preparedStatement, i + 1, fieldStatement
+            );
+
+        }
+
+        return preparedStatement;
+    }
+
     public ResultSet preparedQuery(QueryStatement queryStatement,
                                    String sql) {
 
         try {
+
             PreparedStatement preparedStatement =
-                    connection.prepareStatement(sql);
-
-            for (int i = 1; i < queryStatement.fields().size(); i++) {
-                FieldStatement<?> fieldStatement = queryStatement
-                        .fields().get(i);
-
-                StatementQueryAdapter.adapt(
-                        preparedStatement, i, fieldStatement
-                );
-
-            }
+                    generalPreparedQuery(queryStatement, sql);
 
             return preparedStatement.executeQuery();
         } catch (SQLException e) {

@@ -27,6 +27,9 @@ public interface ObjectRepository<O extends Identifiable> {
 
     CompletableFuture<O> query(CompoundQuery queries);
 
+    O querySync(CompoundQuery queries);
+
+
     CompletableFuture<List<O>> queryAll(CompoundQuery queries);
 
 }

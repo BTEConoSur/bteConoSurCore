@@ -1,10 +1,9 @@
 package pizzaaxx.bteconosur.storage.sql;
 
-import pizzaaxx.bteconosur.server.player.Identifiable;
-import pizzaaxx.bteconosur.storage.ObjectRepository;
-import pizzaaxx.bteconosur.storage.query.CompoundQuery;
+import net.ibxnjadev.test.Identifiable;
+import net.ibxnjadev.test.storage.ObjectRepository;
+import net.ibxnjadev.test.storage.query.CompoundQuery;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -21,15 +20,18 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     private final SqlAdapterRegistry sqlAdapterRegistry;
     private  final SqlResponse sqlResponse;
     private final String table;
+    private final String database;
 
     public SqlObjectRepository(Class<O> clazz,
                                SqlQueryWrapper queries,
                                SqlAdapterRegistry sqlAdapterRegistry,
-                               String table) {
+                               String table,
+                               String database) {
         this.clazz = clazz;
         this.queries = queries;
         this.sqlAdapterRegistry = sqlAdapterRegistry;
         this.table = table;
+        this.database = database;
 
         sqlResponse = new SqlResponse(sqlAdapterRegistry);
         fundamentalQuery = fundamentalQuery.concat(table);
@@ -38,6 +40,8 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     @Override
     public void save(O object) {
         delete(object);
+
+        queries.simpleQuery("USE " + database + ";");
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(
@@ -60,6 +64,9 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
                 queryBuilder.length() - 1
         );
 
+        queryBuilder.append(") VALUES (");
+
+
         for (int i = 0; i < queryStatement.fields().size(); i++) {
             queryBuilder.append("?");
 
@@ -68,7 +75,13 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
             }
         }
 
-        queries.preparedQuery(
+        queryBuilder.deleteCharAt(
+                queryBuilder.length() - 1
+        );
+
+        queryBuilder.append(")");
+
+        queries.updateQuery(
                 queryStatement, queryBuilder.toString()
         );
 
@@ -77,12 +90,20 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     @Override
     public void delete(O object) {
 
-        String deleteQuery = "DELETE FROM * "
+        System.out.println("USE " + database + ";");
+        queries.simpleQuery("USE " + database + ";");
+
+        String deleteQuery = "DELETE FROM "
                 + table + " WHERE id = ?";
 
-        queries.preparedQuery(
-                QueryStatement.create()
-                        .insert(FieldStatement.of("id", object.getId(), String.class)),
+        QueryStatement queryStatement = QueryStatement.create()
+                .insert(FieldStatement.of("id", object.getId(), String.class));
+
+        System.out.println("Size: " + queryStatement.fields().size());
+
+        System.out.println("try deleting");
+        queries.updateQuery(
+              queryStatement,
                 deleteQuery
         );
 
@@ -109,14 +130,37 @@ public class SqlObjectRepository<O extends Identifiable> implements ObjectReposi
     @Override
     public CompletableFuture<O> query(CompoundQuery queries) {
         return CompletableFuture.supplyAsync(() -> {
+            System.out.println("AAA");
+            this.queries.simpleQuery("USE " + database + ";");
             String conditions = sqlQueryInterpreter.interpret(queries);
             String query = fundamentalQuery + conditions;
+
+            System.out.println("Query " + query);
 
             ResultSet resultSet =
                     this.queries.query(query);
 
+            System.out.println("result set " + resultSet);
+
+
             return sqlResponse.response(clazz, resultSet);
         });
+    }
+
+    @Override
+    public O querySync(CompoundQuery queries) {
+        String conditions = sqlQueryInterpreter.interpret(queries);
+        String query = fundamentalQuery + conditions;
+
+        this.queries.simpleQuery("USE " + database + ";");
+        System.out.println("Query " + query);
+
+        ResultSet resultSet =
+                this.queries.query(query);
+
+        System.out.println("result set " + resultSet);
+
+        return sqlResponse.response(clazz, resultSet);
     }
 
     @Override

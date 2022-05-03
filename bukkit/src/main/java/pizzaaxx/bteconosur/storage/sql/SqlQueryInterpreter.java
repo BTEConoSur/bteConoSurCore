@@ -1,8 +1,7 @@
 package pizzaaxx.bteconosur.storage.sql;
 
-import pizzaaxx.bteconosur.storage.query.CompoundQuery;
-import pizzaaxx.bteconosur.storage.query.Query;
-
+import net.ibxnjadev.test.storage.query.CompoundQuery;
+import net.ibxnjadev.test.storage.query.Query;
 
 public class SqlQueryInterpreter {
 
@@ -15,13 +14,14 @@ public class SqlQueryInterpreter {
             ).append(" ");
         }
 
+        stringBuilder.append(";");
         return stringBuilder.toString();
     }
 
     public String interpret(Query query) {
         switch (query.getOperation()) {
-            case "exists":
-                return "WHERE " + query.get(0) + " = " + query.get(1);
+            case "contains":
+                return " WHERE " + query.get(0) + " = '" + query.get(1) + "'";
         }
         return "";
     }
