@@ -87,7 +87,7 @@ public class ServerPlayer {
         if (scoreboardManager == null) {
             scoreboardManager = new ScoreboardManager(this);
         }
-    }
+    }x
 
     public ScoreboardManager getScoreboardManager() {
         if (scoreboardManager == null) {

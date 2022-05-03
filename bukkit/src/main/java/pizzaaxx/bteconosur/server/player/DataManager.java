@@ -15,4 +15,5 @@ public class DataManager extends pizzaaxx.bteconosur.yaml.Configuration {
     public OfflinePlayer getPlayer() {
         return player;
     }
+
 }
