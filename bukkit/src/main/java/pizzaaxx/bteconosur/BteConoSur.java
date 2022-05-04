@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur;
 
+import com.avaje.ebean.annotation.Where;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -23,6 +24,8 @@ import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
+import pizzaaxx.bteconosur.discord.slashCommands.OnlineCommand;
+import pizzaaxx.bteconosur.discord.slashCommands.WhereCommand;
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
@@ -166,7 +169,10 @@ public final class BteConoSur extends JavaPlugin {
                 new OnlineWhereCommand(),
                 new ScoreboardCommand(),
                 new HelpCommand(this),
-                new HelpButtonsCommand()
+                new HelpButtonsCommand(),
+                new OnlineCommand(),
+                new WhereCommand(),
+                new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(new File(this.getDataFolder(), "modsBTECS.zip"))
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
