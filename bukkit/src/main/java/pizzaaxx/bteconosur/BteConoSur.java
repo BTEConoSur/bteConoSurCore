@@ -172,7 +172,8 @@ public final class BteConoSur extends JavaPlugin {
                 new HelpButtonsCommand(),
                 new OnlineCommand(),
                 new WhereCommand(),
-                new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(new File(this.getDataFolder(), "modsBTECS.zip"))
+                new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(new File(this.getDataFolder(), "modsBTECS.zip")),
+                new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand()
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);

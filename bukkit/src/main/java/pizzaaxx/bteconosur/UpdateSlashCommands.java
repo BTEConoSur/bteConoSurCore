@@ -37,6 +37,7 @@ public class UpdateSlashCommands implements CommandExecutor {
             guild.upsertCommand("project", "Obtén información sobre un proyecto de cualquier país").addOption(OptionType.STRING, "id", "Id del proyecto", true).queue();
             guild.upsertCommand("mods", "Obtén un archivo con los mods del servidor.").queue();
             guild.upsertCommand("scoreboard", "Obtén los 10 jugadores con mayor puntaje de construcción").addOption(OptionType.STRING, "país", "(Opcional) Un país en específico para ver", false).queue();
+            guild.upsertCommand("link", "Conecta tu cuenta de Discord con tu cuenta de Minecraft").addOption(OptionType.STRING, "código", "Código obtenido en Minecraft", false).queue();
         }
 
         return true;
