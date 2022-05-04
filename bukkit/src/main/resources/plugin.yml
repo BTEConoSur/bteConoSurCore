@@ -2,6 +2,8 @@ name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 commands:
+  btecsUpdateSlashCommands:
+    description: update
   help:
     description: Obtén ayuda de todos los comandos del servidor.
   lobby:

@@ -51,6 +51,7 @@ import pizzaaxx.bteconosur.yaml.Configuration;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -171,6 +172,7 @@ public final class BteConoSur extends JavaPlugin {
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
+            getCommand("btecsUpdateSlashCommands").setExecutor(new UpdateSlashCommands(conoSurBot));
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
