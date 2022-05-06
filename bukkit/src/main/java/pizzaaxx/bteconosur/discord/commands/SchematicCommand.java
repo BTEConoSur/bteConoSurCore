@@ -30,7 +30,7 @@ public class SchematicCommand implements EventListener {
                                 if (args.length > 1) {
                                     File schematic = new File(Bukkit.getPluginManager().getPlugin("WorldEdit").getDataFolder(), "schematics/" + args[1] + ".schematic");
 
-                                    if (schematic.isFile()) {
+                                    if (schematic.exists()) {
 
                                         EmbedBuilder embed = new EmbedBuilder();
                                         embed.setColor(new Color(0, 255, 42));

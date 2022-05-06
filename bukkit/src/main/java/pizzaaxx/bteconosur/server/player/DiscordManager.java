@@ -10,6 +10,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
+import java.util.UUID;
+
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 
 public class DiscordManager {
@@ -50,7 +52,7 @@ public class DiscordManager {
     public static OfflinePlayer getFromID(String id) {
         Configuration links = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "link/links");
         if (links.contains(id)) {
-            return Bukkit.getOfflinePlayer(links.getString(id));
+            return Bukkit.getOfflinePlayer(UUID.fromString(links.getString(id)));
         }
         return null;
     }

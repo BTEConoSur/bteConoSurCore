@@ -17,26 +17,28 @@ public class OnlineCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (Bukkit.getOnlinePlayers().size() > 0) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(Color.GREEN);
-            List<String> names = new ArrayList<>();
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                names.add(p.getName().replace("_", "\\_"));
+
+        if (event.getName().equals("online")) {
+            if (Bukkit.getOnlinePlayers().size() > 0) {
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setColor(Color.GREEN);
+                List<String> names = new ArrayList<>();
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    names.add(p.getName().replace("_", "\\_"));
+                }
+                Collections.sort(names);
+                embed.addField("Hay " + Bukkit.getOnlinePlayers().size() + " jugador" + (Bukkit.getOnlinePlayers().size() == 1 ? "" : "es") + " online:", String.join(", ", names), false);
+                event.replyEmbeds(embed.build()).queue(
+                        msg -> msg.deleteOriginal().queueAfter(5, TimeUnit.MINUTES)
+                );
+            } else {
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setColor(Color.RED);
+                embed.setAuthor("No hay jugadores online.");
+                event.replyEmbeds(embed.build()).queue(
+                        msg -> msg.deleteOriginal().queueAfter(1, TimeUnit.MINUTES)
+                );
             }
-            Collections.sort(names);
-            embed.addField("Hay " + Bukkit.getOnlinePlayers().size() + " jugador" + (Bukkit.getOnlinePlayers().size() == 1 ? "" : "es") + " online:", String.join(", ", names), false);
-            event.replyEmbeds(embed.build()).queue(
-                    msg -> msg.deleteOriginal().queueAfter(5, TimeUnit.MINUTES)
-            );
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(Color.RED);
-            embed.setAuthor("No hay jugadores online.");
-            event.replyEmbeds(embed.build()).queue(
-                    msg -> msg.deleteOriginal().queueAfter(1, TimeUnit.MINUTES)
-            );
         }
     }
-
 }

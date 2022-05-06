@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur;
 
-import com.avaje.ebean.annotation.Where;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -26,11 +25,11 @@ import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.OnlineCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.WhereCommand;
+import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
+import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
-import pizzaaxx.bteconosur.link.LinkDiscord;
-import pizzaaxx.bteconosur.link.LinkMinecraft;
 import pizzaaxx.bteconosur.points.Scoreboard;
 import pizzaaxx.bteconosur.presets.PresetsCommand;
 import pizzaaxx.bteconosur.presets.PresetsEvent;
@@ -54,7 +53,6 @@ import pizzaaxx.bteconosur.yaml.Configuration;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +72,8 @@ public final class BteConoSur extends JavaPlugin {
     public static ProjectRegistry projectRegistry;
     public static ChatRegistry chatRegistry = new ChatRegistry();
     public static Map<OldCountry, Guild> guilds = new HashMap<>();
+
+    private final Configuration links = new Configuration(this, "link/links");
 
     private CountryRegistry countryRegistry;
     private Configuration configurationCountries;
@@ -101,8 +101,8 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Registering commands...");
         getCommand("project").setExecutor(new ProjectsCommand());
-        getCommand("link").setExecutor(new LinkMinecraft(this));
-        getCommand("unlink").setExecutor(new LinkMinecraft(this));
+        getCommand("link").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot));
+        getCommand("unlink").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
@@ -159,7 +159,6 @@ public final class BteConoSur extends JavaPlugin {
         builder.setStatus(OnlineStatus.ONLINE);
 
         registerDiscordListener(builder,
-                new LinkDiscord(),
                 new ProjectCommand(this),
                 new RequestResponse(),
                 new Events(),
@@ -172,8 +171,9 @@ public final class BteConoSur extends JavaPlugin {
                 new HelpButtonsCommand(),
                 new OnlineCommand(),
                 new WhereCommand(),
-                new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(new File(this.getDataFolder(), "modsBTECS.zip")),
-                new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand()
+                new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
+                new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
+                new LinkUnlinkCommand(links)
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);

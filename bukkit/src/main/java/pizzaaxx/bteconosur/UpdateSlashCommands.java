@@ -38,6 +38,7 @@ public class UpdateSlashCommands implements CommandExecutor {
             guild.upsertCommand("mods", "Obtén un archivo con los mods del servidor.").queue();
             guild.upsertCommand("scoreboard", "Obtén los 10 jugadores con mayor puntaje de construcción").addOption(OptionType.STRING, "país", "(Opcional) Un país en específico para ver", false).queue();
             guild.upsertCommand("link", "Conecta tu cuenta de Discord con tu cuenta de Minecraft").addOption(OptionType.STRING, "código", "Código obtenido en Minecraft", false).queue();
+            guild.upsertCommand("unlink", "Desconecta tu cuenta de Discord de tu cuenta de Minecraft").queue();
         }
 
         return true;

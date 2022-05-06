@@ -18,4 +18,26 @@ public class CodeGenerator {
         return stringBuilder.toString();
     }
 
+    public static String generateCode(Integer length, Collection<String> notMatch) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 1; i <= length; i++) {
+            int number = RANDOM.nextInt(CHARACTERS.length);
+            stringBuilder.append(CHARACTERS[number]);
+        }
+
+        while (notMatch.contains(stringBuilder.toString())) {
+
+            stringBuilder = new StringBuilder();
+
+            for (int i = 1; i <= length; i++) {
+                int number = RANDOM.nextInt(CHARACTERS.length);
+                stringBuilder.append(CHARACTERS[number]);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+
 }

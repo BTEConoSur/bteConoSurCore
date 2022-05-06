@@ -19,51 +19,54 @@ public class SchematicCommand  extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        try {
-            ServerPlayer s = new ServerPlayer(event.getUser());
 
-            if (s.getGroupsManager().getPrimaryGroup().getPriority() >= 3) {
+        if (event.getName().equals("schematic")) {
+            try {
+                ServerPlayer s = new ServerPlayer(event.getUser());
 
-                String name = event.getOption("schematic").getAsString();
+                if (s.getGroupsManager().getPrimaryGroup().getPriority() >= 3) {
 
-                File schem = new File(schematicsFolder, name);
+                    String name = event.getOption("schematic").getAsString();
 
-                if (schem.exists()) {
+                    File schem = new File(schematicsFolder, name + ".schematic");
 
-                    event.replyEmbeds(
-                            new EmbedBuilder()
-                                    .setColor(Color.GREEN)
-                                    .setTitle("Se ha enviado el schematic \"" + name + "\" a tus mensajes directos.")
-                                    .setDescription("Si no has recibido un mensaje, asegúrate de tener la opción \"Permitir mensajes directos de miembros del servidor\" activada.")
-                                    .build()
-                    ).queue(
-                            msg -> msg.deleteOriginal().queueAfter(5, TimeUnit.MINUTES)
-                    );
+                    if (schem.exists()) {
 
-                    event.getUser().openPrivateChannel().queue(
-                            channel -> channel.sendFile(schem).queue()
-                    );
+                        event.replyEmbeds(
+                                new EmbedBuilder()
+                                        .setColor(Color.GREEN)
+                                        .setTitle("Se ha enviado el schematic \"" + name + "\" a tus mensajes directos.")
+                                        .setDescription("Si no has recibido un mensaje, asegúrate de tener la opción \"Permitir mensajes directos de miembros del servidor\" activada.")
+                                        .build()
+                        ).queue(
+                                msg -> msg.deleteOriginal().queueAfter(5, TimeUnit.MINUTES)
+                        );
+
+                        event.getUser().openPrivateChannel().queue(
+                                channel -> channel.sendFile(schem).queue()
+                        );
+                    } else {
+                        event.replyEmbeds(errorEmbed("El schematic introducido no existe.")).queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
+                        );
+                    }
+
                 } else {
-                    event.replyEmbeds(errorEmbed("El schematic introducido no existe.")).queue(
+                    event.replyEmbeds(errorEmbed("Debes ser constructor para poder usar este comando.")).queue(
                             msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
                     );
                 }
-
-            } else {
-                event.replyEmbeds(errorEmbed("Debes ser constructor para poder usar este comando.")).queue(
+            } catch (Exception e) {
+                event.replyEmbeds(
+                        new EmbedBuilder()
+                                .setColor(Color.RED)
+                                .setTitle("Tu cuenta no está conectada.")
+                                .setDescription("Usa `/link` en Discord o en Minecraft para conectar tus cuentas.")
+                                .build()
+                ).queue(
                         msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
                 );
             }
-        } catch (Exception e) {
-            event.replyEmbeds(
-                    new EmbedBuilder()
-                            .setColor(Color.RED)
-                            .setTitle("Tu cuenta no está conectada.")
-                            .setDescription("Usa `/link` en Discord o en Minecraft para conectar tus cuentas.")
-                            .build()
-            ).queue(
-                    msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
-            );
         }
     }
 }

@@ -60,7 +60,7 @@ public class ServerPlayer {
 
     public static OfflinePlayer getPlayerFromDiscordUser(User user) throws Exception {
         if (DiscordManager.isLinked(user.getId())) {
-            return(DiscordManager.getFromID(user.getId()));
+            return DiscordManager.getFromID(user.getId());
         } else {
             throw new Exception();
         }

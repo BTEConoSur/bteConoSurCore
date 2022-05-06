@@ -21,14 +21,14 @@ public class Coords2D {
     public Coords2D(double lat, double lon) {
         try {
             double[] mcCoords = geographicProjection.fromGeo(lon, lat);
-           initialize(mcCoords[0], mcCoords[1], lon, lat);
+            initialize(mcCoords[0], mcCoords[1], lon, lat);
         } catch (OutOfProjectionBoundsException e) {
             e.printStackTrace();
         }
     }
 
     public Coords2D(Location location) {
-        this(location.getX(), location.getZ());
+        this(new BlockVector2D(location.getX(), location.getZ()));
     }
 
     public Coords2D(BlockVector2D point) {
