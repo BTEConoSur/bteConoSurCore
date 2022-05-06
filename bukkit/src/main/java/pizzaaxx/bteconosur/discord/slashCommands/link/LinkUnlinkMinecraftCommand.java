@@ -74,7 +74,7 @@ public class LinkUnlinkMinecraftCommand implements CommandExecutor {
 
                             p.sendMessage(prefix + "Se ha conectado exitosamente tu cuenta a la cuenta de Discord §b" + target.getName() + "#" + target.getDiscriminator() + "§f.");
 
-                            discordToMinecraft.put(code, null);
+                            discordToMinecraft.remove(code);
 
                         } else {
                             p.sendMessage(prefix + "El código introducido no existe.");

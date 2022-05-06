@@ -83,8 +83,7 @@ public class LinkUnlinkCommand extends ListenerAdapter {
                         ServerPlayer s = new ServerPlayer(Bukkit.getOfflinePlayer(minecraftToDiscord.get(code)));
                         s.getDiscordManager().connect(event.getUser(), plugin);
 
-                        minecraftToDiscord.put(code, null);
-
+                        minecraftToDiscord.remove(code);
                         event.replyEmbeds(
                                 new EmbedBuilder()
                                         .setColor(Color.GREEN)
