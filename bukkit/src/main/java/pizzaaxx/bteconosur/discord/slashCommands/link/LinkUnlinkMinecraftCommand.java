@@ -2,10 +2,13 @@ package pizzaaxx.bteconosur.discord.slashCommands.link;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -19,9 +22,11 @@ import static pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand.d
 public class LinkUnlinkMinecraftCommand implements CommandExecutor {
 
     private final JDA bot;
+    private final Plugin plugin;
 
-    public LinkUnlinkMinecraftCommand(JDA bot) {
+    public LinkUnlinkMinecraftCommand(JDA bot, Plugin plugin) {
         this.bot = bot;
+        this.plugin = plugin;
     }
 
     public static Map<String, UUID> minecraftToDiscord = new HashMap<>();
@@ -45,9 +50,19 @@ public class LinkUnlinkMinecraftCommand implements CommandExecutor {
 
                     p.sendMessage(prefix + "Tu código es §b" + code + "§f. Usa §a/link [código] §fen Discord para terminar de conectar tus cuentas.");
 
+                    BukkitRunnable runnable = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            minecraftToDiscord.put(code, null);
+                        }
+                    };
+
+                    runnable.runTaskLaterAsynchronously(plugin, 12000);
+
+
                 } else {
 
-                    String code = args[1];
+                    String code = args[0];
 
                     if (code.matches("[a-z]{6}")) {
 
@@ -55,9 +70,11 @@ public class LinkUnlinkMinecraftCommand implements CommandExecutor {
 
                             ServerPlayer s = new ServerPlayer(p);
                             User target = bot.retrieveUserById(discordToMinecraft.get(code)).complete();
-                            s.getDiscordManager().connect(target);
+                            s.getDiscordManager().connect(target, plugin);
 
-                            p.sendMessage("Se ha conectado exitosamente tu cuenta a la cuenta de Discord §b" + target.getName() + "#" + target.getDiscriminator() + "§f.");
+                            p.sendMessage(prefix + "Se ha conectado exitosamente tu cuenta a la cuenta de Discord §b" + target.getName() + "#" + target.getDiscriminator() + "§f.");
+
+                            discordToMinecraft.put(code, null);
 
                         } else {
                             p.sendMessage(prefix + "El código introducido no existe.");
@@ -73,7 +90,7 @@ public class LinkUnlinkMinecraftCommand implements CommandExecutor {
                 DiscordManager manager = new ServerPlayer(p).getDiscordManager();
 
                 if (manager.isLinked()) {
-                    manager.disconnect();
+                    manager.disconnect(plugin);
                     p.sendMessage(prefix + "Se ha desconectado tu cuenta exitosamente.");
                 } else {
                     p.sendMessage(prefix + "Tu cuenta no esta conectada a ninguna cuenta de Discord.");

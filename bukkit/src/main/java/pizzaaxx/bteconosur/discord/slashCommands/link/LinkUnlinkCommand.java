@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -22,9 +24,11 @@ import static pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraft
 public class LinkUnlinkCommand extends ListenerAdapter {
 
     private final Configuration links;
+    private final Plugin plugin;
 
-    public LinkUnlinkCommand(Configuration links) {
+    public LinkUnlinkCommand(Configuration links, Plugin plugin) {
         this.links = links;
+        this.plugin = plugin;
     }
 
     public static Map<String, String> discordToMinecraft = new HashMap<>();
@@ -43,7 +47,7 @@ public class LinkUnlinkCommand extends ListenerAdapter {
                         channel -> channel.sendMessageEmbeds(
                                 new EmbedBuilder()
                                         .setColor(new Color(0, 172, 238))
-                                        .setTitle("Tu código es " + code)
+                                        .setTitle("Tu código es \"" + code + "\".")
                                         .setDescription("Usa `/link [código]` en Minecraft para terminar de conectar tus cuentas.")
                                         .build()
                         ).queue(
@@ -61,6 +65,15 @@ public class LinkUnlinkCommand extends ListenerAdapter {
                         msg -> msg.deleteOriginal().queueAfter(1, TimeUnit.MINUTES)
                 );
 
+                BukkitRunnable runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        discordToMinecraft.put(code, null);
+                    }
+                };
+
+                runnable.runTaskLaterAsynchronously(plugin, 12000);
+
             } else {
 
                 String code = event.getOption("código").getAsString();
@@ -68,7 +81,9 @@ public class LinkUnlinkCommand extends ListenerAdapter {
                 if (code.matches("[a-z]{6}")) {
                     if (minecraftToDiscord.containsKey(code)) {
                         ServerPlayer s = new ServerPlayer(Bukkit.getOfflinePlayer(minecraftToDiscord.get(code)));
-                        s.getDiscordManager().connect(event.getUser());
+                        s.getDiscordManager().connect(event.getUser(), plugin);
+
+                        minecraftToDiscord.put(code, null);
 
                         event.replyEmbeds(
                                 new EmbedBuilder()
@@ -80,7 +95,7 @@ public class LinkUnlinkCommand extends ListenerAdapter {
                         );
 
                     } else {
-                        event.replyEmbeds(errorEmbed("El código no existe.")).queue(
+                        event.replyEmbeds(errorEmbed("El código introducido no existe.")).queue(
                                 msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
                         );
                     }
@@ -98,7 +113,7 @@ public class LinkUnlinkCommand extends ListenerAdapter {
 
             if (DiscordManager.isLinked(id)) {
                 ServerPlayer s = new ServerPlayer(Bukkit.getOfflinePlayer(UUID.fromString(links.getString(id))));
-                s.getDiscordManager().disconnect();
+                s.getDiscordManager().disconnect(plugin);
                 event.replyEmbeds(
                         new EmbedBuilder()
                                 .setColor(Color.GREEN)

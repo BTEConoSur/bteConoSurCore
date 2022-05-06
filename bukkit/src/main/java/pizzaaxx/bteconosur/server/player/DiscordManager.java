@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
@@ -57,27 +58,28 @@ public class DiscordManager {
         return null;
     }
 
-    public void connect(User user) {
+    public void connect(User user, Plugin plugin) {
         setName(user.getName());
         setDiscriminator(user.getDiscriminator());
         setId(user.getId());
         linked = true;
         save();
-        Configuration links = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "link/links");
-        links.set(id, serverPlayer.getPlayer().getUniqueId());
+        Configuration links = new Configuration(plugin, "link/links");
+        links.set(id, serverPlayer.getPlayer().getUniqueId().toString());
         links.save();
     }
 
-    public void disconnect() {
+    public void disconnect(Plugin plugin) {
+        Configuration links = new Configuration(plugin, "link/links");
+        links.set(id, null);
+        links.save();
+        // ----
         setName(null);
         setDiscriminator(null);
         setId(null);
         user = null;
         linked = false;
         save();
-        Configuration links = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "link/links");
-        links.set(id, null);
-        links.save();
     }
 
     public void setName(String name) {

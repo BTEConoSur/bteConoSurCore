@@ -101,8 +101,6 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Registering commands...");
         getCommand("project").setExecutor(new ProjectsCommand());
-        getCommand("link").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot));
-        getCommand("unlink").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
@@ -173,13 +171,15 @@ public final class BteConoSur extends JavaPlugin {
                 new WhereCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
-                new LinkUnlinkCommand(links)
+                new LinkUnlinkCommand(links, this)
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
             conoSurBot = builder.build().awaitReady();
             getCommand("btecsUpdateSlashCommands").setExecutor(new UpdateSlashCommands(conoSurBot));
+            getCommand("link").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot, this));
+            getCommand("unlink").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot, this));
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
