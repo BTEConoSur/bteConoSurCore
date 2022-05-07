@@ -24,6 +24,7 @@ import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.OnlineCommand;
+import pizzaaxx.bteconosur.discord.slashCommands.PlayerCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.WhereCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
@@ -157,21 +158,16 @@ public final class BteConoSur extends JavaPlugin {
         builder.setStatus(OnlineStatus.ONLINE);
 
         registerDiscordListener(builder,
-                new ProjectCommand(this),
                 new RequestResponse(),
                 new Events(),
-                new ModsCommand(),
-                new SchematicCommand(),
-                new PlayerCommand(),
-                new OnlineWhereCommand(),
                 new ScoreboardCommand(),
-                new HelpCommand(this),
-                new HelpButtonsCommand(),
                 new OnlineCommand(),
                 new WhereCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
-                new LinkUnlinkCommand(links, this)
+                new LinkUnlinkCommand(links, this),
+                new pizzaaxx.bteconosur.discord.slashCommands.ProjectCommand(),
+                new PlayerCommand(new Configuration(this, "discord/groupEmojis"))
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);

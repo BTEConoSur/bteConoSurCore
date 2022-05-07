@@ -34,7 +34,7 @@ public class Coords2D {
     public Coords2D(BlockVector2D point) {
         try {
             double[] geoCoords = geographicProjection.toGeo(point.getX(), point.getZ());
-            initialize(x, z, geoCoords[0], geoCoords[1]);
+            initialize(point.getX(), point.getZ(), geoCoords[0], geoCoords[1]);
         } catch (OutOfProjectionBoundsException e) {
             e.printStackTrace();
         }
