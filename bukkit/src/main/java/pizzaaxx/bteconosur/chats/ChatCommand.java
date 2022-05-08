@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.methods.CodeGenerator;
+import pizzaaxx.bteconosur.helper.CodeGenerator;
 import pizzaaxx.bteconosur.projects.Project;
 
 import java.util.HashMap;

@@ -24,7 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.methods.CodeGenerator;
+import pizzaaxx.bteconosur.helper.CodeGenerator;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.server.player.ProjectsManager;

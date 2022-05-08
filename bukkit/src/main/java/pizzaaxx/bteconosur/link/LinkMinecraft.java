@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.link.LinkDiscord.discordLinks;
-import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
+import static pizzaaxx.bteconosur.helper.CodeGenerator.generateCode;
 
 public class LinkMinecraft implements CommandExecutor {
     public static Map<String, OfflinePlayer> minecraftLinks = new HashMap<>();

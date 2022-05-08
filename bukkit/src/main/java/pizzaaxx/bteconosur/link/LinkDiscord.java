@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.link.LinkMinecraft.minecraftLinks;
-import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
+import static pizzaaxx.bteconosur.helper.CodeGenerator.generateCode;
 
 public class LinkDiscord implements EventListener {
 

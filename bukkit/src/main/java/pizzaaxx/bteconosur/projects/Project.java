@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
-import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
+import static pizzaaxx.bteconosur.helper.CodeGenerator.generateCode;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegion;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
