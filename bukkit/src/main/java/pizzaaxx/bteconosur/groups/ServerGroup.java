@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.groups;
 
 import pizzaaxx.bteconosur.server.player.Identifiable;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class ServerGroup implements Identifiable {
 
