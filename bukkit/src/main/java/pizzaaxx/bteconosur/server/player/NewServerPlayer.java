@@ -18,6 +18,7 @@ public class NewServerPlayer {
     private String nick;
     private int primaryGroup;
     private final Set<Integer> secondaryGroups;
+    private String channelChat;
 
     public NewServerPlayer(UUID identifier,
                            String name,
@@ -26,7 +27,8 @@ public class NewServerPlayer {
                            List<Notification> notifications,
                            String nick,
                            int primaryGroup,
-                           Set<Integer> secondaryGroups) {
+                           Set<Integer> secondaryGroups,
+                           String channelChat) {
         this.identifier = identifier;
         this.name = name;
         this.discriminator = discriminator;
@@ -35,6 +37,7 @@ public class NewServerPlayer {
         this.nick = nick;
         this.primaryGroup = primaryGroup;
         this.secondaryGroups = secondaryGroups;
+        this.channelChat = channelChat;
     }
 
     public UUID getIdentifier() {
@@ -87,6 +90,14 @@ public class NewServerPlayer {
 
     public void removeSecondaryGroup(int secondaryGroup) {
         secondaryGroups.remove(secondaryGroup);
+    }
+
+    public void setChannelChat(String channelChat) {
+        this.channelChat = channelChat;
+    }
+
+    public String getChannelChat() {
+        return channelChat;
     }
 
 }

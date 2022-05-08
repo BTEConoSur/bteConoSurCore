@@ -1,0 +1,5 @@
+global:
+  format: "&e%player%  %rank% &f%message%"
+staff:
+  permission: "bte-conosur.staff-chat"
+  format: "&cStaffChat &e%player%  %rank% &f%message%"
