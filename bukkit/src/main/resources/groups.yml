@@ -1,26 +1,27 @@
-primary:
-  admin:
-    identifier: 1
-    prefix: "&cAdmin "
-    color:
-      red: 0
-      green: 255
-      blue: 42
-    name: "Administrator"
-  developer:
-    identifier: 2
-    prefix: "&dDeveloper "
-    color:
-      red: 0
-      green: 255
-      blue: 60
-    name: "Developer"
-secondary:
-  streamer:
-    identifier: 2
-    prefix: "&eStreamer "
-    color:
-      red: 0
-      green: 255
-      blue: 10
-    name: "Stramer"
+admin:
+  identifier: 1
+  prefix: "&cAdmin "
+  color:
+    red: 0
+    green: 255
+    blue: 42
+  name: "Administrator"
+  is_primary: true
+developer:
+  identifier: 2
+  prefix: "&dDeveloper "
+  color:
+    red: 0
+    green: 255
+    blue: 60
+  name: "Developer"
+  is_primary: true
+streamer:
+  identifier: 2
+  prefix: "&eStreamer "
+  color:
+    red: 0
+    green: 255
+    blue: 10
+  name: "Stramer"
+  is_primary: false

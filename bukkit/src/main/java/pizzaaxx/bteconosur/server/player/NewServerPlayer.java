@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.server.player.notification.Notification;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class NewServerPlayer {
@@ -15,19 +16,25 @@ public class NewServerPlayer {
     private final int points;
     private final List<Notification> notifications;
     private String nick;
+    private int primaryGroup;
+    private final Set<Integer> secondaryGroups;
 
     public NewServerPlayer(UUID identifier,
                            String name,
                            String discriminator,
                            int points,
                            List<Notification> notifications,
-                           String nick) {
+                           String nick,
+                           int primaryGroup,
+                           Set<Integer> secondaryGroups) {
         this.identifier = identifier;
         this.name = name;
         this.discriminator = discriminator;
         this.points = points;
         this.notifications = notifications;
         this.nick = nick;
+        this.primaryGroup = primaryGroup;
+        this.secondaryGroups = secondaryGroups;
     }
 
     public UUID getIdentifier() {
@@ -60,6 +67,26 @@ public class NewServerPlayer {
 
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public int getPrimaryGroup() {
+        return primaryGroup;
+    }
+
+    public void setPrimaryGroup(int primaryGroup) {
+        this.primaryGroup = primaryGroup;
+    }
+
+    public Set<Integer> getSecondaryGroups() {
+        return secondaryGroups;
+    }
+
+    public void addSecondaryGroup(int secondaryGroup) {
+        secondaryGroups.add(secondaryGroup);
+    }
+
+    public void removeSecondaryGroup(int secondaryGroup) {
+        secondaryGroups.remove(secondaryGroup);
     }
 
 }
