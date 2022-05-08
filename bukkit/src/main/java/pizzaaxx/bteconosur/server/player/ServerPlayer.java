@@ -17,7 +17,7 @@ import java.util.UUID;
 
 import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 
-public class ServerPlayer {
+public class ServerPlayer implements Identifiable {
 
     private final UUID uuid;
     private final DataManager dataManager;
