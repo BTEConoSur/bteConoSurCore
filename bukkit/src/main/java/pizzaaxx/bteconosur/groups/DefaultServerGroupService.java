@@ -13,11 +13,21 @@ public class DefaultServerGroupService implements ServerGroupService {
 
     @Override
     public void updatePrimaryGroup(CommandSender sender, NewServerPlayer newServerPlayer, ServerGroup serverGroup) {
+        newServerPlayer.setPrimaryGroup(serverGroup.getIdentifier());
+
+        if (sender != null) {
+            sender.sendMessage("Has actualizado el grupo");
+        }
 
     }
 
     @Override
     public void addSecondaryGroup(CommandSender sender, NewServerPlayer newServerPlayer, ServerGroup serverGroup) {
+        newServerPlayer.addSecondaryGroup(serverGroup.getIdentifier());
+
+        if (sender != null) {
+            sender.sendMessage("Has actualizado el grupo");
+        }
 
     }
 
