@@ -49,7 +49,7 @@ public class DefaultServerGroupService implements ServerGroupService {
 
     @Override
     public void registerGroup(ServerGroup serverGroup) {
-
+        secondsGroups.put(serverGroup.getIdentifier(), serverGroup);
     }
 
 }

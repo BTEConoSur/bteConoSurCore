@@ -35,4 +35,8 @@ public class ServerGroup implements Identifiable {
         return isPrimary;
     }
 
+    public int getIdentifier() {
+        return identifier;
+    }
+
 }
