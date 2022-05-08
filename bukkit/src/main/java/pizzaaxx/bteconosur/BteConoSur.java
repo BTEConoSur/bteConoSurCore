@@ -167,7 +167,8 @@ public final class BteConoSur extends JavaPlugin {
                 new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
                 new LinkUnlinkCommand(links, this),
                 new pizzaaxx.bteconosur.discord.slashCommands.ProjectCommand(),
-                new PlayerCommand(new Configuration(this, "discord/groupEmojis"))
+                new PlayerCommand(new Configuration(this, "discord/groupEmojis")),
+                new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand()
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);

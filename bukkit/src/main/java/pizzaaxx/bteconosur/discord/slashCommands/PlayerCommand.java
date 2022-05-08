@@ -47,7 +47,11 @@ public class PlayerCommand extends ListenerAdapter {
 
                 Bukkit.getConsoleSender().sendMessage("a");
 
-                User user = event.getOption("usuario").getAsUser();
+                User user = null;
+                if (event.getOption("usuario") != null) {
+                    // TODO FIX THIS
+                    user = event.getOption("usuario").getAsUser();
+                }
 
                 Bukkit.getConsoleSender().sendMessage("b");
 

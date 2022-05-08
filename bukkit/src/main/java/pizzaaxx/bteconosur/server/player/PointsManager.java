@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PointsManager {
 
-    private final Map<OldCountry, Integer> countriesPoints = new HashMap<>();
+    private final Map<String, Integer> countriesPoints = new HashMap<>();
 
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
 
@@ -26,7 +26,7 @@ public class PointsManager {
             ConfigurationSection pointsSection = data.getConfigurationSection("points");
             for (String key : pointsSection.getKeys(false)) {
 
-                countriesPoints.put(new OldCountry(key), pointsSection.getInt(key));
+                countriesPoints.put(key, pointsSection.getInt(key));
             }
         }
     }
@@ -36,15 +36,15 @@ public class PointsManager {
     }
 
     public int getPoints(OldCountry country) {
-        return countriesPoints.getOrDefault(country, 0);
+        return countriesPoints.getOrDefault(country.getName(), 0);
     }
 
     public void setPoints(OldCountry country, int points) {
-        int old = countriesPoints.get(country);
+        int old = countriesPoints.get(country.getName());
         if (old != points) {
-            countriesPoints.put(country, points);
+            countriesPoints.put(country.getName(), points);
             Map<String, Integer> map = new HashMap<>();
-            countriesPoints.forEach((key, value) -> map.put(key.getName(), value));
+            countriesPoints.forEach(map::put);
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);
@@ -68,9 +68,9 @@ public class PointsManager {
         return newAmount;
     }
 
-    public Map.Entry<OldCountry, Integer> getMaxPoints() {
-        Map.Entry<OldCountry, Integer> max = null;
-        for (Map.Entry<OldCountry, Integer> entry : countriesPoints.entrySet()) {
+    public Map.Entry<String, Integer> getMaxPoints() {
+        Map.Entry<String, Integer> max = null;
+        for (Map.Entry<String, Integer> entry : countriesPoints.entrySet()) {
             if (max == null || entry.getValue().compareTo(max.getValue()) > 0) {
                 max = entry;
             }
@@ -83,7 +83,7 @@ public class PointsManager {
         countriesPoints.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x -> sorted.put(x.getKey(), x.getValue()));
+                .forEachOrdered(x -> sorted.put(new OldCountry(x.getKey()), x.getValue()));
         return sorted;
     }
 

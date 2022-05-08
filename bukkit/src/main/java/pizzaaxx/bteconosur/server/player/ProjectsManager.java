@@ -1,7 +1,6 @@
 package pizzaaxx.bteconosur.server.player;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.Project;
 
@@ -16,8 +15,8 @@ public class ProjectsManager {
 
     private final ServerPlayer serverPlayer;
     private final DataManager data;
-    private final Map<OldCountry, List<String>> projects = new HashMap<>();
-    private final Map<OldCountry, Integer> finishedProjects = new HashMap<>();
+    private final Map<String, List<String>> projects = new HashMap<>();
+    private final Map<String, Integer> finishedProjects = new HashMap<>();
 
     public ProjectsManager(ServerPlayer s) {
         data = s.getDataManager();
@@ -27,7 +26,7 @@ public class ProjectsManager {
             ConfigurationSection projectsSection = data.getConfigurationSection("projects");
             for (String country : countryNames) {
                 if (projectsSection.contains(country)) {
-                    projects.put(new OldCountry(country), (List<String>) projectsSection.getList(country));
+                    projects.put(country, (List<String>) projectsSection.getList(country));
                 }
             }
         }
@@ -36,7 +35,7 @@ public class ProjectsManager {
             ConfigurationSection finishedProjectsSection = data.getConfigurationSection("finishedProjects");
             for (String country : countryNames) {
                 if (finishedProjectsSection.contains(country)) {
-                    finishedProjects.put(new OldCountry(country), finishedProjectsSection.getInt(country));
+                    finishedProjects.put(country, finishedProjectsSection.getInt(country));
                 }
             }
         }
@@ -55,15 +54,15 @@ public class ProjectsManager {
     }
 
     public boolean hasProjectsIn(OldCountry country) {
-        return projects.containsKey(country);
+        return projects.containsKey(country.getName());
     }
 
     public List<String> getProjects(OldCountry country) {
-        return projects.get(country);
+        return projects.get(country.getName());
     }
 
     public void addProject(Project project) {
-        projects.get(project.getCountry()).add(project.getId());
+        projects.get(project.getCountry().getName()).add(project.getId());
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
@@ -76,7 +75,7 @@ public class ProjectsManager {
     }
 
     public void removeProject(Project project) {
-        projects.get(project.getCountry()).remove(project.getId());
+        projects.get(project.getCountry().getName()).remove(project.getId());
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();
@@ -97,24 +96,21 @@ public class ProjectsManager {
 
     public int getTotalFinishedProjects() {
         int total = 0;
-        for (Map.Entry<OldCountry, Integer> entry : finishedProjects.entrySet()) {
+        for (Map.Entry<String, Integer> entry : finishedProjects.entrySet()) {
             total = total + entry.getValue();
         }
         return total;
     }
 
     public int getFinishedProjects(OldCountry country) {
-        return finishedProjects.get(country);
+        return finishedProjects.get(country.getName());
     }
 
     public void addFinishedProject(OldCountry country) {
-        int actual = finishedProjects.get(country);
-        finishedProjects.put(country, actual + 1);
+        int actual = finishedProjects.get(country.getName());
+        finishedProjects.put(country.getName(), actual + 1);
 
-        Map<String, Integer> save = new HashMap<>();
-        for (Map.Entry<OldCountry, Integer> entry : finishedProjects.entrySet()) {
-            save.put(entry.getKey().getName(), entry.getValue());
-        }
+        Map<String, Integer> save = new HashMap<>(finishedProjects);
 
         data.set("finishedProjects", save);
         data.save();
@@ -135,7 +131,7 @@ public class ProjectsManager {
                     owned.add(id);
                 }
             });
-            ownedProjects.put(country, owned);
+            ownedProjects.put(new OldCountry(country), owned);
         });
         return ownedProjects;
     }
@@ -143,7 +139,7 @@ public class ProjectsManager {
     public List<String> getAllOwnedProjects() {
         List<String> owned = new ArrayList<>();
 
-        for (Map.Entry<OldCountry, List<String>> list : projects.entrySet()) {
+        for (Map.Entry<String, List<String>> list : projects.entrySet()) {
             for (String id : list.getValue()) {
                 Project project = new Project(id);
 

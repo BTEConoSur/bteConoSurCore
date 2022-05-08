@@ -203,6 +203,17 @@ public class OldCountry {
         return null;
     }
 
+    public List<UUID> getScoreboardUUIDs() {
+        List<UUID> scoreboard = new ArrayList<>();
+
+        Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
+        for (String uuid : max.getStringList(getAbbreviation() + "_max")) {
+            scoreboard.add(UUID.fromString(uuid));
+        }
+
+        return scoreboard;
+    }
+
     public List<PointsManager> getScoreboard() {
         List<PointsManager> scoreboard = new ArrayList<>();
 
