@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 public class NickNameCommand implements CommandExecutor {
-    public static String nickPrefix = "§f[§9NICK§f] §7>>§r ";
+    public static final String NICK_PREFIX = "§f[§9NICK§f] §7>>§r ";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
