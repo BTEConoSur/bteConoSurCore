@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.storage.sql;
 
-import net.ibxnjadev.test.storage.query.CompoundQuery;
-import net.ibxnjadev.test.storage.query.Query;
+import pizzaaxx.bteconosur.storage.query.CompoundQuery;
+import pizzaaxx.bteconosur.storage.query.Query;
 
 public class SqlQueryInterpreter {
 

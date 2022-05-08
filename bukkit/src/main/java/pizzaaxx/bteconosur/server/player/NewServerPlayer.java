@@ -10,17 +10,20 @@ import java.util.UUID;
 public class NewServerPlayer {
 
     private final UUID identifier;
+    private final String name;
     private final String discriminator;
     private final int points;
     private final List<Notification> notifications;
     private String nick;
 
     public NewServerPlayer(UUID identifier,
+                           String name,
                            String discriminator,
                            int points,
                            List<Notification> notifications,
                            String nick) {
         this.identifier = identifier;
+        this.name = name;
         this.discriminator = discriminator;
         this.points = points;
         this.notifications = notifications;
@@ -45,6 +48,10 @@ public class NewServerPlayer {
 
     public List<Notification> getNotifications() {
         return notifications;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getNick() {

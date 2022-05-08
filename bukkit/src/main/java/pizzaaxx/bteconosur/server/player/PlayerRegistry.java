@@ -7,11 +7,10 @@ import java.util.UUID;
 
 public class PlayerRegistry {
 
-    private final Map<UUID, ServerPlayer> players = new HashMap<>();
+    private final Map<UUID, NewServerPlayer> players = new HashMap<>();
 
-    public void add(ServerPlayer serverPlayer) {
-        serverPlayer.loadManagers();
-        players.put(serverPlayer.getId(), serverPlayer);
+    public void add(NewServerPlayer newServerPlayer) {
+        players.put(newServerPlayer.getIdentifier(), newServerPlayer);
     }
 
     public void remove(UUID id) {
@@ -22,11 +21,11 @@ public class PlayerRegistry {
         return players.containsKey(id);
     }
 
-    public ServerPlayer get(UUID id) {
+    public NewServerPlayer get(UUID id) {
         return players.get(id);
     }
 
-    public Collection<ServerPlayer> values() {
+    public Collection<NewServerPlayer> values() {
         return players.values();
     }
 

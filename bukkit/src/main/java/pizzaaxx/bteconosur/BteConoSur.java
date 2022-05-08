@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur;
 
-import com.avaje.ebean.annotation.Where;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -107,7 +106,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new ChatCommand());
-        getCommand("nickname").setExecutor(new NickNameCommand());
+        getCommand("nickname").setExecutor(new NickNameCommand(playerRegistry));
         getCommand("test").setExecutor(new Testing(this));
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
