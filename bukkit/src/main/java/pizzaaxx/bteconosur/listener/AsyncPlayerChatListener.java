@@ -9,9 +9,6 @@ import pizzaaxx.bteconosur.server.player.NewServerPlayer;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class AsyncPlayerChatListener implements Listener {
 
     private final PlayerRegistry playerRegistry;
