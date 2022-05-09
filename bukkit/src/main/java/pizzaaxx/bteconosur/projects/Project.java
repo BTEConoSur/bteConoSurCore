@@ -126,6 +126,7 @@ public class Project {
             if (origin.owner != null) {
                 this.owner = origin.owner;
             }
+            this.points = origin.points;
 
         } else {
             this.id = id;

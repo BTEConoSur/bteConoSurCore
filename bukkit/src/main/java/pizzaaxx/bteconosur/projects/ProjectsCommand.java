@@ -197,7 +197,7 @@ public class ProjectsCommand implements CommandExecutor {
                         } else if (project.getMembers().contains(p)) {
                             p.sendMessage("Alguien más ya es dueñ@ de este proyecto. Usa §a/p request §fpara solicitar unirte.");
                         }
-                    } else if (projectsManager.getOwnedProjects().get(project.getCountry()).size() >= maxProjectsPerPlayer){
+                    } else if (projectsManager.getOwnedProjects().getOrDefault(project.getCountry(), new ArrayList<>()).size() >= maxProjectsPerPlayer){
                         p.sendMessage(projectsPrefix + "No puedes ser líder de más de 10 proyectos al mismo tiempo.");
                     } else {
                         GroupsManager manager = s.getGroupsManager();
@@ -213,6 +213,7 @@ public class ProjectsCommand implements CommandExecutor {
                         project.getCountry().getLogs().sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                     return true;
                 }

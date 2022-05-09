@@ -62,7 +62,9 @@ public class ProjectsManager {
     }
 
     public void addProject(Project project) {
-        projects.get(project.getCountry().getName()).add(project.getId());
+        List<String> ps = projects.get(project.getCountry().getName());
+        ps.add(project.getId());
+        projects.put(project.getCountry().getName(), ps);
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();

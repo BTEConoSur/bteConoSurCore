@@ -38,6 +38,26 @@ public class ServerPlayer {
         if (playerRegistry.exists(uuid)) {
             ServerPlayer origin = playerRegistry.get(uuid);
             this.dataManager = origin.getDataManager();
+
+            if (origin.chatManager != null) {
+                this.chatManager = origin.chatManager;
+            }
+            if (origin.projectsManager != null) {
+                this.projectsManager = origin.projectsManager;
+            }
+            if (origin.scoreboardManager != null) {
+                this.scoreboardManager = origin.scoreboardManager;
+            }
+            if (origin.groupsManager != null) {
+                this.groupsManager = origin.groupsManager;
+            }
+            if (origin.pointsManager != null) {
+                this.pointsManager = origin.pointsManager;
+            }
+            if (origin.discordManager != null) {
+                this.discordManager = origin.discordManager;
+            }
+
         } else {
             this.dataManager = new DataManager(this);
         }

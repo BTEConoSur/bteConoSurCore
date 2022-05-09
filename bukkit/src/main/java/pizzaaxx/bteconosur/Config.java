@@ -49,7 +49,7 @@ public class Config implements CommandExecutor {
     }
 
     public void reload() {
-        maxProjectsPerPlayer = configuration.getInt("max-project-per-player");
+        maxProjectsPerPlayer = configuration.getInt("max-projects-per-player");
         maxProjectPoints = configuration.getInt("max-project-points");
         maxProjectMembers = configuration.getInt("max-members-per-project");
         ConfigurationSection pointsSection = configuration.getConfigurationSection("points");
