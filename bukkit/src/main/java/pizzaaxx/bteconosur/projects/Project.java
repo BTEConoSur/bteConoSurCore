@@ -182,7 +182,7 @@ public class Project {
         this.id = rndmID;
 
         // TODO SEE IMPLEMENTATION OF THIS IN PROJECT REQUEST, PROBABLY DELETE ON REJECTION
-        this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConSur"), "projects/" + id);
+        this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
     }
 
     // CLAIMED

@@ -97,7 +97,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 if (p.hasPermission("bteconosur.projects.manage.create")) {
 
-                    if (!s.getPermissionCountries().contains(country)) {
+                    if (!s.getPermissionCountries().contains(country.getName())) {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         return true;
                     }
@@ -112,7 +112,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    Project project = new Project(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1]), points);
+                    Project project = new Project(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1].toUpperCase()), points);
 
                     project.save();
 

@@ -60,7 +60,7 @@ public class RequestResponse extends ListenerAdapter {
                         points.add(new BlockVector2D(Double.parseDouble(coord.split(" ")[0]), Double.parseDouble(coord.split(" ")[2])));
                     }
 
-                    Project project = new Project(Misc.getCountryAtLocation(points.get(0)), Project.Difficulty.valueOf(e.getComponentId()), points);
+                    Project project = new Project(Misc.getCountryAtLocation(points.get(0)), Project.Difficulty.valueOf(e.getComponentId().toUpperCase()), points);
                     project.setOwner(target);
                     project.save();
 

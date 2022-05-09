@@ -207,26 +207,26 @@ public class ServerPlayer {
         return null;
     }
 
-    public List<OldCountry> getPermissionCountries() {
+    public List<String> getPermissionCountries() {
         Player p = Bukkit.getPlayer(uuid);
-        List<OldCountry> permissionCountries = new ArrayList<>();
+        List<String> permissionCountries = new ArrayList<>();
         if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-            permissionCountries.add(new OldCountry("argentina"));
+            permissionCountries.add("argentina");
         }
         if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-            permissionCountries.add(new OldCountry("bolivia"));
+            permissionCountries.add("bolivia");
         }
         if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-            permissionCountries.add(new OldCountry("chile"));
+            permissionCountries.add("chile");
         }
         if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-            permissionCountries.add(new OldCountry("peru"));
+            permissionCountries.add("peru");
         }
         if (p.hasPermission("bteconosur.projects.manage.country.py")) {
-            permissionCountries.add(new OldCountry("paraguay"));
+            permissionCountries.add("paraguay");
         }
         if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
-            permissionCountries.add(new OldCountry("uruguay"));
+            permissionCountries.add("uruguay");
         }
         return permissionCountries;
     }

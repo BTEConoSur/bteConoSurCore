@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -49,10 +48,6 @@ public class ScoreboardCommand extends ListenerAdapter {
             builder.setColor(Color.GREEN);
             builder.setTitle("Jugadores con mayor puntaje de " + StringUtils.capitalize(country.getName().replace("peru", "perú")));
             int i = 1;
-
-            // #1. PIZZAAXX
-            //     Puntos: 1400
-            //     Proyectos terminados: 25
 
             for (UUID uuid : country.getScoreboardUUIDs()) {
                 String emoji;
