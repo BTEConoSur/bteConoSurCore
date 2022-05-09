@@ -58,18 +58,18 @@ public class Config implements CommandExecutor {
         points.put(Project.Difficulty.DIFICIL, pointsSection.getInt("dificil"));
 
         ConfigurationSection requestSection = configuration.getConfigurationSection("request");
-        requestsAr = conoSurBot.getTextChannelById(requestSection.getLong("ar"));
-        requestsBo = conoSurBot.getTextChannelById(requestSection.getLong("bo"));
-        requestsCl = conoSurBot.getTextChannelById(requestSection.getLong("cl"));
-        requestsPy = conoSurBot.getTextChannelById(requestSection.getLong("py"));
-        requestsPe = conoSurBot.getTextChannelById(requestSection.getLong("pe"));
+        requestsAr = conoSurBot.getTextChannelById(requestSection.getString("ar"));
+        requestsBo = conoSurBot.getTextChannelById(requestSection.getString("bo"));
+        requestsCl = conoSurBot.getTextChannelById(requestSection.getString("cl"));
+        requestsPy = conoSurBot.getTextChannelById(requestSection.getString("py"));
+        requestsPe = conoSurBot.getTextChannelById(requestSection.getString("pe"));
 
         ConfigurationSection logsSection = configuration.getConfigurationSection("logs");
-        logsAr = conoSurBot.getTextChannelById(logsSection.getLong("ar"));
-        logsBo = conoSurBot.getTextChannelById(logsSection.getLong("bo"));
-        logsCl = conoSurBot.getTextChannelById(logsSection.getLong("cl"));
-        logsPy = conoSurBot.getTextChannelById(logsSection.getLong("py"));
-        logsPe = conoSurBot.getTextChannelById(logsSection.getLong("pe"));
+        logsAr = conoSurBot.getTextChannelById(logsSection.getString("ar"));
+        logsBo = conoSurBot.getTextChannelById(logsSection.getString("bo"));
+        logsCl = conoSurBot.getTextChannelById(logsSection.getString("cl"));
+        logsPy = conoSurBot.getTextChannelById(logsSection.getString("py"));
+        logsPe = conoSurBot.getTextChannelById(logsSection.getString("pe"));
 
         gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));
 

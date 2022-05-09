@@ -171,6 +171,7 @@ public class Project {
         this.country = country;
         this.difficulty = difficulty;
         this.points = points;
+        this.pending = false;
 
         String rndmID = generateCode(6);
 
@@ -194,7 +195,10 @@ public class Project {
     // --- GETTERS ---
 
     public OfflinePlayer getOwner() {
-        return Bukkit.getOfflinePlayer(owner);
+        if (owner != null) {
+            return Bukkit.getOfflinePlayer(owner);
+        }
+        return null;
     }
 
     public OldCountry getCountry() {
@@ -454,9 +458,13 @@ public class Project {
 
         config.set("country", country.getName());
 
-        config.set("name", name);
+        if (name != null) {
+            config.set("name", name);
+        }
 
-        config.set("owner", owner.toString());
+        if (owner != null) {
+            config.set("owner", owner.toString());
+        }
 
         config.set("members", (members.isEmpty() ? null : members.stream().map(UUID::toString).collect(Collectors.toList())));
 

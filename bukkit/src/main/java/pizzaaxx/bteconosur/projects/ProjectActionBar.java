@@ -31,6 +31,8 @@ public class ProjectActionBar implements Listener {
 
                     if (project.getOwner() != null) {
                         player.sendActionBar(color + project.getName() + "§7 - " + new ServerPlayer(project.getOwner()).getName());
+                    } else {
+                        player.sendActionBar(color + project.getName() + "§7 - Sin reclamar");
                     }
 
                     break;

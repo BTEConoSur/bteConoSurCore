@@ -154,7 +154,7 @@ public class OldCountry {
             return logsPe;
         }
         if (this.name.equals("uruguay")) {
-            return logsUy;
+            return logsPy;
         }
         return null;
     }
@@ -176,7 +176,7 @@ public class OldCountry {
             return requestsPe;
         }
         if (this.name.equals("uruguay")) {
-            return requestsUy;
+            return requestsPy;
         }
         return null;
     }

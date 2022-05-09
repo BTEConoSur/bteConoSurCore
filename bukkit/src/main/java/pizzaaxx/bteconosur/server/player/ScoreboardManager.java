@@ -151,6 +151,7 @@ public class ScoreboardManager {
                             }
                         }
                     } catch (Exception e) {
+                        title = "§4§lPROYECTO";
                         lines.add(" ");
                         lines.add("§cNo disponible.");
                     }
@@ -200,6 +201,8 @@ public class ScoreboardManager {
 
                     if (!country.getName().equals("global") && !country.getName().equals("argentina")) {
 
+                        title = "§a§lTop " + StringUtils.capitalize(country.getName().replace("peru,", "perú"));
+
                         int i = 1;
                         for (PointsManager pointsManager : country.getScoreboard()) {
 
@@ -222,6 +225,7 @@ public class ScoreboardManager {
                         }
 
                     } else {
+                        title = "§4§lTOP";
 
                         lines.add("§cNo disponible.");
                     }
@@ -276,6 +280,9 @@ public class ScoreboardManager {
     public void setType(ScoreboardType type) {
         this.type = type;
         update();
+        scoreboard.set("type", type.toString().toLowerCase());
+        data.set("scoreboard", scoreboard);
+        data.save();
     }
 
     public void save() {

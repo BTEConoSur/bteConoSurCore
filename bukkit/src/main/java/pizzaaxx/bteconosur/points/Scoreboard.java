@@ -105,16 +105,16 @@ public class Scoreboard implements Listener, CommandExecutor {
 
                         manager.setAuto(false);
                         manager.setHidden(false);
-                        manager.setType(ScoreboardManager.ScoreboardType.valueOf(args[0].replace("proyecto", "project")));
+                        manager.setType(ScoreboardManager.ScoreboardType.valueOf(args[0].replace("proyecto", "project").toUpperCase()));
                         manager.save();
 
                         p.sendMessage(scoreboardPrefix + "Has establecido tu §oscoreboard§f en §a" + args[0].replace("proyecto", "project").toUpperCase() + "§f.");
                     } else if (args[0].equals("auto")) {
                         if (manager.toggleAuto()) {
-                            p.sendMessage(scoreboardPrefix + "Has desactivado el §oscoreboard§f automático.");
+                            p.sendMessage(scoreboardPrefix + "Has activado el §oscoreboard§f automático.");
                         } else {
                             manager.setHidden(false);
-                            p.sendMessage(scoreboardPrefix + "Has activado el §oscoreboard§f automático.");
+                            p.sendMessage(scoreboardPrefix + "Has desactivado el §oscoreboard§f automático.");
                         }
                     } else {
                         p.sendMessage(scoreboardPrefix + "Introduce un tipo válido.");
