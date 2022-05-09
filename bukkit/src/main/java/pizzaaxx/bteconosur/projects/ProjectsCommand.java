@@ -25,10 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
-import pizzaaxx.bteconosur.server.player.GroupsManager;
-import pizzaaxx.bteconosur.server.player.PointsManager;
-import pizzaaxx.bteconosur.server.player.ProjectsManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.yaml.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
@@ -37,14 +34,14 @@ import java.awt.Color;
 import java.util.List;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.key;
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.misc.Misc.getCountryAtLocation;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.server.player.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegion;
 
 public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
@@ -585,6 +582,13 @@ public class ProjectsCommand implements CommandExecutor {
                                 project.save();
 
                                 p.sendMessage(projectsPrefix + "Has cambiado el nombre del proyecto a §a" + project.getName() + "§f.");
+
+                                for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                    ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                    if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                        manager.update();
+                                    }
+                                }
                             } else {
                                 p.sendMessage(projectsPrefix + "Introduce un nombre válido.");
                             }

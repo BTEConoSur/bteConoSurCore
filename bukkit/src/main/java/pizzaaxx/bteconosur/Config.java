@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
@@ -82,7 +83,7 @@ public class Config implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, String label, String[] args) {
 
         if (command.getName().equals("btecs_reload")) {
             if (sender.hasPermission("bteconosur.reload")) {

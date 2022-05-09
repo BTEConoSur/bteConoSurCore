@@ -127,6 +127,9 @@ public class Project {
                 this.owner = origin.owner;
             }
             this.points = origin.points;
+            if (origin.name != null) {
+                this.name = origin.name;
+            }
 
         } else {
             this.id = id;
@@ -442,7 +445,6 @@ public class Project {
     // UPLOAD PROJECT
 
     public void save() {
-        projectRegistry.register(this);
 
         config.set("difficulty", difficulty.toString().toLowerCase());
 
@@ -571,6 +573,8 @@ public class Project {
                 sManager.update();
             }
         }
+
+        projectRegistry.register(this);
     }
 
     // EMPTY PROJECT
