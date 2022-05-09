@@ -418,7 +418,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (project.getOwner() == p) {
+                    if (project.getOwner() != null && project.getOwner() == p) {
                         if (leaveConfirmation.contains(p)) {
                             leaveConfirmation.remove(p);
                             p.sendMessage(projectsPrefix + "Has abandonado el proyecto §a" + project.getName(true) + "§f.");

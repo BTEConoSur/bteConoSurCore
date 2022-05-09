@@ -465,6 +465,8 @@ public class Project {
 
         if (owner != null) {
             config.set("owner", owner.toString());
+        } else {
+            config.set("owner", null);
         }
 
         config.set("members", (members.isEmpty() ? null : members.stream().map(UUID::toString).collect(Collectors.toList())));
