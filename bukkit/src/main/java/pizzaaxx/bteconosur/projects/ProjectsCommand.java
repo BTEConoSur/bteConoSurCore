@@ -113,6 +113,13 @@ public class ProjectsCommand implements CommandExecutor {
 
                     project.save();
 
+                    for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                        ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                        if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                            manager.update();
+                        }
+                    }
+
                     // SEND MESSAGES
 
                     p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f.");
@@ -205,6 +212,13 @@ public class ProjectsCommand implements CommandExecutor {
                         project.setOwner(p);
                         project.save();
 
+                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                            ScoreboardManager scoreboardManager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                            if (scoreboardManager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                scoreboardManager.update();
+                            }
+                        }
+
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
 
                         project.getCountry().getLogs().sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
@@ -230,6 +244,13 @@ public class ProjectsCommand implements CommandExecutor {
                         try {
                             Project project = new Project(args[1]);
                             project.delete();
+
+                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                    manager.update();
+                                }
+                            }
 
                             p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
 
@@ -280,6 +301,13 @@ public class ProjectsCommand implements CommandExecutor {
                                     project.addMember(target);
                                     project.save();
 
+                                    for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                        ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                        if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                            manager.update();
+                                        }
+                                    }
+
                                     ServerPlayer sTarget = new ServerPlayer(target);
 
                                     p.sendMessage(projectsPrefix + "Has agregado a §a" + sTarget.getName() + "§f al proyecto §a" + project.getName() + "§f.");
@@ -325,6 +353,13 @@ public class ProjectsCommand implements CommandExecutor {
                                 if (project.getMembers().contains(target)) {
                                     project.removeMember(target);
                                     project.save();
+
+                                    for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                        ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                        if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                            manager.update();
+                                        }
+                                    }
 
                                     p.sendMessage(projectsPrefix + "Has removido a §a" + sTarget.getName() + "§f del proyecto §a" + project.getName() + "§f.");
 
@@ -376,6 +411,14 @@ public class ProjectsCommand implements CommandExecutor {
 
                                         project.transfer(target);
                                         project.save();
+
+                                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                                manager.update();
+                                            }
+                                        }
+
 
                                         p.sendMessage(projectsPrefix + "Has transferido el proyecto §a" + project.getName() + " §fa §a" + target.getName() + "§f.");
                                         target.sendMessage(projectsPrefix + "§a" + p.getName() + " §fte ha transferido el proyecto §a" + project.getName() + "§f.");
@@ -432,6 +475,13 @@ public class ProjectsCommand implements CommandExecutor {
                             project.setName(null);
                             project.save();
 
+                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                    manager.update();
+                                }
+                            }
+
                         } else {
                             leaveConfirmation.add(p);
                             p.sendMessage(projectsPrefix + "§cEl proyecto quedará vacío si el líder abandonda el proyecto. Esta acción no se puede deshacer. §fUsa el comando de nuevo para confirmar.");
@@ -439,6 +489,13 @@ public class ProjectsCommand implements CommandExecutor {
                     } else if (project.getMembers().contains(p)) {
                         project.removeMember(p);
                         project.save();
+
+                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                manager.update();
+                            }
+                        }
 
                         p.sendMessage(projectsPrefix + "Has abandonado el proyecto §a" + project.getName() + "§f.");
 
@@ -978,7 +1035,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     if (p.hasPermission("bteconosur.projects.manage.redefine")) {
 
-                        if (!s.getPermissionCountries().contains(project.getCountry())) {
+                        if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                             return true;
                         }
@@ -998,10 +1055,17 @@ public class ProjectsCommand implements CommandExecutor {
                             return true;
                         }
 
-                        project.setDifficulty(Project.Difficulty.valueOf(args[1]));
+                        project.setDifficulty(Project.Difficulty.valueOf(args[1].toUpperCase()));
                         project.setPoints(points);
 
                         project.save();
+
+                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                manager.update();
+                            }
+                        }
                         // SEND MESSAGES
 
                         p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId() + "§f redefinido con dificultad §a" + project.getDifficulty().toString().toUpperCase()  + "§f.");
@@ -1012,13 +1076,13 @@ public class ProjectsCommand implements CommandExecutor {
                         }
                         dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
 
-                        StringBuilder notif = new StringBuilder("Tu proyecto **§a" + project.getName(true) + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toString().toUpperCase() + "§f** en las coordenadas: \n");
+                        StringBuilder notif = new StringBuilder("Tu proyecto **§a" + project.getName(true) + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toString().toUpperCase() + "§f** en las coordenadas: \n§7");
                         for (BlockVector2D point : project.getPoints()) {
                             notif.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }
 
                         if (project.getOwner() != null) {
-                            new ServerPlayer(project.getOwner()).sendNotification(notif.toString());
+                            new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + notif);
                         }
 
                         project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
@@ -1097,6 +1161,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
@@ -1108,14 +1173,21 @@ public class ProjectsCommand implements CommandExecutor {
                     try {
                         Project project = new Project(p.getLocation());
 
-                        if (!(s.getPermissionCountries().contains(project.getCountry()))) {
+                        if (!(s.getPermissionCountries().contains(project.getCountry().getName()))) {
                             p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                         }
 
                         if (args.length > 1) {
                             if (args[1].equals("edificios") || args[1].equals("departamentos") || args[1].equals("casas") || args[1].equals("parques") || args[1].equals("establecimientos") || args[1].equals("carreteras") || args[1].equals("centros_comerciales")) {
-                                project.setTag(Project.Tag.valueOf(args[1]));
+                                project.setTag(Project.Tag.valueOf(args[1].toUpperCase()));
                                 project.save();
+
+                                for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                    ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                    if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                        manager.update();
+                                    }
+                                }
 
                                 project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
 
@@ -1123,6 +1195,13 @@ public class ProjectsCommand implements CommandExecutor {
                             } else if (args[1].equals("delete")) {
                                 project.setTag(null);
                                 project.save();
+
+                                for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                    ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                    if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                        manager.update();
+                                    }
+                                }
 
                                 project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
 

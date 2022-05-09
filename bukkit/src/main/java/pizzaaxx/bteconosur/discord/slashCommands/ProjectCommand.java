@@ -74,7 +74,7 @@ public class ProjectCommand extends ListenerAdapter {
                         // ETIQUETA
 
                         if (project.getTag() != null) {
-                            embed.addField(":label: Etiqueta:", project.getTag().toString().toLowerCase()
+                            embed.addField("Etiqueta:", project.getTag().toString().toLowerCase()
                                     .replace("edificios", ":cityscape: Edificios")
                                     .replace("casas", ":house_with_garden: Casas")
                                     .replace("departamentos", ":hotel: Departamentos")

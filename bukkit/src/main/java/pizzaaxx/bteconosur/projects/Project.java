@@ -130,6 +130,9 @@ public class Project {
             if (origin.name != null) {
                 this.name = origin.name;
             }
+            if (origin.tag != null) {
+                this.tag = origin.tag;
+            }
 
         } else {
             this.id = id;
