@@ -121,13 +121,13 @@ public class PointsManager {
         public String getAsPrefix() {
             switch (this) {
                 case AVANZADO:
-                    return "[§2AVANZADO§f]";
+                    return "§f[§1AVANZADO§f]";
                 case VETERANO:
-                    return "[§eAVANZADO§f]";
+                    return "§f[§eVETERANO§f]";
                 case MAESTRO:
-                    return "[§6MAESTRO§f]";
+                    return "§f[§6MAESTRO§f]";
                 default:
-                    return "[§9BUILDER§f]";
+                    return "§f[§9BUILDER§f]";
             }
         }
     }

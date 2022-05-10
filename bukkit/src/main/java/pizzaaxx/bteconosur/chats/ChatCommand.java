@@ -5,6 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.server.player.ChatManager;
+import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.projects.Project;
@@ -34,6 +35,10 @@ public class ChatCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("argentina") || args[0].equalsIgnoreCase("bolivia") || args[0].equalsIgnoreCase("chile") || args[0].equalsIgnoreCase("paraguay") || args[0].equalsIgnoreCase("peru") || args[0].equalsIgnoreCase("uruguay") || args[0].equalsIgnoreCase("global")) {
                 if (!(pChat.getName().equals(args[0]))) {
                     manager.setChat(args[0]);
+
+                    if (s.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.ME) {
+                        s.getScoreboardManager().update();
+                    }
 
                     p.sendMessage(CHAT_PREFIX + "Te has unido al chat de §a" + args[0].toUpperCase() + "§f. §7(Jugadores: " + manager.getChat().getMembersAmount() + ")");
 

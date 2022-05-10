@@ -113,14 +113,12 @@ public class Chat {
             }
         }
         Chat pChat = cManager.getChat();
-        String msg = (!this.equals(pChat) ? CHAT_PREFIX + " " + pChat.getFormattedName() + " §r>> " : "") + String.join(" ", cManager.getAllPrefixes()) + " " + (country != null && !country.getName().equals("argentina") ? PointsManager.BuilderRank.getFrom(pManager.getPoints(country)) : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
+        String msg = (!this.equals(pChat) ? CHAT_PREFIX + " " + pChat.getFormattedName() + " §r>> " : "") + String.join(" ", cManager.getAllPrefixes()) + (country != null && pManager.getPoints(country) >= 15 && !country.getName().equals("argentina") ? " " + PointsManager.BuilderRank.getFrom(pManager.getPoints(country)).getAsPrefix() : "") + "§r <" + cManager.getDisplayName() + "§r> " + message;
 
         for (UUID uuid : membersUUID) {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
-            Bukkit.getConsoleSender().sendMessage("Gets before check");
             if (!s.getChatManager().isHidden()) {
-                Bukkit.getConsoleSender().sendMessage("Gets before is not hidden");
                 player.sendMessage(msg);
             }
         }

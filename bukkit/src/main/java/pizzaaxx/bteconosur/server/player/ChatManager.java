@@ -21,15 +21,15 @@ public class ChatManager {
 
     public Chat getChat() {
         if (data.contains("chat.actual")) {
-            return new Chat(data.getString("chat.actual"));
+            return chatRegistry.get(data.getString("chat.actual"));
         }
-        return new Chat("global");
+        return chatRegistry.get("global");
     }
 
     public void setChat(@NotNull String chat) {
+        chatRegistry.movePlayer(serverPlayer, chat);
         data.set("chat.actual", chat);
         data.save();
-        chatRegistry.movePlayer(serverPlayer, chat);
     }
 
     public Chat getDefaultChat() {
@@ -45,15 +45,15 @@ public class ChatManager {
     }
 
     public boolean hasCountryPrefix() {
-        return data.contains("countryPrefix");
+        return data.contains("prefix");
     }
 
     public String getCountryPrefix() {
-        return data.getString("countryPrefix");
+        return data.getString("prefix");
     }
 
     public void setCountryPrefix(String prefix) {
-        data.set("countryPrefix", prefix);
+        data.set("prefix", prefix);
         data.save();
     }
 
