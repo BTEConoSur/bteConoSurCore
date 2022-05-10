@@ -15,7 +15,7 @@ public class Arguments {
     }
 
     public String getArgument(int size) {
-        if (size > arguments.length) {
+        if (size >= arguments.length) {
             return EMPTY;
         }
         return arguments[size];
