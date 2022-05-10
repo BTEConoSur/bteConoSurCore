@@ -53,11 +53,14 @@ public class Project {
         }
     }
 
+
     public static Map<Tag, List<String>> getAvailableProjects(OldCountry country, Difficulty difficulty) {
         Map<Tag, List<String>> projects = new HashMap<>();
 
         for (Tag tag : Tag.values()) {
             String tagName = tag.toString().toLowerCase();
+
+            projects.put(tag, new ArrayList<>());
 
             Configuration tags = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projectTags/tags");
             if (tags.contains(tagName)) {
@@ -554,7 +557,7 @@ public class Project {
                 // COUNTRY
                 List<String> country = tag.getStringList(this.country.getName());
                 if (!country.contains(id)) {
-                    country.remove(id);
+                    country.add(id);
                     tag.set(this.country.getName(), country);
                     tags.set(tagName, tag);
                 }
