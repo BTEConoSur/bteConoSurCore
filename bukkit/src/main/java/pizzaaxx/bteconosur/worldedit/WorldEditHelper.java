@@ -95,7 +95,8 @@ public class WorldEditHelper {
                 .getEditSession((World) new BukkitWorld(mainWorld), localSession.getBlockChangeLimit());
     }
 
-    public static void setBlocksInLine(Player p, Actor actor, EditSession editSession, Pattern pattern, Mask mask, Vector pos1, Vector pos2) {
+    public static EditSession setBlocksInLine(Player p, Actor actor, EditSession editSession, Pattern pattern, Mask mask, Vector pos1, Vector pos2) {
+
 
         Set<Vector> vset = new HashSet<>();
         boolean notdrawn = true;
@@ -152,9 +153,12 @@ public class WorldEditHelper {
                     editSession.setBlock(point, pattern.apply(point));
                 } catch (MaxChangedBlocksException e) {
                     p.sendMessage(WORLD_EDIT_PREFIX + "Límite de bloques alcanzado.");
+                    break;
                 }
             }
         }
+
+        return editSession;
 
     }
 }

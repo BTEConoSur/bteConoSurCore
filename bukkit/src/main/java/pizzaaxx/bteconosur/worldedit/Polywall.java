@@ -111,11 +111,15 @@ public class Polywall implements CommandExecutor {
                             BlockVector2D v1 = pointsFinal.get(j);
                             BlockVector2D v2 = pointsFinal.get(j + 1);
 
-                            setBlocksInLine(p, actor, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
+                            editSession = setBlocksInLine(p, actor, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
                         }
                     }
 
-                    WorldEdit.getInstance().getSessionManager().get(actor).remember(editSession);
+                    if (editSession != null) {
+                        Bukkit.getConsoleSender().sendMessage(Integer.toString(editSession.getBlockChangeCount()));
+
+                        WorldEdit.getInstance().getSessionManager().get(actor).remember(editSession);
+                    }
 
                     p.sendMessage(WORLD_EDIT_PREFIX + "Paredes de la selección creadas.");
                 } else {
