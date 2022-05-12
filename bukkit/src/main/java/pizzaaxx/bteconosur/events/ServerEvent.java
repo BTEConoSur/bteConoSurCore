@@ -30,6 +30,8 @@ import static pizzaaxx.bteconosur.events.EventsCommand.eventsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.getMapURL;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
+// TODO FIX EVENTS
+
 public class ServerEvent {
     private Status status;
     private String name;

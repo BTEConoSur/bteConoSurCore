@@ -24,7 +24,6 @@ public class Config implements CommandExecutor {
     public static int mediumPoints;
     public static int hardPoints;
     public static int maxProjectMembers;
-    // TODO SWITCH TO USE DIFFICULTY ENUM
 
     public static TextChannel requestsAr;
     public static TextChannel requestsBo;

@@ -949,6 +949,7 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("manage") || args[0].equals("manejar")) {
+                // TODO FINISH THIS
                 if (!(p.hasPermission("bteconosur.projects.members"))) {
                     p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                     return true;
