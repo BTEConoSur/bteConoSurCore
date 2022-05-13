@@ -16,15 +16,18 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
+import org.bukkit.block.Skull;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
+import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -958,15 +961,51 @@ public class ProjectsCommand implements CommandExecutor {
                 try {
                     Project project = new Project(p.getLocation());
                     if (project.getOwner() == p) {
-                        Inventory gui = Bukkit.createInventory(null, 53, "Proyecto " + project.getName(true));
+                        Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getName(true));
 
                         List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
 
-                        for (int i = 0; i < 53; i++) {
+                        for (int i = 0; i <= 53; i++) {
                             if (!membersSlots.contains(i)) {
                                 gui.setItem(i, background);
                             }
                         }
+
+                        int i = 0;
+                        for (OfflinePlayer member : project.getMembers()) {
+                            ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                            SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
+                            ServerPlayer sMember = new ServerPlayer(member);
+                            meta.setDisplayName(sMember.getName());
+                            meta.setLore(Arrays.asList(
+                                    sMember.getLoreWithoutTitle(),
+                                    "\n§7Haz click para §cremover §7al jugador del proyecto"
+                            ));
+                            meta.setOwningPlayer(member);
+                            ownerHead.setItemMeta(meta);
+
+                            gui.setItem(membersSlots.get(i), ownerHead);
+                            i++;
+                        }
+
+                        if (project.getMembers().size() < 14) {
+                            ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
+                            gui.setItem(membersSlots.get(i), add);
+                        }
+
+                        OfflinePlayer owner = project.getOwner();
+                        ServerPlayer sOwner = new ServerPlayer(owner);
+                        ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                        SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
+                        meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
+                        meta.setLore(Arrays.asList(
+                                s.getLoreWithoutTitle(),
+                                "\n§e[➡] §7Haz click para §etransferir §7el proyecto"
+                        ));
+                        meta.setOwningPlayer(owner);
+                        ownerHead.setItemMeta(meta);
+
+                        gui.setItem(13, ownerHead);
 
                         p.openInventory(gui);
 

@@ -204,6 +204,29 @@ public class ServerPlayer {
         return String.join("\n", lines);
     }
 
+    public String getLoreWithoutTitle() {
+        List<String> lines = new ArrayList<>();
+
+        ProjectsManager projectsManager = getProjectsManager();
+        lines.add("§aProyectos activos: §r" + projectsManager.getTotalProjects());
+        lines.add("§aProyectos terminados: §r" + projectsManager.getTotalFinishedProjects());
+
+        PointsManager pointsManager = getPointsManager();
+        if (pointsManager.getMaxPoints().getValue() != null) {
+            lines.add("§aPuntos:§r");
+
+            pointsManager.getSorted().forEach((country, points) -> lines.add("· " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + pointsManager.getPoints(country)));
+
+        }
+
+        DiscordManager discordManager = getDiscordManager();
+        if (discordManager.isLinked()) {
+            lines.add("§aDiscord: §r" + discordManager.getName() + "#" + discordManager.getDiscriminator());
+        }
+
+        return String.join("\n", lines);
+    }
+
     public String getName() {
         return dataManager.getString("name");
     }
