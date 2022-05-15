@@ -978,7 +978,7 @@ public class ProjectsCommand implements CommandExecutor {
                             meta.setDisplayName(sMember.getName());
                             meta.setLore(Arrays.asList(
                                     sMember.getLoreWithoutTitle(),
-                                    "\n§7Haz click para §cremover §7al jugador del proyecto\n\n",
+                                    "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto\n\n",
                                     "§0action: remove " + sMember.getPlayer().getUniqueId()
                             ));
                             meta.setOwningPlayer(member);
