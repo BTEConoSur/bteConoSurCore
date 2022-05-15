@@ -97,7 +97,8 @@ public final class BteConoSur extends JavaPlugin {
                 new GetCommand(),
                 new PrefixCommand(),
                 new LobbyCommand(this),
-                new EventsCommand()
+                new EventsCommand(),
+                new ProjectManageInventoryListener(this)
         );
 
         getLogger().info("Registering commands...");

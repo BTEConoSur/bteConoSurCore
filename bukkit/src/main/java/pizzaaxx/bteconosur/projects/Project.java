@@ -45,6 +45,9 @@ public class Project {
     private Tag tag = null;
     private Tag oldTag = null;
 
+    /**
+     * The difficulty of a project, holds how many points a player should be given for finishing a project.
+     */
     public enum Difficulty {
         FACIL, INTERMEDIO, DIFICIL;
 
@@ -54,6 +57,12 @@ public class Project {
     }
 
 
+    /**
+     *
+     * @param country The country to search in.
+     * @param difficulty The specific difficulty to search.
+     * @return A map containing a list of project IDs which match the country and difficulty, addressed by Tag.
+     */
     public static Map<Tag, List<String>> getAvailableProjects(OldCountry country, Difficulty difficulty) {
         Map<Tag, List<String>> projects = new HashMap<>();
 
@@ -192,7 +201,6 @@ public class Project {
 
         this.id = rndmID;
 
-        // TODO SEE IMPLEMENTATION OF THIS IN PROJECT REQUEST, PROBABLY DELETE ON REJECTION
         this.config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projects/" + id);
     }
 
