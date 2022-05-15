@@ -25,6 +25,8 @@ public class Config implements CommandExecutor {
     public static int hardPoints;
     public static int maxProjectMembers;
 
+    public static int maxPlayers;
+
     public static TextChannel requestsAr;
     public static TextChannel requestsBo;
     public static TextChannel requestsCl;
@@ -73,7 +75,7 @@ public class Config implements CommandExecutor {
 
         gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));
 
-
+        maxPlayers = configuration.getInt("max-players");
 
         Configuration colors = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "chat/colors");
         for (String key : colors.getKeys(false)) {

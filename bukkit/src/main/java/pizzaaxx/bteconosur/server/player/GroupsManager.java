@@ -147,6 +147,34 @@ public class GroupsManager {
         }
     }
 
+    public int getEntrancePriority() {
+        if (primaryGroup == PrimaryGroup.ADMIN) {
+            return 8;
+        }
+        if (primaryGroup == PrimaryGroup.MOD) {
+            return 7;
+        }
+        if (secondaryGroups.contains(SecondaryGroup.DONADOR)) {
+            return 6;
+        }
+        if (secondaryGroups.contains(SecondaryGroup.STREAMER)) {
+            return 5;
+        }
+        if (primaryGroup == PrimaryGroup.BUILDER) {
+            return 4;
+        }
+        if (primaryGroup == PrimaryGroup.POSTULANTE) {
+            return 3;
+        }
+        if (secondaryGroups.contains(SecondaryGroup.EVENTO)) {
+            return 2;
+        }
+        if (primaryGroup == PrimaryGroup.DEFAULT) {
+            return 1;
+        }
+        return 1;
+    }
+
     public void removeSecondaryGroup(SecondaryGroup group) {
         if (secondaryGroups.contains(group)) {
             secondaryGroups.remove(group);
