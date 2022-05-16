@@ -957,8 +957,27 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
-                try {
-                    Project project = new Project(p.getLocation());
+                Project project = null;
+
+                if (args.length > 1) {
+                    if (args[1].matches("[a-z]{6}")) {
+                        if (Project.projectExists(args[1])) {
+                            project = new Project(args[1]);
+                        } else {
+                            p.sendMessage(projectsPrefix + "El proyecto introducido no existe.");
+                        }
+                    } else {
+                        p.sendMessage(projectsPrefix + "Introduce una ID válida.");
+                    }
+                } else {
+                    try {
+                        project = new Project(p.getLocation());
+                    } catch (Exception e) {
+                        p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                    }
+                }
+
+                if (project != null) {
                     if (project.getOwner() == p) {
                         Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName(true) : ""));
 
@@ -1013,8 +1032,8 @@ public class ProjectsCommand implements CommandExecutor {
                     } else {
                         p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
-                } catch (Exception e) {
-                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                } else {
+                    p.sendMessage(projectsPrefix + "Algo ha salido mal.");
                 }
             }
 
