@@ -11,6 +11,7 @@ import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
@@ -115,6 +116,33 @@ public class Misc {
 
         return head;
     }
+
+    public static ItemStack getCustomHeadList(String name, @NotNull List<String> lore, String value) {
+        ItemStack head = new ItemStack(Material.SKULL_ITEM,1,(byte) SkullType.PLAYER.ordinal());
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+
+        headMeta.setDisplayName(name);
+
+        if (!lore.isEmpty()) {
+            headMeta.setLore(lore);
+        }
+
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        profile.getProperties().put("textures", new Property("textures", value));
+        Field field;
+        try {
+            field = headMeta.getClass().getDeclaredField("profile");
+            field.setAccessible(true);
+            field.set(headMeta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException x) {
+            x.printStackTrace();
+        }
+
+        head.setItemMeta(headMeta);
+
+        return head;
+    }
+
 
     @SafeVarargs
     public static String getMapURL(Pair<List<BlockVector2D>, String>... polygons) {

@@ -23,6 +23,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
@@ -991,24 +992,24 @@ public class ProjectsCommand implements CommandExecutor {
 
                         int i = 0;
                         for (OfflinePlayer member : project.getMembers()) {
-                            ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                            SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
+                            ItemStack memberHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                            SkullMeta meta = (SkullMeta) memberHead.getItemMeta();
                             ServerPlayer sMember = new ServerPlayer(member);
-                            meta.setDisplayName(sMember.getName());
+                            meta.setDisplayName("§f" + sMember.getName());
                             meta.setLore(Arrays.asList(
                                     sMember.getLoreWithoutTitle(),
-                                    "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto\n\n",
+                                    "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto",
                                     "§0action: remove " + sMember.getPlayer().getUniqueId()
                             ));
                             meta.setOwningPlayer(member);
-                            ownerHead.setItemMeta(meta);
+                            memberHead.setItemMeta(meta);
 
-                            gui.setItem(membersSlots.get(i), ownerHead);
+                            gui.setItem(membersSlots.get(i), memberHead);
                             i++;
                         }
 
                         if (project.getMembers().size() < 14) {
-                            ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto\n\n§0action: add", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
+                            ItemStack add = Misc.getCustomHeadList("§fAgregar miembros", Arrays.asList("§a[+] §7Haz click para §aagregar §7miembros al proyecto", "§0action: add"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
                             gui.setItem(membersSlots.get(i), add);
                         }
 
@@ -1019,7 +1020,7 @@ public class ProjectsCommand implements CommandExecutor {
                         meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
                         meta.setLore(Arrays.asList(
                                 s.getLoreWithoutTitle(),
-                                "\n§e[➡] §7Haz click para §etransferir §7el proyecto\n\n",
+                                "\n§e[➡] §7Haz click para §etransferir §7el proyecto",
                                 "§0action: transfer"
                         ));
                         meta.setOwningPlayer(owner);

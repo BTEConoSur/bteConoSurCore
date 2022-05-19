@@ -31,7 +31,7 @@ public class DiscordManager {
 
         data = serverPlayer.getDataManager();
 
-        if (data.contains("discord")) {
+        if (data.contains("discord.name")) {
             discord = data.getConfigurationSection("discord");
             linked = true;
 

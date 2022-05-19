@@ -44,8 +44,9 @@ public class ProjectManageInventoryListener implements Listener {
 
         if (name.startsWith("Proyecto ")) {
 
+            event.setCancelled(true);
 
-            String id = name.substring(10, 16).toLowerCase();
+            String id = name.substring(9, 15).toLowerCase();
 
             try {
                 Project project = new Project(id);
@@ -64,6 +65,7 @@ public class ProjectManageInventoryListener implements Listener {
                             }
                         }
 
+
                         if (action.equals("transfer")) {
 
                             Inventory gui = Bukkit.createInventory(null, 36, "Transferir el proyecto");
@@ -75,7 +77,7 @@ public class ProjectManageInventoryListener implements Listener {
 
                             for (int i = 0; i < 36; i++) {
                                 if (!memberSlots.contains(i)) {
-                                    inventory.setItem(i, background);
+                                    gui.setItem(i, background);
                                 }
                             }
 
@@ -84,12 +86,14 @@ public class ProjectManageInventoryListener implements Listener {
                                 ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
                                 SkullMeta m = (SkullMeta) head.getItemMeta();
                                 ServerPlayer sMember = new ServerPlayer(member);
-                                m.setDisplayName(sMember.getName());
+                                m.setDisplayName("§f" + sMember.getName());
                                 m.setLore(Arrays.asList(
                                         sMember.getLoreWithoutTitle(),
-                                        "\n§a[➡] §7Haz click para §etransferir §7el proyecto al jugador\n\n",
+                                        "\n§a[➡] §7Haz click para §etransferir §7el proyecto al jugador",
                                         "§0action: " + sMember.getPlayer().getUniqueId() + " " + project.getId()
                                 ));
+                                m.setOwningPlayer(member);
+                                head.setItemMeta(m);
 
                                 gui.setItem(memberSlots.get(i), head);
 
@@ -106,12 +110,12 @@ public class ProjectManageInventoryListener implements Listener {
 
                             player.closeInventory();
 
-                            player.performCommand("/p remove " + new ServerPlayer(UUID.fromString(uuid)).getName());
+                            player.performCommand("p remove " + new ServerPlayer(UUID.fromString(uuid)).getName());
 
                             BukkitRunnable runnable = new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    player.performCommand("/p manage");
+                                    player.performCommand("p manage");
                                 }
                             };
                             runnable.runTaskLaterAsynchronously(plugin, 40);
@@ -125,7 +129,7 @@ public class ProjectManageInventoryListener implements Listener {
                             );
                             for (int i = 0; i < 54; i++) {
                                 if (!playerSlots.contains(i)) {
-                                    inventory.setItem(i, background);
+                                    gui.setItem(i, background);
                                 }
                             }
                             List<UUID> members = project.getAllMembers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList());
@@ -136,12 +140,14 @@ public class ProjectManageInventoryListener implements Listener {
                                     ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
                                     SkullMeta m = (SkullMeta) head.getItemMeta();
                                     ServerPlayer sMember = new ServerPlayer(p);
-                                    m.setDisplayName(sMember.getName());
+                                    m.setDisplayName("§f" + sMember.getName());
                                     m.setLore(Arrays.asList(
                                             sMember.getLoreWithoutTitle(),
-                                            "\n§a[+] §7Haz click para §aañadir §7al jugador al proyecto\n\n",
+                                            "\n§a[+] §7Haz click para §aañadir §7al jugador al proyecto",
                                             "§0action: add " + sMember.getPlayer().getUniqueId() + " " + project.getId()
                                     ));
+                                    m.setOwningPlayer(p);
+                                    head.setItemMeta(m);
 
                                     gui.setItem(playerSlots.get(i), head);
 
@@ -161,6 +167,7 @@ public class ProjectManageInventoryListener implements Listener {
                     player.sendMessage(projectsPrefix + "§cHa ocurrido un error.");
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 player.closeInventory();
                 player.sendMessage(projectsPrefix + "§cHa ocurrido un error.");
             }
@@ -173,14 +180,14 @@ public class ProjectManageInventoryListener implements Listener {
 
                 String id = ChatColor.stripColor(item.getItemMeta().getLore().get(0));
 
-                player.performCommand("/p manage " + id);
+                player.performCommand("p manage " + id);
                 return;
             }
 
 
             if (item != null & item != background) {
 
-                // TODO BETTER WAY TO STORE DATA
+                // TODO SUB MENUS
 
             }
 
