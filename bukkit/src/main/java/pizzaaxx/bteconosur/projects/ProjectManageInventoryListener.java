@@ -239,7 +239,7 @@ public class ProjectManageInventoryListener implements Listener {
 
             ItemStack item = inventory.getItem(event.getSlot());
 
-            if (event.getSlot() == 35) {
+            if (event.getSlot() == 53) {
                 player.closeInventory();
                 player.performCommand("p manage");
                 return;
