@@ -41,7 +41,6 @@ public class Join implements Listener {
         event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
-        playerRegistry.add(serverPlayer);
         DataManager data = serverPlayer.getDataManager();
 
         if (!data.getString("name").equals(player.getName())) {
@@ -125,10 +124,10 @@ public class Join implements Listener {
         // SET PLAYER'S CHAT TO DEFAULT
 
         ChatManager manager = serverPlayer.getChatManager();
-        manager.setChat(manager.getDefaultChat().getName());
-        if (!manager.getChat().equals(manager.getDefaultChat())) {
+        if (!manager.getChat().getName().equals(manager.getDefaultChat().getName())) {
             player.sendMessage(CHAT_PREFIX + "Te has unido al chat §a" + manager.getChat().getFormattedName() + "§f. §7(Jugadores: " + manager.getChat().getMembers().size() + ")");
         }
+        manager.setChat(manager.getDefaultChat().getName());
 
         if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.ME) {
             serverPlayer.getScoreboardManager().update();

@@ -140,7 +140,7 @@ public class ScoreboardManager {
                             lines.add("§aLíder: §f" + new ServerPlayer(project.getOwner()).getName());
                         }
                         if (!project.getMembers().isEmpty()) {
-                            lines.add("§aMiembros: §f");
+                            lines.add("§aMiembros (" + project.getMembers().size() + "): §f");
                             int i = 0;
                             for (OfflinePlayer member : project.getMembers()) {
                                 lines.add("- " + new ServerPlayer(member).getName());

@@ -40,6 +40,8 @@ public class ChatRegistry {
         if (!oldChat.getName().equals(newChat.getName())) {
             oldChat.removeMember((Player) player.getPlayer());
             newChat.addMember((Player) player.getPlayer());
+        } else if (!newChat.getMembersUUID().contains(player.getId())) {
+            newChat.addMember((Player) player.getPlayer());
         }
     }
 

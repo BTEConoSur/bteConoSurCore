@@ -848,7 +848,7 @@ public class ProjectsCommand implements CommandExecutor {
                     
                     int i = 1;
                     if (!project.getMembers().isEmpty()) {
-                        page.add("§a§lMiembro(s): §r");
+                        page.add("§a§lMiembro(s) (" + project.getMembers().size() + "): §r");
                         for (OfflinePlayer member : project.getMembers()) {
                             page.add(
                                     BookUtil.TextBuilder.of(new ServerPlayer(member).getName())
@@ -926,7 +926,7 @@ public class ProjectsCommand implements CommandExecutor {
                         int i = 1;
                         List<OfflinePlayer> members = project.getMembers();
                         if (!members.isEmpty()) {
-                            page.add("§a§lMiembro(s): §r");
+                            page.add("§a§lMiembro(s)" + project.getMembers().size() + ": §r");
                             for (OfflinePlayer member : members) {
                                 ServerPlayer sMember = new ServerPlayer(member);
                                 page.add(

@@ -54,7 +54,6 @@ public class AsyncPlayerPreLoginListener implements Listener {
 
         }
 
-
         playerRegistry.add(serverPlayer);
     }
 
