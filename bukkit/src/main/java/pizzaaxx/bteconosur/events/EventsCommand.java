@@ -2,13 +2,11 @@ package pizzaaxx.bteconosur.events;
 
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.regions.ConvexPolyhedralRegion;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.misc.Misc;
@@ -45,7 +44,8 @@ public class EventsCommand implements CommandExecutor, Listener {
         if (inv.getSize() == 27 && inv.getName().equals("Elige un evento")) {
             Player p = (Player) e.getWhoClicked();
             e.setCancelled(true);
-            if (e.getCurrentItem() != background) {
+            ItemStack item = inv.getItem(e.getSlot());
+            if (item != null && item != background && item.getType() != Material.STAINED_GLASS_PANE) {
                 if (e.getSlot() == 26) {
                     p.closeInventory();
                 } else {
@@ -94,13 +94,11 @@ public class EventsCommand implements CommandExecutor, Listener {
                             if (!event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
                                 if (s.getPointsManager().getMaxPoints().getValue() >= event.getMinPoints()) {
-                                    event.addParticipant(player);
-                                    event.save();
                                     player.sendMessage(eventsPrefix + "¡Te has unido al evento \"" + event.getName() + "\"! ¡Esperamos que te diviertas!");
                                     if (event.getStatus() == ServerEvent.Status.ON) {
                                         for (OfflinePlayer offlinePlayer : event.getParticipants()) {
-                                            if (offlinePlayer.isOnline() && offlinePlayer != player) {
-                                                ((Player) offlinePlayer).sendMessage(eventsPrefix + "¡§a" + s.getChatManager().getDisplayName() + "§f se ha unido al evento §a" + event.getName() + "§f.");
+                                            if (offlinePlayer.isOnline()) {
+                                                ((Player) offlinePlayer).sendMessage(eventsPrefix + "¡§a" + s.getChatManager().getDisplayName() + "§f se ha unido al evento §a" + event.getName() + "§f!");
                                             }
                                         }
                                         GroupsManager groupsManager = s.getGroupsManager();
@@ -114,6 +112,8 @@ public class EventsCommand implements CommandExecutor, Listener {
                                             player.sendMessage(eventsPrefix + "Se te dejará una notificación en Minecraft cuando el evento comience.");
                                         }
                                     }
+                                    event.addParticipant(player);
+                                    event.save();
                                     DataManager data = s.getDataManager();
                                     List<String> events = data.getStringList("events");
                                     if (!events.contains(country.getName())) {
@@ -170,7 +170,9 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         groupsManager.removeSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
                                     }
                                 }
-                                data.set("events", data.getStringList("events").remove(country.getName()));
+                                List<String> events = data.getStringList("events");
+                                events.remove(country.getName());
+                                data.set("events", events);
                                 data.save();
 
                                 event.removeParticipant(player);
@@ -261,7 +263,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                                         if (stopConfirm.contains(p)) {
                                             stopConfirm.remove(p);
                                             event.stop();
-                                            p.sendMessage("Has terminado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f.");
+                                            p.sendMessage(eventsPrefix + "Has terminado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f.");
                                         } else if (event.getStatus() == ServerEvent.Status.READY) {
                                             stopConfirm.add(p);
                                             p.sendMessage(eventsPrefix + "§cToda la configuración del evento se perderá.§f Usa el comando de nuevo para confirmar.");
@@ -277,7 +279,7 @@ public class EventsCommand implements CommandExecutor, Listener {
 
                                             event.prepared();
 
-                                            p.sendMessage("Has marcado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f como preparado.");
+                                            p.sendMessage(eventsPrefix + "Has marcado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f como preparado.");
 
                                         } else {
                                             readyConfirm.add(p);
@@ -300,7 +302,7 @@ public class EventsCommand implements CommandExecutor, Listener {
 
                                             event.start();
 
-                                            p.sendMessage("Has empezado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f.");
+                                            p.sendMessage(eventsPrefix + "Has empezado el evento de §a" + country.replace("peru", "perú").toUpperCase() + "§f.");
 
                                         } else {
                                             startConfirm.add(p);

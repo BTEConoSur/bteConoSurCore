@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
@@ -23,7 +24,7 @@ public class AsyncPlayerPreLoginListener implements Listener {
     }
 
     @EventHandler
-    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
+    public void onPreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
 
         Bukkit.getConsoleSender().sendMessage("a");
 

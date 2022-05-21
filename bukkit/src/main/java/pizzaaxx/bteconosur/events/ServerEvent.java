@@ -20,6 +20,7 @@ import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ServerEvent {
     private String image;
     private List<OfflinePlayer> participants = new ArrayList<>();
     private ProtectedPolygonalRegion region;
-    private final Configuration yaml;
+    private final Configuration config;
     private final ConfigurationSection countrySection;
     private final OldCountry country;
 
@@ -52,8 +53,8 @@ public class ServerEvent {
     public ServerEvent(OldCountry country) {
         this.country = country;
         String c = country.getName();
-        yaml = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "events");
-        countrySection = yaml.getConfigurationSection(c);
+        config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "events");
+        countrySection = config.getConfigurationSection(c);
 
         status = Status.valueOf(countrySection.getString("status").toUpperCase());
         name = countrySection.getString("name");
@@ -176,7 +177,8 @@ public class ServerEvent {
 
         countrySection.set("tp", tpSection);
 
-        yaml.set(country.getName(), countrySection);
+        config.set(country.getName(), countrySection);
+        config.save();
 
         DefaultDomain defaultDomain = new DefaultDomain();
         if (this.status == Status.ON) {
@@ -255,7 +257,9 @@ public class ServerEvent {
                     groups.removeSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
                 }
             }
-            data.set("events", data.getStringList("events").remove(this.country.getName()));
+            List<String> events = data.getStringList("events");
+            events.remove(this.country.getName());
+            data.set("events", events);
             data.save();
             if (!player.isOnline()) {
                 serverPlayer.sendNotification(eventsPrefix + "El evento §a**" + this.name +  "**§f de §a" + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "§f acaba de terminar. ¡Gracias por participar!");
@@ -300,7 +304,7 @@ public class ServerEvent {
         }
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("Usa `/event` en el servidor para ir al evento y `/event join` para unirte.");
-        embed.setColor(new Color(0,255,43));
+        embed.setColor(Color.YELLOW);
         embed.setThumbnail(country.getIcon());
         embed.setTitle("¡Nuevo evento \"" + name + "\" preparado en " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + "!");
         embed.addField(":calendar: Fecha:", this.date, false);
