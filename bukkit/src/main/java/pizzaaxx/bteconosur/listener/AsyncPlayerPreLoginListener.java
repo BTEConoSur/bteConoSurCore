@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.listener;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +24,8 @@ public class AsyncPlayerPreLoginListener implements Listener {
 
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
+
+        Bukkit.getConsoleSender().sendMessage("a");
 
         ServerPlayer serverPlayer = new ServerPlayer(event.getUniqueId());
 

@@ -22,13 +22,15 @@ public class Join implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
 
-            ScoreboardManager.ScoreboardType scoreboard = serverPlayer.getScoreboardManager().getType();
-            if (scoreboard == ScoreboardManager.ScoreboardType.SERVER) {
-                serverPlayer.getScoreboardManager().update();
+            if (player.getUniqueId() != event.getPlayer().getUniqueId()) {
+                ServerPlayer serverPlayer = playerRegistry.get(player.getUniqueId());
+
+                ScoreboardManager.ScoreboardType scoreboard = serverPlayer.getScoreboardManager().getType();
+                if (scoreboard == ScoreboardManager.ScoreboardType.SERVER) {
+                    serverPlayer.getScoreboardManager().update();
+                }
             }
-
         }
 
         playerRegistry.remove(event.getPlayer().getUniqueId());

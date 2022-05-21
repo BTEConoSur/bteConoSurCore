@@ -35,7 +35,7 @@ public class IncrementCommand implements CommandExecutor {
                         data.set("increment", increment);
                         data.save();
 
-                        player.sendMessage(WORLD_EDIT_PREFIX+ "Distancia de incremento establecida en §a" + data + "§f.");
+                        player.sendMessage(WORLD_EDIT_PREFIX+ "Distancia de incremento establecida en §a" + data.getInt("increment") + "§f.");
                     }
                 } else {
                     player.sendMessage(WORLD_EDIT_PREFIX + "Introduce un distancia válida (No más de 3 dígitos).");

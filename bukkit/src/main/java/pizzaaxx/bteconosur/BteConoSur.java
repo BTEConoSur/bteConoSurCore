@@ -31,6 +31,7 @@ import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand
 import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
+import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
 import pizzaaxx.bteconosur.points.Scoreboard;
 import pizzaaxx.bteconosur.presets.PresetsCommand;
 import pizzaaxx.bteconosur.presets.PresetsEvent;
@@ -98,7 +99,8 @@ public final class BteConoSur extends JavaPlugin {
                 new PrefixCommand(),
                 new LobbyCommand(this),
                 new EventsCommand(),
-                new ProjectManageInventoryListener(this)
+                new ProjectManageInventoryListener(this),
+                new AsyncPlayerPreLoginListener(playerRegistry)
         );
 
         getLogger().info("Registering commands...");

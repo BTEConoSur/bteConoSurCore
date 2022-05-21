@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.DataManager;
@@ -39,7 +40,7 @@ public class EventsCommand implements CommandExecutor, Listener {
     public static Set<CommandSender> readyConfirm = new HashSet<>();
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
+    public void onInventoryClick(@NotNull InventoryClickEvent e) {
         Inventory inv = e.getInventory();
         if (inv.getSize() == 27 && inv.getName().equals("Elige un evento")) {
             Player p = (Player) e.getWhoClicked();
@@ -60,7 +61,7 @@ public class EventsCommand implements CommandExecutor, Listener {
     }
 
     @Override
-    public boolean onCommand(CommandSender p, org.bukkit.command.Command command, String label, final String[] args) {
+    public boolean onCommand(CommandSender p, org.bukkit.command.@NotNull Command command, String label, final String[] args) {
         if (command.getName().equals("event")) {
             if (p instanceof Player) {
                 Player player = (Player) p;
