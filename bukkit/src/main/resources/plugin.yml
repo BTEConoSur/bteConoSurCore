@@ -2,6 +2,10 @@ name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 commands:
+  terraform:
+    aliases:
+      - /terraform
+    description: Terraforma terreno.
   btecsUpdateSlashCommands:
     description: update
   help:

@@ -51,10 +51,12 @@ public class EventsCommand implements CommandExecutor, Listener {
                 } else {
                     String name = ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replace("Perú", "Peru").toLowerCase();
                     ServerEvent event = new ServerEvent(new OldCountry(name));
-                    p.closeInventory();
-                    p.teleport(event.getTp());
-                    p.sendMessage(eventsPrefix + "¡Bienvenido al evento §a" + event.getName() + " (" + StringUtils.capitalize(name.replace("peru", "perú") + ")§f!"));
-                    p.sendMessage(eventsPrefix + "Usa §a/event join§f para unirte al evento.");
+                    if (event.getStatus() != ServerEvent.Status.OFF) {
+                        p.closeInventory();
+                        p.teleport(event.getTp());
+                        p.sendMessage(eventsPrefix + "¡Bienvenido al evento §a" + event.getName() + " (" + StringUtils.capitalize(name.replace("peru", "perú") + ")§f!"));
+                        p.sendMessage(eventsPrefix + "Usa §a/event join§f para unirte al evento.");
+                    }
                 }
             }
         }

@@ -50,6 +50,7 @@ import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.worldedit.Polywall;
 import pizzaaxx.bteconosur.worldedit.ShortCuts;
+import pizzaaxx.bteconosur.worldedit.TerraformCommand;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import javax.security.auth.login.LoginException;
@@ -132,6 +133,9 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
         getCommand("help").setExecutor(new HelpCommand(this));
+        TerraformCommand terraformExecutor = new TerraformCommand();
+        getCommand("terraform").setExecutor(terraformExecutor);
+        getCommand("/terraform").setExecutor(terraformExecutor);
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

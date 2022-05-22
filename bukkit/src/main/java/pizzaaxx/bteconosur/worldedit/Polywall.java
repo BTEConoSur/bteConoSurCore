@@ -56,7 +56,7 @@ public class Polywall implements CommandExecutor {
 
                     ParserContext parserContext = new ParserContext();
                     parserContext.setActor(actor);
-                    Extent extent = ((Entity) actor).getExtent();
+                    Extent extent = actor.getExtent();
                     if (extent instanceof World) {
                         parserContext.setWorld((World) extent);
                     }
@@ -116,7 +116,6 @@ public class Polywall implements CommandExecutor {
                     }
 
                     if (editSession != null) {
-                        Bukkit.getConsoleSender().sendMessage(Integer.toString(editSession.getBlockChangeCount()));
 
                         WorldEdit.getInstance().getSessionManager().get(actor).remember(editSession);
                     }
