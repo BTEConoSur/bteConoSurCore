@@ -1,32 +1,87 @@
 package pizzaaxx.bteconosur.listener;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.yaml.Configuration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
+import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.Config.maxPlayers;
 
 public class AsyncPlayerPreLoginListener implements Listener {
 
     private final PlayerRegistry playerRegistry;
     private final Random random = new Random();
+    private final Plugin plugin;
 
-    public AsyncPlayerPreLoginListener(PlayerRegistry playerRegistry) {
+    public AsyncPlayerPreLoginListener(PlayerRegistry playerRegistry, Plugin plugin) {
         this.playerRegistry = playerRegistry;
+        this.plugin = plugin;
     }
 
     @EventHandler
     public void onPreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
 
-        Bukkit.getConsoleSender().sendMessage("a");
+        File file = new File(pluginFolder, "playerData/" + event.getUniqueId() + ".yml");
+        try {
+            if (file.createNewFile()) {
+                Bukkit.getLogger().info("Created new playerData file for player with UUID " + event.getUniqueId());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Ha ocurrido un error.");
+        }
+
+        Configuration data = new Configuration(plugin, "playerData/" + event.getUniqueId());
+
+        if (!data.getString("name").equals(event.getName())) {
+            data.set("name", event.getName());
+        }
+
+        if (!data.contains("primaryGroup")) {
+            data.set("primaryGroup", "default");
+        }
+
+        if (!data.contains("chat")) {
+            data.set("chat.global", "global");
+        }
+
+        if (!data.contains("chat.default")) {
+            data.set("chat.default", "global");
+        }
+
+        if (!data.contains("chat.hide")) {
+            data.set("chat.hide", false);
+        }
+
+        if (!data.contains("increment")) {
+            data.set("increment", 1);
+        }
+
+        if (!data.contains("scoreboard.hidden")) {
+            data.set("scoreboard.hidden", false);
+        }
+
+        if (!data.contains("scoreboard.type")) {
+            data.set("scoreboard.type", "server");
+        }
+
+        if (!data.contains("scoreboard.auto")) {
+            data.set("scoreboard.auto", true);
+        }
+
+        data.save();
 
         ServerPlayer serverPlayer = new ServerPlayer(event.getUniqueId());
 

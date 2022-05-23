@@ -101,7 +101,7 @@ public final class BteConoSur extends JavaPlugin {
                 new LobbyCommand(this),
                 new EventsCommand(),
                 new ProjectManageInventoryListener(this),
-                new AsyncPlayerPreLoginListener(playerRegistry)
+                new AsyncPlayerPreLoginListener(playerRegistry, this)
         );
 
         getLogger().info("Registering commands...");

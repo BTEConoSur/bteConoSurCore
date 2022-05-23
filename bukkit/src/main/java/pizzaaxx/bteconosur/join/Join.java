@@ -40,48 +40,12 @@ public class Join implements Listener {
     public void onJoin(PlayerJoinEvent event) {
 
         Player player = event.getPlayer();
-        event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
         DataManager data = serverPlayer.getDataManager();
 
-        if (!data.getString("name").equals(player.getName())) {
-            data.set("name", player.getName());
-        }
+        event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
 
-        if (data.get("primaryGroup") == null) {
-            data.set("primaryGroup", "default");
-        }
-
-        if (data.get("chat") == null) {
-            data.set("chat", "global");
-        }
-
-        if (data.get("defaultChat") == null) {
-            data.set("defaultChat", "global");
-        }
-
-        if (data.get("hideChat") == null) {
-            data.set("hideChat", false);
-        }
-
-        if (data.get("increment") == null) {
-            data.set("increment", 1);
-        }
-
-        if (!data.contains("scordeboard.hidden")) {
-            data.set("scoreboard.hidden", false);
-        }
-
-        if (!data.contains("scordeboard.type")) {
-            data.set("scoreboard.type", "server");
-        }
-
-        if (!data.contains("scordeboard.auto")) {
-            data.set("scoreboard.auto", true);
-        }
-
-        data.save();
 
         // SEND MESSAGES
 
