@@ -190,6 +190,8 @@ public class ProjectManageInventoryListener implements Listener {
             }
         } else if (name.equals("Transferir el proyecto")) {
 
+            event.setCancelled(true);
+
             ItemStack item = inventory.getItem(event.getSlot());
 
             if (event.getSlot() == 35) {
@@ -198,8 +200,7 @@ public class ProjectManageInventoryListener implements Listener {
                 return;
             }
 
-
-            if (item != null & item != background && inventoryActions.containsKey(player.getUniqueId()) && inventoryActions.get(player.getUniqueId()).containsKey(event.getSlot())) {
+            if (item != null && item != background && inventoryActions.containsKey(player.getUniqueId()) && inventoryActions.get(player.getUniqueId()).containsKey(event.getSlot())) {
 
                 String action = inventoryActions.get(player.getUniqueId()).get(event.getSlot());
 
@@ -223,6 +224,7 @@ public class ProjectManageInventoryListener implements Listener {
                         gui.setItem(2, getCustomHead("§a[✔] §fConfirmar", "§cEsta acción no se puede deshacer.", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDMxMmNhNDYzMmRlZjVmZmFmMmViMGQ5ZDdjYzdiNTVhNTBjNGUzOTIwZDkwMzcyYWFiMTQwNzgxZjVkZmJjNCJ9fX0="));
                         actions.put(2, "transfer confirm " + uuid + " " + action.split(" ")[2]);
                         gui.setItem(6, getCustomHead("§c[x] §fCancelar", "§fVolverás al menú principal.", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ=="));
+                        player.openInventory(gui);
                         inventoryActions.put(player.getUniqueId(), actions);
                     } else {
                         player.closeInventory();
@@ -245,7 +247,7 @@ public class ProjectManageInventoryListener implements Listener {
                 return;
             }
 
-            if (item != null & item != background && inventoryActions.containsKey(player.getUniqueId()) && inventoryActions.get(player.getUniqueId()).containsKey(event.getSlot())) {
+            if (item != null && item != background && inventoryActions.containsKey(player.getUniqueId()) && inventoryActions.get(player.getUniqueId()).containsKey(event.getSlot())) {
 
                 String action = inventoryActions.get(player.getUniqueId()).get(event.getSlot());
 
@@ -297,14 +299,6 @@ public class ProjectManageInventoryListener implements Listener {
                     transferConfirmation.add(player);
                     player.closeInventory();
                     player.performCommand("p transfer " + playerRegistry.get(uuid).getName());
-
-                    BukkitRunnable runnable = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            player.performCommand("p manage");
-                        }
-                    };
-                    runnable.runTaskLaterAsynchronously(plugin, 40);
 
                 } else {
                     player.closeInventory();

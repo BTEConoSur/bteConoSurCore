@@ -62,7 +62,7 @@ public class ProjectsManager {
     }
 
     public void addProject(Project project) {
-        List<String> ps = projects.get(project.getCountry().getName());
+        List<String> ps = projects.getOrDefault(project.getCountry().getName(), new ArrayList<>());
         ps.add(project.getId());
         projects.put(project.getCountry().getName(), ps);
         data.set("projects", projects);
@@ -77,7 +77,7 @@ public class ProjectsManager {
     }
 
     public void removeProject(Project project) {
-        projects.get(project.getCountry().getName()).remove(project.getId());
+        projects.getOrDefault(project.getCountry().getName(), new ArrayList<>()).remove(project.getId());
         data.set("projects", projects);
         data.save();
         serverPlayer.getGroupsManager().checkGroups();

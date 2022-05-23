@@ -44,7 +44,7 @@ public class LobbyCommand implements CommandExecutor, Listener {
             if (command.getName().equals("lobby")) {
                 Inventory inventory = Bukkit.createInventory(p, 27, "Selecciona un lobby");
 
-                for (int i = 0; i < 36; i++) {
+                for (int i = 0; i < 27; i++) {
                     inventory.setItem(i, background);
                 }
 

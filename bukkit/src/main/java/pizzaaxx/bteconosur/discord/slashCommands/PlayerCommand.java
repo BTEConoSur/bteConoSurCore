@@ -158,7 +158,7 @@ public class PlayerCommand extends ListenerAdapter {
                 }
 
                 PointsManager pointsManager = s.getPointsManager();
-                if (pointsManager.getMaxPoints().getValue() > 0) {
+                if (pointsManager.getMaxPoints() != null && pointsManager.getMaxPoints().getValue() > 0) {
                     List<String> points = new ArrayList<>();
 
 

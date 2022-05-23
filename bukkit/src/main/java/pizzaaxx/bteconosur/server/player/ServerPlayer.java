@@ -189,7 +189,7 @@ public class ServerPlayer {
         lines.add("§aProyectos terminados: §r" + projectsManager.getTotalFinishedProjects());
 
         PointsManager pointsManager = getPointsManager();
-        if (pointsManager.getMaxPoints().getValue() != null) {
+        if (pointsManager.getMaxPoints() != null && pointsManager.getMaxPoints().getValue() != null) {
             lines.add("§aPuntos:§r");
 
             pointsManager.getSorted().forEach((country, points) -> lines.add("· " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + pointsManager.getPoints(country)));
@@ -212,7 +212,7 @@ public class ServerPlayer {
         lines.add("§aProyectos terminados: §r" + projectsManager.getTotalFinishedProjects());
 
         PointsManager pointsManager = getPointsManager();
-        if (pointsManager.getMaxPoints().getValue() != null) {
+        if (pointsManager.getMaxPoints() != null && pointsManager.getMaxPoints().getValue() != null) {
             lines.add("§aPuntos:§r");
 
             pointsManager.getSorted().forEach((country, points) -> lines.add("· " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + pointsManager.getPoints(country)));

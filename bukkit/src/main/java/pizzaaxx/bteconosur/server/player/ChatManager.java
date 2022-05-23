@@ -49,7 +49,10 @@ public class ChatManager {
     }
 
     public String getCountryPrefix() {
-        return data.getString("prefix");
+        if (data.contains("prefix")) {
+            return data.getString("prefix");
+        }
+        return null;
     }
 
     public void setCountryPrefix(String prefix) {
@@ -62,7 +65,10 @@ public class ChatManager {
     }
 
     public String getNick() {
-        return data.getString("nickname").replace("&", "§");
+        if (data.contains("nickname")) {
+            return data.getString("nickname").replace("&", "§");
+        }
+        return null;
     }
 
     public void setNick(String nick) {
@@ -79,9 +85,11 @@ public class ChatManager {
     }
 
     public String getDisplayName() {
-        String normalName = serverPlayer.getName();
         String nick = getNick();
-        return (nick.equals(normalName) ? normalName : nick);
+        if (nick != null) {
+            return nick;
+        }
+        return serverPlayer.getName();
     }
 
     public List<String> getSecondaryPrefixes() {
@@ -98,7 +106,9 @@ public class ChatManager {
         List<String> prefixes = new ArrayList<>();
         prefixes.add(getMainPrefix());
         prefixes.addAll(getSecondaryPrefixes());
-        prefixes.add(getCountryPrefix());
+        if (getCountryPrefix() != null) {
+            prefixes.add(getCountryPrefix());
+        }
         return prefixes;
     }
 

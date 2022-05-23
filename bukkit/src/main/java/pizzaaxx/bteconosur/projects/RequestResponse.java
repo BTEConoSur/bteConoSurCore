@@ -29,12 +29,12 @@ public class RequestResponse extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent e) {
         if (e.getMessage().getEmbeds().size() > 0) {
             MessageEmbed embed = e.getMessage().getEmbeds().get(0);
-            String requestId = embed.getAuthor().getName();
             if (embed.getTitle().contains("quiere crear un proyecto")) {
                 if (requestsClicks.contains(e.getMessage().getId())) {
                     return;
                 }
 
+                String requestId = embed.getAuthor().getName().replace("ID de la solicitud: ", "");
                 requestsClicks.add(e.getMessage().getId());
                 if (e.getComponent().getId().equals("rechazar")) {
                     String title = embed.getTitle();
@@ -85,6 +85,7 @@ public class RequestResponse extends ListenerAdapter {
             }
 
             if (embed.getTitle().contains("quiere redefinir el proyecto")) {
+                Bukkit.getConsoleSender().sendMessage("A");
                 if (requestsClicks.contains(e.getMessage().getId())) {
                     return;
                 }

@@ -331,6 +331,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
                 return true;
@@ -383,6 +384,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
                 return true;
@@ -408,7 +410,9 @@ public class ProjectsCommand implements CommandExecutor {
                                         transferConfirmation.remove(p);
                                         Player target = Bukkit.getPlayer(args[1]);
 
-                                        if (new ServerPlayer(target).getProjectsManager().getOwnedProjects().get(project.getCountry()).size() > maxProjectsPerPlayer) {
+                                        ServerPlayer t = new ServerPlayer(target);
+
+                                        if ((t.getProjectsManager().getOwnedProjects().containsKey(project.getCountry()) ? t.getProjectsManager().getOwnedProjects().get(project.getCountry()).size() : 0)  > maxProjectsPerPlayer) {
                                             p.sendMessage(projectsPrefix + "El jugador introducido ya alcanzó su límite de proyectos en este país.");
                                             return true;
                                         }
@@ -443,6 +447,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
@@ -868,6 +873,7 @@ public class ProjectsCommand implements CommandExecutor {
                     BookUtil.openPlayer(p, builder.build());
 
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
 

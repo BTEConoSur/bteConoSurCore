@@ -1,6 +1,10 @@
 package pizzaaxx.bteconosur.projects;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.RegionGroup;
@@ -308,11 +312,11 @@ public class Project {
             }
         }
 
+        Polygonal2DRegion region = new Polygonal2DRegion((World) new BukkitWorld(mainWorld), points, 100, 100);
 
-
-        BlockVector2D coord = new BlockVector2D((minX + maxX) / 2, (minZ + maxZ) / 2);
-        if (getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).contains(coord)) {
-            return coord;
+        com.sk89q.worldedit.Vector vector = new Vector((minX + maxX) / 2, 100.0, (minZ + maxZ) / 2);
+        if (region.contains(vector)) {
+            return new BlockVector2D((minX + maxX) / 2, (minZ + maxZ) / 2);
         }
         return points.get(0);
     }
@@ -453,6 +457,7 @@ public class Project {
 
     public void transfer(OfflinePlayer target) {
         members.add(owner);
+        members.remove(target.getUniqueId());
         owner = target.getUniqueId();
     }
 

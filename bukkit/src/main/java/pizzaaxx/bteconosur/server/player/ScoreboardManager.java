@@ -187,7 +187,7 @@ public class ScoreboardManager {
                     ChatColor color;
                     color = cManager.isHidden() ? ChatColor.DARK_GRAY : ChatColor.WHITE;
                     lines.add("§aChat: " + color + cManager.getChat().getFormattedName());
-                    if (poManager.getMaxPoints().getValue() > 0) {
+                    if (poManager.getMaxPoints() != null && poManager.getMaxPoints().getValue() > 0) {
                         lines.add("§aPuntos:§f");
 
                         poManager.getSorted().forEach((country, points) -> lines.add("- " + StringUtils.capitalize(country.getName().replace("peru", "perú")) + ": " + poManager.getPoints(country)));

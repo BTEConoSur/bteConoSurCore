@@ -135,7 +135,7 @@ public class ChatCommand implements CommandExecutor {
 
                         p.sendMessage(CHAT_PREFIX + "Has invitado a §a" + new ServerPlayer(target).getName() + "§f a tu chat.");
 
-                        target.sendMessage(CHAT_PREFIX + "§a" + s.getName() + "§f te ha invitado a su chat (" + pChat.getFormattedName() + "). Usa §a/chat" + code + "§f para unirte.");
+                        target.sendMessage(CHAT_PREFIX + "§a" + s.getName() + "§f te ha invitado a su chat (" + pChat.getFormattedName() + "). Usa §a/chat " + code + "§f para unirte.");
                     } else {
                         p.sendMessage(CHAT_PREFIX + "El jugador no está online.");
                     }

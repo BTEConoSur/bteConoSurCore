@@ -5,6 +5,7 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 
 import java.awt.*;
 import java.util.*;
@@ -253,17 +254,15 @@ public class GroupsManager {
 
         ProjectsManager projectsManager = serverPlayer.getProjectsManager();
         PointsManager pointsManager = serverPlayer.getPointsManager();
-        int points = pointsManager.getMaxPoints().getValue();
+        int points = (pointsManager.getMaxPoints() != null ? pointsManager.getMaxPoints().getValue() : 0);
         int projects = projectsManager.getTotalProjects();
-
-        DiscordManager manager = serverPlayer.getDiscordManager();
 
         if (points < 15) {
             if (projects == 0) {
                 if (primaryGroup != PrimaryGroup.DEFAULT) {
                     setPrimaryGroup(PrimaryGroup.DEFAULT);
                 }
-            } else  if (projects > 0) {
+            } else if (projects > 0) {
                 if (primaryGroup != PrimaryGroup.POSTULANTE) {
                     setPrimaryGroup(PrimaryGroup.POSTULANTE);
                 }
