@@ -88,7 +88,7 @@ public final class BteConoSur extends JavaPlugin {
         getLogger().info("Enabling  BTE Cono Sur!");
 
         registerListeners(
-                new Join(playerRegistry),
+                new Join(playerRegistry, this),
                 new ProjectActionBar(),
                 new OnTeleport(),
                 new PresetsEvent(),
@@ -138,6 +138,7 @@ public final class BteConoSur extends JavaPlugin {
         TerraformCommand terraformExecutor = new TerraformCommand();
         getCommand("terraform").setExecutor(terraformExecutor);
         getCommand("/terraform").setExecutor(terraformExecutor);
+        getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

@@ -2,11 +2,16 @@ package pizzaaxx.bteconosur.join;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.server.player.*;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -15,12 +20,14 @@ import java.util.List;
 
 import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
 
-public class Join implements Listener {
+public class Join implements Listener, CommandExecutor {
 
     private final PlayerRegistry playerRegistry;
+    private final Plugin plugin;
 
-    public Join(PlayerRegistry playerRegistry) {
+    public Join(PlayerRegistry playerRegistry, Plugin plugin) {
         this.playerRegistry = playerRegistry;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -111,6 +118,7 @@ public class Join implements Listener {
         }
 
         if (data.contains("isFirst")) {
+
             // TODO WELCOME BOOK
 
             BookUtil.BookBuilder builder = BookUtil.writtenBook();
@@ -121,32 +129,122 @@ public class Join implements Listener {
 
             page.add("      §7Bienvenido a");
             page.newLine();
-            page.add("     §9§lBuildTheEarth:");
+            page.add("   §9§lBuildTheEarth:");
             page.newLine();
             page.add("       §a§lCono Sur");
             page.newLine();
             page.newLine();
             page.add("   §8¿Qué te gustaría");
             page.newLine();
-            page.add("        §8hacer?");
+            page.add("         §8hacer?");
             page.newLine();
             page.newLine();
             page.add("      ");
             page.add(
-                    BookUtil.TextBuilder.of("[CONSTRUIR]").onClick(BookUtil.ClickAction.runCommand("welcomeBook build")).build()
+                    BookUtil.TextBuilder.of("[CONSTRUIR]").onHover(BookUtil.HoverAction.showText("Haz click para elegir")).onClick(BookUtil.ClickAction.runCommand("/welcomeBook build")).build()
             );
             page.newLine();
             page.newLine();
             page.add("       ");
             page.add(
-                    BookUtil.TextBuilder.of("[VISITAR]").onClick(BookUtil.ClickAction.runCommand("welcomeBook visit")).build()
+                    BookUtil.TextBuilder.of("[VISITAR]").onHover(BookUtil.HoverAction.showText("Haz click para elegir")).onClick(BookUtil.ClickAction.runCommand("/welcomeBook visit")).build()
             );
 
             pages.add(page.build());
 
             builder.pages(pages);
 
-            BookUtil.openPlayer(player, builder.build());
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    BookUtil.openPlayer(player, builder.build());
+                }
+            };
+            runnable.runTaskLaterAsynchronously(plugin, 80);
         }
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        Player p = (Player) sender;
+
+        if (args.length > 0) {
+            if (args[0].equals("build")) {
+
+                BookUtil.BookBuilder builder = BookUtil.writtenBook();
+
+                List<BaseComponent[]> pages = new ArrayList<>();
+
+                BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+
+                page.add("      ¡Perfecto!");
+                page.newLine();
+                page.newLine();
+                page.add("Usa ");
+                page.add(
+                        BookUtil.TextBuilder.of("§a/p tutorial").onClick(BookUtil.ClickAction.runCommand("/p tutorial")).onHover(BookUtil.HoverAction.showText("Haz click para usar el comando")).build()
+                );
+                page.add("§r para empezar a construir.");
+
+                pages.add(page.build());
+
+                builder.pages(pages);
+
+                BookUtil.openPlayer(p, builder.build());
+
+            } else if (args[0].equals("visit")) {
+
+                BookUtil.BookBuilder builder = BookUtil.writtenBook();
+
+                List<BaseComponent[]> pages = new ArrayList<>();
+
+                BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+
+                page.add("      §8¿Qué país te");
+                page.newLine();
+                page.add("    §8gustaría visitar?");
+                page.newLine();
+                page.newLine();
+                page.add("      ");
+                page.add(BookUtil.TextBuilder.of("[ARGENTINA]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                page.add("        ");
+                page.add(BookUtil.TextBuilder.of("[BOLIVIA]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                page.add("         ");
+                page.add(BookUtil.TextBuilder.of("[CHILE]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                page.add("       ");
+                page.add(BookUtil.TextBuilder.of("[PARAGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                page.add("         ");
+                page.add(BookUtil.TextBuilder.of("[PERÚ]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                page.add("       ");
+                page.add(BookUtil.TextBuilder.of("[URUGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.newLine();
+                page.newLine();
+
+                pages.add(page.build());
+
+                builder.pages(pages);
+
+                BookUtil.openPlayer(p, builder.build());
+
+            }
+        }
+
+        return true;
     }
 }

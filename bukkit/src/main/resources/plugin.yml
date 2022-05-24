@@ -2,6 +2,8 @@ name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 commands:
+  welcomeBook:
+    description: a
   terraform:
     aliases:
       - /terraform
