@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.DataManager;
+import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.util.Set;
@@ -57,9 +58,13 @@ public class MovementHandler implements Listener {
 
         // LOBBY LEAVE
 
+        ServerPlayer s = new ServerPlayer(p);
+        GroupsManager.PrimaryGroup group = s.getGroupsManager().getPrimaryGroup();
         if (regionsLeftNames.contains("lobby")) {
-            p.setGameMode(GameMode.CREATIVE);
-            DataManager data = new ServerPlayer(p).getDataManager();
+            if (group != GroupsManager.PrimaryGroup.ADMIN) {
+                p.setGameMode(GameMode.CREATIVE);
+            }
+            DataManager data = s.getDataManager();
             if (data.contains("isFirst")) {
                 data.set("isFirst", null);
                 data.save();
@@ -67,7 +72,9 @@ public class MovementHandler implements Listener {
         }
 
         if (regionsEnteredNames.contains("lobby")) {
-            p.setGameMode(GameMode.SURVIVAL);
+            if (group != GroupsManager.PrimaryGroup.ADMIN) {
+                p.setGameMode(GameMode.SURVIVAL);
+            }
         }
     }
 

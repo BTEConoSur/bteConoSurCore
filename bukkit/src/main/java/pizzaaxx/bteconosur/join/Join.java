@@ -207,32 +207,32 @@ public class Join implements Listener, CommandExecutor {
                 page.newLine();
                 page.newLine();
                 page.add("      ");
-                page.add(BookUtil.TextBuilder.of("[ARGENTINA]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[ARGENTINA]").onClick(BookUtil.ClickAction.runCommand("/tp 7344036.5 -2 -25497.5")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 
                 page.add("        ");
-                page.add(BookUtil.TextBuilder.of("[BOLIVIA]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[BOLIVIA]").onClick(BookUtil.ClickAction.runCommand("/tp 0 0 0")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 
                 page.add("         ");
-                page.add(BookUtil.TextBuilder.of("[CHILE]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[CHILE]").onClick(BookUtil.ClickAction.runCommand("/tp -8287783 546 2846478")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 
                 page.add("       ");
-                page.add(BookUtil.TextBuilder.of("[PARAGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[PARAGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp 0 0 0")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 
                 page.add("         ");
-                page.add(BookUtil.TextBuilder.of("[PERÚ]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[PERÚ]").onClick(BookUtil.ClickAction.runCommand("/tp 1139207 220 214115")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 
                 page.add("       ");
-                page.add(BookUtil.TextBuilder.of("[URUGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp X Y Z")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
+                page.add(BookUtil.TextBuilder.of("[URUGUAY]").onClick(BookUtil.ClickAction.runCommand("/tp -6736165 32 3346376")).onHover(BookUtil.HoverAction.showText("Haz click para ir")).build());
                 page.newLine();
                 page.newLine();
 

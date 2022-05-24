@@ -86,7 +86,7 @@ public class RequestResponse extends ListenerAdapter {
 
             if (embed.getTitle().contains("quiere redefinir el proyecto")) {
                 Bukkit.getConsoleSender().sendMessage("A");
-                if (requestsClicks.contains(e.getMessage().getId())) {
+                if (!requestsClicks.contains(e.getMessage().getId())) {
                     return;
                 }
 
@@ -111,7 +111,9 @@ public class RequestResponse extends ListenerAdapter {
 
                     MessageEmbed.Field field = embed.getFields().get(1);
                     String value = field.getValue();
+                    Bukkit.getConsoleSender().sendMessage(value);
                     String[] coordsRaw = value.replace("\n> ", "~").replace("> ", "").split("~");
+                    Bukkit.getConsoleSender().sendMessage(String.join("\n", coordsRaw));
 
                     List<BlockVector2D> points = new ArrayList<>();
                     for (String coord : coordsRaw) {
@@ -121,7 +123,7 @@ public class RequestResponse extends ListenerAdapter {
                     try {
                         Project project = new Project(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
                         project.setPoints(points);
-                        project.setDifficulty(Project.Difficulty.valueOf(e.getComponentId()));
+                        project.setDifficulty(Project.Difficulty.valueOf(e.getComponentId().toUpperCase()));
                         project.save();
 
                         new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto **§a" + project.getName(true) + "§f** ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
