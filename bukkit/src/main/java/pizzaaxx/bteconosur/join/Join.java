@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.join;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +9,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pizzaaxx.bteconosur.server.player.*;
 import xyz.upperlevel.spigot.book.BookUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
 
@@ -104,6 +108,45 @@ public class Join implements Listener {
             if (serverPlayerOnline.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.SERVER) {
                 serverPlayerOnline.getScoreboardManager().update();
             }
+        }
+
+        if (data.contains("isFirst")) {
+            // TODO WELCOME BOOK
+
+            BookUtil.BookBuilder builder = BookUtil.writtenBook();
+
+            List<BaseComponent[]> pages = new ArrayList<>();
+
+            BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+
+            page.add("      §7Bienvenido a");
+            page.newLine();
+            page.add("     §9§lBuildTheEarth:");
+            page.newLine();
+            page.add("       §a§lCono Sur");
+            page.newLine();
+            page.newLine();
+            page.add("   §8¿Qué te gustaría");
+            page.newLine();
+            page.add("        §8hacer?");
+            page.newLine();
+            page.newLine();
+            page.add("      ");
+            page.add(
+                    BookUtil.TextBuilder.of("[CONSTRUIR]").onClick(BookUtil.ClickAction.runCommand("welcomeBook build")).build()
+            );
+            page.newLine();
+            page.newLine();
+            page.add("       ");
+            page.add(
+                    BookUtil.TextBuilder.of("[VISITAR]").onClick(BookUtil.ClickAction.runCommand("welcomeBook visit")).build()
+            );
+
+            pages.add(page.build());
+
+            builder.pages(pages);
+
+            BookUtil.openPlayer(player, builder.build());
         }
     }
 }

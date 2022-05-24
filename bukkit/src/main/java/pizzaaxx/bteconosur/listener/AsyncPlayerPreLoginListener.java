@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -33,17 +32,23 @@ public class AsyncPlayerPreLoginListener implements Listener {
     @EventHandler
     public void onPreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
 
+        boolean isFirst = false;
         File file = new File(pluginFolder, "playerData/" + event.getUniqueId() + ".yml");
         try {
             if (file.createNewFile()) {
                 Bukkit.getLogger().info("Created new playerData file for player with UUID " + event.getUniqueId());
             }
+            isFirst = true;
         } catch (IOException e) {
             e.printStackTrace();
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Ha ocurrido un error.");
         }
 
         Configuration data = new Configuration(plugin, "playerData/" + event.getUniqueId());
+
+        if (isFirst) {
+            data.set("isFirstJoin", true);
+        }
 
         if (!data.getString("name").equals(event.getName())) {
             data.set("name", event.getName());
