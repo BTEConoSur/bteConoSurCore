@@ -1,9 +1,8 @@
 package pizzaaxx.bteconosur.chats;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -14,7 +13,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -27,7 +25,9 @@ import java.util.List;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 
-public class Events implements Listener, EventListener {
+public class Events extends ListenerAdapter implements Listener {
+
+    private final Configuration CHAT_COLORS = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/chatColors");
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
@@ -156,16 +156,12 @@ public class Events implements Listener, EventListener {
     }
 
     @Override
-    public void onEvent(@NotNull GenericEvent event) {
-        if (event instanceof MessageReceivedEvent) {
-            MessageReceivedEvent e = (MessageReceivedEvent) event;
-            if (e.getTextChannel() == gateway) {
-                if (!(e.getAuthor().isBot()) && !(e.getMessage().getContentDisplay().startsWith("/"))) {
-                    ChatColor color = ChatColor.getByChar(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/chatColors").getString(e.getMember().getRoles().get(0).getId()));
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (!(event.getAuthor().isBot()) && !(event.getMessage().getContentDisplay().startsWith("/"))) {
+            // TODO UPDATE COLORS ON DEPLOY
+            ChatColor color = ChatColor.getByChar(CHAT_COLORS.getString(event.getMember().getRoles().get(0).getId()));
 
-                    new Chat("global").broadcast("[§bDISCORD§f] §7>> §r" + color + e.getMember().getEffectiveName() + ": §r" + e.getMessage().getContentDisplay());
-                }
-            }
+            new Chat("global").broadcast("[§bDISCORD§f] §7>> §r" + color + event.getMember().getEffectiveName() + ": §r" + event.getMessage().getContentDisplay());
         }
     }
 }
