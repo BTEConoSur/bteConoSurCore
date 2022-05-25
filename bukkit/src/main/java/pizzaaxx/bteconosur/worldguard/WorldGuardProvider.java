@@ -4,6 +4,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,5 +26,16 @@ public class WorldGuardProvider {
             }
         }
         return players;
+    }
+
+    public static Set<Player> getPlayersInCountry(OldCountry country) {
+        if (!country.getName().equals("chile")) {
+            return getPlayersInRegion(country.getName());
+        } else {
+            Set<Player> players = new HashSet<>();
+            players.addAll(getPlayersInRegion("chile_cont"));
+            players.addAll(getPlayersInRegion("chile_idp"));
+            return players;
+        }
     }
 }

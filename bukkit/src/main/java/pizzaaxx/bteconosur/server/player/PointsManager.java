@@ -2,17 +2,23 @@ package pizzaaxx.bteconosur.server.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.util.*;
+
+import static pizzaaxx.bteconosur.server.player.ScoreboardManager.ScoreboardType.TOP;
 
 public class PointsManager {
 
     private final Map<String, Integer> countriesPoints = new HashMap<>();
 
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
+
+    private final Configuration maxConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSUr"), "points/max");
 
     private final ServerPlayer serverPlayer;
     private final DataManager data;
@@ -54,6 +60,8 @@ public class PointsManager {
         serverPlayer.getGroupsManager().checkGroups();
         serverPlayer.getDiscordManager().checkDiscordBuilder(country);
 
+        checkTop(country);
+
     }
 
     public int addPoints(OldCountry country, int points) {
@@ -88,19 +96,34 @@ public class PointsManager {
     }
 
     public void checkTop(OldCountry country) {
-
-    }
-
-    public void checkTopOld(OldCountry country) {
-        CountryPlayer cPlayer = new CountryPlayer(serverPlayer, country);
-        Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
-        List<CountryPlayer> players = new ArrayList<>();
-        max.getList(country.getAbbreviation() + "_max").forEach(uuid -> players.add(new CountryPlayer(new ServerPlayer(Bukkit.getOfflinePlayer(UUID.fromString((String) uuid))), country)));
-        if (!players.contains(cPlayer)) {
-            players.add(cPlayer);
+        List<String> maxStrings = maxConfig.getStringList(country.getAbbreviation() + "_max");
+        Map<UUID, Integer> points = new HashMap<>();
+        for (String uuidStr : maxStrings) {
+            UUID uuid = UUID.fromString(uuidStr);
+            points.put(uuid, new ServerPlayer(uuid).getPointsManager().getPoints(country));
         }
-        Collections.sort(players);
-        max.set(country.getAbbreviation() + "_max", players.subList(0, 10));
+        int min = Collections.min(points.values());
+
+        if (countriesPoints.get(country.getName()) > min) {
+            points.put(serverPlayer.getPlayer().getUniqueId(), countriesPoints.get(country.getName()));
+            List<Map.Entry<UUID, Integer>> list = new ArrayList<>(points.entrySet());
+            list.sort(Map.Entry.comparingByValue());
+
+            List<String> finalList = new ArrayList<>();
+            for (Map.Entry<UUID, Integer> entry : list) {
+                finalList.add(entry.getKey().toString());
+            }
+
+            maxConfig.set(country.getAbbreviation() + "_max", finalList);
+            maxConfig.save();
+
+            for (Player player : WorldGuardProvider.getPlayersInCountry(country)) {
+                ServerPlayer s = new ServerPlayer(player);
+                if (s.getScoreboardManager().getType() == TOP) {
+                    s.getScoreboardManager().update();
+                }
+            }
+        }
     }
 
     public enum BuilderRank {
