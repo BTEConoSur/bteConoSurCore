@@ -85,10 +85,11 @@ public class RequestResponse extends ListenerAdapter {
             }
 
             if (embed.getTitle().contains("quiere redefinir el proyecto")) {
-                Bukkit.getConsoleSender().sendMessage("A");
-                if (!requestsClicks.contains(e.getMessage().getId())) {
+
+                if (requestsClicks.contains(e.getMessage().getId())) {
                     return;
                 }
+
 
                 requestsClicks.add(e.getMessage().getId());
                 if (e.getComponent().getId().equals("rechazar")) {
