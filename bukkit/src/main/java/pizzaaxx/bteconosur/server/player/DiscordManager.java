@@ -130,7 +130,9 @@ public class DiscordManager {
         return id;
     }
 
+    // TODO THIS
     public void checkDiscordBuilder(OldCountry country) {
+        /*
         if (linked) {
             loadUser();
             Guild guild = country.getGuild();
@@ -146,5 +148,7 @@ public class DiscordManager {
                 }
             }
         }
+
+         */
     }
 }

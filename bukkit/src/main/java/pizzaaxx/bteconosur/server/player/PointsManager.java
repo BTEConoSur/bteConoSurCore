@@ -88,6 +88,10 @@ public class PointsManager {
     }
 
     public void checkTop(OldCountry country) {
+
+    }
+
+    public void checkTopOld(OldCountry country) {
         CountryPlayer cPlayer = new CountryPlayer(serverPlayer, country);
         Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
         List<CountryPlayer> players = new ArrayList<>();

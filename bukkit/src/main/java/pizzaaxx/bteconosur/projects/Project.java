@@ -520,7 +520,7 @@ public class Project {
             region = manager.getRegion("project_" + id);
 
             if (pending) {
-                region.setMembers(null);
+                region.setMembers(new DefaultDomain());
             } else {
                 if (region.getMembers() != domain) {
                     region.setMembers(domain);

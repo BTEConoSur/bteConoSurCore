@@ -30,6 +30,7 @@ import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
+import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import pizzaaxx.bteconosur.yaml.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -553,7 +554,7 @@ public class ProjectsCommand implements CommandExecutor {
                     Project project = new Project(p.getLocation());
                     OldCountry country = project.getCountry();
 
-                    if (s.getPermissionCountries().contains(project.getCountry())) {
+                    if (s.getPermissionCountries().contains(project.getCountry().getName())) {
 
                         if (project.isPending()) {
 
@@ -591,6 +592,27 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     project.delete();
 
+                                    for (OfflinePlayer member : project.getAllMembers()) {
+                                        ServerPlayer m = new ServerPlayer(member);
+                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.ME) {
+                                            m.getScoreboardManager().update();
+                                        }
+                                    }
+
+                                    for (Player player : Bukkit.getOnlinePlayers()) {
+                                        ServerPlayer sPO = new ServerPlayer(player);
+                                        if (sPO.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.TOP) {
+                                            sPO.getScoreboardManager().update();
+                                        }
+                                    }
+
+                                    for (Player player : WorldGuardProvider.getPlayersInRegion("project_" + project.getId())) {
+                                        ServerPlayer sPO = new ServerPlayer(player);
+                                        if (sPO.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                            sPO.getScoreboardManager().update();
+                                        }
+                                    }
+
                                 }
                                 if (args[1].equals("continue") || args[1].equals("continuar")) {
                                     project.setPending(false);
@@ -605,6 +627,12 @@ public class ProjectsCommand implements CommandExecutor {
                                     country.getLogs().sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
                                 }
                                 if (args[1].equals("deny") || args[1].equals("denegar") || args[1].equals("rechazar")) {
+
+                                    for (OfflinePlayer member : project.getAllMembers()) {
+                                        ServerPlayer m = new ServerPlayer(member);
+                                        m.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido rechazado.");
+                                    }
+
                                     project.setPending(false);
                                     project.empty();
                                     project.setName(null);
@@ -612,9 +640,18 @@ public class ProjectsCommand implements CommandExecutor {
                                     p.sendMessage(projectsPrefix + "Has rechazado el proyecto §a" + project.getId() + "§f.");
 
                                     for (OfflinePlayer member : project.getAllMembers()) {
-                                        new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido rechazado.");
+                                        ServerPlayer m = new ServerPlayer(member);
+                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.ME) {
+                                            m.getScoreboardManager().update();
+                                        }
                                     }
 
+                                    for (Player player : WorldGuardProvider.getPlayersInRegion("project_" + project.getId())) {
+                                        ServerPlayer sPO = new ServerPlayer(player);
+                                        if (sPO.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                            sPO.getScoreboardManager().update();
+                                        }
+                                    }
 
                                     country.getLogs().sendMessage(":mag: **" + s.getName() + "** ha rechazado el proyecto `" + project.getId() + "`.").queue();
                                 }
@@ -747,12 +784,13 @@ public class ProjectsCommand implements CommandExecutor {
                                 p.sendMessage(projectsPrefix + "§cNo podrás construir ni administrar tu proyecto mientras está en revisión. §fUsa el comando de nuevo para confirmar.");
                             }
                         } else {
-                            p.sendMessage("Este proyecto ya está marcado como terminado.");
+                            p.sendMessage(projectsPrefix + "Este proyecto ya está marcado como terminado.");
                         }
                     } else {
                         p.sendMessage(projectsPrefix + " No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
