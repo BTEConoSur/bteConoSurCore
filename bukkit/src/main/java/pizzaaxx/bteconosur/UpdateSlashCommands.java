@@ -39,6 +39,10 @@ public class UpdateSlashCommands implements CommandExecutor {
             guild.upsertCommand("scoreboard", "Obtén los 10 jugadores con mayor puntaje de construcción").addOption(OptionType.STRING, "país", "(Opcional) Un país en específico para ver", false).queue();
             guild.upsertCommand("link", "Conecta tu cuenta de Discord con tu cuenta de Minecraft").addOption(OptionType.STRING, "código", "Código obtenido en Minecraft", false).queue();
             guild.upsertCommand("unlink", "Desconecta tu cuenta de Discord de tu cuenta de Minecraft").queue();
+            guild.upsertCommand("findcolor", "Encuentra bloques con texturas cercanas a un color introducido").addSubcommands(
+                    new SubcommandData("code", "Introduce un código hexadecimal para buscar").addOption(OptionType.STRING, "hex", "El código hexadecimal de color deseado"),
+                    new SubcommandData("image", "Adjunta una imagen para buscar el color promedio de esta").addOption(OptionType.ATTACHMENT, "imagen", "La imagen a buscar")
+            ).queue();
         }
 
         return true;

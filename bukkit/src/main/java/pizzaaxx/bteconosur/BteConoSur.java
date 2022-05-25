@@ -170,7 +170,6 @@ public final class BteConoSur extends JavaPlugin {
         registerDiscordListener(builder,
                 new RequestResponse(),
                 new Events(),
-                new ScoreboardCommand(),
                 new OnlineCommand(),
                 new WhereCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
