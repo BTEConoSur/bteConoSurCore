@@ -23,6 +23,7 @@ import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.discord.commands.*;
+import pizzaaxx.bteconosur.discord.slashCommands.FindColorCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.OnlineCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.PlayerCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.WhereCommand;
@@ -177,7 +178,8 @@ public final class BteConoSur extends JavaPlugin {
                 new LinkUnlinkCommand(links, this),
                 new pizzaaxx.bteconosur.discord.slashCommands.ProjectCommand(),
                 new PlayerCommand(new Configuration(this, "discord/groupEmojis")),
-                new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand()
+                new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(),
+                new FindColorCommand(this)
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
