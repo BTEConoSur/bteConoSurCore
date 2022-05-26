@@ -7,12 +7,11 @@ import org.bukkit.plugin.Plugin;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -122,11 +121,23 @@ public class FindColorCommand extends ListenerAdapter {
                 }
             }
 
-            BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = image.createGraphics();
-            g.setColor(color);
+            // get closest
+            Map<Color, Double> distances = new HashMap<>();
+            for (Color c : textures.keySet()) {
+                distances.put(c, colorDistance(color, c));
+            }
 
-            g.fillRect(0, 0, 100, 100);
+            List<Map.Entry<Color, Double>> list = new ArrayList<>(distances.entrySet());
+            list.sort(Map.Entry.comparingByValue());
+
+            List<Color> finalList = new ArrayList<>();
+            for (Map.Entry<Color, Double> entry : list) {
+                finalList.add(entry.getKey());
+            }
+
+            // make image
+            BufferedImage image = new BufferedImage(1440, 480, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = image.createGraphics();
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try {
@@ -138,5 +149,15 @@ public class FindColorCommand extends ListenerAdapter {
 
             event.replyFile(is, "image.png").queue();
         }
+    }
+
+    public static double colorDistance(Color c1, Color c2) {
+        int red1 = c1.getRed();
+        int red2 = c2.getRed();
+        int rMean = (red1 + red2) >> 1;
+        int r = red1 - red2;
+        int g = c1.getGreen() - c2.getGreen();
+        int b = c1.getBlue() - c2.getBlue();
+        return Math.sqrt((((512+rMean)*r*r)>>8) + 4*g*g + (((767-rMean)*b*b)>>8));
     }
 }
