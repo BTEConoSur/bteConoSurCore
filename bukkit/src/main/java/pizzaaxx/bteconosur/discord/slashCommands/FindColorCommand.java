@@ -7,11 +7,10 @@ import org.bukkit.plugin.Plugin;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -129,6 +128,7 @@ public class FindColorCommand extends ListenerAdapter {
 
             List<Map.Entry<Color, Double>> list = new ArrayList<>(distances.entrySet());
             list.sort(Map.Entry.comparingByValue());
+            Collections.reverse(list);
 
             List<Color> finalList = new ArrayList<>();
             for (Map.Entry<Color, Double> entry : list) {
@@ -138,6 +138,9 @@ public class FindColorCommand extends ListenerAdapter {
             // make image
             BufferedImage image = new BufferedImage(1440, 480, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
+            g.drawImage(textures.get(finalList.get(0)), null, 0, 0);
+            g.drawImage(textures.get(finalList.get(1)), null, 0, 0);
+            g.drawImage(textures.get(finalList.get(2)), null, 0, 0);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try {

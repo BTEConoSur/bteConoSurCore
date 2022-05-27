@@ -18,7 +18,7 @@ public class PointsManager {
 
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
 
-    private final Configuration maxConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSUr"), "points/max");
+    private final Configuration maxConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
 
     private final ServerPlayer serverPlayer;
     private final DataManager data;

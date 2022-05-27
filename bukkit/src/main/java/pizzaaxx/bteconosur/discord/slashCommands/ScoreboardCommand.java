@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -34,8 +35,9 @@ public class ScoreboardCommand extends ListenerAdapter {
                     country = new OldCountry(event.getGuild());
                 }
             } else {
-                if (countryNames.contains(event.getOption("país").getAsString().toLowerCase())) {
-                    country = new OldCountry(event.getOption("país").getAsString().toLowerCase());
+                String c = event.getOption("país").getAsString().replace("perú", "peru").toLowerCase();
+                if (countryNames.contains(c)) {
+                    country = new OldCountry(c);
                 } else {
                     event.replyEmbeds(errorEmbed("El país introducido no es válido.")).queue(
                             msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
@@ -52,7 +54,9 @@ public class ScoreboardCommand extends ListenerAdapter {
             for (UUID uuid : country.getScoreboardUUIDs()) {
                 String emoji;
                 ServerPlayer s = new ServerPlayer(uuid);
-                PointsManager manager = s.getPointsManager();
+
+                PointsManager manager;
+                manager = s.getPointsManager(); // <--- PROBLEM
                 int points = manager.getPoints(country);
                 if (points >= 1000) {
                     emoji = ":gem:";
@@ -64,11 +68,14 @@ public class ScoreboardCommand extends ListenerAdapter {
                     emoji = ":hammer:";
                 }
                 DiscordManager dsc = s.getDiscordManager();
+                Bukkit.getConsoleSender().sendMessage("c");
+
                 builder.addField(
                         "#" + i + " " + emoji + " " + s.getName() + " " + (dsc.isLinked() ? "- " + dsc.getName() + "#" + dsc.getDiscriminator() : ""),
                         "Puntos: `" + manager.getPoints(country) + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
                         false);
                 i++;
+                Bukkit.getConsoleSender().sendMessage("d");
             }
 
             event.replyEmbeds(builder.build()).queue(
