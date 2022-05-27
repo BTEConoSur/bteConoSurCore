@@ -6,18 +6,30 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.helper.Pair;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BannersCommand implements CommandExecutor {
 
-    private final Map<Character, List<PatternType>> letters = new HashMap<>();
+    private enum PatternColor {
+        BACKGROUND, FRONT
+    }
+
+    private final Map<Character, List<Pair<PatternColor, PatternType>>> letters = new HashMap<>();
 
     public BannersCommand() {
-
+        List<Pair<PatternColor, PatternType>> a = new ArrayList<>();
+        a.addAll(
+                Arrays.asList(
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE),
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE),
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE),
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE),
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE),
+                        new Pair<>(PatternColor.FRONT, PatternType.BASE)
+                )
+        );
     }
 
     @Override
