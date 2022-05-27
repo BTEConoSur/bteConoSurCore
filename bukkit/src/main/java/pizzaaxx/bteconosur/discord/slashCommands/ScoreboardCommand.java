@@ -68,14 +68,12 @@ public class ScoreboardCommand extends ListenerAdapter {
                     emoji = ":hammer:";
                 }
                 DiscordManager dsc = s.getDiscordManager();
-                Bukkit.getConsoleSender().sendMessage("c");
 
                 builder.addField(
                         "#" + i + " " + emoji + " " + s.getName() + " " + (dsc.isLinked() ? "- " + dsc.getName() + "#" + dsc.getDiscriminator() : ""),
                         "Puntos: `" + manager.getPoints(country) + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
                         false);
                 i++;
-                Bukkit.getConsoleSender().sendMessage("d");
             }
 
             event.replyEmbeds(builder.build()).queue(

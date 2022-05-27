@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.discord.slashCommands;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -25,6 +26,7 @@ public class FindColorCommand extends ListenerAdapter {
         for (File file : new File(plugin.getDataFolder(), "textures/").listFiles()) {
             try {
                 BufferedImage image = ImageIO.read(file);
+
 
                 int sumR = 0, sumG = 0, sumB = 0;
                 for (int x = 0; x < image.getWidth(); x++) {
@@ -128,7 +130,6 @@ public class FindColorCommand extends ListenerAdapter {
 
             List<Map.Entry<Color, Double>> list = new ArrayList<>(distances.entrySet());
             list.sort(Map.Entry.comparingByValue());
-            Collections.reverse(list);
 
             List<Color> finalList = new ArrayList<>();
             for (Map.Entry<Color, Double> entry : list) {
@@ -138,9 +139,9 @@ public class FindColorCommand extends ListenerAdapter {
             // make image
             BufferedImage image = new BufferedImage(1440, 480, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
-            g.drawImage(textures.get(finalList.get(0)), null, 0, 0);
-            g.drawImage(textures.get(finalList.get(1)), null, 0, 0);
-            g.drawImage(textures.get(finalList.get(2)), null, 0, 0);
+            g.drawImage(textures.get(finalList.get(0)).getScaledInstance(480, 480, Image.SCALE_DEFAULT), 0, 0, null);
+            g.drawImage(textures.get(finalList.get(1)).getScaledInstance(480, 480, Image.SCALE_DEFAULT), 480, 0, null);
+            g.drawImage(textures.get(finalList.get(2)).getScaledInstance(480, 480, Image.SCALE_DEFAULT), 960, 0, null);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try {
@@ -149,6 +150,17 @@ public class FindColorCommand extends ListenerAdapter {
                 e.printStackTrace();
             }
             InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+            String hex = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(color);
+            embed.setTitle("Texturas más cercanas al color " + hex);
+            embed.setImage("attachment://img.png");
+
+            event.replyFile(is, "img.png").addEmbeds(embed.build()).queue(
+                    msg -> msg.deleteOriginal().queueAfter(20, TimeUnit.MINUTES)
+            );
 
             event.replyFile(is, "image.png").queue();
         }
