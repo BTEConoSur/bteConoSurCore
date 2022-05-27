@@ -140,6 +140,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("terraform").setExecutor(terraformExecutor);
         getCommand("/terraform").setExecutor(terraformExecutor);
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
+        getCommand("banner").setExecutor(new BannersCommand());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

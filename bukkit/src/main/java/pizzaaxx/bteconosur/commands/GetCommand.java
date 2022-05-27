@@ -12,7 +12,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 
+import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.Misc.itemBuilder;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
@@ -151,8 +153,12 @@ public class GetCommand implements CommandExecutor, Listener {
                             }
 
                             e.setCancelled(true);
-                            e.getClickedBlock().getRelative(e.getBlockFace()).setType(material);
-                            e.getClickedBlock().getRelative(e.getBlockFace()).setData(metadata);
+
+                            if (WorldGuardProvider.getWorldGuard().canBuild(p, e.getClickedBlock().getRelative(e.getBlockFace()))) {
+                                e.getClickedBlock().getRelative(e.getBlockFace()).setType(material);
+                                e.getClickedBlock().getRelative(e.getBlockFace()).setData(metadata);
+                            }
+
                         }
                     }
                 }

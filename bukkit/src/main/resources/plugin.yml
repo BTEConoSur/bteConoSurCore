@@ -2,6 +2,9 @@ name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 commands:
+  banner:
+    aliases: banners
+    description: Crea banners de letras.
   welcomeBook:
     description: a
   terraform:
