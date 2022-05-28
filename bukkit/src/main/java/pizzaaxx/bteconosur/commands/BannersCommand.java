@@ -1,11 +1,16 @@
 package pizzaaxx.bteconosur.commands;
 
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.helper.Pair;
@@ -13,8 +18,6 @@ import pizzaaxx.bteconosur.helper.Pair;
 import java.util.*;
 
 public class BannersCommand implements CommandExecutor {
-
-    private final String PREFIX = "§f[§7BANNERS§f] §7>>§r ";
 
     private enum PatternColor {
         BACKGROUND, FRONT
@@ -311,12 +314,40 @@ public class BannersCommand implements CommandExecutor {
 
             // /banner <letter> <back> <text>
 
+            String PREFIX = "§f[§7BANNERS§f] §7>>§r ";
             if (args.length >= 3) {
-                String letterColor = args[0];
-                String backColor = args[1];
-                String text = String.join(" ", Arrays.asList(args).subList(2, args.length));
+                String letterColorString = args[0];
+                String backColorString = args[1];
+                String text = String.join(" ", Arrays.asList(args).subList(2, args.length)).toLowerCase();
+
+                DyeColor letterColor = translateColor(letterColorString);
+                if (letterColor == null) {
+                    p.sendMessage(PREFIX + "Introduce un color de letra válido.");
+                    return true;
+                }
+
+                DyeColor backColor = translateColor(backColorString);
+                if (backColor == null) {
+                    p.sendMessage(PREFIX + "Introduce un color de fondo válido.");
+                    return true;
+                }
+
+                final Set<String> passed = new HashSet<>();
+                for (String c : text.split("")) {
+                    if (!passed.contains(c) && c.matches("[a-z0-9]")) {
+                        ItemStack banner = new ItemStack(Material.BANNER, 1, (c.equals("q") ? letterColor.getDyeData() : backColor.getDyeData()));
+                        BannerMeta meta = (BannerMeta) banner.getItemMeta();
+                        meta.setBaseColor((c.equals("q") ? letterColor : backColor));
+                        for (Pair<PatternColor, PatternType> pair : letters.get(c)) {
+                            meta.addPattern(new Pattern((pair.getKey() == PatternColor.BACKGROUND ? backColor : letterColor), pair.getValue()));
+                        }
+                        banner.setItemMeta(meta);
+                        p.getInventory().addItem(banner);
+                    }
+                    passed.add(c);
+                }
             } else {
-                p.sendMessage(PREFIX + "§Uso: /banner <color de letra> <color de fondo> <texto>");
+                p.sendMessage(PREFIX + "§cUso: /banner <color de letra> <color de fondo> <texto>");
             }
         }
 
