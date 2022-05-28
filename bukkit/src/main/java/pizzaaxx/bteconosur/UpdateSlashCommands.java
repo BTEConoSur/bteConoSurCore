@@ -43,6 +43,7 @@ public class UpdateSlashCommands implements CommandExecutor {
                     new SubcommandData("code", "Introduce un código hexadecimal para buscar").addOption(OptionType.STRING, "hex", "El código hexadecimal de color deseado", true),
                     new SubcommandData("image", "Adjunta una imagen para buscar el color promedio de esta").addOption(OptionType.ATTACHMENT, "imagen", "La imagen a buscar", true)
             ).queue();
+            guild.upsertCommand("projecttag", "Administra la etiqueta de un proyecto.").addOption(OptionType.STRING, "id", "ID del proyecto a manejar", true).queue();
         }
 
         return true;

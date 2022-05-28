@@ -1,6 +1,11 @@
 package pizzaaxx.bteconosur.server.player;
 
 import net.dv8tion.jda.api.entities.User;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.cacheddata.CachedPermissionData;
+import net.luckperms.api.model.user.UserManager;
+import net.luckperms.api.query.QueryOptions;
+import net.luckperms.api.util.Tristate;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,8 +19,10 @@ import pizzaaxx.bteconosur.worldedit.trees.Tree;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
+import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public class ServerPlayer {
 
@@ -251,27 +258,67 @@ public class ServerPlayer {
     }
 
     public List<String> getPermissionCountries() {
-        Player p = Bukkit.getPlayer(uuid);
-        List<String> permissionCountries = new ArrayList<>();
-        if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-            permissionCountries.add("argentina");
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            Player p = Bukkit.getPlayer(uuid);
+            List<String> permissionCountries = new ArrayList<>();
+            if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
+                permissionCountries.add("argentina");
+            }
+            if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
+                permissionCountries.add("bolivia");
+            }
+            if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
+                permissionCountries.add("chile");
+            }
+            if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
+                permissionCountries.add("peru");
+            }
+            if (p.hasPermission("bteconosur.projects.manage.country.py")) {
+                permissionCountries.add("paraguay");
+            }
+            if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
+                permissionCountries.add("uruguay");
+            }
+            return permissionCountries;
+        } else {
+
+            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+
+            UserManager userManager = lp.getUserManager();
+            CompletableFuture<net.luckperms.api.model.user.User> userFuture = userManager.loadUser(uuid);
+
+            List<String> permissionCountries = new ArrayList<>();
+            userFuture.thenAccept(
+                    user -> {
+                        QueryOptions options = lp.getContextManager().getQueryOptions(player);
+                        CachedPermissionData data = user.getCachedData().getPermissionData(options);
+
+                        // TODO FIX THIS
+
+                        if (data.checkPermission("bteconosur.projects.manage.country.ar").asBoolean()) {
+                            permissionCountries.add("argentina");
+                        }
+                        if (data.checkPermission("bteconosur.projects.manage.country.bo").asBoolean()) {
+                            permissionCountries.add("bolivia");
+                        }
+                        if (data.checkPermission("bteconosur.projects.manage.country.cl").asBoolean()) {
+                            permissionCountries.add("chile");
+                        }
+                        if (data.checkPermission("bteconosur.projects.manage.country.pe").asBoolean()) {
+                            permissionCountries.add("peru");
+                        }
+                        if (data.checkPermission("bteconosur.projects.manage.country.py").asBoolean()) {
+                            permissionCountries.add("paraguay");
+                        }
+                        if (data.checkPermission("bteconosur.projects.manage.country.uy").asBoolean()) {
+                            permissionCountries.add("uruguay");
+                        }
+
+                    }
+            );
+            permissionCountries.forEach(country -> Bukkit.getConsoleSender().sendMessage(country));
+            return permissionCountries;
         }
-        if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-            permissionCountries.add("bolivia");
-        }
-        if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-            permissionCountries.add("chile");
-        }
-        if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-            permissionCountries.add("peru");
-        }
-        if (p.hasPermission("bteconosur.projects.manage.country.py")) {
-            permissionCountries.add("paraguay");
-        }
-        if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
-            permissionCountries.add("uruguay");
-        }
-        return permissionCountries;
     }
 
     // NOTIFICATIONS
