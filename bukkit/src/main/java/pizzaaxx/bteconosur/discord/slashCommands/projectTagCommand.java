@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.discord.slashCommands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -48,14 +49,14 @@ public class projectTagCommand extends ListenerAdapter {
                         ActionRow row = ActionRow.of(
                                 SelectMenu.create(project.getId())
                                         .setPlaceholder("Selecciona una etiqueta")
-                                        .addOption("Edificios", "EDIFICIOS", "Edificios de oficinas, comerciales y otros.")
-                                        .addOption("Departamentos", "DEPARTAMENTOS", "Edificios exclusivamente de departamentos.")
-                                        .addOption("Parques", "PARQUES", "Parques, plazas, bosques, canchas de deportes, etc.")
-                                        .addOption("Casas", "CASAS", "Casas, townhouses y condominios residenciales.")
-                                        .addOption("Establecimientos", "ESTABLECIMIENTOS", "Colegios, hospitales, gimnasios, universidades y otros lugares públicos.")
-                                        .addOption("Carreteras", "CARRETERAS", "Carreteras, autopistas, calles, pasos elevados, túneles, etc.")
-                                        .addOption("Centros Comerciales", "CENTROS_COMERCIALES", "Malls, supermercados y otros centros comerciales.")
-                                        .addOption("Eliminar", "delete", "Elimina la etiqueta actual.")
+                                        .addOption("Edificios", "EDIFICIOS", "Edificios de oficinas, comerciales y otros.", Emoji.fromUnicode("U+1F3EC"))
+                                        .addOption("Departamentos", "DEPARTAMENTOS", "Edificios exclusivamente de departamentos.", Emoji.fromUnicode("U+1F3E8"))
+                                        .addOption("Casas", "CASAS", "Casas, townhouses y condominios residenciales.", Emoji.fromUnicode("U+1F3D8"))
+                                        .addOption("Parques", "PARQUES", "Parques, plazas, bosques, canchas de deportes, etc.", Emoji.fromUnicode("U+1F333"))
+                                        .addOption("Establecimientos", "ESTABLECIMIENTOS", "Colegios, hospitales, gimnasios, universidades y otros lugares públicos.", Emoji.fromUnicode("U+1F3EB"))
+                                        .addOption("Carreteras", "CARRETERAS", "Carreteras, autopistas, calles, pasos elevados, túneles, etc.", Emoji.fromUnicode("U+1F6E3"))
+                                        .addOption("Centros Comerciales", "CENTROS_COMERCIALES", "Malls, supermercados y otros centros comerciales.", Emoji.fromUnicode("U+1F6CD"))
+                                        .addOption("Eliminar", "delete", "Elimina la etiqueta actual.", Emoji.fromUnicode("U+1F5D1"))
                                         .build()
                         );
 
