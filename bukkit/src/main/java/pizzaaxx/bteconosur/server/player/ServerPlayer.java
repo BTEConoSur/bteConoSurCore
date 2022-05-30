@@ -291,7 +291,7 @@ public class ServerPlayer {
             userFuture.thenAccept(
                     user -> {
                         QueryOptions options = lp.getContextManager().getQueryOptions(player);
-                        CachedPermissionData data = user.getCachedData().getPermissionData(options);
+                        CachedPermissionData data = user.getCachedData().getPermissionData();
 
                         // TODO FIX THIS
 

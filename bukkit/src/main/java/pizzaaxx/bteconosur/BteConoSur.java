@@ -30,6 +30,7 @@ import pizzaaxx.bteconosur.events.EventsCommand;
 import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
+import pizzaaxx.bteconosur.listener.ProjectBlockPlacingListener;
 import pizzaaxx.bteconosur.points.Scoreboard;
 import pizzaaxx.bteconosur.presets.PresetsCommand;
 import pizzaaxx.bteconosur.presets.PresetsEvent;
@@ -101,7 +102,8 @@ public final class BteConoSur extends JavaPlugin {
                 new EventsCommand(),
                 new ProjectManageInventoryListener(this),
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
-                new MovementHandler()
+                new MovementHandler(),
+                new ProjectBlockPlacingListener()
         );
 
         getLogger().info("Registering commands...");
