@@ -1085,6 +1085,8 @@ public class ProjectsCommand implements CommandExecutor {
                     if (project.getOwner() != null) {
                         if (!(project.getAllMembers().contains(p))) {
                             new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + s.getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
+                            p.sendMessage(projectsPrefix + "Se ha enviado la solicitud.");
+
                         } else {
                             p.sendMessage(projectsPrefix + "Ya eres parte de este proyecto.");
                         }
