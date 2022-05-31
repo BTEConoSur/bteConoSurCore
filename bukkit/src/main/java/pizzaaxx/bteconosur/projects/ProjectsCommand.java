@@ -51,9 +51,10 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegi
 public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
     public static Set<Player> transferConfirmation = new HashSet<>();
-    public Set<Player> leaveConfirmation = new HashSet<>();
-    public Set<Player> finishConfirmation = new HashSet<>();
-    public Set<Player> deleteConfirmation = new HashSet<>();
+    private final Set<Player> leaveConfirmation = new HashSet<>();
+    private final Set<Player> finishConfirmation = new HashSet<>();
+    private final Set<Player> deleteConfirmation = new HashSet<>();
+    public static Map<UUID, Integer> tutorialSteps = new HashMap<>();
     public static ItemStack background;
     public static Map<String, String> projectRequestsIDs = new HashMap<>();
 
@@ -1006,68 +1007,64 @@ public class ProjectsCommand implements CommandExecutor {
                 try {
                     Project project = new Project(p.getLocation());
 
-                    if (project != null) {
-                        if (project.getOwner() == p) {
-                            Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName(true) : ""));
+                    if (project.getOwner() == p) {
+                        Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName(true) : ""));
 
-                            List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
+                        List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
 
-                            for (int i = 0; i <= 53; i++) {
-                                if (!membersSlots.contains(i)) {
-                                    gui.setItem(i, background);
-                                }
+                        for (int i = 0; i <= 53; i++) {
+                            if (!membersSlots.contains(i)) {
+                                gui.setItem(i, background);
                             }
-
-                            final Map<Integer, String> actions = new HashMap<>();
-
-                            int i = 0;
-                            for (OfflinePlayer member : project.getMembers()) {
-                                ItemStack memberHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                                SkullMeta meta = (SkullMeta) memberHead.getItemMeta();
-                                ServerPlayer sMember = new ServerPlayer(member);
-                                meta.setDisplayName("§f" + sMember.getName());
-                                meta.setLore(Arrays.asList(
-                                        sMember.getLoreWithoutTitle(),
-                                        "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto"
-                                ));
-                                actions.put(membersSlots.get(i), "remove " + sMember.getPlayer().getUniqueId());
-                                meta.setOwningPlayer(member);
-                                memberHead.setItemMeta(meta);
-
-                                gui.setItem(membersSlots.get(i), memberHead);
-                                i++;
-                            }
-
-                            if (project.getMembers().size() < 14) {
-                                ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
-                                gui.setItem(membersSlots.get(i), add);
-                                actions.put(membersSlots.get(i), "add");
-                            }
-
-                            OfflinePlayer owner = project.getOwner();
-                            ServerPlayer sOwner = new ServerPlayer(owner);
-                            ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                            SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
-                            meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
-                            meta.setLore(Arrays.asList(
-                                    s.getLoreWithoutTitle(),
-                                    "\n§e[➡] §7Haz click para §etransferir §7el proyecto"
-                            ));
-                            actions.put(13, "transfer");
-                            meta.setOwningPlayer(owner);
-                            ownerHead.setItemMeta(meta);
-
-                            gui.setItem(13, ownerHead);
-
-                            p.openInventory(gui);
-
-                            inventoryActions.put(p.getUniqueId(), actions);
-
-                        } else {
-                            p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                         }
+
+                        final Map<Integer, String> actions = new HashMap<>();
+
+                        int i = 0;
+                        for (OfflinePlayer member : project.getMembers()) {
+                            ItemStack memberHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                            SkullMeta meta = (SkullMeta) memberHead.getItemMeta();
+                            ServerPlayer sMember = new ServerPlayer(member);
+                            meta.setDisplayName("§f" + sMember.getName());
+                            meta.setLore(Arrays.asList(
+                                    sMember.getLoreWithoutTitle(),
+                                    "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto"
+                            ));
+                            actions.put(membersSlots.get(i), "remove " + sMember.getPlayer().getUniqueId());
+                            meta.setOwningPlayer(member);
+                            memberHead.setItemMeta(meta);
+
+                            gui.setItem(membersSlots.get(i), memberHead);
+                            i++;
+                        }
+
+                        if (project.getMembers().size() < 14) {
+                            ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
+                            gui.setItem(membersSlots.get(i), add);
+                            actions.put(membersSlots.get(i), "add");
+                        }
+
+                        OfflinePlayer owner = project.getOwner();
+                        ServerPlayer sOwner = new ServerPlayer(owner);
+                        ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                        SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
+                        meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
+                        meta.setLore(Arrays.asList(
+                                s.getLoreWithoutTitle(),
+                                "\n§e[➡] §7Haz click para §etransferir §7el proyecto"
+                        ));
+                        actions.put(13, "transfer");
+                        meta.setOwningPlayer(owner);
+                        ownerHead.setItemMeta(meta);
+
+                        gui.setItem(13, ownerHead);
+
+                        p.openInventory(gui);
+
+                        inventoryActions.put(p.getUniqueId(), actions);
+
                     } else {
-                        p.sendMessage(projectsPrefix + "Algo ha salido mal.");
+                        p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
                 } catch (Exception e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
@@ -1103,6 +1100,7 @@ public class ProjectsCommand implements CommandExecutor {
                     p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                     return true;
                 }
+                // TODO THIS
             }
 
             if (args[0].equals("redefine") || args[0].equals("redefinir")) {
@@ -1264,8 +1262,6 @@ public class ProjectsCommand implements CommandExecutor {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
-
-            // TODO DISCORD TAG COMMAND
 
             if (args[0].equals("tag") || args[0].equals("etiqueta")) {
                 if (p.hasPermission("bteconosur.projects.manage.tag")) {
