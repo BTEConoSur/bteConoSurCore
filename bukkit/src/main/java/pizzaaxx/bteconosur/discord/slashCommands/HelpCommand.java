@@ -105,7 +105,7 @@ public class HelpCommand extends ListenerAdapter {
                 ActionRow row = ActionRow.of(
                         Button.of(ButtonStyle.PRIMARY, "previousHelp_" + root, "Pág. anterior", Emoji.fromUnicode("U+2B05")),
                         Button.of(ButtonStyle.SECONDARY, "number", "1/" + dividedCharacters.size()).withDisabled(true),
-                        Button.of(ButtonStyle.PRIMARY, "nextHelp_" + root, "Pág. siguiente", Emoji.fromUnicode("U+27A1"))
+                        Button.of(ButtonStyle.PRIMARY, "nextHelp_" + root, "Pág. siguiente", Emoji.fromUnicode("U+27A1")).withDisabled(dividedCharacters.size() == 1)
                         );
 
                 event.replyEmbeds(builder.build()).addActionRows(row).queue(
