@@ -22,8 +22,7 @@ import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.discord.commands.*;
-import pizzaaxx.bteconosur.discord.commands.HelpCommand;
+import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
@@ -135,7 +134,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("assets").setExecutor(new LobbyCommand(this));
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
-        getCommand("help").setExecutor(new HelpCommand(this));
+        getCommand("help").setExecutor(new HelpCommand(new Configuration(this, "help")));
         TerraformCommand terraformExecutor = new TerraformCommand();
         getCommand("terraform").setExecutor(terraformExecutor);
         getCommand("/terraform").setExecutor(terraformExecutor);
