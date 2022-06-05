@@ -3,7 +3,6 @@ package pizzaaxx.bteconosur.server.player;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.country.CountryPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -58,7 +57,7 @@ public class PointsManager {
         }
 
         serverPlayer.getGroupsManager().checkGroups();
-        serverPlayer.getDiscordManager().checkDiscordBuilder(country);
+        serverPlayer.getDiscordManager().checkDiscordBuilderOld(country);
 
         checkTop(country);
 

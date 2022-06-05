@@ -11,9 +11,14 @@ import org.bukkit.plugin.Plugin;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static pizzaaxx.bteconosur.BteConoSur.countryRoles;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
+import static pizzaaxx.bteconosur.server.player.GroupsManager.PrimaryGroup.*;
 
 public class DiscordManager {
 
@@ -130,25 +135,55 @@ public class DiscordManager {
         return id;
     }
 
-    // TODO THIS
-    public void checkDiscordBuilder(OldCountry country) {
-        /*
+    public void checkDiscordRoles(OldCountry country) {
+
         if (linked) {
             loadUser();
             Guild guild = country.getGuild();
+
             Member member = guild.getMember(user);
-            Role role = guild.getRoleById(new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/ranks").getConfigurationSection(country.getName()).getString("builder"));
-            if (serverPlayer.getPointsManager().getPoints(country) >= 15) {
-                if (!member.getRoles().contains(role)) {
-                    country.getGuild().addRoleToMember(member, role).queue();
+
+            // TODO CHANGE CHILE ROLES
+
+            GroupsManager groups = serverPlayer.getGroupsManager();
+
+            Map<String, Role> cRoles = countryRoles.get(country);
+
+            List<Role> changes = member.getRoles();
+            List<Role> toCheckRemoval = new ArrayList<>();
+
+            GroupsManager.PrimaryGroup group = groups.getPrimaryGroup();
+            if (group == MOD || group == BUILDER || group == POSTULANTE || group == DEFAULT) {
+                if (cRoles.containsKey(group.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(group.toString().toLowerCase()))) {
+                    changes.add(cRoles.get(group.toString().toLowerCase()));
                 }
-            } else {
-                if (member.getRoles().contains(role)) {
-                    country.getGuild().removeRoleFromMember(member, role).queue();
+
+                if (group == BUILDER) {
+                    if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
+                        toCheckRemoval.add(cRoles.get("postulante"));
+                    }
+                } if (group == POSTULANTE) {
+                    if (cRoles.containsKey("default") && member.getRoles().contains(cRoles.get("default"))) {
+                        toCheckRemoval.add(cRoles.get("default"));
+                    } if (cRoles.containsKey("builder") && member.getRoles().contains(cRoles.get("builder"))) {
+                        toCheckRemoval.add(cRoles.get("builder"));
+                    }
+                } if (group == DEFAULT) {
+                    if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
+                        toCheckRemoval.add(cRoles.get("postulante"));
+                    }
                 }
             }
+
+            for (GroupsManager.SecondaryGroup sGroup : groups.getSecondaryGroups()) {
+                if (cRoles.containsKey(sGroup.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(sGroup.toString().toLowerCase()))) {
+                    changes.add(cRoles.get(sGroup.toString().toLowerCase()));
+                }
+            }
+
+            changes.removeAll(toCheckRemoval);
+            guild.modifyMemberRoles(member, changes).queue();
         }
 
-         */
     }
 }

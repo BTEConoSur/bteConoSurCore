@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -71,10 +73,11 @@ public final class BteConoSur extends JavaPlugin {
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
-    public static PlayerRegistry playerRegistry = new PlayerRegistry();
+    public static final PlayerRegistry playerRegistry = new PlayerRegistry();
     public static ProjectRegistry projectRegistry;
-    public static ChatRegistry chatRegistry = new ChatRegistry();
-    public static Map<OldCountry, Guild> guilds = new HashMap<>();
+    public static final ChatRegistry chatRegistry = new ChatRegistry();
+    public static final Map<OldCountry, Guild> guilds = new HashMap<>();
+    public static final Map<OldCountry, Map<String, Role>> countryRoles = new HashMap<>();
 
     private final Configuration links = new Configuration(this, "link/links");
 
@@ -263,6 +266,21 @@ public final class BteConoSur extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             playerRegistry.add(new ServerPlayer(player));
+        }
+
+        Configuration roles = new Configuration(this, "countryRoles");
+        for (String key : roles.getKeys(false)) {
+            OldCountry country = new OldCountry(key);
+
+            ConfigurationSection section = roles.getConfigurationSection(key);
+
+            Map<String, Role> rolesById = new HashMap<>();
+            for (String name : section.getKeys(false)) {
+
+                rolesById.put(name, country.getGuild().getRoleById(section.getString(name)));
+            }
+
+            countryRoles.put(country, rolesById);
         }
     }
 
