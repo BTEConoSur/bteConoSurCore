@@ -2,7 +2,11 @@ package pizzaaxx.bteconosur;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -44,6 +48,10 @@ public class UpdateSlashCommands implements CommandExecutor {
                     new SubcommandData("image", "Adjunta una imagen para buscar el color promedio de esta").addOption(OptionType.ATTACHMENT, "imagen", "La imagen a buscar", true)
             ).queue();
             guild.upsertCommand("projecttag", "Administra la etiqueta de un proyecto.").addOption(OptionType.STRING, "id", "ID del proyecto a manejar", true).queue();
+            // TODO ADD GLOBAL SCOREBOARD
+            guild.upsertCommand("evento", "Obtén información sobre un evento.").addSubcommands(
+                new SubcommandData("argentina", "Scoreboard de argentina.")
+            ).queue();
         }
 
         return true;
