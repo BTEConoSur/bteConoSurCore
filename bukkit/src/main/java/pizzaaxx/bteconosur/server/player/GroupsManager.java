@@ -6,6 +6,7 @@ import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
 import java.util.*;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.Config.groupsPrefixes;
+import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.*;
 
 public class GroupsManager {
@@ -93,6 +95,21 @@ public class GroupsManager {
         if (data.contains("secondaryGroups")) {
             for (String group : data.getStringList("secondaryGroups")) {
                 secondaryGroups.add(SecondaryGroup.valueOf(group.toUpperCase()));
+            }
+        }
+    }
+
+    public PrimaryGroup getPrimaryGroupFromCountry(OldCountry country) {
+        ProjectsManager projectsManager = serverPlayer.getProjectsManager();
+        PointsManager pointsManager = serverPlayer.getPointsManager();
+
+        if (pointsManager.getPoints(country) > 15) {
+            return PrimaryGroup.BUILDER;
+        } else {
+            if (projectsManager.hasProjectsIn(country)) {
+                return PrimaryGroup.POSTULANTE;
+            } else {
+                return PrimaryGroup.DEFAULT;
             }
         }
     }

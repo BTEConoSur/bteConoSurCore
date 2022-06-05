@@ -22,6 +22,8 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class OldCountry {
 
+    public static List<OldCountry> allCountries = Arrays.asList(new OldCountry("argentina"), new OldCountry("bolivia"), new OldCountry("chile"), new OldCountry("paraguay"), new OldCountry("peru"), new OldCountry("uruguay"));
+
     private final String name;
 
     public static List<String> countryNames = Arrays.asList("argentina", "bolivia", "chile", "paraguay", "peru", "uruguay");

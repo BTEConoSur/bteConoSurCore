@@ -48,8 +48,7 @@ public class PointsManager {
         int old = countriesPoints.get(country.getName());
         if (old != points) {
             countriesPoints.put(country.getName(), points);
-            Map<String, Integer> map = new HashMap<>();
-            countriesPoints.forEach(map::put);
+            Map<String, Integer> map = new HashMap<>(countriesPoints);
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);
@@ -57,16 +56,15 @@ public class PointsManager {
         }
 
         serverPlayer.getGroupsManager().checkGroups();
-        serverPlayer.getDiscordManager().checkDiscordBuilderOld(country);
+        serverPlayer.getDiscordManager().checkDiscordRoles(country);
 
         checkTop(country);
 
     }
 
-    public int addPoints(OldCountry country, int points) {
+    public void addPoints(OldCountry country, int points) {
         int newAmount = getPoints(country) + points;
         setPoints(country, newAmount);
-        return newAmount;
     }
 
     public int removePoints(OldCountry country, int points) {

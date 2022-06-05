@@ -149,40 +149,34 @@ public class DiscordManager {
 
             Map<String, Role> cRoles = countryRoles.get(country);
 
-            List<Role> changes = member.getRoles();
-            List<Role> toCheckRemoval = new ArrayList<>();
-
             GroupsManager.PrimaryGroup group = groups.getPrimaryGroup();
             if (group == MOD || group == BUILDER || group == POSTULANTE || group == DEFAULT) {
                 if (cRoles.containsKey(group.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(group.toString().toLowerCase()))) {
-                    changes.add(cRoles.get(group.toString().toLowerCase()));
+                    guild.addRoleToMember(member, cRoles.get(group.toString().toLowerCase())).queue();
                 }
 
                 if (group == BUILDER) {
                     if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
-                        toCheckRemoval.add(cRoles.get("postulante"));
+                        guild.removeRoleFromMember(member, cRoles.get("postulante")).queue();
                     }
                 } if (group == POSTULANTE) {
                     if (cRoles.containsKey("default") && member.getRoles().contains(cRoles.get("default"))) {
-                        toCheckRemoval.add(cRoles.get("default"));
+                        guild.removeRoleFromMember(member, cRoles.get("default")).queue();
                     } if (cRoles.containsKey("builder") && member.getRoles().contains(cRoles.get("builder"))) {
-                        toCheckRemoval.add(cRoles.get("builder"));
+                        guild.removeRoleFromMember(member, cRoles.get("builder")).queue();
                     }
                 } if (group == DEFAULT) {
                     if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
-                        toCheckRemoval.add(cRoles.get("postulante"));
+                        guild.removeRoleFromMember(member, cRoles.get("postulante")).queue();
                     }
                 }
             }
 
             for (GroupsManager.SecondaryGroup sGroup : groups.getSecondaryGroups()) {
                 if (cRoles.containsKey(sGroup.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(sGroup.toString().toLowerCase()))) {
-                    changes.add(cRoles.get(sGroup.toString().toLowerCase()));
+                    guild.addRoleToMember(member, cRoles.get(sGroup.toString().toLowerCase())).queue();
                 }
             }
-
-            changes.removeAll(toCheckRemoval);
-            guild.modifyMemberRoles(member, changes).queue();
         }
 
     }
