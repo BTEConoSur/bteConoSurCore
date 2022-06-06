@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -46,7 +47,7 @@ public class ServerEvent {
     private final ConfigurationSection countrySection;
     private final OldCountry country;
 
-    enum Status {
+    public enum Status {
         READY, OFF, ON
     }
 
@@ -109,7 +110,7 @@ public class ServerEvent {
         this.status = status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(@NotNull String status) {
         this.status = Status.valueOf(status.toUpperCase());
     }
 

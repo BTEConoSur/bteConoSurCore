@@ -184,7 +184,8 @@ public final class BteConoSur extends JavaPlugin {
                 new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(),
                 new FindColorCommand(this),
                 new projectTagCommand(),
-                new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help"))
+                new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help")),
+                new EventCommand()
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
