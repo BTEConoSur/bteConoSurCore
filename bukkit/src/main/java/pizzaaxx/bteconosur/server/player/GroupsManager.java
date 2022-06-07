@@ -258,6 +258,13 @@ public class GroupsManager {
     }
 
     public void checkGroups() {
+
+
+        DiscordManager discord = serverPlayer.getDiscordManager();
+        for (OldCountry country : allCountries) {
+            discord.checkDiscordRoles(country);
+        }
+
         if (primaryGroup == PrimaryGroup.ADMIN || primaryGroup == PrimaryGroup.MOD) {
             return;
         }

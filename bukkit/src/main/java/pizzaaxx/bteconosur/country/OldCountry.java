@@ -277,6 +277,6 @@ public class OldCountry {
     }
 
     public Guild getGuild() {
-        return guilds.get(this);
+        return guilds.get(this.getName());
     }
 }

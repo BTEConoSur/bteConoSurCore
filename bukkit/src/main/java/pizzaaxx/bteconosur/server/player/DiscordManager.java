@@ -11,12 +11,10 @@ import org.bukkit.plugin.Plugin;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.countryRoles;
+import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.server.player.GroupsManager.PrimaryGroup.*;
 
@@ -72,6 +70,9 @@ public class DiscordManager {
         Configuration links = new Configuration(plugin, "link/links");
         links.set(id, serverPlayer.getPlayer().getUniqueId().toString());
         links.save();
+        for (OldCountry country : allCountries) {
+            checkDiscordRoles(country);
+        }
     }
 
     public void disconnect(Plugin plugin) {
@@ -143,16 +144,20 @@ public class DiscordManager {
 
             Member member = guild.getMember(user);
 
+            Bukkit.getConsoleSender().sendMessage("a");
+
             // TODO CHANGE CHILE ROLES
 
             GroupsManager groups = serverPlayer.getGroupsManager();
 
-            Map<String, Role> cRoles = countryRoles.get(country);
+            Map<String, Role> cRoles = countryRoles.getOrDefault(country, new HashMap<>());
 
-            GroupsManager.PrimaryGroup group = groups.getPrimaryGroup();
-            if (group == MOD || group == BUILDER || group == POSTULANTE || group == DEFAULT) {
+            GroupsManager.PrimaryGroup group = groups.getPrimaryGroupFromCountry(country);
+            if (group == BUILDER || group == POSTULANTE || group == DEFAULT) {
+                Bukkit.getConsoleSender().sendMessage("b");
                 if (cRoles.containsKey(group.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(group.toString().toLowerCase()))) {
                     guild.addRoleToMember(member, cRoles.get(group.toString().toLowerCase())).queue();
+                    Bukkit.getConsoleSender().sendMessage("add " + group.toString().toLowerCase());
                 }
 
                 if (group == BUILDER) {

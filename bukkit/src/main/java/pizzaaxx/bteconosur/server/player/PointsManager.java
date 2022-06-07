@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.server.player;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import pizzaaxx.bteconosur.yaml.Configuration;
@@ -22,7 +23,7 @@ public class PointsManager {
     private final ServerPlayer serverPlayer;
     private final DataManager data;
 
-    public PointsManager(ServerPlayer s) {
+    public PointsManager(@NotNull ServerPlayer s) {
         data = s.getDataManager();
 
         serverPlayer = s;
@@ -40,11 +41,11 @@ public class PointsManager {
         return serverPlayer;
     }
 
-    public int getPoints(OldCountry country) {
+    public int getPoints(@NotNull OldCountry country) {
         return countriesPoints.getOrDefault(country.getName(), 0);
     }
 
-    public void setPoints(OldCountry country, int points) {
+    public void setPoints(@NotNull OldCountry country, int points) {
         int old = countriesPoints.get(country.getName());
         if (old != points) {
             countriesPoints.put(country.getName(), points);
@@ -56,7 +57,6 @@ public class PointsManager {
         }
 
         serverPlayer.getGroupsManager().checkGroups();
-        serverPlayer.getDiscordManager().checkDiscordRoles(country);
 
         checkTop(country);
 

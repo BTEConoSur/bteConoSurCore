@@ -76,7 +76,7 @@ public final class BteConoSur extends JavaPlugin {
     public static final PlayerRegistry playerRegistry = new PlayerRegistry();
     public static ProjectRegistry projectRegistry;
     public static final ChatRegistry chatRegistry = new ChatRegistry();
-    public static final Map<OldCountry, Guild> guilds = new HashMap<>();
+    public static final Map<String, Guild> guilds = new HashMap<>();
     public static final Map<OldCountry, Map<String, Role>> countryRoles = new HashMap<>();
 
     private final Configuration links = new Configuration(this, "link/links");
@@ -116,7 +116,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new ChatCommand());
         getCommand("nickname").setExecutor(new NickNameCommand());
-        getCommand("test").setExecutor(new Testing(this));
+        getCommand("test").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
@@ -199,7 +199,7 @@ public final class BteConoSur extends JavaPlugin {
         }
 
         Configuration guildsSection = new Configuration(this, "discord/guilds");
-        countryNames.forEach(name -> guilds.put(new OldCountry(name), conoSurBot.getGuildById(guildsSection.getString(name))));
+        countryNames.forEach(name -> guilds.put(name, conoSurBot.getGuildById(guildsSection.getString(name))));
 
         Configuration configuration = new Configuration(this, "config");
         Config config = new Config(configuration);
