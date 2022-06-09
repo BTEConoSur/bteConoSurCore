@@ -122,6 +122,10 @@ public class ServerEvent {
         this.tp = tp;
     }
 
+    public ProtectedPolygonalRegion getRegion() {
+        return region;
+    }
+
     public List<OfflinePlayer> getParticipants() {
         return participants;
     }
