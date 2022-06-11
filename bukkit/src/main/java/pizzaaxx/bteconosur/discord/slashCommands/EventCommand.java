@@ -25,7 +25,7 @@ public class EventCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
-        if (e.getName().equals("event")) {
+        if (e.getName().equals("evento")) {
             String c = e.getSubcommandName();
 
             if (c == null) {
