@@ -105,6 +105,11 @@ public class ProjectsManager {
     }
 
     public int getFinishedProjects(OldCountry country) {
+
+        if (country.getName().equals("global")) {
+            return getTotalFinishedProjects();
+        }
+
         return finishedProjects.get(country.getName());
     }
 

@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -15,7 +14,6 @@ import java.awt.*;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
 public class ScoreboardCommand extends ListenerAdapter {
@@ -24,31 +22,18 @@ public class ScoreboardCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
         if (event.getName().equals("scoreboard")) {
-            OldCountry country = null;
-            if (event.getOption("país") == null) {
-                if (event.getGuild().getId().equals("696154248593014815")) {
-                    event.replyEmbeds(errorEmbed("En este servidor debes especificar el país.")).queue(
-                            msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
-                    );
-                    return;
-                } else {
-                    country = new OldCountry(event.getGuild());
-                }
-            } else {
-                String c = event.getOption("país").getAsString().replace("perú", "peru").toLowerCase();
-                if (countryNames.contains(c)) {
-                    country = new OldCountry(c);
-                } else {
-                    event.replyEmbeds(errorEmbed("El país introducido no es válido.")).queue(
-                            msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
-                    );
-                    return;
-                }
+            String subcommand = event.getSubcommandName();
+            if (subcommand == null) {
+                event.replyEmbeds(errorEmbed("Ha ocurrido un error.")).queue(
+                        msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
+                );
+                return;
             }
+            OldCountry country = new OldCountry(subcommand.replace("perú", "peru"));
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.setColor(Color.GREEN);
-            builder.setTitle("Jugadores con mayor puntaje de " + StringUtils.capitalize(country.getName().replace("peru", "perú")));
+            builder.setTitle("Jugadores con mayor puntaje " + (country.getName().equals("global") ? "global" : "de " + StringUtils.capitalize(country.getName().replace("peru", "perú"))));
             int i = 1;
 
             for (UUID uuid : country.getScoreboardUUIDs()) {
@@ -71,7 +56,7 @@ public class ScoreboardCommand extends ListenerAdapter {
 
                 builder.addField(
                         "#" + i + " " + emoji + " " + s.getName() + " " + (dsc.isLinked() ? "- " + dsc.getName() + "#" + dsc.getDiscriminator() : ""),
-                        "Puntos: `" + manager.getPoints(country) + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
+                        "Puntos: `" + points + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
                         false);
                 i++;
             }

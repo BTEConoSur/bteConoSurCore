@@ -71,6 +71,15 @@ public class PointsManager {
     }
 
     public int getPoints(@NotNull OldCountry country) {
+
+        if (country.getName().equals("global")) {
+            int total = 0;
+            for (OldCountry c : allCountries) {
+                total += getPoints(c);
+            }
+            return total;
+        }
+
         return countriesPoints.getOrDefault(country.getName(), 0);
     }
 
