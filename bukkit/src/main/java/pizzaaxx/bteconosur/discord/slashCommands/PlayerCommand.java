@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -48,9 +49,9 @@ public class PlayerCommand extends ListenerAdapter {
                 Bukkit.getConsoleSender().sendMessage("a");
 
                 User user = null;
-                if (event.getOption("usuario") != null) {
-                    // TODO FIX THIS
-                    user = event.getOption("usuario").getAsUser();
+                OptionMapping option = event.getOption("usuario");
+                if (option != null) {
+                    user = option.getAsUser();
                 }
 
                 Bukkit.getConsoleSender().sendMessage("b");
