@@ -78,13 +78,17 @@ public class EventCommand extends ListenerAdapter {
                 if (event.getImage().equals("notSet")) {
                     try {
                         builder.setImage("attachment://map.png");
-                        e.replyFile(new URL(getMapURL(new Pair<>(event.getRegion().getPoints(), "7434eb"))).openStream(), "map.png").addEmbeds(builder.build()).queue();
+                        e.replyFile(new URL(getMapURL(new Pair<>(event.getRegion().getPoints(), "7434eb"))).openStream(), "map.png").addEmbeds(builder.build()).queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                        );
                     } catch (IOException exception) {
                         exception.printStackTrace();
                     }
                 } else {
                     builder.setImage(event.getImage());
-                    e.replyEmbeds(builder.build()).queue();
+                    e.replyEmbeds(builder.build()).queue(
+                            msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                    );
                 }
             }
 
