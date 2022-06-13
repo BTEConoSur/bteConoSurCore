@@ -22,6 +22,9 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class OldCountry {
 
+    /**
+     * A list containing all countries in alphabetical order.
+     */
     public static List<OldCountry> allCountries = Arrays.asList(new OldCountry("argentina"), new OldCountry("bolivia"), new OldCountry("chile"), new OldCountry("paraguay"), new OldCountry("peru"), new OldCountry("uruguay"));
 
     private final String name;

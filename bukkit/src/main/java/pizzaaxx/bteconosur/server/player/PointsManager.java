@@ -9,10 +9,39 @@ import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.server.player.ScoreboardManager.ScoreboardType.TOP;
 
 public class PointsManager {
+
+    private static class PointsGlobalComparator implements Comparator<ServerPlayer> {
+
+        @Override
+        public int compare(ServerPlayer s1, ServerPlayer s2) {
+            int total1 = 0, total2 = 0;
+            for (OldCountry country : allCountries) {
+                total1 += s1.getPointsManager().getPoints(country);
+                total2 += s2.getPointsManager().getPoints(country);
+            }
+            return Integer.compare(total1, total2);
+        }
+    }
+
+    private static class PointsCountryComparator implements Comparator<ServerPlayer> {
+
+        private final OldCountry country;
+
+        public PointsCountryComparator(OldCountry country) {
+            this.country = country;
+        }
+
+        @Override
+        public int compare(ServerPlayer s1, ServerPlayer s2) {
+            return Integer.compare(s1.getPointsManager().getPoints(country), s2.getPointsManager().getPoints(country));
+        }
+    }
 
     private final Map<String, Integer> countriesPoints = new HashMap<>();
 
@@ -93,34 +122,59 @@ public class PointsManager {
     }
 
     public void checkTop(OldCountry country) {
-        List<String> maxStrings = maxConfig.getStringList(country.getAbbreviation() + "_max");
-        Map<UUID, Integer> points = new HashMap<>();
-        for (String uuidStr : maxStrings) {
-            UUID uuid = UUID.fromString(uuidStr);
-            points.put(uuid, new ServerPlayer(uuid).getPointsManager().getPoints(country));
+        List<String> maxStrings = maxConfig.getStringList(country.getName());
+
+        List<UUID> maxUUIDs = new ArrayList<>();
+        for (String string : maxStrings) {
+            maxUUIDs.add(UUID.fromString(string));
         }
-        int min = Collections.min(points.values());
 
-        if (countriesPoints.get(country.getName()) > min) {
-            points.put(serverPlayer.getPlayer().getUniqueId(), countriesPoints.get(country.getName()));
-            List<Map.Entry<UUID, Integer>> list = new ArrayList<>(points.entrySet());
-            list.sort(Map.Entry.comparingByValue());
+        // add this uuid if missing
+        if (!maxUUIDs.contains(serverPlayer.getId())) {
+            maxUUIDs.add(serverPlayer.getId());
+        }
 
-            List<String> finalList = new ArrayList<>();
-            for (Map.Entry<UUID, Integer> entry : list) {
-                finalList.add(entry.getKey().toString());
-            }
+        List<ServerPlayer> players = new ArrayList<>();
+        for (UUID uuid : maxUUIDs) {
+            players.add(new ServerPlayer(uuid));
+        }
+        players.sort(new PointsCountryComparator(country));
 
-            maxConfig.set(country.getAbbreviation() + "_max", finalList);
-            maxConfig.save();
+        maxConfig.set(country.getName(), players.subList(0, 10).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
+        maxConfig.save();
 
-            for (Player player : WorldGuardProvider.getPlayersInCountry(country)) {
-                ServerPlayer s = new ServerPlayer(player);
-                if (s.getScoreboardManager().getType() == TOP) {
-                    s.getScoreboardManager().update();
-                }
+        checkGlobalTop();
+
+        for (Player player : WorldGuardProvider.getPlayersInCountry(country)) {
+            ServerPlayer s = new ServerPlayer(player);
+            if (s.getScoreboardManager().getType() == TOP) {
+                s.getScoreboardManager().update();
             }
         }
+    }
+
+    private void checkGlobalTop() {
+        List<String> maxStrings = maxConfig.getStringList("global");
+
+        List<UUID> maxUUIDs = new ArrayList<>();
+        for (String string : maxStrings) {
+            maxUUIDs.add(UUID.fromString(string));
+        }
+
+        // add this uuid if missing
+        if (!maxUUIDs.contains(serverPlayer.getId())) {
+            maxUUIDs.add(serverPlayer.getId());
+        }
+
+        List<ServerPlayer> players = new ArrayList<>();
+        for (UUID uuid : maxUUIDs) {
+            players.add(new ServerPlayer(uuid));
+        }
+
+        players.sort(new PointsGlobalComparator());
+
+        maxConfig.set("global", players.subList(0, 10).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
+        maxConfig.save();
     }
 
     public enum BuilderRank {
