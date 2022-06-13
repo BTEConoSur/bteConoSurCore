@@ -46,7 +46,6 @@ public class PlayerCommand extends ListenerAdapter {
             ServerPlayer s = null;
             if (event.getSubcommandName().equals("user")) {
 
-                Bukkit.getConsoleSender().sendMessage("a");
 
                 User user = null;
                 OptionMapping option = event.getOption("usuario");
@@ -54,13 +53,10 @@ public class PlayerCommand extends ListenerAdapter {
                     user = option.getAsUser();
                 }
 
-                Bukkit.getConsoleSender().sendMessage("b");
 
                 try {
 
-                    Bukkit.getConsoleSender().sendMessage("c");
                     s = new ServerPlayer(user);
-                    Bukkit.getConsoleSender().sendMessage("d");
 
                 } catch (Exception e) {
                     event.replyEmbeds(errorEmbed("El usuario introducido no tiene una cuenta de Minecraft conectada.")).queue(
