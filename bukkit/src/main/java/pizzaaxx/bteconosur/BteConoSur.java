@@ -77,7 +77,7 @@ public final class BteConoSur extends JavaPlugin {
     public static ProjectRegistry projectRegistry;
     public static final ChatRegistry chatRegistry = new ChatRegistry();
     public static final Map<String, Guild> guilds = new HashMap<>();
-    public static final Map<OldCountry, Map<String, Role>> countryRoles = new HashMap<>();
+    public static final Map<String, Map<String, String>> countryRoles = new HashMap<>();
 
     private final Configuration links = new Configuration(this, "link/links");
 
@@ -116,7 +116,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("prefix").setExecutor(new PrefixCommand());
         getCommand("chat").setExecutor(new ChatCommand());
         getCommand("nickname").setExecutor(new NickNameCommand());
-        getCommand("test").setExecutor(new Testing());
+        getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand());
@@ -271,17 +271,16 @@ public final class BteConoSur extends JavaPlugin {
 
         Configuration roles = new Configuration(this, "countryRoles");
         for (String key : roles.getKeys(false)) {
-            OldCountry country = new OldCountry(key);
 
             ConfigurationSection section = roles.getConfigurationSection(key);
 
-            Map<String, Role> rolesById = new HashMap<>();
+            Map<String, String> rolesById = new HashMap<>();
             for (String name : section.getKeys(false)) {
 
-                rolesById.put(name, country.getGuild().getRoleById(section.getString(name)));
+                rolesById.put(name, section.getString(name));
             }
 
-            countryRoles.put(country, rolesById);
+            countryRoles.put(key, rolesById);
         }
     }
 

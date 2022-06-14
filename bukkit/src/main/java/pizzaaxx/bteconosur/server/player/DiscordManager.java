@@ -12,6 +12,7 @@ import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.BteConoSur.countryRoles;
 import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
@@ -142,44 +143,37 @@ public class DiscordManager {
             loadUser();
             Guild guild = country.getGuild();
 
-            Member member = guild.getMember(user);
-
-            Bukkit.getConsoleSender().sendMessage("a");
+            Member member = guild.retrieveMember(user).complete();
+            List<String> roleIds = member.getRoles().stream().map(Role::getId).collect(Collectors.toList());
 
             // TODO CHANGE CHILE ROLES
 
             GroupsManager groups = serverPlayer.getGroupsManager();
 
-            Map<String, Role> cRoles = countryRoles.getOrDefault(country, new HashMap<>());
+            Map<String, String> cRoles = countryRoles.getOrDefault(country.getName(), new HashMap<>());
 
             GroupsManager.PrimaryGroup group = groups.getPrimaryGroupFromCountry(country);
+            // TODO TEST THIS
             if (group == BUILDER || group == POSTULANTE || group == DEFAULT) {
-                Bukkit.getConsoleSender().sendMessage("b");
-                if (cRoles.containsKey(group.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(group.toString().toLowerCase()))) {
-                    guild.addRoleToMember(member, cRoles.get(group.toString().toLowerCase())).queue();
-                    Bukkit.getConsoleSender().sendMessage("add " + group.toString().toLowerCase());
+                String groupName = group.toString();
+                if (cRoles.containsKey(groupName) && !roleIds.contains(cRoles.get(groupName))) {
+                    guild.addRoleToMember(member, guild.getRoleById(cRoles.get(groupName))).queue();
                 }
 
                 if (group == BUILDER) {
-                    if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
-                        guild.removeRoleFromMember(member, cRoles.get("postulante")).queue();
+                    if (cRoles.containsKey("postulante") && roleIds.contains(cRoles.get("postulante"))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("postulante"))).queue();
                     }
                 } if (group == POSTULANTE) {
-                    if (cRoles.containsKey("default") && member.getRoles().contains(cRoles.get("default"))) {
-                        guild.removeRoleFromMember(member, cRoles.get("default")).queue();
-                    } if (cRoles.containsKey("builder") && member.getRoles().contains(cRoles.get("builder"))) {
-                        guild.removeRoleFromMember(member, cRoles.get("builder")).queue();
+                    if (cRoles.containsKey("default") && roleIds.contains(cRoles.get("default"))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("default"))).queue();
+                    } if (cRoles.containsKey("builder") && roleIds.contains(cRoles.get("builder"))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("builder"))).queue();
                     }
                 } if (group == DEFAULT) {
-                    if (cRoles.containsKey("postulante") && member.getRoles().contains(cRoles.get("postulante"))) {
-                        guild.removeRoleFromMember(member, cRoles.get("postulante")).queue();
+                    if (cRoles.containsKey("postulante") && roleIds.contains(cRoles.get("postulante"))) {
+                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("postulante"))).queue();
                     }
-                }
-            }
-
-            for (GroupsManager.SecondaryGroup sGroup : groups.getSecondaryGroups()) {
-                if (cRoles.containsKey(sGroup.toString().toLowerCase()) && !member.getRoles().contains(cRoles.get(sGroup.toString().toLowerCase()))) {
-                    guild.addRoleToMember(member, cRoles.get(sGroup.toString().toLowerCase())).queue();
                 }
             }
         }
