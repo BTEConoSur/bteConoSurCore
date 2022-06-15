@@ -13,6 +13,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import pizzaaxx.bteconosur.projects.ProjectsCommand;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -85,6 +86,11 @@ public class Events extends ListenerAdapter implements Listener {
         Player p = e.getPlayer();
         ServerPlayer s = new ServerPlayer(p);
         ChatManager manager = s.getChatManager();
+
+        if (ProjectsCommand.tutorialSteps.containsKey(p.getUniqueId())) {
+            p.sendMessage(ChatCommand.CHAT_PREFIX + "Tienes el chat oculto mientras tienes el tutorial activo.");
+            return;
+        }
 
         if (!(manager.isHidden())) {
             List<Chat> targetChats = new ArrayList<>();

@@ -23,7 +23,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
@@ -1100,6 +1099,28 @@ public class ProjectsCommand implements CommandExecutor {
                     p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                     return true;
                 }
+
+                UUID uuid = p.getUniqueId();
+                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir"))) {
+                    tutorialSteps.remove(uuid);
+
+                    p.sendMessage(projectsPrefix + "Has salido del tutorial.");
+                }
+
+
+                if (!tutorialSteps.containsKey(uuid)) {
+                    tutorialSteps.put(uuid, 1);
+
+                    p.sendMessage(projectsPrefix + "¡Has iniciado el tutorial!");
+                    p.sendMessage(" ");
+                    p.sendMessage("[§d1§f] Ve a la ciudad donde quieres construir. Puedes hacer esto usando §a/tpdir [ciudad]§f. [HECHO]");
+
+                } else {
+
+
+
+                }
+
                 // TODO THIS
             }
 

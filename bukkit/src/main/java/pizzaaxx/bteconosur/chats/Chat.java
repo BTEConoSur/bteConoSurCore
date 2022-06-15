@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.chats;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.projects.ProjectsCommand;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -118,7 +119,7 @@ public class Chat {
         for (UUID uuid : membersUUID) {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
-            if (!s.getChatManager().isHidden()) {
+            if (!s.getChatManager().isHidden() && !ProjectsCommand.tutorialSteps.containsKey(player.getUniqueId())) {
                 player.sendMessage(msg);
             }
         }

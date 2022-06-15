@@ -56,6 +56,7 @@ public class Join implements Listener, CommandExecutor {
         DataManager data = serverPlayer.getDataManager();
 
         event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
+        // TODO FIX JOIN MESSAGE
 
 
         // SEND MESSAGES
