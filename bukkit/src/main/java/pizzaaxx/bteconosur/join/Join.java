@@ -119,8 +119,6 @@ public class Join implements Listener, CommandExecutor {
 
         if (data.contains("isFirst")) {
 
-            // TODO WELCOME BOOK
-
             BookUtil.BookBuilder builder = BookUtil.writtenBook();
 
             List<BaseComponent[]> pages = new ArrayList<>();

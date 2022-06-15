@@ -3,10 +3,12 @@ package pizzaaxx.bteconosur.discord.slashCommands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -20,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
-public class projectTagCommand extends ListenerAdapter {
+public class ProjectTagCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -43,11 +45,10 @@ public class projectTagCommand extends ListenerAdapter {
                     }
 
                     if (s.getPermissionCountries().contains(project.getCountry().getName())) {
-                        Bukkit.getConsoleSender().sendMessage("b");
 
 
                         ActionRow row = ActionRow.of(
-                                SelectMenu.create(project.getId())
+                                SelectMenu.create("changeTag~" + project.getId())
                                         .setPlaceholder("Selecciona una etiqueta")
                                         .addOption("Edificios", "EDIFICIOS", "Edificios de oficinas, comerciales y otros.", Emoji.fromUnicode("U+1F3EC"))
                                         .addOption("Departamentos", "DEPARTAMENTOS", "Edificios exclusivamente de departamentos.", Emoji.fromUnicode("U+1F3E8"))
@@ -64,7 +65,6 @@ public class projectTagCommand extends ListenerAdapter {
                         builder.setColor(Color.YELLOW);
                         builder.setTitle("Elige una etiqueta para el proyecto " + project.getId().toUpperCase());
                         // IMAGE
-                        Bukkit.getConsoleSender().sendMessage("c");
                         URL url;
                         try {
                             url = new URL(project.getImageUrl());
@@ -74,7 +74,6 @@ public class projectTagCommand extends ListenerAdapter {
                             );
                             return;
                         }
-                        Bukkit.getConsoleSender().sendMessage("d");
 
 
                         InputStream stream;
@@ -86,7 +85,6 @@ public class projectTagCommand extends ListenerAdapter {
                             );
                             return;
                         }
-                        Bukkit.getConsoleSender().sendMessage("e");
 
 
                         builder.setImage("attachment://map.png");
@@ -112,6 +110,45 @@ public class projectTagCommand extends ListenerAdapter {
                 event.replyEmbeds(errorEmbed("El proyecto introducido no existe.")).queue(
                         msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
                 );
+            }
+        }
+    }
+
+    @Override
+    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+        if (event.getComponentId().startsWith("changeTag~")) {
+            String projectId = event.getComponentId().replace("changeTag~", "");
+
+            if (Project.projectExists(projectId)) {
+
+                Project project = new Project(projectId);
+
+                String option = event.getSelectedOptions().get(0).getValue();
+
+                if (option.equals("delete")) {
+                    project.setTag(null);
+
+                    event.editMessageEmbeds(
+                            new EmbedBuilder()
+                                    .setColor(Color.GREEN)
+                                    .setTitle("Se ha eliminado la etiqueta del proyecto " + projectId.toUpperCase() + ".")
+                                    .build()
+                    ).setActionRows().queue();
+                } else {
+                    project.setTag(Project.Tag.valueOf(option));
+
+                    event.editMessageEmbeds(
+                            new EmbedBuilder()
+                                    .setColor(Color.GREEN)
+                                    .setTitle("Se ha establecido la etiqueta del proyecto " + projectId.toUpperCase() + " en " + option + ".")
+                                    .build()
+                    ).setActionRows().queue();
+                }
+                project.save();
+
+
+            } else {
+                event.editMessageEmbeds(errorEmbed("El proyecto ha sido eliminado.")).setActionRows().queue();
             }
         }
     }

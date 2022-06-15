@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
@@ -23,7 +22,6 @@ import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
@@ -183,7 +181,7 @@ public final class BteConoSur extends JavaPlugin {
                 new PlayerCommand(new Configuration(this, "discord/groupEmojis")),
                 new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(),
                 new FindColorCommand(this),
-                new projectTagCommand(),
+                new ProjectTagCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help")),
                 new EventCommand()
         );

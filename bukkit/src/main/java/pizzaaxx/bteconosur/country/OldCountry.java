@@ -223,7 +223,7 @@ public class OldCountry {
         List<PointsManager> scoreboard = new ArrayList<>();
 
         Configuration max = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "points/max");
-        for (String uuid : max.getStringList(getAbbreviation() + "_max")) {
+        for (String uuid : max.getStringList(name)) {
             scoreboard.add(new ServerPlayer(UUID.fromString(uuid)).getPointsManager());
         }
 
