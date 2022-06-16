@@ -1105,6 +1105,7 @@ public class ProjectsCommand implements CommandExecutor {
                     tutorialSteps.remove(uuid);
 
                     p.sendMessage(projectsPrefix + "Has salido del tutorial.");
+                    return true;
                 }
 
 
@@ -1113,15 +1114,95 @@ public class ProjectsCommand implements CommandExecutor {
 
                     p.sendMessage(projectsPrefix + "¡Has iniciado el tutorial!");
                     p.sendMessage(" ");
-                    p.sendMessage("[§d1§f] Ve a la ciudad donde quieres construir. Puedes hacer esto usando §a/tpdir [ciudad]§f. [HECHO]");
+                    p.sendMessage("[§d1§f] Ve a donde quieres construir. Puedes hacer esto usando §a/tpdir [dirección]§f. [HECHO]");
+                    p.sendMessage(" ");
 
                 } else {
 
-
+                    if (args.length > 1) {
+                        int step = tutorialSteps.get(uuid);
+                        if (args[1].equals("step2")) {
+                            if (step == 1) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d2§f] ¡Vamos a conseguir un proyecto! Primero, verifica si es que no hay un proyecto ya creado aquí. Párate en el centro de donde quieres construir y aprieta el siguiente botón.");
+                                p.sendMessage("[VERIFICAR]"); // <-- run /p verifyTutorial
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step3claim")) {
+                            if (step == 2) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d3§f] ¡Ya hay un proyecto creado aquí! Usa §a/p claim§f para reclamarlo.");
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step3claimed")) {
+                            if (step == 2) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d3§f] ¡Ya hay un proyecto reclamado aquí! Puedes solicitar unirte a este proyecto o ir a otro lugar.");
+                                p.sendMessage("[SOLICITAR UNIRME] [VERIFICAR EN OTRO LUGAR]"); // <-- run /p verifyTutorial
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step3create")) {
+                            if (step == 2) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d3§f] No hay ningún proyecto creado aquí. ¡Crea uno!");
+                                p.sendMessage("[CÓMO CREAR UN PROYECTO]");
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step4create")) {
+                            if (step == 3) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d4§f] Usa §a//wand§f para obtener el hacha de WorldEdit. [SIGUIENTE]");
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step4create")) {
+                            if (step == 3) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d5§f] Usa §a//sel poly§f para cambiar tu forma de selección a poligonal. [SIGUIENTE]");
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step4create")) {
+                            if (step == 3) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d6§f] Selecciona usando el hacha los bordes de tu proyecto. [SIGUIENTE]");
+                                p.sendMessage("§7> Click izquierdo para el primer punto, click derecho para el resto.");
+                                p.sendMessage("§7> Si te equivocas, puedes usar §f//sel§7 para deshacer tu selección.");
+                                p.sendMessage(" ");
+                            }
+                        }
+                        if (args[1].equals("step4create")) {
+                            if (step == 3) {
+                                p.sendMessage(" ");
+                                p.sendMessage("[§d8§f] Usa §a/p create§f para crear tu proyecto. Se enviará una solicitud que deberá ser aceptada.");
+                                p.sendMessage(" ");
+                            }
+                        }
+                    }
 
                 }
 
                 // TODO THIS
+            }
+
+            if (args[0].equals("verifyTutorial")) {
+                if (Project.isProjectAt(p.getLocation())) {
+
+                    Project project = new Project(p.getLocation());
+
+                    if (project.isClaimed()) {
+                        p.performCommand("p tutorial step3claimed");
+                    } else {
+                        p.performCommand("p tutorial step3claim");
+                    }
+
+                } else {
+                    p.performCommand("p tutorial step3create");
+                }
             }
 
             if (args[0].equals("redefine") || args[0].equals("redefinir")) {
