@@ -163,11 +163,13 @@ public class Events extends ListenerAdapter implements Listener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!(event.getAuthor().isBot()) && !(event.getMessage().getContentDisplay().startsWith("/"))) {
-            // TODO UPDATE COLORS ON DEPLOY
-            ChatColor color = ChatColor.getByChar(CHAT_COLORS.getString(event.getMember().getRoles().get(0).getId()));
+        if (event.getTextChannel().getId().equals(gateway.getId())) {
+            if (!(event.getAuthor().isBot()) && !(event.getMessage().getContentDisplay().startsWith("/"))) {
+                // TODO UPDATE COLORS ON DEPLOY
+                ChatColor color = ChatColor.getByChar(CHAT_COLORS.getString(event.getMember().getRoles().get(0).getId()));
 
-            new Chat("global").broadcast("[§bDISCORD§f] §7>> §r" + color + event.getMember().getEffectiveName() + ": §r" + event.getMessage().getContentDisplay());
+                new Chat("global").broadcast("[§bDISCORD§f] §7>> §r" + color + event.getMember().getEffectiveName() + ": §r" + event.getMessage().getContentDisplay());
+            }
         }
     }
 }
