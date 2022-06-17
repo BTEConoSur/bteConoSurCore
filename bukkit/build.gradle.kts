@@ -23,6 +23,7 @@ dependencies {
     compileOnly("com.sk89q.worldedit:worldedit-core:6.1.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:6.1.1-SNAPSHOT")
     compileOnly("com.sk89q.worldguard:worldguard-legacy:6.2")
+    implementation("org.apache.commons:commons-text:1.9")
     implementation("net.dv8tion:JDA:5.0.0-alpha.11")
     implementation("com.github.BuildTheEarth:terraplusplus:v1.1.0")
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")

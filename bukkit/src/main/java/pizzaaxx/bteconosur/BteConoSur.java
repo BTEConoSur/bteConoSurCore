@@ -23,6 +23,8 @@ import pizzaaxx.bteconosur.chats.Events;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
+import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
+import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.IPListener;
 import pizzaaxx.bteconosur.discord.slashCommands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
@@ -169,7 +171,13 @@ public final class BteConoSur extends JavaPlugin {
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
         builder.setStatus(OnlineStatus.ONLINE);
 
+        FuzzyMatchListenerHandler handler = new FuzzyMatchListenerHandler();
+        handler.registerListener("cual es la ip?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4, "ip", "IP", "Ip", "iP");
+        handler.registerListener("como entro al server?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4);
+        handler.registerListener("como entro al servidor?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4);
+
         registerDiscordListener(builder,
+                handler,
                 new RequestResponse(),
                 new Events(),
                 new OnlineCommand(),
