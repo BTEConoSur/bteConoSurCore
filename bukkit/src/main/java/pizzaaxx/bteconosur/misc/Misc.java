@@ -5,6 +5,7 @@ import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
+import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -159,5 +161,42 @@ public class Misc {
             }
         }
         return "https://open.mapquestapi.com/staticmap/v5/map?key=" + key + "&type=sat&size=1920,1080&imagetype=png" + String.join("", shapes);
+    }
+
+    @SafeVarargs
+    public static BaseComponent[] formatStringWithBaseComponents(@NotNull String string, List<String>... actions) {
+        List<BaseComponent> components = new ArrayList<>();
+        int i = 0;
+        while (string.contains("%s%")) {
+
+            String[] parts = string.split("(%s%)", 2);
+
+            components.add(
+                    BookUtil.TextBuilder.of(parts[0]).build()
+            );
+
+            List<String> action = actions[i];
+            BookUtil.TextBuilder builder = BookUtil.TextBuilder.of(action.get(0));
+
+            if (action.get(1) != null) {
+                builder.onHover(BookUtil.HoverAction.showText(action.get(1)));
+            }
+
+            if (action.get(2) != null) {
+                builder.onClick(BookUtil.ClickAction.runCommand(action.get(2)));
+            }
+
+            components.add(builder.build());
+
+            string = parts[1];
+
+            i++;
+
+        }
+        components.add(
+                BookUtil.TextBuilder.of(string).build()
+        );
+
+        return components.toArray(new BaseComponent[0]);
     }
 }

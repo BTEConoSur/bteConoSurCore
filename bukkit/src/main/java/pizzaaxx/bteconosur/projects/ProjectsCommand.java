@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.*;
@@ -39,8 +40,7 @@ import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.Config.*;
-import static pizzaaxx.bteconosur.misc.Misc.getCountryAtLocation;
-import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
+import static pizzaaxx.bteconosur.misc.Misc.*;
 import static pizzaaxx.bteconosur.projects.ProjectManageInventoryListener.inventoryActions;
 import static pizzaaxx.bteconosur.server.player.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
@@ -1114,7 +1114,8 @@ public class ProjectsCommand implements CommandExecutor {
 
                     p.sendMessage(projectsPrefix + "¡Has iniciado el tutorial!");
                     p.sendMessage(" ");
-                    p.sendMessage("[§d1§f] Ve a donde quieres construir. Puedes hacer esto usando §a/tpdir [dirección]§f. [HECHO]");
+                    p.sendMessage(formatStringWithBaseComponents("[§d1§f] Ve a donde quieres construir. Puedes hacer esto usando §a/tpdir [dirección]§f. %s%",
+                            Arrays.asList("§a[HECHO]", "Haz click para avanzar al siguiente paso", "/p tutorial step2")));
                     p.sendMessage(" ");
 
                 } else {
@@ -1123,6 +1124,8 @@ public class ProjectsCommand implements CommandExecutor {
                         int step = tutorialSteps.get(uuid);
                         if (args[1].equals("step2")) {
                             if (step == 1) {
+                                tutorialSteps.put(uuid, 2);
+
                                 p.sendMessage(" ");
                                 p.sendMessage("[§d2§f] ¡Vamos a conseguir un proyecto! Primero, verifica si es que no hay un proyecto ya creado aquí. Párate en el centro de donde quieres construir y aprieta el siguiente botón.");
                                 p.sendMessage("[VERIFICAR]"); // <-- run /p verifyTutorial
@@ -1132,7 +1135,8 @@ public class ProjectsCommand implements CommandExecutor {
                         if (args[1].equals("step3claim")) {
                             if (step == 2) {
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d3§f] ¡Ya hay un proyecto creado aquí! Usa §a/p claim§f para reclamarlo.");
+                                p.sendMessage(formatStringWithBaseComponents( "[§d3§f] ¡Ya hay un proyecto creado aquí! Usa %s%§f para reclamarlo.",
+                                        Arrays.asList("§/p create", "Haz click para usar el comando", "/p claim")));
                                 p.sendMessage(" ");
                             }
                         }
