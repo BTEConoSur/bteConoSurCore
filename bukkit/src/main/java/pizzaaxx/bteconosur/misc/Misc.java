@@ -172,11 +172,11 @@ public class Misc {
             String[] parts = string.split("(%s%)", 2);
 
             components.add(
-                    BookUtil.TextBuilder.of(parts[0]).build()
+                    BookUtil.TextBuilder.of("§f" + parts[0]).build()
             );
 
             List<String> action = actions[i];
-            BookUtil.TextBuilder builder = BookUtil.TextBuilder.of(action.get(0));
+            BookUtil.TextBuilder builder = BookUtil.TextBuilder.of("§f" + action.get(0));
 
             if (action.get(1) != null) {
                 builder.onHover(BookUtil.HoverAction.showText(action.get(1)));
