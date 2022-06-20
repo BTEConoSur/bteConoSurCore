@@ -1101,24 +1101,28 @@ public class ProjectsCommand implements CommandExecutor {
                 }
 
                 UUID uuid = p.getUniqueId();
-                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir")) && tutorialSteps.containsKey(uuid)) {
-                    tutorialSteps.remove(uuid);
+                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir"))) {
 
-                    p.sendMessage(" ");
-                    p.sendMessage(projectsPrefix + "Has salido del tutorial.");
-                    p.sendMessage(" ");
+                    if (tutorialSteps.containsKey(uuid)) {
+                        p.sendMessage(" ");
+                        p.sendMessage(projectsPrefix + "Has salido del tutorial.");
+                        p.sendMessage(" ");
+                    }
+                    tutorialSteps.remove(uuid);
                     return true;
                 }
 
 
                 if (!tutorialSteps.containsKey(uuid)) {
-                    tutorialSteps.put(uuid, 1);
+                    if (args.length < 2) {
+                        tutorialSteps.put(uuid, 1);
 
-                    p.sendMessage(projectsPrefix + "¡Has iniciado el tutorial!");
-                    p.sendMessage(" ");
-                    p.sendMessage(formatStringWithBaseComponents("[§d1§f] Ve a donde quieres construir. Puedes hacer esto usando §a/tpdir [dirección]§f. %s%",
-                            Arrays.asList("§7§n[HECHO]", "Haz click para avanzar al siguiente paso", "/p tutorial step2")));
-                    p.sendMessage(" ");
+                        p.sendMessage(projectsPrefix + "¡Has iniciado el tutorial!");
+                        p.sendMessage(" ");
+                        p.sendMessage(formatStringWithBaseComponents("[§d1§f] Ve a donde quieres construir. Puedes hacer esto usando §a/tpdir [dirección]§f. %s%",
+                                Arrays.asList("§7§n[HECHO]", "Haz click para avanzar al siguiente paso", "/p tutorial step2")));
+                        p.sendMessage(" ");
+                    }
 
                 } else {
 
@@ -1199,7 +1203,7 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 6) {
                                 tutorialSteps.put(uuid, 7);
                                 p.sendMessage(" ");
-                                p.sendMessage(formatStringWithBaseComponents("[§d8§f] Usa %s%§f para crear tu proyecto. Se enviará una solicitud que deberá ser aceptada. %s%",
+                                p.sendMessage(formatStringWithBaseComponents("[§d7§f] Usa %s%§f para crear tu proyecto. Se enviará una solicitud que deberá ser aceptada. %s%",
                                         Arrays.asList("§a/p create", "Haz click para usar el comando", "/p create"),
                                         Arrays.asList("§7§n[SIGUIENTE]", "Haz click para avanzar al siguiente paso", "/p tutorial step8create")));
                                 p.sendMessage(" ");
