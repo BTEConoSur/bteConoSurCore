@@ -1101,10 +1101,12 @@ public class ProjectsCommand implements CommandExecutor {
                 }
 
                 UUID uuid = p.getUniqueId();
-                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir"))) {
+                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir")) && tutorialSteps.containsKey(uuid)) {
                     tutorialSteps.remove(uuid);
 
+                    p.sendMessage(" ");
                     p.sendMessage(projectsPrefix + "Has salido del tutorial.");
+                    p.sendMessage(" ");
                     return true;
                 }
 
@@ -1137,7 +1139,7 @@ public class ProjectsCommand implements CommandExecutor {
                                 tutorialSteps.put(uuid, 3);
                                 p.sendMessage(" ");
                                 p.sendMessage(formatStringWithBaseComponents( "[§d3§f] ¡Ya hay un proyecto creado aquí! Usa %s%§f para reclamarlo.",
-                                        Arrays.asList("§/p claim", "Haz click para usar el comando", "/p claim")));
+                                        Arrays.asList("§a/p claim", "Haz click para usar el comando", "/p claimTutorial")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1145,16 +1147,19 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 2) {
                                 p.sendMessage(" ");
                                 p.sendMessage("[§d3§f] ¡Ya hay un proyecto reclamado aquí! Puedes solicitar unirte a este proyecto o ir a otro lugar.");
-                                p.sendMessage("[SOLICITAR UNIRME] [VERIFICAR EN OTRO LUGAR]"); // <-- run /p verifyTutorial
+                                p.sendMessage(formatStringWithBaseComponents("%s% %s%",
+                                        Arrays.asList("§a§n[SOLICITAR UNIRME]", "Haz click para solicitar unirte al proyecto", "/p requestTutorial"),
+                                        Arrays.asList("§7§n[VERIFICAR EN OTRO LUGAR]", "Haz click aquí luego de haber ido a otro lugar", "/p verifyTutorial")));
                                 p.sendMessage(" ");
                             }
                         }
                         if (args[1].equals("step3create")) {
-                            tutorialSteps.put(uuid, 3);
                             if (step == 2) {
+                                tutorialSteps.put(uuid, 3);
                                 p.sendMessage(" ");
                                 p.sendMessage("[§d3§f] No hay ningún proyecto creado aquí. ¡Crea uno!");
-                                p.sendMessage("[CÓMO CREAR UN PROYECTO]");
+                                p.sendMessage(formatStringWithBaseComponents("%s%",
+                                        Arrays.asList("§7§n[COMO CREAR UN PROYECTO]", "Haz click para avanzar al siguiente paso", "/p tutorial step4create")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1162,7 +1167,9 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 3) {
                                 tutorialSteps.put(uuid, 4);
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d4§f] Usa §a//wand§f para obtener el hacha de WorldEdit. [SIGUIENTE]");
+                                p.sendMessage(formatStringWithBaseComponents("[§d4§f] Usa %s%§f para obtener el hacha de WorldEdit. %s%",
+                                        Arrays.asList("§a//wand", "Haz click para usar el comando", "//wand"),
+                                        Arrays.asList("§7§n[SIGUIENTE]", "Haz click para avanzar al siguiente paso", "/p tutorial step5create")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1170,7 +1177,9 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 4) {
                                 tutorialSteps.put(uuid, 5);
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d5§f] Usa §a//sel poly§f para cambiar tu forma de selección a poligonal. [SIGUIENTE]");
+                                p.sendMessage(formatStringWithBaseComponents("[§d5§f] Usa %s%§f para cambiar tu forma de selección a poligonal. %s%",
+                                        Arrays.asList("§a//sel poly", "Haz click para usar el comando", "//sel poly"),
+                                        Arrays.asList("§7§n[SIGUIENTE]", "Haz click para avanzar al siguiente paso", "/p tutorial step6create")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1178,9 +1187,11 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 5) {
                                 tutorialSteps.put(uuid, 6);
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d6§f] Selecciona usando el hacha los bordes de tu proyecto. [SIGUIENTE]");
+                                p.sendMessage(formatStringWithBaseComponents("[§d6§f] Selecciona usando el hacha los bordes de tu proyecto. %s%",
+                                        Arrays.asList("§7§n[SIGUIENTE]", "Haz click para avanzar al siguiente paso", "/p tutorial step7create")));
                                 p.sendMessage("§7> Click izquierdo para el primer punto, click derecho para el resto.");
-                                p.sendMessage("§7> Si te equivocas, puedes usar §f//sel§7 para deshacer tu selección.");
+                                p.sendMessage(formatStringWithBaseComponents("§7> Si te equivocas, puedes usar %s%§7 para deshacer tu selección.",
+                                        Arrays.asList("§f//sel", "Haz click para usar el comando", "//sel")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1188,7 +1199,9 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 6) {
                                 tutorialSteps.put(uuid, 7);
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d8§f] Usa §a/p create§f para crear tu proyecto. Se enviará una solicitud que deberá ser aceptada. [HECHO]");
+                                p.sendMessage(formatStringWithBaseComponents("[§d8§f] Usa %s%§f para crear tu proyecto. Se enviará una solicitud que deberá ser aceptada. %s%",
+                                        Arrays.asList("§a/p create", "Haz click para usar el comando", "/p create"),
+                                        Arrays.asList("§7§n[SIGUIENTE]", "Haz click para avanzar al siguiente paso", "/p tutorial step8create")));
                                 p.sendMessage(" ");
                             }
                         }
@@ -1196,7 +1209,9 @@ public class ProjectsCommand implements CommandExecutor {
                             if (step == 7) {
                                 tutorialSteps.put(uuid, 8);
                                 p.sendMessage(" ");
-                                p.sendMessage("[§d8§f] ¡Felicidades! Ya creaste tu primer proyecto. Ahora solo queda esperar a que este sea aprobado. [SALIR]");
+                                p.sendMessage(formatStringWithBaseComponents("[§d8§f] ¡Felicidades! Ya creaste tu primer proyecto. Ahora solo queda esperar a que sea aprobado. %s%",
+                                        Arrays.asList("§c§n[SALIR]", "Haz click para avanzar al salir del tutorial", "/p tutorial exit")));
+                                p.sendMessage("§7> Recibirás una notificación cuando el proyecto sea aprobado.");
                                 p.sendMessage(" ");
                             }
                         }
@@ -1207,19 +1222,35 @@ public class ProjectsCommand implements CommandExecutor {
                 // TODO THIS
             }
 
+            if (args[0].equals("claimTutorial")) {
+                if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 3) {
+                    p.performCommand("p claim");
+                    p.performCommand("p tuturial exit");
+                }
+            }
+
+        if (args[0].equals("requestTutorial")) {
+            if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 3) {
+                p.performCommand("p request");
+                p.performCommand("p tuturial exit");
+            }
+        }
+
             if (args[0].equals("verifyTutorial")) {
-                if (Project.isProjectAt(p.getLocation())) {
+                if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 2) {
+                    if (Project.isProjectAt(p.getLocation())) {
 
-                    Project project = new Project(p.getLocation());
+                        Project project = new Project(p.getLocation());
 
-                    if (project.isClaimed()) {
-                        p.performCommand("p tutorial step3claimed");
+                        if (project.isClaimed()) {
+                            p.performCommand("p tutorial step3claimed");
+                        } else {
+                            p.performCommand("p tutorial step3claim");
+                        }
+
                     } else {
-                        p.performCommand("p tutorial step3claim");
+                        p.performCommand("p tutorial step3create");
                     }
-
-                } else {
-                    p.performCommand("p tutorial step3create");
                 }
             }
 
