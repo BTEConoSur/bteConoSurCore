@@ -1,7 +1,10 @@
 name: bteConoSur
 version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
+
 commands:
+  /divide:
+    description: Divide una línea o una curva en cierta cantidad de subdivisiones separadas por un bloque.
   banner:
     aliases: /banners
     description: Crea banners de letras.

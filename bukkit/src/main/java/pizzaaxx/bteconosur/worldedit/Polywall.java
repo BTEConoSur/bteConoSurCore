@@ -4,7 +4,6 @@ import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.Extent;
@@ -111,7 +110,7 @@ public class Polywall implements CommandExecutor {
                             BlockVector2D v1 = pointsFinal.get(j);
                             BlockVector2D v2 = pointsFinal.get(j + 1);
 
-                            editSession = setBlocksInLine(p, actor, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
+                            editSession = setBlocksInLine(p, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
                         }
                     }
 

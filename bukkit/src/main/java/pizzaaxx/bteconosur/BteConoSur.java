@@ -48,14 +48,12 @@ import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.teleport.PWarp;
 import pizzaaxx.bteconosur.testing.Testing;
-import pizzaaxx.bteconosur.worldedit.IncrementCommand;
-import pizzaaxx.bteconosur.worldedit.Polywall;
-import pizzaaxx.bteconosur.worldedit.ShortCuts;
-import pizzaaxx.bteconosur.worldedit.TerraformCommand;
+import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import javax.security.auth.login.LoginException;
+import javax.swing.text.html.HTML;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
@@ -110,6 +108,7 @@ public final class BteConoSur extends JavaPlugin {
         );
 
         getLogger().info("Registering commands...");
+        getCommand("/divide").setExecutor(new DivideCommand());
         getCommand("project").setExecutor(new ProjectsCommand());
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
