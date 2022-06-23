@@ -128,11 +128,11 @@ public class DivideCommand implements CommandExecutor {
 
                 if (listsLengths.get(listsLengths.size() - 1) < listSize) {
 
-                    for (int i = 1; i < listsLengths.get(listsLengths.size() - 1); i++) {
+                    for (int i = 1; i <= listsLengths.get(listsLengths.size() - 1); i++) {
 
-                        int actual = listsLengths.get(listsLengths.size() - 1 - i);
+                        int actual = listsLengths.get((i % 2 == 0 ? (i / 2) - 1 : listsLengths.size() - 1 - ((i + 1) / 2)));
 
-                        listsLengths.set(listsLengths.size() - 1 - i, actual + 1);
+                        listsLengths.set((i % 2 == 0 ? (i / 2) - 1 : listsLengths.size() - 1 - ((i + 1) / 2)), actual + 1);
 
                     }
 
