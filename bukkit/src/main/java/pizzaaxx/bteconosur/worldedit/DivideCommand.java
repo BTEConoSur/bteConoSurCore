@@ -15,6 +15,7 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
+import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class DivideCommand implements CommandExecutor {
     @Override
@@ -102,7 +104,7 @@ public class DivideCommand implements CommandExecutor {
 
         if (selection instanceof CuboidRegion) {
             CuboidRegion cuboid = (CuboidRegion) selection;
-            List<Vector> allVectors = getBlocksInLine(p, mask, cuboid.getPos1(), cuboid.getPos2());
+            List<Vector> allVectors = getBlocksInLine(cuboid.getPos1(), cuboid.getPos2());
 
             allVectors.sort(new VectorDistanceComparator(cuboid.getPos1()));
 
@@ -110,21 +112,11 @@ public class DivideCommand implements CommandExecutor {
                     vector -> Bukkit.getConsoleSender().sendMessage(vector.getBlockX() + " " + vector.getBlockY() + " " + vector.getBlockZ())
             );
 
-            if (allVectors.size() <= subdivisions) {
-                for (Vector vector : allVectors) {
-                    try {
-                        editSession.setBlock(vector, pattern2.apply(vector));
-                    } catch (MaxChangedBlocksException e) {
-                        p.sendMessage(WORLD_EDIT_PREFIX + "Haz alcanzado el límite de bloques.");
-
-                        localSession.remember(editSession);
-
-                        return true;
-                    }
-                }
+            if (allVectors.size() < subdivisions) {
+                p.sendMessage(WORLD_EDIT_PREFIX + "La línea seleccionada tiene menos bloques que el número de subdivisiones.");
+                return true;
             } else {
 
-                List<Vector> divisorVectors = new ArrayList<>();
 
                 int listSize = (int) Math.floor(allVectors.size() / subdivisions);
 
@@ -146,47 +138,21 @@ public class DivideCommand implements CommandExecutor {
 
                     listsLengths.remove(listsLengths.size() - 1);
 
-                    int k = 1;
-                    int j = 0;
-                    for (Integer length : listsLengths) {
-                        if (k < listsLengths.size()) {
-                            List<Vector> slice = allVectors.subList(j, j + length);
 
-                            // TODO FIX THIS
+                }
 
-                            divisorVectors.add(slice.get(0));
-                            j += length;
-                        }
-                        k++;
-                    }
+                int j = 0;
+                int k = 0;
+                for (Integer length : listsLengths) {
 
-                } else {
-
-                    int i = 1;
-                    slicedLists.forEach(
-                            list -> {
-                                if (i < slicedLists.size()) {
-                                    divisorVectors.add(list.get(list.size() - 1));
-                                }
+                    for (Vector vector : allVectors.subList(j, j + length)) {
+                        try {
+                            if (mask != null && !(mask.test(vector))) {
+                                continue;
                             }
-                    );
-
-                }
-
-                for (Vector vector : allVectors) {
-                    if (!divisorVectors.contains(vector)) {
-                        try {
-                            editSession.setBlock(vector, pattern1.apply(vector));
-                        } catch (MaxChangedBlocksException e) {
-                            p.sendMessage(WORLD_EDIT_PREFIX + "Haz alcanzado el límite de bloques.");
-
-                            localSession.remember(editSession);
-
-                            return true;
-                        }
-                    } else {
-                        try {
-                            editSession.setBlock(vector, pattern2.apply(vector));
+                            if (getWorldGuard().canBuild(p, mainWorld.getBlockAt(new Location(mainWorld, vector.getX(), vector.getY(), vector.getZ())))) {
+                                editSession.setBlock(vector, (k % 2 == 0 ? pattern1 : pattern2).apply(vector));
+                            }
                         } catch (MaxChangedBlocksException e) {
                             p.sendMessage(WORLD_EDIT_PREFIX + "Haz alcanzado el límite de bloques.");
 
@@ -195,7 +161,12 @@ public class DivideCommand implements CommandExecutor {
                             return true;
                         }
                     }
+
+                    k++;
+                    j += length;
+
                 }
+
             }
 
             p.sendMessage(WORLD_EDIT_PREFIX + "Operación completada.");

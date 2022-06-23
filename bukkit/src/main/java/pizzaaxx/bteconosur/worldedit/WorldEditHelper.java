@@ -95,7 +95,7 @@ public class WorldEditHelper {
                 .getEditSession((World) new BukkitWorld(mainWorld), localSession.getBlockChangeLimit());
     }
 
-    public static List<Vector> getBlocksInLine(Player p, Mask mask, Vector pos1, Vector pos2) {
+    public static List<Vector> getBlocksInLine(Vector pos1, Vector pos2) {
         Set<Vector> vset = new HashSet<>();
         boolean notdrawn = true;
 
@@ -144,12 +144,7 @@ public class WorldEditHelper {
 
         List<Vector> vectors = new ArrayList<>();
         for (Vector point : vset) {
-            if (mask != null && !(mask.test(point))) {
-                continue;
-            }
-            if (getWorldGuard().canBuild(p, mainWorld.getBlockAt(new Location(mainWorld, point.getX(), point.getY(), point.getZ())))) {
-                vectors.add(point);
-            }
+            vectors.add(point);
         }
 
         return vectors;
