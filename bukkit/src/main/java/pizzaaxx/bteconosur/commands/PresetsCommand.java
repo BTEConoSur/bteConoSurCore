@@ -1,13 +1,18 @@
-package pizzaaxx.bteconosur.presets;
+package pizzaaxx.bteconosur.commands;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
-public class PresetsCommand implements CommandExecutor {
+public class PresetsCommand implements CommandExecutor, Listener {
     public static String presetsPrefix = "§f[§3PRESETS§f] §7>>§r ";
 
     @Override
@@ -81,5 +86,23 @@ public class PresetsCommand implements CommandExecutor {
             }
 
         return true;
+    }
+
+    @EventHandler
+    public void onCommand(@NotNull PlayerCommandPreprocessEvent e) {
+        String message = e.getMessage();
+        if (message.contains("$")) {
+            DataManager data = new ServerPlayer(e.getPlayer()).getDataManager();
+            ConfigurationSection presets = data.getConfigurationSection("presets");
+            for (String word : message.split(" ")) {
+                if (word.startsWith("$")) {
+                    String preset = word.replace("$", "");
+                    if (preset.matches("[a-zA-z0-9_]{1,32}") && presets.contains(preset)) {
+                        message = message.replace(word, presets.getString(preset));
+                    }
+                }
+            }
+        }
+        e.setMessage(message);
     }
 }

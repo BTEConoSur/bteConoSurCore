@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.teleport;
+package pizzaaxx.bteconosur.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -11,7 +11,7 @@ import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
-public class PWarp implements CommandExecutor {
+public class PWarpCommand implements CommandExecutor {
     public static String pWarpPrefix = "§f[§6PWARP§f] §7>>§r ";
 
     @Override

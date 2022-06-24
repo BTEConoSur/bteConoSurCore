@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -62,6 +63,13 @@ public class UpdateSlashCommands implements CommandExecutor {
                 new SubcommandData("uruguay", "Evento de Uruguay"),
                 new SubcommandData("global", "Evento global")
             ).queue();
+            guild.upsertCommand("altura", "¿Cómo obtengo la altura en Google Earth?").queue();
+            guild.upsertCommand("prioridad", "¿Cómo funciona la prioridad de entrada al servidor?").queue();
+            guild.upsertCommand("premium", "¿Es el servidor premium?").queue();
+            guild.upsertCommand("bedrock", "Información sobre el soporte de Bedrock.").queue();
+            guild.upsertCommand("ipfix", "Obtén la IP alternativa.").queue();
+            guild.upsertCommand("ip", "Obtén la IP del servidor.").queue();
+            guild.upsertCommand(Commands.user("Perfil de Minecraft")).queue();
         }
 
         return true;

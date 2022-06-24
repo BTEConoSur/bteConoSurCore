@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.points;
+package pizzaaxx.bteconosur.commands;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
@@ -21,7 +21,7 @@ import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getLeftRegions;
 
-public class Scoreboard implements Listener, CommandExecutor {
+public class ScoreboardCommand implements Listener, CommandExecutor {
 
     public static String scoreboardPrefix = getSimplePrefix("SCOREBOARD", "9");
 

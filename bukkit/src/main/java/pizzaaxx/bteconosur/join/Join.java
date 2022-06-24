@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
+import static pizzaaxx.bteconosur.projects.ProjectsCommand.tutorialSteps;
 
 public class Join implements Listener, CommandExecutor {
 
@@ -43,7 +44,7 @@ public class Join implements Listener, CommandExecutor {
                 }
             }
         }
-
+        tutorialSteps.remove(event.getPlayer().getUniqueId());
         playerRegistry.remove(event.getPlayer().getUniqueId());
     }
 

@@ -24,7 +24,9 @@ import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.country.CountryRegistry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
+import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.BedrockListener;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.IPListener;
+import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.PremiumListener;
 import pizzaaxx.bteconosur.discord.slashCommands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
@@ -33,12 +35,12 @@ import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
 import pizzaaxx.bteconosur.listener.ProjectBlockPlacingListener;
-import pizzaaxx.bteconosur.points.Scoreboard;
-import pizzaaxx.bteconosur.presets.PresetsCommand;
-import pizzaaxx.bteconosur.presets.PresetsEvent;
+import pizzaaxx.bteconosur.commands.ScoreboardCommand;
+import pizzaaxx.bteconosur.commands.PresetsCommand;
+import pizzaaxx.bteconosur.misc.Security;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
-import pizzaaxx.bteconosur.ranks.PrefixCommand;
+import pizzaaxx.bteconosur.commands.PrefixCommand;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.server.player.ChatManager;
@@ -46,14 +48,13 @@ import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
-import pizzaaxx.bteconosur.teleport.PWarp;
+import pizzaaxx.bteconosur.commands.PWarpCommand;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
 import pizzaaxx.bteconosur.yaml.Configuration;
 
 import javax.security.auth.login.LoginException;
-import javax.swing.text.html.HTML;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
@@ -91,12 +92,11 @@ public final class BteConoSur extends JavaPlugin {
                 new Join(playerRegistry, this),
                 new ProjectActionBar(),
                 new OnTeleport(),
-                new PresetsEvent(),
+                new PresetsCommand(),
                 new pFind(),
-                new PresetsEvent(),
                 new ShortCuts(playerRegistry),
                 new Events(),
-                new Scoreboard(),
+                new ScoreboardCommand(),
                 new GetCommand(),
                 new PrefixCommand(),
                 new LobbyCommand(this),
@@ -104,7 +104,8 @@ public final class BteConoSur extends JavaPlugin {
                 new ProjectManageInventoryListener(this),
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
                 new MovementHandler(),
-                new ProjectBlockPlacingListener()
+                new ProjectBlockPlacingListener(),
+                new Security()
         );
 
         getLogger().info("Registering commands...");
@@ -121,7 +122,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("presets").setExecutor(new PresetsCommand());
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
-        getCommand("pwarp").setExecutor(new PWarp());
+        getCommand("pwarp").setExecutor(new PWarpCommand());
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
         getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
@@ -129,7 +130,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("streamer").setExecutor(new Streamer());
         getCommand("streaming").setExecutor(new StreamingCommand());
         getCommand("get").setExecutor(new GetCommand());
-        getCommand("scoreboard").setExecutor(new Scoreboard());
+        getCommand("scoreboard").setExecutor(new ScoreboardCommand());
         getCommand("tpdir").setExecutor(new TpDirCommand());
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand(this));
@@ -142,6 +143,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("/terraform").setExecutor(terraformExecutor);
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
+        getCommand("height").setExecutor(new HeightCommand());
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");
@@ -171,9 +173,19 @@ public final class BteConoSur extends JavaPlugin {
         builder.setStatus(OnlineStatus.ONLINE);
 
         FuzzyMatchListenerHandler handler = new FuzzyMatchListenerHandler();
-        handler.registerListener("cual es la ip?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4, "ip", "IP", "Ip", "iP");
+        handler.registerListener("cual es la ip?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4, "ip");
         handler.registerListener("como entro al server?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4);
         handler.registerListener("como entro al servidor?", new IPListener(), FuzzyMatchListenerHandler.MatchType.PARTIAL, 4);
+        handler.registerListener("el server es premium?", new PremiumListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4, "server");
+        handler.registerListener("el servidor es premium?", new PremiumListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4, "servidor");
+        handler.registerListener("necesito premium?", new PremiumListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("es premium?", new PremiumListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("sirve bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("se puede con bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("se puede entrar con bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("bedrock sirve?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("puedo entrar al servidor con bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
+        handler.registerListener("puedo entrar con bedrock al servidor?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
 
         registerDiscordListener(builder,
                 handler,
@@ -190,7 +202,8 @@ public final class BteConoSur extends JavaPlugin {
                 new FindColorCommand(this),
                 new ProjectTagCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help")),
-                new EventCommand()
+                new EventCommand(),
+                new ShortCommands()
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);

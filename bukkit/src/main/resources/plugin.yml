@@ -3,6 +3,10 @@ version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 
 commands:
+  height:
+    description: Obtén tu altitud actual.
+    aliases:
+      - h
   /divide:
     description: Divide una línea o una curva en cierta cantidad de subdivisiones separadas por un bloque.
   banner:
