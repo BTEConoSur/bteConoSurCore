@@ -200,7 +200,7 @@ public class PlayerCommand extends ListenerAdapter {
 
 
             } else {
-                event.replyEmbeds(errorEmbed("Este usuario no tiene una cuenta de Minecraft conectada.")).queue(
+                event.replyEmbeds(errorEmbed("Este usuario no tiene una cuenta de Minecraft conectada.")).setEphemeral(true).queue(
                         msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
                 );
             }
