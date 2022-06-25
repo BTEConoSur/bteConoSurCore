@@ -199,4 +199,28 @@ public class Misc {
 
         return components.toArray(new BaseComponent[0]);
     }
+
+    public static <T> T selectRandomFromValues(Map<T, Integer> map) {
+
+        int total = 0;
+        for (Integer value : map.values()) {
+            total += value;
+        }
+
+        Random random = new Random();
+
+        int cumulative = 0;
+        int p = random.nextInt(total);
+
+        for (T key : map.keySet()) {
+            cumulative += map.get(key);
+
+            if (p <= cumulative) {
+                return key;
+            }
+
+        }
+
+        return null;
+    }
 }

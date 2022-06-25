@@ -70,6 +70,7 @@ public class UpdateSlashCommands implements CommandExecutor {
             guild.upsertCommand("ipfix", "Obtén la IP alternativa.").queue();
             guild.upsertCommand("ip", "Obtén la IP del servidor.").queue();
             guild.upsertCommand(Commands.user("Perfil de Minecraft")).queue();
+            guild.upsertCommand("pattern", "Obtén una previsualización de un patrón de bloques de WorldEdit.").addOption(OptionType.STRING, "patrón", "El patrón a usar.", true).queue();
         }
 
         return true;
