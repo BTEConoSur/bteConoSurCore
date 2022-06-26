@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
@@ -148,7 +149,7 @@ public class ProjectTagCommand extends ListenerAdapter {
 
 
             } else {
-                event.editMessageEmbeds(errorEmbed("El proyecto ha sido eliminado.")).setActionRows().queue();
+                event.editMessageEmbeds(errorEmbed("El proyecto ha sido eliminado.")).retainFiles(new ArrayList<>()).setActionRows().queue();
             }
         }
     }

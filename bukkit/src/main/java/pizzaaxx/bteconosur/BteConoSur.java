@@ -49,6 +49,7 @@ import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.commands.PWarpCommand;
+import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
@@ -144,6 +145,8 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
         getCommand("height").setExecutor(new HeightCommand());
+        getCommand("fixProjects").setExecutor(new Fixing(this));
+        getCommand("fixPlayers").setExecutor(new Fixing(this));
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

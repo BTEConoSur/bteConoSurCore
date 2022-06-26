@@ -3,6 +3,10 @@ version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 
 commands:
+  fixProjects:
+    description: fix
+  fixPlayers:
+    description: fix
   height:
     description: Obtén tu altitud actual.
     aliases:
