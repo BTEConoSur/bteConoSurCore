@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.discord.slashCommands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -11,12 +12,9 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.yaml.Configuration;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,50 +26,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+// TODO FIX ALREADY EXISTING FILES ON DEPLOY
+
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
 public class PatternCommand extends ListenerAdapter {
 
-    private final Map<Integer, Map<Integer, BufferedImage>> textures = new HashMap<>();
+    private final BufferedImage allTextures;
 
-    public PatternCommand(@NotNull Configuration mapping, Plugin plugin) {
+    public PatternCommand(Plugin plugin) {
+        BufferedImage allTextures1;
 
-        for (String key : mapping.getKeys(false)) {
-
-            Integer id = Integer.parseInt(key);
-
-            Map<Integer, BufferedImage> data = new HashMap<>();
-            if (mapping.isConfigurationSection(key)) {
-
-                ConfigurationSection section = mapping.getConfigurationSection(key);
-
-                for (String subKey : section.getKeys(false)) {
-                    Integer metadata = Integer.parseInt(subKey);
-
-                    String fileName = section.getString(subKey);
-
-                    try {
-                        BufferedImage image = ImageIO.read(new File(plugin.getDataFolder(), "textures/" + fileName + ".png"));
-                        data.put(metadata, image);
-                    } catch (IOException exception) {
-                        plugin.getLogger().warning("No se ha podido cargar la textura \"" + fileName + "\"");
-                    }
-                }
-
-            } else {
-                String fileName = mapping.getString(key);
-                try {
-                    BufferedImage image = ImageIO.read(new File(plugin.getDataFolder(), "textures/" + fileName + ".png"));
-                    data.put(0, image);
-                } catch (IOException exception) {
-                    plugin.getLogger().warning("No se ha podido cargar la textura \"" + fileName + "\"");
-                }
-            }
-
-            textures.put(id, data);
-
+        try {
+            allTextures1 = ImageIO.read(new File(plugin.getDataFolder(), "textures.png"));
+        } catch (IOException e) {
+            plugin.getLogger().warning("Ha ocurrido un error cargando la imagen de texturas.");
+            allTextures1 = null;
         }
 
+        allTextures = allTextures1;
     }
 
     private static class ParseException extends Exception {
@@ -118,7 +91,7 @@ public class PatternCommand extends ListenerAdapter {
                         BufferedImage selectedImage = Misc.selectRandomFromValues(textures);
 
                         if (selectedImage != null) {
-                            graphics.drawImage(selectedImage.getScaledInstance(selectedImage.getWidth(), selectedImage.getHeight(), Image.SCALE_DEFAULT), x * 16, y * 16, null);
+                            graphics.drawImage(selectedImage, x * 16, y * 16, null);
                         }
 
                     }
@@ -171,6 +144,16 @@ public class PatternCommand extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId().startsWith("refreshPattern")) {
+
+            Message message = event.getMessage();
+
+            if (!message.getInteraction().getUser().getId().equals(event.getUser().getId())) {
+
+                event.replyEmbeds(errorEmbed("Solo quien usó el comando puede usar las interacciones.")).setEphemeral(true).queue();
+                return;
+
+            }
+
             String[] parts = event.getComponentId().split("~~~");
 
             int resolution = Integer.parseInt(parts[1]);
@@ -238,6 +221,15 @@ public class PatternCommand extends ListenerAdapter {
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
 
         if (event.getComponentId().startsWith("newPatternResolution")) {
+
+            Message message = event.getMessage();
+
+            if (!message.getInteraction().getUser().getId().equals(event.getUser().getId())) {
+
+                event.replyEmbeds(errorEmbed("Solo quien usó el comando puede usar las interacciones.")).setEphemeral(true).queue();
+                return;
+
+            }
 
             String[] parts = event.getComponentId().split("~~~");
 
@@ -395,17 +387,13 @@ public class PatternCommand extends ListenerAdapter {
 
             // get buffered image
 
-            if (textures.containsKey(id)) {
-                Map<Integer, BufferedImage> metadatas = textures.get(id);
+            BufferedImage croppedImage = allTextures.getSubimage(id * 16, data * 16, 16, 16);
 
-
-                BufferedImage image = metadatas.get((metadatas.containsKey(data) ? data : 0));
-
-                pattern.put(image, chance);
-
-            } else {
+            if (croppedImage.getRGB(0, 0) == Color.CYAN.getRGB() && croppedImage.getRGB(15, 0) == Color.RED.getRGB()) {
                 throw new ParseException("Uno de los bloques introducidos no existe o no está disponible.");
             }
+
+            pattern.put(croppedImage, chance);
 
         }
 

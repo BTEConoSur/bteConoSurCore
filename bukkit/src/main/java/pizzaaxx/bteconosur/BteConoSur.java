@@ -204,7 +204,7 @@ public final class BteConoSur extends JavaPlugin {
                 new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help")),
                 new EventCommand(),
                 new ShortCommands(),
-                new PatternCommand(new Configuration(this, "discord/textureMapping"), this)
+                new PatternCommand(this)
         );
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
