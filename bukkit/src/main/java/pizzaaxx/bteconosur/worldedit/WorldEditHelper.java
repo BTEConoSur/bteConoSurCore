@@ -1,12 +1,14 @@
 package pizzaaxx.bteconosur.worldedit;
 
 import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import com.sk89q.worldedit.regions.ConvexPolyhedralRegion;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
@@ -17,10 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
@@ -44,8 +43,22 @@ public class WorldEditHelper {
         LocalSession localSession = manager.get(actor);
         World selectionWorld = localSession.getSelectionWorld();
 
+        localSession.getRegionSelector((World) new BukkitWorld(mainWorld)).getIncompleteRegion();
+
         return localSession.getSelection(selectionWorld);
 
+    }
+
+    public static Region getIncompleteSelection(Player player) {
+
+        com.sk89q.worldedit.entity.Player actor =
+                transform(player);
+
+        SessionManager manager = WORLD_EDIT_INSTANCE.getSessionManager();
+        LocalSession localSession = manager.get(actor);
+        World selectionWorld = localSession.getSelectionWorld();
+
+        return localSession.getRegionSelector(selectionWorld).getIncompleteRegion();
     }
 
     public static Polygonal2DRegion polyRegion(Region region) throws IllegalArgumentException, IncompleteRegionException {

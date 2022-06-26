@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.listener;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,6 +27,10 @@ public class ProjectBlockPlacingListener implements Listener {
     public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
 
         Player p = event.getPlayer();
+
+        if (event.getItem() != null && event.getItem().getType() == Material.WOOD_AXE) {
+            return;
+        }
 
         if (lastWarn.containsKey(p.getUniqueId()) && System.currentTimeMillis() - lastWarn.get(p.getUniqueId()) < 3000) {
             return;
