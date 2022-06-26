@@ -468,15 +468,17 @@ public class Project {
         config.set("difficulty", difficulty.toString().toLowerCase());
 
         config.set("pending", pending);
-        if (pending) {
-            Configuration pending = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-            List<String> pendingProjects = (pending.contains(country.getName()) ? pending.getStringList(country.getName()) : new ArrayList<>());
+        Configuration pending = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
+        List<String> pendingProjects = (pending.contains(country.getName()) ? pending.getStringList(country.getName()) : new ArrayList<>());
+        if (this.pending) {
             if (!pendingProjects.contains(id)) {
                 pendingProjects.add(id);
             }
-            pending.set(country.getName(), pendingProjects);
-            pending.save();
+        } else {
+            pendingProjects.remove(id);
         }
+        pending.set(country.getName(), pendingProjects);
+        pending.save();
 
         config.set("country", country.getName());
 
@@ -519,7 +521,7 @@ public class Project {
         if (manager.hasRegion("project_" + id) && manager.getRegion("project_" + id).getPoints() == points) {
             region = manager.getRegion("project_" + id);
 
-            if (pending) {
+            if (this.pending) {
                 region.setMembers(new DefaultDomain());
             } else {
                 if (region.getMembers() != domain) {
@@ -539,7 +541,7 @@ public class Project {
             region.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
             region.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
 
-            if (!pending) {
+            if (!this.pending) {
                 region.setMembers(domain);
             }
 

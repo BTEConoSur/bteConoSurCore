@@ -91,7 +91,7 @@ public class PointsManager {
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);
-            country.getLogs().sendMessage((diff > 0 ? "up" : "down") + "wards_trend: Se han " + (diff > 0 ? "añadido" : "quitado") + " `" + diff + "` puntos a **" + serverPlayer.getName() + "**. Total: `" + points + "`.").queue();
+            country.getLogs().sendMessage((diff > 0 ? ":up" : ":down") + "wards_trend: Se han " + (diff > 0 ? "añadido" : "quitado") + " `" + diff + "` puntos a **" + serverPlayer.getName() + "**. Total: `" + points + "`.").queue();
         }
 
         serverPlayer.getGroupsManager().checkGroups();
@@ -149,7 +149,9 @@ public class PointsManager {
         }
         players.sort(new PointsCountryComparator(country));
 
-        maxConfig.set(country.getName(), players.subList(0, 10).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
+        Collections.reverse(players);
+
+        maxConfig.set(country.getName(), players.subList(0, Math.min(10, players.size())).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
         maxConfig.save();
 
         checkGlobalTop();
@@ -182,7 +184,9 @@ public class PointsManager {
 
         players.sort(new PointsGlobalComparator());
 
-        maxConfig.set("global", players.subList(0, 10).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
+        Collections.reverse(players);
+
+        maxConfig.set("global", players.subList(0, Math.min(10, players.size())).stream().map(ServerPlayer::getId).map(UUID::toString).collect(Collectors.toList()));
         maxConfig.save();
     }
 

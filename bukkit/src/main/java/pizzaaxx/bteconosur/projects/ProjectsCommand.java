@@ -567,19 +567,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     country.getLogs().sendMessage(":mag: **" + s.getName() + "** ha aprobado el proyecto `" + project.getId() + "`.").queue();
                                     p.sendMessage(projectsPrefix + "Has aceptado el proyecto §a" + project.getId() + "§f.");
 
-
-                                    ServerPlayer owner = new ServerPlayer(project.getOwner());
-                                    ProjectsManager ownerProjectsManager = owner.getProjectsManager();
-                                    PointsManager ownerPointsManager = owner.getPointsManager();
-
-                                    owner.getPointsManager().addPoints(country, amount);
-
-                                    ownerProjectsManager.addFinishedProject(country);
-
-                                    owner.sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido aceptado.");
-                                    owner.sendNotification(pointsPrefix + "Has conseguido **§a" + amount + "§f** puntos. §7Total: " + ownerPointsManager.getPoints(country));
-
-                                    for (OfflinePlayer member : project.getMembers()) {
+                                    for (OfflinePlayer member : project.getAllMembers()) {
                                         ServerPlayer m = new ServerPlayer(member);
                                         PointsManager mPointsManager = m.getPointsManager();
                                         mPointsManager.addPoints(country, amount);
@@ -912,7 +900,6 @@ public class ProjectsCommand implements CommandExecutor {
                     BookUtil.openPlayer(p, builder.build());
 
                 } catch (Exception e) {
-                    e.printStackTrace();
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
 
@@ -1222,8 +1209,6 @@ public class ProjectsCommand implements CommandExecutor {
                     }
 
                 }
-
-                // TODO THIS
             }
 
             if (args[0].equals("claimTutorial")) {

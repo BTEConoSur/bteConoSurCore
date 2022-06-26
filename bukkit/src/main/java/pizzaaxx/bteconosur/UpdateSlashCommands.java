@@ -37,9 +37,7 @@ public class UpdateSlashCommands implements CommandExecutor {
             ).queue();
             guild.upsertCommand("project", "Obtén información sobre un proyecto de cualquier país").addOption(OptionType.STRING, "id", "Id del proyecto", true).queue();
             guild.upsertCommand("mods", "Obtén un archivo con los mods del servidor").queue();
-            // TODO ADD GLOBAL SCOREBOARD
             guild.upsertCommand("scoreboard", "Obtén los 10 jugadores con mayor puntaje de construcción").addSubcommands(
-                    new SubcommandData("argentina", "Scoreboard de Argentina"),
                     new SubcommandData("bolivia", "Scoreboard de Bolivia"),
                     new SubcommandData("chile", "Scoreboard de Chile"),
                     new SubcommandData("paraguay", "Scoreboard de Paraguay"),

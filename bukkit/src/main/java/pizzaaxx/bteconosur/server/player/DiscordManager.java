@@ -144,6 +144,11 @@ public class DiscordManager {
             Guild guild = country.getGuild();
 
             Member member = guild.retrieveMember(user).complete();
+
+            if (member.isOwner() || member.getRoles().get(0).getPosition() >= guild.retrieveMemberById(conoSurBot.getSelfUser().getId()).complete().getRoles().get(0).getPosition()) {
+                return;
+            }
+
             List<String> roleIds = member.getRoles().stream().map(Role::getId).collect(Collectors.toList());
 
             // TODO CHANGE CHILE ROLES
