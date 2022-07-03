@@ -7,11 +7,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.*;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -48,15 +50,22 @@ public class Join implements Listener, CommandExecutor {
         playerRegistry.remove(event.getPlayer().getUniqueId());
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onJoinHighest(@NotNull PlayerJoinEvent event) {
+
+        ServerPlayer player = new ServerPlayer(event.getPlayer());
+
+        event.setJoinMessage(player.getChatManager().getDisplayName() + " §7ha entrado al servidor.");
+    }
+
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    public void onJoin(@NotNull PlayerJoinEvent event) {
 
         Player player = event.getPlayer();
 
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
         DataManager data = serverPlayer.getDataManager();
 
-        event.setJoinMessage(player.getDisplayName() + " ha entrado al servidor.");
         // TODO FIX JOIN MESSAGE
 
 

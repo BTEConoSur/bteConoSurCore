@@ -89,6 +89,8 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Enabling  BTE Cono Sur!");
 
+        SelectionCommands selectionCommands = new SelectionCommands(this);
+
         registerListeners(
                 new Join(playerRegistry, this),
                 new ProjectActionBar(),
@@ -106,7 +108,8 @@ public final class BteConoSur extends JavaPlugin {
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
                 new MovementHandler(),
                 new ProjectBlockPlacingListener(),
-                new Security()
+                new Security(),
+                selectionCommands
         );
 
         getLogger().info("Registering commands...");
@@ -147,6 +150,9 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("height").setExecutor(new HeightCommand());
         getCommand("fixProjects").setExecutor(new Fixing(this));
         getCommand("fixPlayers").setExecutor(new Fixing(this));
+        getCommand("/selundo").setExecutor(selectionCommands);
+        getCommand("/selredo").setExecutor(selectionCommands);
+
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
         mainWorld = Bukkit.getWorld("BTECS");

@@ -3,6 +3,14 @@ version: '${project.version}'
 main: pizzaaxx.bteconosur.BteConoSur
 
 commands:
+  /selundo:
+    aliases:
+      - /sundo
+    description: Vuelve tu selección de WorldEdit un paso atrás.
+  /selredo:
+    aliases:
+      - /sredo
+    description: Vuelve tu selección de WorldEdit un paso hacia adelante.
   fixProjects:
     description: fix
   fixPlayers:
