@@ -97,7 +97,7 @@ public final class BteConoSur extends JavaPlugin {
                 new OnTeleport(),
                 new PresetsCommand(),
                 new pFind(),
-                new ShortCuts(playerRegistry),
+                new ShortCuts(playerRegistry, selectionCommands),
                 new Events(),
                 new ScoreboardCommand(),
                 new GetCommand(),
