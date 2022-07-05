@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;

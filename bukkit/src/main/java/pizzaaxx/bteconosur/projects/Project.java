@@ -24,7 +24,7 @@ import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.ProjectsManager;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.io.File;
 import java.util.*;
@@ -289,6 +289,20 @@ public class Project {
         List<OfflinePlayer> members = new ArrayList<>();
         this.members.forEach(uuid -> members.add(Bukkit.getOfflinePlayer(uuid)));
         return members;
+    }
+
+    public List<UUID> getMemberUUIDs() {
+
+        List<UUID> list = new ArrayList<>();
+
+        for (OfflinePlayer member: getMembers()) {
+
+            list.add(member.getUniqueId());
+
+        }
+
+        return list;
+
     }
 
     public BlockVector2D getAverageCoordinate() {

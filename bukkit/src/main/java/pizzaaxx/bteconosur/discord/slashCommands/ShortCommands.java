@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;

@@ -7,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.util.ArrayList;

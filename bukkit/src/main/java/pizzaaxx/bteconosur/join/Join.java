@@ -66,8 +66,6 @@ public class Join implements Listener, CommandExecutor {
         ServerPlayer serverPlayer = new ServerPlayer(player.getUniqueId());
         DataManager data = serverPlayer.getDataManager();
 
-        // TODO FIX JOIN MESSAGE
-
 
         // SEND MESSAGES
 

@@ -17,7 +17,7 @@ import pizzaaxx.bteconosur.helper.DataTime;
 import pizzaaxx.bteconosur.helper.DateHelper;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.*;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.awt.*;
 import java.io.IOException;

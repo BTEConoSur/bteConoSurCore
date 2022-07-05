@@ -25,13 +25,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.Color;
@@ -61,6 +60,7 @@ public class ProjectsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(projectsPrefix + "Este comando solo puede ser usado por jugadores.");
+                return true;
             }
 
             Player p = (Player) sender;
@@ -97,12 +97,7 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
-                if (p.hasPermission("bteconosur.projects.manage.create")) {
-
-                    if (!s.getPermissionCountries().contains(country.getName())) {
-                        p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
-                        return true;
-                    }
+                if (p.hasPermission("bteconosur.projects.manage.create") && s.getPermissionCountries().contains(country.getName())) {
 
                     if (args.length < 2) {
                         p.sendMessage(projectsPrefix + "Introduce una dificultad, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
@@ -702,8 +697,17 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
+                OldCountry country = new OldCountry(p.getLocation());
+
+                if (!s.getPermissionCountries().contains(country.getName())) {
+
+                    p.sendMessage(projectsPrefix + "§cNo puedes revisar los proyectos de este país.");
+                    return true;
+
+                }
+
                 Configuration pendingConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-                List<String> pending = pendingConfig.getStringList(new OldCountry(p.getLocation()).getName());
+                List<String> pending = pendingConfig.getStringList(country.getName());
                 if (!pending.isEmpty()) {
                     BookUtil.BookBuilder book = BookUtil.writtenBook();
 
@@ -1270,12 +1274,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (p.hasPermission("bteconosur.projects.manage.redefine")) {
-
-                        if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
-                            p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
-                            return true;
-                        }
+                    if (p.hasPermission("bteconosur.projects.manage.redefine") && s.getPermissionCountries().contains(project.getCountry().getName())) {
 
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");

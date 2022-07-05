@@ -3,7 +3,7 @@ package pizzaaxx.bteconosur.server.player;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-public class DataManager extends pizzaaxx.bteconosur.yaml.Configuration {
+public class DataManager extends pizzaaxx.bteconosur.configuration.Configuration {
 
     private final OfflinePlayer player;
 

@@ -134,7 +134,7 @@ public class ProjectTagCommand extends ListenerAdapter {
                                     .setColor(Color.GREEN)
                                     .setTitle("Se ha eliminado la etiqueta del proyecto " + projectId.toUpperCase() + ".")
                                     .build()
-                    ).setActionRows().queue();
+                    ).setActionRows().retainFiles(new ArrayList<>()).queue();
                 } else {
                     project.setTag(Project.Tag.valueOf(option));
 
@@ -143,7 +143,7 @@ public class ProjectTagCommand extends ListenerAdapter {
                                     .setColor(Color.GREEN)
                                     .setTitle("Se ha establecido la etiqueta del proyecto " + projectId.toUpperCase() + " en " + option + ".")
                                     .build()
-                    ).setActionRows().queue();
+                    ).setActionRows().retainFiles(new ArrayList<>()).queue();
                 }
                 project.save();
 

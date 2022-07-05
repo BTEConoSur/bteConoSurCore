@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.yaml;
+package pizzaaxx.bteconosur.configuration;
 
 import com.avaje.ebean.validation.NotNull;
 import org.bukkit.ChatColor;

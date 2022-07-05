@@ -53,7 +53,7 @@ import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -96,7 +96,7 @@ public final class BteConoSur extends JavaPlugin {
                 new ProjectActionBar(),
                 new OnTeleport(),
                 new PresetsCommand(),
-                new pFind(),
+                new PFindCommand(),
                 new ShortCuts(playerRegistry, selectionCommands),
                 new Events(),
                 new ScoreboardCommand(),

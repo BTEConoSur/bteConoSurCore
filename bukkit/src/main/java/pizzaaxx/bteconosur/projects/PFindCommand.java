@@ -25,7 +25,7 @@ import static pizzaaxx.bteconosur.projects.Project.Tag.*;
 import static pizzaaxx.bteconosur.projects.Project.getAvailableProjects;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
-public class pFind implements Listener {
+public class PFindCommand implements Listener {
 
     Map<Player, Project.Difficulty> pRandomDifficulties = new HashMap<>();
 

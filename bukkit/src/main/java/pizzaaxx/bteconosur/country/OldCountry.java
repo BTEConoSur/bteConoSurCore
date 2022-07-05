@@ -11,9 +11,11 @@ import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 ;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
 import static pizzaaxx.bteconosur.Config.*;
@@ -21,6 +23,24 @@ import static pizzaaxx.bteconosur.Config.logsPe;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class OldCountry {
+
+    public static boolean isInCountry(Location location) {
+
+        Set<String> regions = WorldGuardProvider.getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(location).getRegions().stream().map(ProtectedRegion::getId).collect(Collectors.toSet());
+
+        for (String name : countryRegionNames) {
+
+            if (regions.contains(name)) {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
 
     /**
      * A list containing all countries in alphabetical order.

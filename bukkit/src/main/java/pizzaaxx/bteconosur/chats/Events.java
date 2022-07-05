@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.yaml.Configuration;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
