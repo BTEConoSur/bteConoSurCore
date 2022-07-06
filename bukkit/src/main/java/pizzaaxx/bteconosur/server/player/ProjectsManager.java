@@ -110,7 +110,7 @@ public class ProjectsManager {
             return getTotalFinishedProjects();
         }
 
-        return finishedProjects.get(country.getName());
+        return finishedProjects.getOrDefault(country.getName(),  0);
     }
 
     public void addFinishedProject(OldCountry country) {

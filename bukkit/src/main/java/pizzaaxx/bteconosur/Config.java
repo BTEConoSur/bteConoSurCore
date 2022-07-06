@@ -79,7 +79,7 @@ public class Config implements CommandExecutor {
 
         Configuration colors = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "chat/colors");
         for (String key : colors.getKeys(false)) {
-            groupsPrefixes.put(key, "[§" + colors.getString(key) + key.toUpperCase() + "§f]");
+            groupsPrefixes.put(key, "[§" + colors.getString(key) + key.replace("default", "visita").toUpperCase() + "§f]");
         }
     }
 

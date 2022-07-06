@@ -145,7 +145,7 @@ public class DiscordManager {
 
             Member member = guild.retrieveMember(user).complete();
 
-            if (member.isOwner() || member.getRoles().get(0).getPosition() >= guild.retrieveMemberById(conoSurBot.getSelfUser().getId()).complete().getRoles().get(0).getPosition()) {
+            if (member.isOwner() || (member.getRoles().isEmpty() ? 0 : member.getRoles().get(0).getPosition()) >= guild.retrieveMemberById(conoSurBot.getSelfUser().getId()).complete().getRoles().get(0).getPosition()) {
                 return;
             }
 

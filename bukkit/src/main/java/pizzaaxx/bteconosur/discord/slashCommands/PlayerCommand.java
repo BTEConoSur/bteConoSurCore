@@ -71,7 +71,7 @@ public class PlayerCommand extends ListenerAdapter {
                     embedBuilder
                             .setColor(new Color(0, 255, 42))
                             .addField("Status:", ":green_circle: Online", false)
-                            .addField("Coordenadas:", (country.getName().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " " + Double.toString(Math.floor(coords.getX())).replace(".0", "") + " " + player.getLocation().getBlockY() + " " + Double.toString(Math.floor(coords.getZ())).replace(".0", ""), false)
+                            .addField("Coordenadas:", (country.getName().equals("global") ? ":globe_with_meridians:" : ":flag_" + country.getAbbreviation() + ":") + " " + Double.toString(Math.floor(coords.getX())).replace(".0", "") + " " + player.getLocation().getBlockY() + " " + Double.toString(Math.floor(coords.getZ())).replace(".0", ""), false)
                             .addField("Coordenadas geográficas:", (country.getName().equals("global") ? ":globe_with_meridians" : ":flag_" + country.getAbbreviation() + ":") + " [" + coords.getLat() + ", " + coords.getLon() + "](" + "https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")", false);
 
                     String chatType;

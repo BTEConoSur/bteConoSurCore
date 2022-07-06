@@ -1,5 +1,5 @@
 name: bteConoSur
-version: '${project.version}'
+version: 1.0
 main: pizzaaxx.bteconosur.BteConoSur
 
 commands:
@@ -134,16 +134,17 @@ prefix: BTE Cono Sur
 
 
 permissions:
-  bteconosur.projects.command:
-    description: Permiso para usar el comando /project.
+
   bteconosur.projects.manage.*:
     description: Permiso genérico para moderar proyectos.
+    default: op
     children:
       bteconosur.projects.manage.ar: true
       bteconosur.projects.manage.bo: true
       bteconosur.projects.manage.cl: true
       bteconosur.projects.manage.pe: true
-
+      bteconosur.projects.manage.py: true
+      bteconosur.projects.manage.uy: true
   bteconosur.link:
     description: Permiso para usar /link.
 

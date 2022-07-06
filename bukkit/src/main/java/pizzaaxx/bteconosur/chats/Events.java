@@ -114,7 +114,7 @@ public class Events extends ListenerAdapter implements Listener {
                             targetChats.add(sTarget.getChatManager().getChat());
                         }
 
-                        message = message.replace(word, "§a~" + s.getChatManager().getDisplayName() + "~");
+                        message = message.replace(word, "§a~" + sTarget.getChatManager().getDisplayName() + "~");
                     }
                 }
             }
@@ -140,7 +140,7 @@ public class Events extends ListenerAdapter implements Listener {
                     gateway.sendMessage(String.join("", strings)).queue();
                 }
 
-                chat.sendMessage(message, s);
+                chat.sendMessage(message.replace("~", ""), s);
             }
 
             for (Player player : pingedPlayers) {

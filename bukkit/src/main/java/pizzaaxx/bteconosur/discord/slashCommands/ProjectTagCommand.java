@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -26,7 +25,7 @@ import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 public class ProjectTagCommand extends ListenerAdapter {
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals("projecttag")) {
             String id = event.getOption("id").getAsString();
 
@@ -118,39 +117,48 @@ public class ProjectTagCommand extends ListenerAdapter {
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
         if (event.getComponentId().startsWith("changeTag~")) {
-            String projectId = event.getComponentId().replace("changeTag~", "");
 
-            if (Project.projectExists(projectId)) {
+            if (event.getMessage().getInteraction() != null && event.getMessage().getInteraction().getUser().getId().equals(event.getUser().getId())) {
 
-                Project project = new Project(projectId);
+                String projectId = event.getComponentId().replace("changeTag~", "");
 
-                String option = event.getSelectedOptions().get(0).getValue();
+                if (Project.projectExists(projectId)) {
 
-                if (option.equals("delete")) {
-                    project.setTag(null);
+                    Project project = new Project(projectId);
 
-                    event.editMessageEmbeds(
-                            new EmbedBuilder()
-                                    .setColor(Color.GREEN)
-                                    .setTitle("Se ha eliminado la etiqueta del proyecto " + projectId.toUpperCase() + ".")
-                                    .build()
-                    ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                    String option = event.getSelectedOptions().get(0).getValue();
+
+                    if (option.equals("delete")) {
+                        project.setTag(null);
+
+                        event.editMessageEmbeds(
+                                new EmbedBuilder()
+                                        .setColor(Color.GREEN)
+                                        .setTitle("Se ha eliminado la etiqueta del proyecto " + projectId.toUpperCase() + ".")
+                                        .build()
+                        ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                    } else {
+                        project.setTag(Project.Tag.valueOf(option));
+
+                        event.editMessageEmbeds(
+                                new EmbedBuilder()
+                                        .setColor(Color.GREEN)
+                                        .setTitle("Se ha establecido la etiqueta del proyecto " + projectId.toUpperCase() + " en " + option + ".")
+                                        .build()
+                        ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                    }
+                    project.save();
+
+
                 } else {
-                    project.setTag(Project.Tag.valueOf(option));
-
-                    event.editMessageEmbeds(
-                            new EmbedBuilder()
-                                    .setColor(Color.GREEN)
-                                    .setTitle("Se ha establecido la etiqueta del proyecto " + projectId.toUpperCase() + " en " + option + ".")
-                                    .build()
-                    ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                    event.editMessageEmbeds(errorEmbed("El proyecto ha sido eliminado.")).retainFiles(new ArrayList<>()).setActionRows().queue();
                 }
-                project.save();
-
-
             } else {
-                event.editMessageEmbeds(errorEmbed("El proyecto ha sido eliminado.")).retainFiles(new ArrayList<>()).setActionRows().queue();
+
+                event.replyEmbeds(errorEmbed("Solo el usuario que usó el comando puede usar el menú.")).setEphemeral(true).queue();
+
             }
+
         }
     }
 

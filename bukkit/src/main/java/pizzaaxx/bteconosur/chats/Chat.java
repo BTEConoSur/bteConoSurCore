@@ -129,7 +129,7 @@ public class Chat {
         membersUUID.forEach(uuid -> {
             Player player = Bukkit.getPlayer(uuid);
             ServerPlayer s = new ServerPlayer(player);
-            if (!s.getChatManager().isHidden()) {
+            if (!s.getChatManager().isHidden() && !ProjectsCommand.tutorialSteps.containsKey(player.getUniqueId())) {
                 player.sendMessage(message);
             }
         });

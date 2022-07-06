@@ -108,10 +108,6 @@ public class DivideCommand implements CommandExecutor {
 
             allVectors.sort(new VectorDistanceComparator(cuboid.getPos1()));
 
-            allVectors.forEach(
-                    vector -> Bukkit.getConsoleSender().sendMessage(vector.getBlockX() + " " + vector.getBlockY() + " " + vector.getBlockZ())
-            );
-
             if (allVectors.size() < subdivisions) {
                 p.sendMessage(WORLD_EDIT_PREFIX + "La línea seleccionada tiene menos bloques que el número de subdivisiones.");
                 return true;

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
@@ -37,6 +38,7 @@ public class ScoreboardCommand extends ListenerAdapter {
             int i = 1;
 
             for (UUID uuid : country.getScoreboardUUIDs()) {
+
                 String emoji;
                 ServerPlayer s = new ServerPlayer(uuid);
 
@@ -54,12 +56,15 @@ public class ScoreboardCommand extends ListenerAdapter {
                 }
                 DiscordManager dsc = s.getDiscordManager();
 
+
                 builder.addField(
                         "#" + i + " " + emoji + " " + s.getName() + " " + (dsc.isLinked() ? "- " + dsc.getName() + "#" + dsc.getDiscriminator() : ""),
                         "Puntos: `" + points + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
                         false);
                 i++;
+
             }
+
 
             event.replyEmbeds(builder.build()).queue(
                     msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)

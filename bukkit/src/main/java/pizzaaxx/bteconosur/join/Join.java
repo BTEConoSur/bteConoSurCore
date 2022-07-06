@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.server.player.*;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -34,7 +35,12 @@ public class Join implements Listener, CommandExecutor {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onQuit(@NotNull PlayerQuitEvent event) {
+
+        ServerPlayer s = new ServerPlayer(event.getPlayer());
+        Chat chat = s.getChatManager().getChat();
+        chat.removeMember(event.getPlayer());
+
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (player.getUniqueId() != event.getPlayer().getUniqueId()) {
@@ -48,6 +54,7 @@ public class Join implements Listener, CommandExecutor {
         }
         tutorialSteps.remove(event.getPlayer().getUniqueId());
         playerRegistry.remove(event.getPlayer().getUniqueId());
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

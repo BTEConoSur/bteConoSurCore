@@ -66,6 +66,7 @@ public class ServerPlayer {
         }
     }
 
+
     public ServerPlayer(UUID uuid) {
         this(uuid, false);
     }

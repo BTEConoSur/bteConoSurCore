@@ -84,7 +84,7 @@ public class PointsManager {
     }
 
     public void setPoints(@NotNull OldCountry country, int points) {
-        int old = countriesPoints.get(country.getName());
+        int old = countriesPoints.getOrDefault(country.getName(), 0);
         if (old != points) {
             countriesPoints.put(country.getName(), points);
             Map<String, Integer> map = new HashMap<>(countriesPoints);
@@ -218,7 +218,7 @@ public class PointsManager {
                 case MAESTRO:
                     return "§f[§6MAESTRO§f]";
                 default:
-                    return "§f[§9BUILDER§f]";
+                    return "";
             }
         }
     }

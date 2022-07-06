@@ -196,12 +196,14 @@ public final class BteConoSur extends JavaPlugin {
         handler.registerListener("puedo entrar al servidor con bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
         handler.registerListener("puedo entrar con bedrock al servidor?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
 
+        WhereCommand whereCommand = new WhereCommand(this);
+
         registerDiscordListener(builder,
                 handler,
                 new RequestResponse(),
                 new Events(),
                 new OnlineCommand(),
-                new WhereCommand(),
+                whereCommand,
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
                 new LinkUnlinkCommand(links, this),
@@ -215,6 +217,8 @@ public final class BteConoSur extends JavaPlugin {
                 new ShortCommands(),
                 new PatternCommand(this)
         );
+
+        whereCommand.updateHeads();
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
