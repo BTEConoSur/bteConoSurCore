@@ -252,43 +252,13 @@ public class ServerPlayer {
     }
 
     public List<String> getPermissionCountries() {
-        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
-            Player p = Bukkit.getPlayer(uuid);
-            List<String> permissionCountries = new ArrayList<>();
-            if (p.hasPermission("bteconosur.projects.manage.country.ar")) {
-                permissionCountries.add("argentina");
-            }
-            if (p.hasPermission("bteconosur.projects.manage.country.bo")) {
-                permissionCountries.add("bolivia");
-            }
-            if (p.hasPermission("bteconosur.projects.manage.country.cl")) {
-                permissionCountries.add("chile");
-            }
-            if (p.hasPermission("bteconosur.projects.manage.country.pe")) {
-                permissionCountries.add("peru");
-            }
-            if (p.hasPermission("bteconosur.projects.manage.country.py")) {
-                permissionCountries.add("paraguay");
-            }
-            if (p.hasPermission("bteconosur.projects.manage.country.uy")) {
-                permissionCountries.add("uruguay");
-            }
-            return permissionCountries;
-        } else {
+        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
-            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-
-            if (Bukkit.getOperators().contains(player)) {
-                return countryNames;
-            }
-
-            if (dataManager.contains("projectsManageCountries")) {
-                return dataManager.getStringList("projectsManageCountries");
-            }
-
-            return new ArrayList<>();
-
+        if (dataManager.contains("projectsManageCountries")) {
+            return dataManager.getStringList("projectsManageCountries");
         }
+
+        return new ArrayList<>();
     }
 
     // NOTIFICATIONS
@@ -317,7 +287,9 @@ public class ServerPlayer {
 
     public List<String> getNotifications() {
         List<String> notifications = new ArrayList<>();
-        dataManager.getStringList("notificaciones").forEach(notif -> notifications.add(notif.replace("&", "§")));
+        if (dataManager.contains("notificaciones")) {
+            dataManager.getStringList("notificaciones").forEach(notif -> notifications.add(notif.replace("&", "§")));
+        }
         return notifications;
     }
 }

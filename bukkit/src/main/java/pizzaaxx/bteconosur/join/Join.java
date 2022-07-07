@@ -86,10 +86,11 @@ public class Join implements Listener, CommandExecutor {
 
         if (player.hasPlayedBefore()) {
 
-            if (serverPlayer.getNotifications().size() > 0) {
+            List<String> notifications = serverPlayer.getNotifications();
+            if (notifications.size() > 0) {
                 player.sendMessage(">+--------------+[-< NOTIFICACIONES >-]+--------------+<");
                 int i = 1;
-                for (String notif : serverPlayer.getNotifications()) {
+                for (String notif : notifications) {
                     player.sendMessage(i + ". " + notif.replace("&", "§"));
                     player.sendMessage(" ");
                     i++;
