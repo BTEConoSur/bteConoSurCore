@@ -4,6 +4,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,7 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class RegionEvents {
 
-    public static Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
+    public static @NotNull Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
         RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
@@ -32,7 +33,7 @@ public class RegionEvents {
         return regions;
     }
 
-    public static Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
+    public static @NotNull Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
         RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);

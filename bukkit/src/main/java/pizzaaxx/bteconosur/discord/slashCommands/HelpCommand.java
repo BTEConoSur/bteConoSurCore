@@ -151,7 +151,7 @@ public class HelpCommand extends ListenerAdapter {
                     }
                     if (commandSection.contains("subcommands")) {
                         List<String> lines = new ArrayList<>();
-                        lines.add("*Usa `/help " + commandPath + " [subcomando] para ver más información de cada subcomando.*");
+                        lines.add("*Usa `/help " + commandPath + " [subcomando]` para ver más información de cada subcomando.*");
                         ConfigurationSection subcommands = commandSection.getConfigurationSection("subcommands");
                         for (String subcommand : subcommands.getKeys(false)) {
                             lines.add("• `" + subcommands.getString(subcommand + ".usage").replace("/" + commandPath + " ", "") + "`");

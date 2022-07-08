@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 public class MovementHandler implements Listener {
 
     @EventHandler
-    public void onDamage(EntityDamageEvent event) {
+    public void onDamage(@NotNull EntityDamageEvent event) {
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onPortal(PortalCreateEvent event) {
+    public void onPortal(@NotNull PortalCreateEvent event) {
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onWaterOrLava(PlayerInteractEvent event) {
+    public void onWaterOrLava(@NotNull PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && (event.getItem().getType() == Material.LAVA_BUCKET || event.getItem().getType() == Material.WATER_BUCKET)) {
             event.setCancelled(true);
         }

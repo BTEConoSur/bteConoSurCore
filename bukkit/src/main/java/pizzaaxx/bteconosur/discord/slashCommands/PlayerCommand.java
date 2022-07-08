@@ -41,7 +41,7 @@ public class PlayerCommand extends ListenerAdapter {
     }
 
     @Override
-    public void onUserContextInteraction(UserContextInteractionEvent event) {
+    public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
         if (event.getName().equals("Perfil de Minecraft")) {
             if (DiscordManager.isLinked(event.getTarget().getId())) {
 
@@ -55,6 +55,7 @@ public class PlayerCommand extends ListenerAdapter {
                     return;
                 }
 
+
                 boolean hasFile = false;
                 InputStream file = null;
 
@@ -62,6 +63,7 @@ public class PlayerCommand extends ListenerAdapter {
 
                 embedBuilder.setTitle(s.getName());
                 OfflinePlayer offlinePlayer = s.getPlayer();
+
 
                 if (offlinePlayer.isOnline()) {
                     Player player = offlinePlayer.getPlayer();
@@ -108,6 +110,7 @@ public class PlayerCommand extends ListenerAdapter {
 
                 }
 
+
                 if (s.getDiscordManager().isLinked()) {
                     DiscordManager dscManager = s.getDiscordManager();
                     dscManager.loadUser();
@@ -115,6 +118,8 @@ public class PlayerCommand extends ListenerAdapter {
                 } else {
                     embedBuilder.addField("Discord:", "No conectado.", false);
                 }
+
+
 
                 GroupsManager groups = s.getGroupsManager();
 
@@ -128,6 +133,8 @@ public class PlayerCommand extends ListenerAdapter {
                     }
                     embedBuilder.addField("Rangos secundarios:", String.join("\n", ranks), false);
                 }
+
+
 
                 PointsManager pointsManager = s.getPointsManager();
                 if (pointsManager.getMaxPoints() != null && pointsManager.getMaxPoints().getValue() > 0) {
@@ -151,12 +158,16 @@ public class PlayerCommand extends ListenerAdapter {
                     embedBuilder.addField("Puntos:", String.join("\n", points), false);
                 }
 
+
+
+
                 ProjectsManager projects = s.getProjectsManager();
 
                 embedBuilder.addField("Proyectos terminados:", Integer.toString(projects.getTotalFinishedProjects()), false);
 
                 List<String> allProjects = projects.getAllProjects();
                 if (allProjects.size() > 0) {
+
                     List<String> projectsLines = new ArrayList<>();
                     boolean max = false;
 
@@ -187,6 +198,8 @@ public class PlayerCommand extends ListenerAdapter {
                 }
 
                 embedBuilder.setThumbnail("https://mc-heads.net/head/" + s.getPlayer().getUniqueId());
+
+
 
                 if (hasFile) {
                     event.replyFile(file, "map.png").addEmbeds(embedBuilder.build()).queue(

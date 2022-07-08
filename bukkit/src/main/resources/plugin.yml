@@ -7,157 +7,231 @@ commands:
     aliases:
       - /sundo
     description: Vuelve tu selección de WorldEdit un paso atrás.
+    permission: bteconosur.worldedit.selection.undo
+
   /selredo:
     aliases:
       - /sredo
     description: Vuelve tu selección de WorldEdit un paso hacia adelante.
-  fixProjects:
+    permission: bteconosur.worldedit.selection.redo
+
+  fix:
     description: fix
-  fixPlayers:
-    description: fix
+    permission: bteconosur.op
+
   height:
     description: Obtén tu altitud actual.
+
     aliases:
       - h
+    permission: bteconosur.commands.height
+
   /divide:
     description: Divide una línea o una curva en cierta cantidad de subdivisiones separadas por un bloque.
+    permission: bteconosur.worldedit.commands.divide
+
   banner:
     aliases: /banners
     description: Crea banners de letras.
+    permission: bteconosur.commands.banner
+
   welcomeBook:
     description: a
+
   terraform:
     aliases:
       - /terraform
     description: Terraforma terreno.
+    permission: bteconosur.worldedit.commands.terraform
+
   btecsUpdateSlashCommands:
     description: update
+    permission: bteconosur.op
+
   help:
     description: Obtén ayuda de todos los comandos del servidor.
+    permission: bteconosur.commands.help
+
   lobby:
     description: Teletranspórtate a alguno de los lobbies.
+    permission: bteconosur.commands.lobby
+
   assets:
     description: Teletrenaspórtate a la zona de Assets.
+    permission: bteconosur.commands.assets
+
   manageevent:
     description: Comando para manejar eventos.
     permission: bteconosur.events.manage
+
   event:
     description: Comando genérico para los eventos.
     permission: bteconosur.events.default
+
   tpdir:
     description: Teletranspórtate a algún lugar usando su nombre.
+    permission: bteconosur.commands.tpdir
+
   scoreboard:
     description: Comando para manejar el scoreboard.
     aliases: sc
+    permission: bteconosur.commands.scoreboard
+
   get:
     description: Obtén acceso a bloques especiales.
-    permission: bteconosur.get
+    permission: bteconosur.commands.get
+
   donator:
     description: Da o quita el rango DONADOR a un jugador.
-    permission: bteconosur.ranks.donator
+    permission: bteconosur.moderation.ranks.donator
+
   streamer:
     description: Da o quita el rango STREAMER a un jugador.
-    permission: bteconosur.ranks.streamer
+    permission: bteconosur.moderation.ranks.streamer
+
   streaming:
     description: Avisa al chat que estás en directo.
-    permission: bteconosur.streaming
-  /treecover:
-    aliases: /tc
-    description: Cubre un área específica con árboles de un grupo.
-    permission: bteconosur.trees.treecover
-  treegroup:
-    aliases: tg
-    description: Maneja tus grupos de árboles.
-    permission: bteconosur.trees.treegroup
+    permission: bteconosur.commands.streaming
+
   /polywalls:
     aliases: [/shell, /carcasa]
     description: Crea paredes pero de regiones poligonales.
-    permission: bteconosur.worldedit.polywalls
+    permission: bteconosur.worldedit.commands.polywalls
+
   pwarp:
     description: Warps personales.
-    permission: bteconosur.pwarp
+    permission: bteconosur.commands.pwarp
     aliases: pw
+
   increment:
     description: Ajusta la cantidad de bloques que cambian al usar los atajos de WorldEdit.
-    permission: bteconosur.worldedit.incremento
+    permission: bteconosur.worldedit.commands.increment
     aliases: incremento
+
   googlemaps:
     description: Obtén un enlace a Google Maps de donde estás parado.
     aliases: [gm, gmaps]
-    permission: bteconosur.googlemaps
+    permission: bteconosur.commands.googlemaps
+
   presets:
     description: Texto predeterminado para tus comandos.
     aliases: preset
-    permission: bteconosur.presets
+    permission: bteconosur.commands.presets
+
   testing:
     description: Test
+    permission: bteconosur.op
+
   nickname:
     description: Cambia tu apodo o el de otros.
-    permission: bteconosur.nickname
+    permission: bteconosur.commands.nickname
     aliases: nick
+
   chat:
     description: Comando genérico del sistema de chats.
     aliases: c
-    permission: bteconosur.chat
+    permission: bteconosur.commands.chat
+
   prefix:
     description: Define el nick de tu país.
-    permission: bteconosur.prefix
+    permission: bteconosur.commands.prefix
     aliases: pais
+
   demote:
     description: Degrada a un jugador.
-    permission: bteconosur.ranks.demote
-    usage: /demote <jugador>
+    permission: bteconosur.moderation.ranks.demote
+
   promote:
     description: Promueve a un jugador.
-    permission: bteconosur.ranks.promote
-    usage: /promote <jugador>
+    permission: bteconosur.moderation.ranks.promote
+
   btecs_reload:
     description: Recarga la configuración.
+    permission: bteconosur.op
+
   nightvision:
     aliases: nv
     usage: /nv
     description: Activa o desactiva la visión nocturna.
+    permission: bteconosur.commands.nightvision
+
   project:
-    permission: bteconosur.projects.command
+    permission: bteconosur.projects
     usage: /project [subcomando]
     aliases: [p, proyecto]
     description: Comando génerico para el sistema de proyectos.
+
   link:
-    permission: bteconosur.link
+    permission: bteconosur.commands.link
     usage: /link [código]
     description: Conecta tu cuenta de Minecraft con tu cuenta de Discord.
+
   unlink:
-    permission: bteconosur.link
+    permission: bteconosur.commands.link
     usage: /unlink
     description: Desconecta tu cuenta de Minecraft de tu cuenta de Discord.
+
 prefix: BTE Cono Sur
 
 
 permissions:
-
-  bteconosur.projects.manage.*:
-    description: Permiso genérico para moderar proyectos.
+  bteconosur.op:
+    description: Permisos de manejo del plugin.
+    default: op
+  bteconosur.worldedit.*:
+    description: Permisos relacionados a WorldEdit.
+    default: true
+    children:
+      bteconosur.worldedit.selection.*:
+        description: Permisos relacionados a las selecciones de WorldEdit.
+        default: true
+        children:
+          - bteconosur.worldedit.selection.undo
+          - bteconosur.worldedit.selection.redo
+      bteconosur.worldedit.commands.terraform: true
+      bteconosur.worldedit.commands.divide: true
+      bteconosur.worldedit.commands.increment: true
+  bteconosur.commands.*:
+    description: Permisos de comandos normales.
+    default: true
+    children:
+        bteconosur.commands.banner: true
+        bteconosur.commands.help: true
+        bteconosur.commands.height: true
+        bteconosur.commands.lobby: true
+        bteconosur.commands.assets: true
+        bteconosur.commands.tpdir: true
+        bteconosur.commands.scoreboard: true
+        bteconosur.commands.get: true
+        bteconosur.commands.streaming: false
+        bteconosur.commands.pwarp: true
+        bteconosur.commands.googlemaps: true
+        bteconosur.commands.presets: true
+        bteconosur.commands.nickname: true
+        bteconosur.commands.chat: true
+        bteconosur.commands.prefix: true
+        bteconosur.commands.nightvision: true
+        bteconosur.commands.link: true
+  bteconsur.projects:
+    description: Permiso para el comando de proyectos.
+    default: true
+  bteconosur.moderation.*:
+    description: Permisos de comandos de moderación.
     default: op
     children:
-      bteconosur.projects.manage.ar: true
-      bteconosur.projects.manage.bo: true
-      bteconosur.projects.manage.cl: true
-      bteconosur.projects.manage.pe: true
-      bteconosur.projects.manage.py: true
-      bteconosur.projects.manage.uy: true
-  bteconosur.link:
-    description: Permiso para usar /link.
-
-database: true
-  © 2022 GitHub, Inc.
-  Terms
-  Privacy
-  Security
-  Status
-  Docs
-  Contact GitHub
-  Pricing
-  API
-  Training
-  Blog
-  About
+      bteconosur.moderation.ranks.*:
+        description: Permisos relacionados al manejo de rangos.
+        children:
+          - bteconosur.moderation.ranks.promote
+          - bteconosur.moderation.ranks.demote
+          - bteconosur.moderation.ranks.donator
+          - bteconosur.moderation.ranks.streamer
+  bteconosur.events.*:
+    description: Comandos de eventos.
+    children:
+      bteconosur.events.manage:
+        description: Permisos para manejar eventos.
+        default: op
+      bteconosur.events.default:
+        description: Permiso para el comando /event.
+        default: true

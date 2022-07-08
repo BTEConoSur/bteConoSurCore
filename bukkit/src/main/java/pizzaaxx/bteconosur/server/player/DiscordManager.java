@@ -2,22 +2,19 @@ package pizzaaxx.bteconosur.server.player;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.country.OldCountry;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
-import static pizzaaxx.bteconosur.BteConoSur.countryRoles;
 import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
-import static pizzaaxx.bteconosur.server.player.GroupsManager.PrimaryGroup.*;
+import static pizzaaxx.bteconosur.server.player.GroupsManager.PrimaryGroup.BUILDER;
 
 public class DiscordManager {
 
@@ -149,37 +146,28 @@ public class DiscordManager {
                 return;
             }
 
-            List<String> roleIds = member.getRoles().stream().map(Role::getId).collect(Collectors.toList());
+            Configuration builderIDs = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "discord/ranks");
 
-            // TODO CHANGE CHILE ROLES
+            if (serverPlayer.getGroupsManager().getPrimaryGroupFromCountry(country) == BUILDER) {
 
-            GroupsManager groups = serverPlayer.getGroupsManager();
+                if (builderIDs.contains(country.getName() + ".builder")) {
 
-            Map<String, String> cRoles = countryRoles.getOrDefault(country.getName(), new HashMap<>());
+                    String id = builderIDs.getString(country.getName() + ".builder");
 
-            GroupsManager.PrimaryGroup group = groups.getPrimaryGroupFromCountry(country);
-            // TODO TEST THIS
-            if (group == BUILDER || group == POSTULANTE || group == DEFAULT) {
-                String groupName = group.toString();
-                if (cRoles.containsKey(groupName) && !roleIds.contains(cRoles.get(groupName))) {
-                    guild.addRoleToMember(member, guild.getRoleById(cRoles.get(groupName))).queue();
+                    guild.addRoleToMember(member, guild.getRoleById(id)).queue();
+
                 }
 
-                if (group == BUILDER) {
-                    if (cRoles.containsKey("postulante") && roleIds.contains(cRoles.get("postulante"))) {
-                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("postulante"))).queue();
-                    }
-                } if (group == POSTULANTE) {
-                    if (cRoles.containsKey("default") && roleIds.contains(cRoles.get("default"))) {
-                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("default"))).queue();
-                    } if (cRoles.containsKey("builder") && roleIds.contains(cRoles.get("builder"))) {
-                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("builder"))).queue();
-                    }
-                } if (group == DEFAULT) {
-                    if (cRoles.containsKey("postulante") && roleIds.contains(cRoles.get("postulante"))) {
-                        guild.removeRoleFromMember(member, guild.getRoleById(cRoles.get("postulante"))).queue();
-                    }
+            } else {
+
+                if (builderIDs.contains(country.getName() + ".builder")) {
+
+                    String id = builderIDs.getString(country.getName() + ".builder");
+
+                    guild.removeRoleFromMember(member, guild.getRoleById(id)).queue();
                 }
+
+
             }
         }
 

@@ -20,6 +20,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.server.player.DataManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
@@ -33,7 +34,7 @@ import static pizzaaxx.bteconosur.worldedit.trees.Tree.treePrefix;
 public class Events implements Listener, CommandExecutor {
 
     @EventHandler
-    public void onClick(PlayerInteractEvent e) {
+    public void onClick(@NotNull PlayerInteractEvent e) {
         if (e.getAction().equals(Action.PHYSICAL)) {
             if (e.getClickedBlock().getType() == Material.IRON_PLATE) {
                 Block target = mainWorld.getBlockAt(e.getClickedBlock().getX(), e.getClickedBlock().getY() + 1, e.getClickedBlock().getZ());

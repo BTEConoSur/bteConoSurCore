@@ -21,9 +21,9 @@ public class ShortCuts implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        int increment = playerRegistry.get(player.getUniqueId()).getDataManager().getInt("increment", 1);
 
         if (event.getItem() != null && event.getItem().getType() == Material.WOOD_AXE) {
+            int increment = playerRegistry.get(player.getUniqueId()).getDataManager().getInt("increment", 1);
             if (event.getAction() == Action.LEFT_CLICK_AIR) {
 
                 if (player.isSneaking()) {

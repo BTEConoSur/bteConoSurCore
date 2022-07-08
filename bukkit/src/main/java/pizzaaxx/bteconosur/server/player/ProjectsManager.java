@@ -58,7 +58,7 @@ public class ProjectsManager {
     }
 
     public List<String> getProjects(OldCountry country) {
-        return projects.get(country.getName());
+        return projects.getOrDefault(country.getName(), new ArrayList<>());
     }
 
     public void addProject(Project project) {

@@ -13,6 +13,7 @@ public class NightVisionCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Este comando solo puede ser usado por jugadores.");
+            return true;
         }
 
         Player p = (Player) sender;
@@ -21,7 +22,7 @@ public class NightVisionCommand implements CommandExecutor {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
             p.sendMessage("§aVisión nocturna desactivada.");
         } else {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1, false, false));
             p.sendMessage("§aVisión nocturna activada.");
         }
 

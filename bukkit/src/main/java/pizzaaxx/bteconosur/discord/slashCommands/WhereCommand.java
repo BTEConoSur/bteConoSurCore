@@ -41,7 +41,7 @@ public class WhereCommand extends ListenerAdapter implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onJoin(PlayerJoinEvent event) {
 
         try {
@@ -79,8 +79,6 @@ public class WhereCommand extends ListenerAdapter implements Listener {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
         if (event.getName().equals("where")) {
-
-            // TODO CHECK THIS
 
             if (Bukkit.getOnlinePlayers().size() > 0) {
                 CompletableFuture.runAsync(() -> {
@@ -120,9 +118,6 @@ public class WhereCommand extends ListenerAdapter implements Listener {
 
                             double pixelX = NumberMethods.getNumberInNewRange(-118, -14, 0, 1183, lon) - 23;
                             double pixelY = Math.abs(NumberMethods.getNumberInNewRange(-57, 1, -806, 0, lat)) - 69;
-
-                            Bukkit.getConsoleSender().sendMessage("Pixel X:" + (int) pixelX);
-                            Bukkit.getConsoleSender().sendMessage("Pixel Y:" + (int) pixelY);
 
                             graphics.drawImage(headImages.get(p.getUniqueId()), (int) pixelX, (int) pixelY, null);
 

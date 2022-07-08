@@ -128,8 +128,6 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
         getCommand("pwarp").setExecutor(new PWarpCommand());
         getCommand("/polywalls").setExecutor(new Polywall());
-        getCommand("treegroup").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
-        getCommand("/treecover").setExecutor(new pizzaaxx.bteconosur.worldedit.trees.Events());
         getCommand("donator").setExecutor(new Donator());
         getCommand("streamer").setExecutor(new Streamer());
         getCommand("streaming").setExecutor(new StreamingCommand());
@@ -144,12 +142,10 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("help").setExecutor(new HelpCommand(new Configuration(this, "help")));
         TerraformCommand terraformExecutor = new TerraformCommand();
         getCommand("terraform").setExecutor(terraformExecutor);
-        getCommand("/terraform").setExecutor(terraformExecutor);
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
         getCommand("height").setExecutor(new HeightCommand());
-        getCommand("fixProjects").setExecutor(new Fixing(this));
-        getCommand("fixPlayers").setExecutor(new Fixing(this));
+        getCommand("fix").setExecutor(new Fixing(this));
         getCommand("/selundo").setExecutor(selectionCommands);
         getCommand("/selredo").setExecutor(selectionCommands);
 
@@ -325,15 +321,17 @@ public final class BteConoSur extends JavaPlugin {
         online.setTitle("El servidor ha sido apagado.");
         online.setDescription("Te esperamos cuando vuelva a estar disponible.");
 
+        gateway.sendMessageEmbeds(online.build()).queue();
+
+        conoSurBot.shutdown();
+
         if (!projectRequestsIDs.isEmpty()) {
             Configuration requestsIDs = new Configuration(this, "projectsRequests");
             requestsIDs.set("", projectRequestsIDs);
             requestsIDs.save();
         }
 
-        gateway.sendMessageEmbeds(online.build()).queue();
 
-        conoSurBot.shutdown();
     }
 
     public static void broadcast(String message) {

@@ -65,8 +65,8 @@ public class PWarpCommand implements CommandExecutor {
                                 if (pwarps.contains(args[0])) {
 
                                     int x = pwarps.getInt(args[0] + ".x");
-                                    int y = pwarps.getInt(args[0] + ".x");
-                                    int z = pwarps.getInt(args[0] + ".x");
+                                    int y = pwarps.getInt(args[0] + ".y");
+                                    int z = pwarps.getInt(args[0] + ".z");
 
                                     p.teleport(new Location(mainWorld, x, y, z));
 

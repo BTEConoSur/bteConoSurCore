@@ -187,9 +187,6 @@ public class GroupsManager {
         if (secondaryGroups.contains(SecondaryGroup.EVENTO)) {
             return 2;
         }
-        if (primaryGroup == PrimaryGroup.DEFAULT) {
-            return 1;
-        }
         return 1;
     }
 

@@ -71,6 +71,7 @@ public class Config implements CommandExecutor {
         logsBo = conoSurBot.getTextChannelById(logsSection.getString("bo"));
         logsCl = conoSurBot.getTextChannelById(logsSection.getString("cl"));
         logsPy = conoSurBot.getTextChannelById(logsSection.getString("py"));
+        logsUy = conoSurBot.getTextChannelById(logsSection.getString("uy"));
         logsPe = conoSurBot.getTextChannelById(logsSection.getString("pe"));
 
         gateway = conoSurBot.getTextChannelById(configuration.getString("gateway-channel"));

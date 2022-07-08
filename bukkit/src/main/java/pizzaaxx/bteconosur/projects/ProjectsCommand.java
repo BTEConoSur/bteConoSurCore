@@ -92,12 +92,12 @@ public class ProjectsCommand implements CommandExecutor {
 
                 OldCountry country = new OldCountry(points.get(0));
 
-                if (country.getName().equals("global")) {
+                if (country.getName().equals("global") || (country.getName().equals("argentina") && !WorldGuardProvider.getRegionNamesAt(points.get(0)).contains("postulantes_arg"))) {
                     p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
                     return true;
                 }
 
-                if (p.hasPermission("bteconosur.projects.manage.create") && s.getPermissionCountries().contains(country.getName())) {
+                if (s.getPermissionCountries().contains(country.getName())) {
 
                     if (args.length < 2) {
                         p.sendMessage(projectsPrefix + "Introduce una dificultad, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
@@ -133,7 +133,7 @@ public class ProjectsCommand implements CommandExecutor {
                     project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
 
                     return true;
-                } else if (p.hasPermission("bteconosur.projects.create")) {
+                } else {
                     if (projectsManager.getProjects(country).size() < maxProjectsPerPlayer) {
                         Project project = new Project(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.FACIL, points);
 
@@ -182,16 +182,10 @@ public class ProjectsCommand implements CommandExecutor {
                     } else {
                         p.sendMessage(projectsPrefix + "No puedes ser líder de más de 10 proyectos.");
                     }
-                } else {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
                 }
             }
 
             if (args[0].equals("claim") || args[0].equals("reclamar")) {
-                if (!(p.hasPermission("bteconosur.projects.claim"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -232,59 +226,66 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("delete") || args[0].equals("eliminar")) {
-                if (p.hasPermission("bteconosur.projects.manage.delete")) {
-                    if (!(deleteConfirmation.contains(p))) {
-                        deleteConfirmation.add(p);
-                        p.sendMessage(projectsPrefix + "§cNo puedes deshacer esta acción. §fUsa el comando de nuevo para confirmar.");
-                        return true;
-                    }
+                if (!(deleteConfirmation.contains(p))) {
+                    deleteConfirmation.add(p);
+                    p.sendMessage(projectsPrefix + "§cNo puedes deshacer esta acción. §fUsa el comando de nuevo para confirmar.");
+                    return true;
+                }
 
-                    deleteConfirmation.remove(p);
-                    if (args.length >= 2) {
-                        try {
-                            Project project = new Project(args[1]);
-                            project.delete();
+                deleteConfirmation.remove(p);
+                if (args.length >= 2) {
+                    if (Project.projectExists(args[1])) {
+                        Project project = new Project(args[1]);
 
-                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                    manager.update();
-                                }
-                            }
+                        if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
 
-                            p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
-
-                            for (OfflinePlayer member : project.getAllMembers()) {
-                                new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido eliminado.");
-                            }
-
-                            project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
-                        } catch (Exception e) {
-                            p.sendMessage(projectsPrefix + "Este proyecto no existe.");
+                            p.sendMessage(projectsPrefix + "No puedes hacer esto en este país.");
                             return true;
                         }
-                    } else {
-                        try {
-                            Project project = new Project(p.getLocation());
-                            project.delete();
 
-                            p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
-                            project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
-                        } catch (Exception e) {
-                            p.sendMessage(projectsPrefix + "No estás dentro de ningun proyecto.");
+                        project.delete();
+
+                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                manager.update();
+                            }
                         }
+
+                        p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
+
+                        for (OfflinePlayer member : project.getAllMembers()) {
+                            new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido eliminado.");
+                        }
+
+                        project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+                    } else {
+                        p.sendMessage(projectsPrefix + "Este proyecto no existe.");
+                        return true;
                     }
                 } else {
-                    p.sendMessage(projectsPrefix + "§cNo puedes hacer esto.");
+                    try {
+                        Project project = new Project(p.getLocation());
+
+                        if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
+
+                            p.sendMessage(projectsPrefix + "No puedes hacer esto en este país.");
+                            return true;
+
+                        }
+
+                        project.delete();
+
+                        p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
+                        project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+                    } catch (Exception e) {
+                        p.sendMessage(projectsPrefix + "No estás dentro de ningun proyecto.");
+                    }
                 }
                 return true;
             }
 
             if (args[0].equals("add") || args[0].equals("agregar")) {
-                if (!(p.hasPermission("bteconosur.projects.add"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 Project project;
                 try {
@@ -334,10 +335,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("remove") || args[0].equals("remover") || args[0].equals("quitar")) {
-                if (!(p.hasPermission("bteconosur.projects.remove"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 Project project;
                 try {
@@ -387,10 +384,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("transfer") || args[0].equals("transferir")) {
-                if (!(p.hasPermission("bteconosur.projects.transfer"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -450,10 +443,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("leave") || args[0].equals("abandonar")) {
-                if (!(p.hasPermission("bteconosur.projects.leave"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -518,10 +507,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("borders") || args[0].equals("bordes")) {
-                if (!(p.hasPermission("bteconosur.projects.showborder"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -540,11 +525,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("review") || args[0].equals("revisar")) {
-                if (!(p.hasPermission("bteconosur.projects.manage.review"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
-
                 try {
                     Project project = new Project(p.getLocation());
                     OldCountry country = project.getCountry();
@@ -646,7 +626,7 @@ public class ProjectsCommand implements CommandExecutor {
                             p.sendMessage(projectsPrefix + "Este proyecto no esta pendiente de revisión.");
                         }
                     } else {
-                        p.sendMessage(projectsPrefix + "No puedes hacer esto.");
+                        p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -655,10 +635,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("name") || args[0].equals("nombre")) {
-                if (!(p.hasPermission("bteconosur.projects.name"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -692,10 +668,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("pending") || args[0].equals("pendientes")) {
-                if (!(p.hasPermission("bteconosur.projects.manage.pending"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 OldCountry country = new OldCountry(p.getLocation());
 
@@ -749,10 +721,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("finish") || args[0].equals("terminar")|| args[0].equals("finalizar")) {
-                if (!(p.hasPermission("bteconosur.projects.finish"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -788,10 +756,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("info") || args[0].equals("informacion")) {
-                if (!(p.hasPermission("bteconosur.projects.info"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -910,10 +874,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("list") || args[0].equals("lista")) {
-                if (!(p.hasPermission("bteconosur.projects.list"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 if (projectsManager.getAllProjects().size() != 0) {
                     BookUtil.BookBuilder book = BookUtil.writtenBook();
@@ -989,10 +949,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("manage") || args[0].equals("manejar")) {
-                if (!(p.hasPermission("bteconosur.projects.members"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -1062,10 +1018,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("request") || args[0].equals("solicitar")) {
-                if (!(p.hasPermission("bteconosur.projects.request"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -1086,10 +1038,6 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("tutorial")) {
-                if (!(p.hasPermission("bteconosur.projects.tutorial"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
                 UUID uuid = p.getUniqueId();
                 if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir"))) {
@@ -1222,12 +1170,12 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-        if (args[0].equals("requestTutorial")) {
-            if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 3) {
-                p.performCommand("p request");
-                p.performCommand("p tuturial exit");
+            if (args[0].equals("requestTutorial")) {
+                if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 3) {
+                    p.performCommand("p request");
+                    p.performCommand("p tuturial exit");
+                }
             }
-        }
 
             if (args[0].equals("verifyTutorial")) {
                 if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 2) {
@@ -1248,12 +1196,8 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equals("redefine") || args[0].equals("redefinir")) {
-                if (!(p.hasPermission("bteconosur.projects.redefine"))) {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    return true;
-                }
 
-                try {
+                if (Project.isProjectAt(p.getLocation())) {
                     Project project = new Project(p.getLocation());
 
                     // GET POINTS
@@ -1274,7 +1218,14 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (p.hasPermission("bteconosur.projects.manage.redefine") && s.getPermissionCountries().contains(project.getCountry().getName())) {
+                    if (!project.getCountry().getName().equals(new OldCountry(points.get(0)).getName())) {
+
+                        p.sendMessage(projectsPrefix + "No puedes redefinir un proyecto fuera del país original.");
+                        return true;
+
+                    }
+
+                    if (s.getPermissionCountries().contains(project.getCountry().getName())) {
 
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
@@ -1323,7 +1274,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
                         return true;
-                    } else if (p.hasPermission("bteconosur.projects.redefine")) {
+                    } else {
 
                         if (project.getOwner() != p) {
                             p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
@@ -1393,66 +1344,59 @@ public class ProjectsCommand implements CommandExecutor {
                         project.getCountry().getRequests().sendMessage(message.build()).queue();
 
                         p.sendMessage(projectsPrefix + "Se ha enviado una solicitud para redefinir tu proyecto.");
-                    } else {
-                        p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    } p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
+                } else {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
 
             if (args[0].equals("tag") || args[0].equals("etiqueta")) {
-                if (p.hasPermission("bteconosur.projects.manage.tag")) {
-                    try {
-                        Project project = new Project(p.getLocation());
+                if (Project.isProjectAt(p.getLocation())) {
+                    Project project = new Project(p.getLocation());
 
-                        if (!(s.getPermissionCountries().contains(project.getCountry().getName()))) {
-                            p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
-                        }
+                    if (!(s.getPermissionCountries().contains(project.getCountry().getName()))) {
+                        p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
+                        return true;
+                    }
 
-                        if (args.length > 1) {
-                            if (args[1].equals("edificios") || args[1].equals("departamentos") || args[1].equals("casas") || args[1].equals("parques") || args[1].equals("establecimientos") || args[1].equals("carreteras") || args[1].equals("centros_comerciales")) {
-                                project.setTag(Project.Tag.valueOf(args[1].toUpperCase()));
-                                project.save();
+                    if (args.length > 1) {
+                        if (args[1].equals("edificios") || args[1].equals("departamentos") || args[1].equals("casas") || args[1].equals("parques") || args[1].equals("establecimientos") || args[1].equals("carreteras") || args[1].equals("centros_comerciales")) {
+                            project.setTag(Project.Tag.valueOf(args[1].toUpperCase()));
+                            project.save();
 
-                                for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                                    ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                                    if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                        manager.update();
-                                    }
+                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                    manager.update();
                                 }
-
-                                project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
-
-                                p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
-                            } else if (args[1].equals("delete")) {
-                                project.setTag(null);
-                                project.save();
-
-                                for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                                    ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                                    if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                        manager.update();
-                                    }
-                                }
-
-                                project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
-
-                                p.sendMessage(projectsPrefix + "Has eliminado la etiqueta del proyecto §a" + project.getId() + "§f.");
-
-                            } else {
-                                p.sendMessage(projectsPrefix + "Introduce una etiqueta válida.");
                             }
+
+                            project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
+
+                            p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
+                        } else if (args[1].equals("delete")) {
+                            project.setTag(null);
+                            project.save();
+
+                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
+                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
+                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
+                                    manager.update();
+                                }
+                            }
+
+                            project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
+
+                            p.sendMessage(projectsPrefix + "Has eliminado la etiqueta del proyecto §a" + project.getId() + "§f.");
+
                         } else {
-                            p.sendMessage(projectsPrefix + "Introduce una etiqueta.");
+                            p.sendMessage(projectsPrefix + "Introduce una etiqueta válida.");
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                    } else {
+                        p.sendMessage(projectsPrefix + "Introduce una etiqueta.");
                     }
                 } else {
-                    p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
 

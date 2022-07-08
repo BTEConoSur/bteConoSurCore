@@ -137,6 +137,8 @@ public class ProjectTagCommand extends ListenerAdapter {
                                         .setTitle("Se ha eliminado la etiqueta del proyecto " + projectId.toUpperCase() + ".")
                                         .build()
                         ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                        project.getCountry().getLogs().sendMessage(":label: **" + event.getUser().getName() + "#" + event.getUser().getDiscriminator() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
+
                     } else {
                         project.setTag(Project.Tag.valueOf(option));
 
@@ -146,6 +148,8 @@ public class ProjectTagCommand extends ListenerAdapter {
                                         .setTitle("Se ha establecido la etiqueta del proyecto " + projectId.toUpperCase() + " en " + option + ".")
                                         .build()
                         ).setActionRows().retainFiles(new ArrayList<>()).queue();
+                        project.getCountry().getLogs().sendMessage(":label: **" + event.getUser().getName() + "#" + event.getUser().getDiscriminator() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + option.replace("_", " ").toUpperCase() + "**.").queue();
+
                     }
                     project.save();
 

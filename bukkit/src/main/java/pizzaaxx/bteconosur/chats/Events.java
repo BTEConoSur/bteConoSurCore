@@ -114,7 +114,7 @@ public class Events extends ListenerAdapter implements Listener {
                             targetChats.add(sTarget.getChatManager().getChat());
                         }
 
-                        message = message.replace(word, "§a~" + sTarget.getChatManager().getDisplayName() + "~");
+                        message = message.replace(word, "§a~" + sTarget.getChatManager().getDisplayName() + "~§r");
                     }
                 }
             }
@@ -123,7 +123,7 @@ public class Events extends ListenerAdapter implements Listener {
 
                 if (chat.getName().equals("global")) {
                     List<String> strings = new ArrayList<>();
-                    strings.add(":speech_balloon: **");
+                    strings.add("<:EmojiChat:848630810667909140> **");
 
                     GroupsManager groupsManager = s.getGroupsManager();
 
