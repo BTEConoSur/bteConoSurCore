@@ -67,14 +67,10 @@ public class ChatCommand implements CommandExecutor {
                     p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto.");
                 }
             } else if (args[0].equals("toggle") || args[0].equals("alternar")) {
-                if (p.hasPermission("bteconosur.chat.toggle")) {
-                    if (manager.toggleChat()) {
-                        p.sendMessage(CHAT_PREFIX + "Has ocultado el chat.");
-                    } else {
-                        p.sendMessage(CHAT_PREFIX + "Ahora puedes ver el chat.");
-                    }
+                if (manager.toggleChat()) {
+                    p.sendMessage(CHAT_PREFIX + "Has ocultado el chat.");
                 } else {
-                    p.sendMessage(CHAT_PREFIX + "§cNo tienes permiso para hacer eso.");
+                    p.sendMessage(CHAT_PREFIX + "Ahora puedes ver el chat.");
                 }
             } else if (args[0].equals("default") || args[0].equals("predeterminado")) {
                 if (args.length > 1) {

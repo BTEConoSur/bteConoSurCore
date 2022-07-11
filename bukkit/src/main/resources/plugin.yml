@@ -3,6 +3,10 @@ version: 1.0
 main: pizzaaxx.bteconosur.BteConoSur
 
 commands:
+  reloadPlayer:
+    permission: bteconosur.op
+    description: Reload a player
+
   /selundo:
     aliases:
       - /sundo
@@ -212,7 +216,7 @@ permissions:
         bteconosur.commands.prefix: true
         bteconosur.commands.nightvision: true
         bteconosur.commands.link: true
-  bteconsur.projects:
+  bteconosur.projects:
     description: Permiso para el comando de proyectos.
     default: true
   bteconosur.moderation.*:

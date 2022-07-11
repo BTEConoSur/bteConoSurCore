@@ -50,6 +50,7 @@ import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.commands.PWarpCommand;
 import pizzaaxx.bteconosur.testing.Fixing;
+import pizzaaxx.bteconosur.testing.ReloadPlayer;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
@@ -65,7 +66,6 @@ import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectRequestsIDs;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
@@ -91,6 +91,7 @@ public final class BteConoSur extends JavaPlugin {
 
         SelectionCommands selectionCommands = new SelectionCommands(this);
 
+        WhereCommand whereCommand = new WhereCommand(this);
         registerListeners(
                 new Join(playerRegistry, this),
                 new ProjectActionBar(),
@@ -109,7 +110,8 @@ public final class BteConoSur extends JavaPlugin {
                 new MovementHandler(),
                 new ProjectBlockPlacingListener(),
                 new Security(),
-                selectionCommands
+                selectionCommands,
+                whereCommand
         );
 
         getLogger().info("Registering commands...");
@@ -148,6 +150,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("fix").setExecutor(new Fixing(this));
         getCommand("/selundo").setExecutor(selectionCommands);
         getCommand("/selredo").setExecutor(selectionCommands);
+        getCommand("reloadPlayer").setExecutor(new ReloadPlayer());
 
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
@@ -192,7 +195,6 @@ public final class BteConoSur extends JavaPlugin {
         handler.registerListener("puedo entrar al servidor con bedrock?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
         handler.registerListener("puedo entrar con bedrock al servidor?", new BedrockListener(), FuzzyMatchListenerHandler.MatchType.WHOLE, 4);
 
-        WhereCommand whereCommand = new WhereCommand(this);
 
         registerDiscordListener(builder,
                 handler,
@@ -286,13 +288,6 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Loading projects requests...");
 
-        Configuration requestsIDs = new Configuration(this, "projectsRequests");
-        for (String requestID : requestsIDs.getKeys(false)) {
-            projectRequestsIDs.put(requestID, requestsIDs.getString(requestID));
-            requestsIDs.set(requestID, null);
-        }
-        requestsIDs.save();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             playerRegistry.add(new ServerPlayer(player));
         }
@@ -324,12 +319,6 @@ public final class BteConoSur extends JavaPlugin {
         gateway.sendMessageEmbeds(online.build()).queue();
 
         conoSurBot.shutdown();
-
-        if (!projectRequestsIDs.isEmpty()) {
-            Configuration requestsIDs = new Configuration(this, "projectsRequests");
-            requestsIDs.set("", projectRequestsIDs);
-            requestsIDs.save();
-        }
 
 
     }

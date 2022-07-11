@@ -174,7 +174,7 @@ public class PlayerCommand extends ListenerAdapter {
                     for (String id : projects.getAllOwnedProjects()) {
                         Project project = new Project(id);
                         projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
-                        if (projectsLines.size() >= 15) {
+                        if (projectsLines.size() >= 15 && projects.getAllOwnedProjects().size() != 15) {
                             projectsLines.add("y " + (allProjects.size() - 15) + " más...");
                             max = true;
                             break;
@@ -188,7 +188,7 @@ public class PlayerCommand extends ListenerAdapter {
                             if (project.getOwner() != s.getPlayer()) {
                                 projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                             }
-                            if (projectsLines.size() >= 15) {
+                            if (projectsLines.size() >= 15 && allProjects.size() != 15) {
                                 projectsLines.add("y " + (allProjects.size() - 15) + " más...");
                                 break;
                             }

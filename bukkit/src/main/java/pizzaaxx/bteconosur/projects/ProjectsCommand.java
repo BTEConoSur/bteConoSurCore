@@ -54,7 +54,6 @@ public class ProjectsCommand implements CommandExecutor {
     private final Set<Player> deleteConfirmation = new HashSet<>();
     public static Map<UUID, Integer> tutorialSteps = new HashMap<>();
     public static ItemStack background;
-    public static Map<String, String> projectRequestsIDs = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
@@ -139,11 +138,6 @@ public class ProjectsCommand implements CommandExecutor {
 
                         EmbedBuilder request = new EmbedBuilder();
                         request.setColor(new Color(0, 255, 42));
-
-                        String id = CodeGenerator.generateCode(6);
-
-                        request.setAuthor("ID de la solicitud: " + id);
-                        projectRequestsIDs.put(id, project.getId());
 
                         request.setTitle(new ServerPlayer(p).getName() + " quiere crear un proyecto.");
 
