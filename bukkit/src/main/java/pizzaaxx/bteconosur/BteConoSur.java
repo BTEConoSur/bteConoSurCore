@@ -290,6 +290,9 @@ public final class BteConoSur extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             playerRegistry.add(new ServerPlayer(player));
+            ServerPlayer s = playerRegistry.get(player.getUniqueId());
+            ChatManager manager = s.getChatManager();
+            manager.setChat(manager.getChat().getName());
         }
 
         Configuration roles = new Configuration(this, "countryRoles");

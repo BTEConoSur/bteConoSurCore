@@ -52,11 +52,13 @@ public class Events extends ListenerAdapter implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        ServerPlayer s = new ServerPlayer(e.getPlayer());
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setColor(new Color(0, 255, 42));
-        embed.setAuthor(s.getName() + " ha entrado al servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
-        gateway.sendMessageEmbeds(embed.build()).queue();
+        if (e.getPlayer().hasPlayedBefore()) {
+            ServerPlayer s = new ServerPlayer(e.getPlayer());
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(new Color(0, 255, 42));
+            embed.setAuthor(s.getName() + " ha entrado al servidor.", null, "https://cravatar.eu/helmavatar/" + s.getName() + "/190.png");
+            gateway.sendMessageEmbeds(embed.build()).queue();
+        }
     }
 
     @EventHandler

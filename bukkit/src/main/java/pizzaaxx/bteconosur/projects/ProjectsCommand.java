@@ -158,6 +158,7 @@ public class ProjectsCommand implements CommandExecutor {
                         // IMAGE
 
                         request.setImage(project.getImageUrl());
+                        Bukkit.getConsoleSender().sendMessage(project.getImageUrl());
 
                         ActionRow actionRow = ActionRow.of(
                                 Button.of(ButtonStyle.SECONDARY, "facil", "Fácil", Emoji.fromMarkdown("\uD83D\uDFE2")),
@@ -876,63 +877,68 @@ public class ProjectsCommand implements CommandExecutor {
 
                     for (String id : projectsManager.getAllProjects()) {
 
-                        Project project = new Project(id);
+                        try {
 
-                        BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+                            Project project = new Project(id);
 
-                        if (!Objects.equals(project.getName(), project.getId())) {
-                            page.add("§a§lNombre: §r" + project.getName());
-                            page.newLine();
-                        }
+                            BookUtil.PageBuilder page = new BookUtil.PageBuilder();
 
-                        page.add("§a§lID: §r" + project.getId());
-                        page.newLine();
-
-                        page.add("§a§lDificultad: §r" + project.getDifficulty().toString().toUpperCase());
-                        page.newLine();
-
-                        page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getCountry().getName().replace("peru", "perú")));
-                        page.newLine();
-
-                        page.add("§a§lCoordenadas: §r\n");
-                        page.add(
-                                BookUtil.TextBuilder.of(project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ())
-                                        .onHover(BookUtil.HoverAction.showText("Click para ir"))
-                                        .onClick(BookUtil.ClickAction.runCommand("/tp " + project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ()))
-                                        .build()
-                        );
-                        page.newLine();
-
-
-                        page.add("§a§lLíder: §r");
-                        ServerPlayer sOwner = new ServerPlayer(project.getOwner());
-                        page.add(
-                                BookUtil.TextBuilder.of(sOwner.getName())
-                                        .onHover(BookUtil.HoverAction.showText(sOwner.getLore()))
-                                        .build()
-                        );
-                        page.newLine();
-
-                        int i = 1;
-                        List<OfflinePlayer> members = project.getMembers();
-                        if (!members.isEmpty()) {
-                            page.add("§a§lMiembro(s)" + project.getMembers().size() + ": §r");
-                            for (OfflinePlayer member : members) {
-                                ServerPlayer sMember = new ServerPlayer(member);
-                                page.add(
-                                        BookUtil.TextBuilder.of(sMember.getName())
-                                                .onHover(BookUtil.HoverAction.showText(sMember.getLore()))
-                                                .build()
-                                );
-
-                                if (i < members.size()) {
-                                    page.add(", ");
-                                }
-                                i++;
+                            if (!Objects.equals(project.getName(), project.getId())) {
+                                page.add("§a§lNombre: §r" + project.getName());
+                                page.newLine();
                             }
-                        }
 
-                        pages.add(page.build());
+                            page.add("§a§lID: §r" + project.getId());
+                            page.newLine();
+
+                            page.add("§a§lDificultad: §r" + project.getDifficulty().toString().toUpperCase());
+                            page.newLine();
+
+                            page.add("§a§lPaís: §r" + StringUtils.capitalize(project.getCountry().getName().replace("peru", "perú")));
+                            page.newLine();
+
+                            page.add("§a§lCoordenadas: §r\n");
+                            page.add(
+                                    BookUtil.TextBuilder.of(project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ())
+                                            .onHover(BookUtil.HoverAction.showText("Click para ir"))
+                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ()))
+                                            .build()
+                            );
+                            page.newLine();
+
+
+                            page.add("§a§lLíder: §r");
+                            ServerPlayer sOwner = new ServerPlayer(project.getOwner());
+                            page.add(
+                                    BookUtil.TextBuilder.of(sOwner.getName())
+                                            .onHover(BookUtil.HoverAction.showText(sOwner.getLore()))
+                                            .build()
+                            );
+                            page.newLine();
+
+                            int i = 1;
+                            List<OfflinePlayer> members = project.getMembers();
+                            if (!members.isEmpty()) {
+                                page.add("§a§lMiembro(s)" + project.getMembers().size() + ": §r");
+                                for (OfflinePlayer member : members) {
+                                    ServerPlayer sMember = new ServerPlayer(member);
+                                    page.add(
+                                            BookUtil.TextBuilder.of(sMember.getName())
+                                                    .onHover(BookUtil.HoverAction.showText(sMember.getLore()))
+                                                    .build()
+                                    );
+
+                                    if (i < members.size()) {
+                                        page.add(", ");
+                                    }
+                                    i++;
+                                }
+                            }
+
+                            pages.add(page.build());
+                        } catch (Exception e) {
+                            Bukkit.getConsoleSender().sendMessage("Problema con el proyecto: " + id);
+                        }
                     }
 
                     book.pages(pages);

@@ -2,43 +2,59 @@ package pizzaaxx.bteconosur.projects;
 
 
 import com.sk89q.worldedit.BlockVector2D;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
 public class RequestResponse extends ListenerAdapter {
-    public Set<String> requestsClicks = new HashSet<>();
+    public Map<String, String> requestsClicks = new HashMap<>();
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent e) {
         if (e.getMessage().getEmbeds().size() > 0) {
             MessageEmbed embed = e.getMessage().getEmbeds().get(0);
             if (embed.getTitle().contains("quiere crear un proyecto")) {
-                if (requestsClicks.contains(e.getMessage().getId())) {
+
+                if (requestsClicks.containsKey(e.getMessage().getId()) && !requestsClicks.get(e.getMessage().getId()).equals(e.getUser().getId())) {
+                    User user = e.getJDA().retrieveUserById(requestsClicks.get(e.getMessage().getId())).complete();
+                    e.replyEmbeds(errorEmbed(user.getName() + " ya ha iniciado una respuesta a esta solicitud.")).queue();
                     return;
                 }
 
-                requestsClicks.add(e.getMessage().getId());
+                requestsClicks.put(e.getMessage().getId(), e.getUser().getId());
                 if (e.getComponent().getId().equals("rechazar")) {
-                    String title = embed.getTitle();
-                    OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
 
-                    new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido rechazada.");
+                    Modal.Builder modal = Modal.create("rejectCreation~" + e.getMessage().getId(), "Rechazar solicitud de creación");
+                    ActionRow row = ActionRow.of(
+                            TextInput.create("reason", "Razón", TextInputStyle.SHORT)
+                                    .setRequired(true)
+                                    .setPlaceholder("Introduce una razón")
+                                    .build()
+                    );
+                    modal.addActionRows(row);
 
-                    e.getMessage().delete().queue();
+                    e.replyModal(modal.build()).queue();
                 } else {
                     String title = embed.getTitle();
                     OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
@@ -78,25 +94,25 @@ public class RequestResponse extends ListenerAdapter {
 
             if (embed.getTitle().contains("quiere redefinir el proyecto")) {
 
-                if (requestsClicks.contains(e.getMessage().getId())) {
+                if (requestsClicks.containsKey(e.getMessage().getId()) && !requestsClicks.get(e.getMessage().getId()).equals(e.getUser().getId())) {
+                    User user = e.getJDA().retrieveUserById(requestsClicks.get(e.getMessage().getId())).complete();
+                    e.replyEmbeds(errorEmbed(user.getName() + " ya ha iniciado una respuesta a esta solicitud.")).queue();
                     return;
                 }
 
-
-                requestsClicks.add(e.getMessage().getId());
+                requestsClicks.put(e.getMessage().getId(), e.getUser().getId());
                 if (e.getComponent().getId().equals("rechazar")) {
-                    String title = embed.getTitle();
-                    OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
 
-                    try {
-                        Project project = new Project(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
+                    Modal.Builder modal = Modal.create("rejectRedefine~" + e.getMessage().getId(), "Rechazar solicitud de redefinición");
+                    ActionRow row = ActionRow.of(
+                            TextInput.create("reason", "Razón", TextInputStyle.SHORT)
+                                    .setRequired(true)
+                                    .setPlaceholder("Introduce una razón")
+                                    .build()
+                    );
+                    modal.addActionRows(row);
 
-                        new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto `§a" + project.getId() + "§f` ha sido rechazada.");
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    }
-
-                    e.getMessage().delete().queue();
+                    e.replyModal(modal.build()).queue();
                 } else {
                     String title = embed.getTitle();
                     OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
@@ -139,5 +155,68 @@ public class RequestResponse extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    @Override
+    public void onModalInteraction(ModalInteractionEvent event) {
+
+        if (event.getModalId().startsWith("rejectCreation")) {
+
+            String embedID = event.getModalId().replace("rejectCreation~", "");
+
+            Message message = event.getTextChannel().retrieveMessageById(embedID).complete();
+
+            MessageEmbed embed = message.getEmbeds().get(0);
+
+            String title = embed.getTitle();
+            OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
+
+            new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido rechazada. Razón: " + event.getValue("reason").getAsString());
+
+            message.delete().queue();
+
+            event.replyEmbeds(
+                    new EmbedBuilder()
+                            .setColor(Color.GREEN)
+                            .setTitle("Solicitud rechazada con éxito.")
+                            .build()
+            ).setEphemeral(true).queue();
+
+            requestsClicks.remove(embedID);
+
+        }
+
+        if (event.getModalId().startsWith("rejectRedefine")) {
+
+            String embedID = event.getModalId().replace("rejectRedefine~", "");
+
+            Message message = event.getTextChannel().retrieveMessageById(embedID).complete();
+
+            MessageEmbed embed = message.getEmbeds().get(0);
+
+            String title = embed.getTitle();
+            OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
+
+            try {
+                Project project = new Project(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
+
+                new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto `§a" + project.getId() + "§f` ha sido rechazada.");
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
+            message.delete().queue();
+
+            event.replyEmbeds(
+                    new EmbedBuilder()
+                            .setColor(Color.GREEN)
+                            .setTitle("Solicitud rechazada con éxito.")
+                            .build()
+            ).setEphemeral(true).queue();
+
+            requestsClicks.remove(embedID);
+
+        }
+
     }
 }

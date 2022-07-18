@@ -33,7 +33,8 @@ public class ProjectCommand extends ListenerAdapter {
             String id = event.getOption("id").getAsString().toLowerCase();
 
             if (id.matches("[a-z]{6}")) {
-                try {
+
+                if (Project.projectExists(id)) {
                     Project project = new Project(id);
 
                     // DIFICULTAD
@@ -145,8 +146,7 @@ public class ProjectCommand extends ListenerAdapter {
                         );
                     });
 
-                } catch (Exception exception) {
-                    exception.printStackTrace();
+                } else {
                     EmbedBuilder error = new EmbedBuilder();
                     error.setColor(new Color(255, 0, 0));
                     error.setAuthor("Este proyecto no existe.");
