@@ -19,12 +19,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.Config;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.server.player.ProjectsManager;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.io.File;
 import java.util.*;
@@ -111,17 +111,17 @@ public class Project {
 
     public static String getProjectAt(Location loc) {
         Set<ProtectedRegion> regions = getWorldGuard().getRegionManager(mainWorld).getApplicableRegions(loc).getRegions();
-        List<String> projects = new ArrayList<>();
+        List<ProtectedRegion> projects = new ArrayList<>();
 
         regions.forEach(region -> {
             if (region.getId().startsWith("project_")) {
-                projects.add(region.getId().replace("project_", ""));
+                projects.add(region);
             }
         });
 
-        Collections.sort(projects);
+        projects.sort(new RegionAreaComparator());
 
-        return projects.get(0);
+        return projects.get(0).getId().replace("project_", "");
     }
 
     // CONSTRUCTORS

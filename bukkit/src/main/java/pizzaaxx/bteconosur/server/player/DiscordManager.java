@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.server.player;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -140,7 +141,14 @@ public class DiscordManager {
             loadUser();
             Guild guild = country.getGuild();
 
-            Member member = guild.retrieveMember(user).complete();
+            Member member;
+
+            try {
+                member = guild.retrieveMember(user).complete();
+            } catch (ErrorResponseException e) {
+                return;
+            }
+
 
             if (member.isOwner() || (member.getRoles().isEmpty() ? 0 : member.getRoles().get(0).getPosition()) >= guild.retrieveMemberById(conoSurBot.getSelfUser().getId()).complete().getRoles().get(0).getPosition()) {
                 return;

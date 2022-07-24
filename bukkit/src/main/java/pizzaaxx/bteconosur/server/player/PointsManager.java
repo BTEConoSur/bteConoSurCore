@@ -91,7 +91,7 @@ public class PointsManager {
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);
-            country.getLogs().sendMessage((diff > 0 ? ":up" : ":down") + "wards_trend: Se han " + (diff > 0 ? "añadido" : "quitado") + " `" + diff + "` puntos a **" + serverPlayer.getName() + "**. Total: `" + points + "`.").queue();
+            country.getLogs().sendMessage(":chart_with_" + (diff > 0 ? "up" : "down") + "wards_trend: Se han " + (diff > 0 ? "añadido" : "quitado") + " `" + diff + "` puntos a **" + serverPlayer.getName() + "**. Total: `" + points + "`.").queue();
         }
 
         serverPlayer.getGroupsManager().checkGroups();

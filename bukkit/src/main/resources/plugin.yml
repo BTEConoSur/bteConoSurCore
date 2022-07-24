@@ -195,6 +195,7 @@ permissions:
       bteconosur.worldedit.commands.terraform: true
       bteconosur.worldedit.commands.divide: true
       bteconosur.worldedit.commands.increment: true
+      bteconosur.worldedit.commands.polywalls: true
   bteconosur.commands.*:
     description: Permisos de comandos normales.
     default: true

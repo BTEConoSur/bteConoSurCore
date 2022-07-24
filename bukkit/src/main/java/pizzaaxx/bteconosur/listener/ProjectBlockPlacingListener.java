@@ -56,11 +56,37 @@ public class ProjectBlockPlacingListener implements Listener {
             OldCountry country = new OldCountry(targetBlock.getLocation());
 
             if (!(country.getName().equals("global") || (country.getName().equals("argentina") && !WorldGuardProvider.getRegionNamesAt(targetBlock.getLocation()).contains("postulantes_arg")))) {
-                if (Project.isProjectAt(targetBlock.getLocation())) {
 
-                    Project project = new Project(targetBlock.getLocation());
+                boolean canBuild = false;
 
-                    if (!project.getAllMembers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList()).contains(p.getUniqueId())) {
+                for (String name : WorldGuardProvider.getRegionNamesAt(targetBlock.getLocation())) {
+
+                        if (name.startsWith("project_")) {
+
+                            String id = name.replace("project_", "");
+
+                            if (Project.projectExists(id)) {
+
+                                Project project = new Project(id);
+
+                                if (project.getAllMembers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList()).contains(p.getUniqueId())) {
+
+                                    canBuild = true;
+                                    break;
+
+                                }
+
+                            }
+
+                        }
+
+                }
+
+                if (!canBuild) {
+
+                    if (Project.isProjectAt(targetBlock.getLocation())) {
+
+                        Project project = new Project(targetBlock.getLocation());
 
                         if (project.isClaimed()) {
 
@@ -79,22 +105,16 @@ public class ProjectBlockPlacingListener implements Listener {
                         }
                         lastWarn.put(p.getUniqueId(), System.currentTimeMillis());
 
+                    } else {
+
+                        p.sendMessage(
+                                BookUtil.TextBuilder.of(projectsPrefix + "§cCrea un proyecto para poder construir aquí. ").build(),
+                                BookUtil.TextBuilder.of("§a[TUTORIAL]").onClick(BookUtil.ClickAction.runCommand("/p tutorial")).onHover(BookUtil.HoverAction.showText("Haz click para iniciar el tutorial")).build()
+                        );
+                        lastWarn.put(p.getUniqueId(), System.currentTimeMillis());
                     }
-
-                } else {
-
-                    p.sendMessage(
-                            BookUtil.TextBuilder.of(projectsPrefix + "§cCrea un proyecto para poder construir aquí. ").build(),
-                            BookUtil.TextBuilder.of("§a[TUTORIAL]").onClick(BookUtil.ClickAction.runCommand("/p tutorial")).onHover(BookUtil.HoverAction.showText("Haz click para iniciar el tutorial")).build()
-                    );
-                    lastWarn.put(p.getUniqueId(), System.currentTimeMillis());
-
                 }
             }
-
-
-
         }
     }
-
 }

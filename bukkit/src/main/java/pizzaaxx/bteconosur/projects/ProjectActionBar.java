@@ -18,8 +18,9 @@ public class ProjectActionBar implements Listener {
 
         for (ProtectedRegion region : getEnteredRegions(from, to)) {
             if (region.getId().startsWith("project_")) {
-                try {
-                    Project project = new Project(to);
+                String id = region.getId().replace("project_", "");
+                if (Project.projectExists(id)) {
+                    Project project = new Project(id);
                     ChatColor color;
                     if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
                         color = ChatColor.GREEN;
@@ -37,8 +38,6 @@ public class ProjectActionBar implements Listener {
 
                     break;
 
-                } catch (Exception exception) {
-                    exception.printStackTrace();
                 }
             }
         }

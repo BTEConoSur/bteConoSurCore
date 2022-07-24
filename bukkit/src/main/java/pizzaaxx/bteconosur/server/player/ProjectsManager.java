@@ -114,7 +114,7 @@ public class ProjectsManager {
     }
 
     public void addFinishedProject(OldCountry country) {
-        int actual = finishedProjects.get(country.getName());
+        int actual = finishedProjects.getOrDefault(country.getName(), 0);
         finishedProjects.put(country.getName(), actual + 1);
 
         Map<String, Integer> save = new HashMap<>(finishedProjects);
