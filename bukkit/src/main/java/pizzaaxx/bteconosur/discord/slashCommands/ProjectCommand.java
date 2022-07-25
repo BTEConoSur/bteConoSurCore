@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
@@ -133,7 +132,13 @@ public class ProjectCommand extends ListenerAdapter {
 
                         // IMAGE
 
-                        InputStream file = Misc.getInputStreamFromImage(project.getImage());
+                        InputStream file;
+                        try {
+                            file = new URL(project.getImageUrl()).openStream();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            return;
+                        }
 
                         embed.setImage("attachment://map.png");
                         event.replyFile(file, "map.png").addEmbeds(embed.build()).queue(

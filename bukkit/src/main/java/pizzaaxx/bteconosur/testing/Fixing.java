@@ -241,20 +241,6 @@ public class Fixing implements CommandExecutor {
 
                 }
 
-            } else if (args[0].equals("projectImages")) {
-
-                File dir = new File(plugin.getDataFolder(), "projects");
-                File[] files = dir.listFiles();
-
-
-                if (files != null) {
-
-                    for (File file : files) {
-
-
-
-                    }
-                }
             }
         }
 

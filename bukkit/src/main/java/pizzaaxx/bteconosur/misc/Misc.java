@@ -18,12 +18,6 @@ import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -33,20 +27,6 @@ import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 public class Misc {
 
     public static final Map<String, String> COUNTRIES = new HashMap<>();
-
-    public static InputStream getInputStreamFromImage(BufferedImage image) {
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(image, "png", os);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-        return is;
-
-    }
 
     static  {
         COUNTRIES.put("argentina" , "arg");

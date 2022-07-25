@@ -18,7 +18,6 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
@@ -27,11 +26,7 @@ import pizzaaxx.bteconosur.server.player.ProjectsManager;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,58 +45,9 @@ public class Project {
     private final Set<UUID> removedMembers = new HashSet<>();
     private UUID owner = null;
     private String name = null;
-    private List<BlockVector2D> points;
+    private List<BlockVector2D> points = null;
     private Tag tag = null;
     private Tag oldTag = null;
-    private boolean changedRegion = false;
-
-    private BufferedImage image;
-
-    /**
-     *
-     */
-    private void loadImage() {
-
-        File file = new File(pluginFolder, "projectImages/" + id + ".png");
-
-        if (file.isFile()) {
-            try {
-
-                this.image = ImageIO.read(new File(pluginFolder, "projectImages/" + id + ".png"));
-
-            } catch (IOException e) {
-
-                Bukkit.getConsoleSender().sendMessage("Ha ocurrido un error cargando la imagen del proyecto " + id + ".");
-
-            }
-        } else {
-
-            BukkitRunnable runnable = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        URL url = new URL(getImageUrl());
-
-                        BufferedImage image = ImageIO.read(url);
-
-                        ImageIO.write(image, "png", file);
-
-                        loadImage();
-
-                    } catch (IOException e) {
-
-                        Bukkit.getConsoleSender().sendMessage("Ha ocurrido un error al cargar la imagen del proyecto " + id);
-                    }
-                }
-            };
-            runnable.runTaskAsynchronously(Bukkit.getPluginManager().getPlugin("bteConoSur"));
-
-        }
-
-
-
-    }
 
     /**
      * The difficulty of a project, holds how many points a player should be given for finishing a project.
@@ -143,7 +89,7 @@ public class Project {
     }
 
     public enum Tag {
-        EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES
+        EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES;
     }
 
     // CHECKER
@@ -203,9 +149,6 @@ public class Project {
             if (origin.tag != null) {
                 this.tag = origin.tag;
             }
-            if (origin.image != null) {
-                this.image = origin.image;
-            }
 
         } else {
             this.id = id;
@@ -235,8 +178,6 @@ public class Project {
             }
 
             points = getWorldGuard().getRegionManager(mainWorld).getRegion("project_" + id).getPoints();
-
-            loadImage();
         }
 
     }
@@ -254,7 +195,6 @@ public class Project {
         this.difficulty = difficulty;
         this.points = points;
         this.pending = false;
-        this.changedRegion = true;
 
         String rndmID = generateCode(6);
 
@@ -324,10 +264,6 @@ public class Project {
         return id;
     }
 
-    public BufferedImage getImage() {
-        return image;
-    }
-
     public String getImageUrl() {
         if (points != null && points.size() > 1) {
             List<String> coords = new ArrayList<>();
@@ -341,7 +277,8 @@ public class Project {
     }
 
     public List<OfflinePlayer> getAllMembers() {
-        List<OfflinePlayer> allMembers = new ArrayList<>(getMembers());
+        List<OfflinePlayer> allMembers = new ArrayList<>();
+        allMembers.addAll(getMembers());
         if (owner != null) {
             allMembers.add(Bukkit.getOfflinePlayer(owner));
         }
@@ -424,7 +361,6 @@ public class Project {
 
     public void setPoints(List<BlockVector2D> points) {
         this.points = points;
-        this.changedRegion = true;
     }
 
     public void setOwner(OfflinePlayer player) {
@@ -436,6 +372,10 @@ public class Project {
         UUID uuid = player.getUniqueId();
         members.add(uuid);
         removedMembers.remove(uuid);
+    }
+
+    public void addPoint(BlockVector2D point) {
+        this.points.add(point);
     }
 
     // REMOVERS
@@ -454,11 +394,6 @@ public class Project {
 
         if (file.isFile()) {
             file.delete();
-        }
-
-        File image = new File(pluginFolder, "projectImages/" + id + ".png");
-        if (image.isFile()) {
-            image.delete();
         }
 
         if (pending) {
@@ -626,32 +561,6 @@ public class Project {
 
         }
         manager.addRegion(region);
-
-
-        if (changedRegion) {
-            BukkitRunnable runnable = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        URL url = new URL(getImageUrl());
-
-                        BufferedImage image = ImageIO.read(url);
-
-                        ImageIO.write(image, "png", new File(pluginFolder, "projectImages/" + id + ".png"));
-
-                        loadImage();
-
-                    } catch (IOException e) {
-
-                        Bukkit.getConsoleSender().sendMessage("Ha ocurrido un error al cargar la imagen del proyecto " + id);
-                    }
-                }
-            };
-            runnable.runTaskAsynchronously(Bukkit.getPluginManager().getPlugin("bteConoSur"));
-        }
-
-        this.changedRegion = false;
 
         // REMOVED STUFF
 

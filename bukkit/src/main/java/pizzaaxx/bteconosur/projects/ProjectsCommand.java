@@ -174,6 +174,7 @@ public class ProjectsCommand implements CommandExecutor {
                         // IMAGE
 
                         request.setImage(project.getImageUrl());
+                        Bukkit.getConsoleSender().sendMessage(project.getImageUrl());
 
                         ActionRow actionRow = ActionRow.of(
                                 Button.of(ButtonStyle.SECONDARY, "facil", "Fácil", Emoji.fromMarkdown("\uD83D\uDFE2")),
