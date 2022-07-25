@@ -72,7 +72,7 @@ public class TabCompletions implements TabCompleter {
                 Collections.sort(completions);
             } else if (args.length == 2) {
 
-                if (args[0].equalsIgnoreCase("add")) {
+                if (args[0].equals("add")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -93,7 +93,7 @@ public class TabCompletions implements TabCompleter {
                         }
                     }
                     Collections.sort(completions);
-                } else if (args[0].equalsIgnoreCase("create")) {
+                } else if (args[0].equals("create")) {
 
                     OldCountry country;
 
@@ -121,7 +121,7 @@ public class TabCompletions implements TabCompleter {
 
                     }
 
-                } else if (args[0].equalsIgnoreCase("redefine")) {
+                } else if (args[0].equals("redefine")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -135,7 +135,7 @@ public class TabCompletions implements TabCompleter {
 
                         }
                     }
-                } else if (args[0].equalsIgnoreCase("remove")) {
+                } else if (args[0].equals("remove")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -154,7 +154,7 @@ public class TabCompletions implements TabCompleter {
                         }
                     }
                     Collections.sort(completions);
-                } else if (args[0].equalsIgnoreCase("tag")) {
+                } else if (args[0].equals("tag")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -175,7 +175,7 @@ public class TabCompletions implements TabCompleter {
 
                     }
 
-                } else if (args[0].equalsIgnoreCase("transfer")) {
+                } else if (args[0].equals("transfer")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -200,7 +200,7 @@ public class TabCompletions implements TabCompleter {
                     }
                     Collections.sort(completions);
 
-                } else if (args[0].equalsIgnoreCase("review")) {
+                } else if (args[0].equals("review")) {
 
                     if (Project.isProjectAt(p.getLocation())) {
 
@@ -218,37 +218,6 @@ public class TabCompletions implements TabCompleter {
 
                 }
 
-            } else if (args.length == 3) {
-
-                if (args[0].equalsIgnoreCase("create") && (args[1].equalsIgnoreCase("facil") || args[1].equalsIgnoreCase("intermedio") || args[1].equalsIgnoreCase("dificil"))) {
-
-                    OldCountry country;
-
-                    try {
-
-                        Region region = WorldEditHelper.getSelection(p);
-
-                        Polygonal2DRegion polygon = WorldEditHelper.polyRegion(region);
-
-                        BlockVector2D vector = polygon.getPoints().get(0);
-
-                        country = new OldCountry(new Location(mainWorld, vector.getX(), mainWorld.getHighestBlockYAt(vector.getBlockX(), vector.getBlockZ()), vector.getZ()));
-
-                    } catch (IncompleteRegionException e) {
-
-                        country = new OldCountry(p.getLocation());
-
-                    }
-
-                    if (s.getPermissionCountries().contains(country.getName())) {
-
-                        for (Project.Tag tag : Project.Tag.values()) {
-
-                            completions.add(tag.toString().toLowerCase());
-
-                        }
-                    }
-                }
             }
         }
 

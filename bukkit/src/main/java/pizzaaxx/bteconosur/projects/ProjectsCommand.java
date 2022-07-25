@@ -23,13 +23,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.methods.CodeGenerator;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.Color;
@@ -69,7 +70,7 @@ public class ProjectsCommand implements CommandExecutor {
                 return true;
             }
 
-            if (args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("crear")) {
+            if (args[0].equals("create") || args[0].equals("crear")) {
                 // GET POINTS
 
                 List<BlockVector2D> points;
@@ -90,7 +91,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 OldCountry country = new OldCountry(points.get(0));
 
-                if (country.getName().equalsIgnoreCase("global") || (country.getName().equalsIgnoreCase("argentina") && !WorldGuardProvider.getRegionNamesAt(points.get(0)).contains("postulantes_arg"))) {
+                if (country.getName().equals("global") || (country.getName().equals("argentina") && !WorldGuardProvider.getRegionNamesAt(points.get(0)).contains("postulantes_arg"))) {
                     p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
                     return true;
                 }
@@ -102,29 +103,12 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if ((!(args[1].equalsIgnoreCase("facil"))) && (!(args[1].equalsIgnoreCase("intermedio"))) && (!(args[1].equalsIgnoreCase("dificil")))) {
+                    if ((!(args[1].equals("facil"))) && (!(args[1].equals("intermedio"))) && (!(args[1].equals("dificil")))) {
                         p.sendMessage(projectsPrefix + "Introduce una dificultad válida, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
                         return true;
                     }
 
                     Project project = new Project(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1].toUpperCase()), points);
-
-                    boolean usedTag = false;
-
-                    if (args.length > 2) {
-
-                        try {
-
-                            project.setTag(Project.Tag.valueOf(args[2].toUpperCase()));
-                            usedTag = true;
-
-                        } catch (IllegalArgumentException e) {
-
-                            p.sendMessage(projectsPrefix + "Etiqueta inválida.");
-                            return true;
-                        }
-
-                    }
 
                     project.save();
 
@@ -137,9 +121,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                     // SEND MESSAGES
 
-                    p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f" + (usedTag ? " y la etiqueta §a" + project.getTag().toString().replace("_", " ") + "§f" : "") + ".");
+                    p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f.");
 
-                    StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "`" + (usedTag ? " y la etiqueta `" + project.getTag().toString().replace("_", " ") + "`" : "") + " en las coordenadas: \n");
+                    StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "` en las coordenadas: \n");
                     for (BlockVector2D point : project.getPoints()) {
                         dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                     }
@@ -195,7 +179,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("reclamar")) {
+            if (args[0].equals("claim") || args[0].equals("reclamar")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -235,7 +219,7 @@ public class ProjectsCommand implements CommandExecutor {
                 return true;
             }
 
-            if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("eliminar")) {
+            if (args[0].equals("delete") || args[0].equals("eliminar")) {
                 if (!(deleteConfirmation.contains(p))) {
                     deleteConfirmation.add(p);
                     p.sendMessage(projectsPrefix + "§cNo puedes deshacer esta acción. §fUsa el comando de nuevo para confirmar.");
@@ -295,7 +279,7 @@ public class ProjectsCommand implements CommandExecutor {
                 return true;
             }
 
-            if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("agregar")) {
+            if (args[0].equals("add") || args[0].equals("agregar")) {
 
                 Project project;
                 try {
@@ -344,7 +328,7 @@ public class ProjectsCommand implements CommandExecutor {
                 return true;
             }
 
-            if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("quitar")) {
+            if (args[0].equals("remove") || args[0].equals("remover") || args[0].equals("quitar")) {
 
                 Project project;
                 try {
@@ -393,7 +377,7 @@ public class ProjectsCommand implements CommandExecutor {
                 return true;
             }
 
-            if (args[0].equalsIgnoreCase("transfer") || args[0].equalsIgnoreCase("transferir")) {
+            if (args[0].equals("transfer") || args[0].equals("transferir")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -452,7 +436,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("abandonar")) {
+            if (args[0].equals("leave") || args[0].equals("abandonar")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -516,7 +500,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("borders") || args[0].equalsIgnoreCase("bordes")) {
+            if (args[0].equals("borders") || args[0].equals("bordes")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -534,7 +518,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("review") || args[0].equalsIgnoreCase("revisar")) {
+            if (args[0].equals("review") || args[0].equals("revisar")) {
                 try {
                     Project project = new Project(p.getLocation());
                     OldCountry country = project.getCountry();
@@ -544,7 +528,7 @@ public class ProjectsCommand implements CommandExecutor {
                         if (project.isPending()) {
 
                             if (args.length > 1) {
-                                if (args[1].equalsIgnoreCase("accept") || args[1].equalsIgnoreCase("aceptar")) {
+                                if (args[1].equals("accept") || args[1].equals("aceptar")) {
                                     // ADD POINTS
 
                                     int amount = project.getDifficulty().getPoints();
@@ -587,7 +571,7 @@ public class ProjectsCommand implements CommandExecutor {
                                     }
 
                                 }
-                                if (args[1].equalsIgnoreCase("continue") || args[1].equalsIgnoreCase("continuar")) {
+                                if (args[1].equals("continue") || args[1].equals("continuar")) {
                                     project.setPending(false);
                                     project.save();
 
@@ -599,7 +583,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     country.getLogs().sendMessage(":mag: **" + s.getName() + "** ha continuado el proyecto `" + project.getId() + "`.").queue();
                                 }
-                                if (args[1].equalsIgnoreCase("deny") || args[1].equalsIgnoreCase("denegar") || args[1].equalsIgnoreCase("rechazar")) {
+                                if (args[1].equals("deny") || args[1].equals("denegar") || args[1].equals("rechazar")) {
 
                                     for (OfflinePlayer member : project.getAllMembers()) {
                                         ServerPlayer m = new ServerPlayer(member);
@@ -644,7 +628,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("nombre")) {
+            if (args[0].equals("name") || args[0].equals("nombre")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -677,7 +661,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("pending") || args[0].equalsIgnoreCase("pendientes")) {
+            if (args[0].equals("pending") || args[0].equals("pendientes")) {
 
                 OldCountry country = new OldCountry(p.getLocation());
 
@@ -730,7 +714,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("finish") || args[0].equalsIgnoreCase("terminar")|| args[0].equalsIgnoreCase("finalizar")) {
+            if (args[0].equals("finish") || args[0].equals("terminar")|| args[0].equals("finalizar")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -765,7 +749,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("informacion")) {
+            if (args[0].equals("info") || args[0].equals("informacion")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -883,7 +867,7 @@ public class ProjectsCommand implements CommandExecutor {
 
             }
 
-            if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("lista")) {
+            if (args[0].equals("list") || args[0].equals("lista")) {
 
                 if (projectsManager.getAllProjects().size() != 0) {
                     BookUtil.BookBuilder book = BookUtil.writtenBook();
@@ -963,7 +947,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("manage") || args[0].equalsIgnoreCase("manejar")) {
+            if (args[0].equals("manage") || args[0].equals("manejar")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -1032,7 +1016,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("request") || args[0].equalsIgnoreCase("solicitar")) {
+            if (args[0].equals("request") || args[0].equals("solicitar")) {
 
                 try {
                     Project project = new Project(p.getLocation());
@@ -1052,10 +1036,10 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("tutorial")) {
+            if (args[0].equals("tutorial")) {
 
                 UUID uuid = p.getUniqueId();
-                if (args.length > 1 && (args[1].equalsIgnoreCase("exit") || args[1].equalsIgnoreCase("salir"))) {
+                if (args.length > 1 && (args[1].equals("exit") || args[1].equals("salir"))) {
 
                     if (tutorialSteps.containsKey(uuid)) {
                         p.sendMessage(" ");
@@ -1210,7 +1194,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("redefine") || args[0].equalsIgnoreCase("redefinir")) {
+            if (args[0].equals("redefine") || args[0].equals("redefinir")) {
 
                 if (Project.isProjectAt(p.getLocation())) {
                     Project project = new Project(p.getLocation());
@@ -1252,7 +1236,7 @@ public class ProjectsCommand implements CommandExecutor {
                             return true;
                         }
 
-                        if ((!(args[1].equalsIgnoreCase("facil"))) && (!(args[1].equalsIgnoreCase("intermedio"))) && (!(args[1].equalsIgnoreCase("dificil")))) {
+                        if ((!(args[1].equals("facil"))) && (!(args[1].equals("intermedio"))) && (!(args[1].equals("dificil")))) {
                             p.sendMessage(projectsPrefix + "Introduce una dificultad válida, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
                             return true;
                         }
@@ -1365,7 +1349,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("tag") || args[0].equalsIgnoreCase("etiqueta")) {
+            if (args[0].equals("tag") || args[0].equals("etiqueta")) {
                 if (Project.isProjectAt(p.getLocation())) {
                     Project project = new Project(p.getLocation());
 
@@ -1375,7 +1359,7 @@ public class ProjectsCommand implements CommandExecutor {
                     }
 
                     if (args.length > 1) {
-                        if (args[1].equalsIgnoreCase("edificios") || args[1].equalsIgnoreCase("departamentos") || args[1].equalsIgnoreCase("casas") || args[1].equalsIgnoreCase("parques") || args[1].equalsIgnoreCase("establecimientos") || args[1].equalsIgnoreCase("carreteras") || args[1].equalsIgnoreCase("centros_comerciales")) {
+                        if (args[1].equals("edificios") || args[1].equals("departamentos") || args[1].equals("casas") || args[1].equals("parques") || args[1].equals("establecimientos") || args[1].equals("carreteras") || args[1].equals("centros_comerciales")) {
                             project.setTag(Project.Tag.valueOf(args[1].toUpperCase()));
                             project.save();
 
@@ -1389,7 +1373,7 @@ public class ProjectsCommand implements CommandExecutor {
                             project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
 
                             p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
-                        } else if (args[1].equalsIgnoreCase("delete")) {
+                        } else if (args[1].equals("delete")) {
                             project.setTag(null);
                             project.save();
 
@@ -1415,7 +1399,7 @@ public class ProjectsCommand implements CommandExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("find") || args[0].equalsIgnoreCase("encontrar")) {
+            if (args[0].equals("find") || args[0].equals("encontrar")) {
                 Inventory pRandomGui = Bukkit.createInventory(null, 27, "1. Elige una dificultad");
 
                 ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
@@ -1432,12 +1416,6 @@ public class ProjectsCommand implements CommandExecutor {
                 pRandomGui.setItem(15, getCustomHead("§cDifícil §f- 100 puntos", "§fProyectos de gran tamaño y/o dificultad, que requieren gran detalle y planificación previa.", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjQ1ZTg1ZWRkYTFhODFkMjI0YWRiNzEzYjEzYjcwMzhkNWNjNmJlY2Q5OGE3MTZiOGEzZGVjN2UzYTBmOTgxNyJ9fX0="));
 
                 p.openInventory(pRandomGui);
-            }
-
-            if (args[0].equalsIgnoreCase("wand")) {
-
-                p.sendMessage(projectsPrefix + "Ahora la selección se hace con WorldEdit. Puedes usar una selección de tipo §acuboid§f o §apoly§f.");
-
             }
         return true;
     }
