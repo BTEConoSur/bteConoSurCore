@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.projects.Project;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -65,27 +66,8 @@ public class ProjectTagCommand extends ListenerAdapter {
                         builder.setColor(Color.YELLOW);
                         builder.setTitle("Elige una etiqueta para el proyecto " + project.getId().toUpperCase());
                         // IMAGE
-                        URL url;
-                        try {
-                            url = new URL(project.getImageUrl());
-                        } catch (MalformedURLException e) {
-                            event.replyEmbeds(errorEmbed("Ha ocurrido un error.")).queue(
-                                    msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
-                            );
-                            return;
-                        }
 
-
-                        InputStream stream;
-                        try {
-                            stream = url.openStream();
-                        } catch (IOException e) {
-                            event.replyEmbeds(errorEmbed("Ha ocurrido un error.")).queue(
-                                    msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
-                            );
-                            return;
-                        }
-
+                        InputStream stream = Misc.getInputStreamFromImage(project.getImage());
 
                         builder.setImage("attachment://map.png");
                         event.replyFile(stream, "map.png").addEmbeds(builder.build()).addActionRows(row).queue(
