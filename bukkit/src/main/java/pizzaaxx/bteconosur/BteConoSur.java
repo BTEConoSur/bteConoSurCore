@@ -81,7 +81,7 @@ public final class BteConoSur extends JavaPlugin {
 
     private final Configuration links = new Configuration(this, "link/links");
 
-    private final CountryManager countryManager = new CountryManager();
+    private final CountryManager countryManager = new CountryManager(this);
 
     @Override
     public void onEnable() {
@@ -284,10 +284,6 @@ public final class BteConoSur extends JavaPlugin {
             }
 
             countryRoles.put(key, rolesById);
-        }
-
-        for (String name : countryNames) {
-            cityRegistries.put(name, new CityRegistry(this, name));
         }
     }
 
