@@ -45,7 +45,7 @@ public class Project {
     private final Set<UUID> removedMembers = new HashSet<>();
     private UUID owner = null;
     private String name = null;
-    private List<BlockVector2D> points = null;
+    private List<BlockVector2D> points;
     private Tag tag = null;
     private Tag oldTag = null;
 
@@ -89,7 +89,7 @@ public class Project {
     }
 
     public enum Tag {
-        EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES;
+        EDIFICIOS, DEPARTAMENTOS, CASAS, PARQUES, ESTABLECIMIENTOS, CARRETERAS, CENTROS_COMERCIALES
     }
 
     // CHECKER
@@ -277,8 +277,7 @@ public class Project {
     }
 
     public List<OfflinePlayer> getAllMembers() {
-        List<OfflinePlayer> allMembers = new ArrayList<>();
-        allMembers.addAll(getMembers());
+        List<OfflinePlayer> allMembers = new ArrayList<>(getMembers());
         if (owner != null) {
             allMembers.add(Bukkit.getOfflinePlayer(owner));
         }
@@ -372,10 +371,6 @@ public class Project {
         UUID uuid = player.getUniqueId();
         members.add(uuid);
         removedMembers.remove(uuid);
-    }
-
-    public void addPoint(BlockVector2D point) {
-        this.points.add(point);
     }
 
     // REMOVERS

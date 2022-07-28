@@ -20,9 +20,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.ChatCommand;
 import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
-import pizzaaxx.bteconosur.commands.*;
-import pizzaaxx.bteconosur.country.CountryRegistry;
+import pizzaaxx.bteconosur.cities.CityRegistry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
+import pizzaaxx.bteconosur.commands.ScoreboardCommand;
+import pizzaaxx.bteconosur.commands.*;
+import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.country.CountryManager;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.BedrockListener;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.IPListener;
@@ -35,12 +38,9 @@ import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
 import pizzaaxx.bteconosur.listener.ProjectBlockPlacingListener;
-import pizzaaxx.bteconosur.commands.ScoreboardCommand;
-import pizzaaxx.bteconosur.commands.PresetsCommand;
 import pizzaaxx.bteconosur.misc.Security;
 import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
-import pizzaaxx.bteconosur.commands.PrefixCommand;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.server.player.ChatManager;
@@ -48,13 +48,11 @@ import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
-import pizzaaxx.bteconosur.commands.PWarpCommand;
 import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
-import pizzaaxx.bteconosur.configuration.Configuration;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -70,6 +68,8 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
+    public static Map<String, CityRegistry> cityRegistries = new HashMap<>();
+
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
@@ -81,8 +81,7 @@ public final class BteConoSur extends JavaPlugin {
 
     private final Configuration links = new Configuration(this, "link/links");
 
-    private CountryRegistry countryRegistry;
-    private Configuration configurationCountries;
+    private final CountryManager countryManager = new CountryManager();
 
     @Override
     public void onEnable() {
@@ -259,28 +258,6 @@ public final class BteConoSur extends JavaPlugin {
         chatRegistry.register("peru");
         chatRegistry.register("uruguay");
 
-        countryRegistry = new CountryRegistry();
-        configurationCountries = new Configuration(this, "countries.yml");
-
-        /*
-        configurationCountries.getConfigurationSection("countries")
-                        .getKeys(false)
-                                .forEach(path -> {
-                                    ConfigurationSection section = configurationCountries.getConfigurationSection(path);
-
-                                    countryRegistry.add(
-                                            new Country(
-                                                    section.getString("name"),
-                                                    section.getString("icon"),
-                                                    section.getString("prefix"),
-                                                    section.getString("request_channel_id"),
-                                                    section.getString("abbreviation"),
-                                                    section.getString("guild_id")
-                                            )
-                                    );
-                                });
-        */
-
         getLogger().info("Starting automatic scoreboards checker sequence...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
@@ -307,6 +284,10 @@ public final class BteConoSur extends JavaPlugin {
             }
 
             countryRoles.put(key, rolesById);
+        }
+
+        for (String name : countryNames) {
+            cityRegistries.put(name, new CityRegistry(this, name));
         }
     }
 
