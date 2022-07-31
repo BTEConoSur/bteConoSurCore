@@ -1,33 +1,33 @@
 package pizzaaxx.bteconosur.server.player;
 
-import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class PlayerRegistry {
 
-    private final Map<UUID, ServerPlayer> players = new HashMap<>();
+    private final Map<UUID, ServerPlayer> registry = new HashMap<>();
+    private final Map<UUID, Long> deletionRegistry = new HashMap<>();
 
-    public void add(ServerPlayer serverPlayer) {
+    public void add(@NotNull ServerPlayer serverPlayer) {
         serverPlayer.loadManagers();
-        players.put(serverPlayer.getId(), serverPlayer);
+        registry.put(serverPlayer.getId(), serverPlayer);
     }
 
     public void remove(UUID id) {
-        players.remove(id);
+        registry.remove(id);
     }
 
     public boolean exists(UUID id) {
-        return players.containsKey(id);
+        return registry.containsKey(id);
     }
 
     public ServerPlayer get(UUID id) {
-        return players.get(id);
+        return registry.get(id);
     }
 
-    public Collection<ServerPlayer> values() {
-        return players.values();
-    }
+
 
 }

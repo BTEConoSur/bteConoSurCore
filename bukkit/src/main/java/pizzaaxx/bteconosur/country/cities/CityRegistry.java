@@ -1,7 +1,8 @@
-package pizzaaxx.bteconosur.cities;
+package pizzaaxx.bteconosur.country.cities;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.Country;
 
 import java.io.File;
@@ -12,13 +13,15 @@ import java.util.Map;
 
 public class CityRegistry {
 
+    private final Country country;
     private final Map<String, City> registry = new HashMap<>();
     private final Map<String, Long> deletionRegistry = new HashMap<>();
     private final List<String> names = new ArrayList<>();
     private final Plugin plugin;
 
-    public CityRegistry(Country country, Plugin plugin) {
+    public CityRegistry(@NotNull Country country, Plugin plugin) {
 
+        this.country = country;
         this.plugin = plugin;
 
         File folder = new File(country.getFolder(), "countries/" + country.getName() + "/cities");
@@ -36,7 +39,11 @@ public class CityRegistry {
         return names.contains(name);
     }
 
-    public void register(City city) {
+    public boolean isRegistered(String name) {
+        return registry.containsKey(name);
+    }
+
+    public void register(@NotNull City city) {
         if (exists(city.getName())) {
             registry.put(city.getName(), city);
         }
@@ -71,4 +78,7 @@ public class CityRegistry {
 
     }
 
+    public Country getCountry() {
+        return country;
+    }
 }

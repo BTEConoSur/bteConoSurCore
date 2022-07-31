@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.country;
 
+import net.dv8tion.jda.api.JDA;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.HelpMethods.StringHelper;
@@ -11,15 +12,17 @@ import java.util.Map;
 public class CountryManager {
 
     private final Plugin plugin;
+    private final JDA bot;
     private final Map<String, Country> registry = new HashMap<>();
     private final Map<String, String> abbreviations = new HashMap<>();
 
-    public CountryManager(Plugin plugin) {
+    public CountryManager(Plugin plugin, JDA bot) {
         this.plugin = plugin;
+        this.bot = bot;
     }
 
     public void add(String name, String abbreviation) {
-        registry.put(name, new Country(new Configuration(plugin, "countries/" + name + "/config"), plugin, name));
+        registry.put(name, new Country(new Configuration(plugin, "countries/" + name + "/config"), plugin, name, bot));
         abbreviations.put(abbreviation, name);
     }
 
