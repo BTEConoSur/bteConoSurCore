@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -74,7 +76,6 @@ public final class BteConoSur extends JavaPlugin {
     public static World mainWorld = null;
     public static File pluginFolder = null;
     public static String key;
-    public static final PlayerRegistry playerRegistry = new PlayerRegistry();
     public static ProjectRegistry projectRegistry;
     public static final ChatRegistry chatRegistry = new ChatRegistry();
     public static final Map<String, Guild> guilds = new HashMap<>();
@@ -85,6 +86,18 @@ public final class BteConoSur extends JavaPlugin {
     private final CountryManager countryManager = new CountryManager(this);
 
     private final Map<String, Pair<String, String>> projectsMapping = new HashMap<>();
+
+    private final PlayerRegistry playerRegistry = new PlayerRegistry(this);
+
+    public PlayerRegistry getPlayerRegistry() {
+        return playerRegistry;
+    }
+
+    private final RegionManager regionsManager = WorldGuardPlugin.inst().getRegionManager(mainWorld);
+
+    public RegionManager getRegionsManager() {
+        return regionsManager;
+    }
 
     @Override
     public void onEnable() {

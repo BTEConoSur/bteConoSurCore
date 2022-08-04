@@ -4,9 +4,11 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.AddMembersProjectAction;
 
 import java.util.HashSet;
 import java.util.List;
@@ -61,13 +63,14 @@ public class NewProject {
         }
     }
 
+    private final BteConoSur plugin;
     private final Configuration config;
     private final String id;
     private final Country country;
     private final City city;
     private Difficulty difficulty;
     private final List<BlockVector2D> regionPoints;
-    private final Set<UUID> members = new HashSet<>();
+    public final Set<UUID> members = new HashSet<>();
     private UUID owner;
     private String name;
     private Tag tag;
@@ -144,6 +147,10 @@ public class NewProject {
         return id.toUpperCase();
     }
 
+    public BteConoSur getPlugin() {
+        return plugin;
+    }
+
     public Tag getTag() {
         return tag;
     }
@@ -172,11 +179,15 @@ public class NewProject {
         this.pending = pending;
     }
 
-    public void addMember(UUID uuid) {
-        members.add(uuid);
+    public AddMembersProjectAction addMembers(UUID... uuid) {
+        return new AddMembersProjectAction(this, uuid);
     }
 
     public void removeMember(UUID uuid) {
         members.remove(uuid);
+    }
+
+    public void saveToDisk() {
+
     }
 }

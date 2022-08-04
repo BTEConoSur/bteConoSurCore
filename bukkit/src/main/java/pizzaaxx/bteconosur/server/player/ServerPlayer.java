@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
-import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 
 public class ServerPlayer {
 
@@ -35,7 +34,7 @@ public class ServerPlayer {
     public ServerPlayer(UUID uuid, boolean storeManagers) {
         this.uuid = uuid;
 
-        if (playerRegistry.exists(uuid)) {
+        if (playerRegistry.isLoaded(uuid)) {
             ServerPlayer origin = playerRegistry.get(uuid);
             this.dataManager = origin.getDataManager();
 
