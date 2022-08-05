@@ -9,19 +9,19 @@ import java.util.Map;
 public class ProjectRegistry {
 
     private final Plugin plugin;
-    private final Map<String, Project> projects = new HashMap<>();
+    private final Map<String, OldProject> projects = new HashMap<>();
     private final Map<String, Long> lastAccessed = new HashMap<>();
 
     public ProjectRegistry(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    public void register(Project project) {
+    public void register(OldProject project) {
         projects.put(project.getId(), project);
         startTimer(project);
     }
 
-    public Project get(String id) {
+    public OldProject get(String id) {
         if (projects.containsKey(id)) {
            startTimer(projects.get(id));
         }
@@ -37,7 +37,7 @@ public class ProjectRegistry {
         return projects.containsKey(id);
     }
 
-    private void startTimer(Project project) {
+    private void startTimer(OldProject project) {
         lastAccessed.put(project.getId(), System.currentTimeMillis());
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override

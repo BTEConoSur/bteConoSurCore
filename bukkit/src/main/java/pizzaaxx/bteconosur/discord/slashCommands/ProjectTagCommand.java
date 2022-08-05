@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.server.player.DiscordManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
@@ -29,9 +29,9 @@ public class ProjectTagCommand extends ListenerAdapter {
         if (event.getName().equals("projecttag")) {
             String id = event.getOption("id").getAsString();
 
-            if (Project.projectExists(id)) {
+            if (OldProject.projectExists(id)) {
 
-                Project project = new Project(id);
+                OldProject project = new OldProject(id);
 
                 if (DiscordManager.isLinked(event.getUser().getId())) {
                     ServerPlayer s;
@@ -122,9 +122,9 @@ public class ProjectTagCommand extends ListenerAdapter {
 
                 String projectId = event.getComponentId().replace("changeTag~", "");
 
-                if (Project.projectExists(projectId)) {
+                if (OldProject.projectExists(projectId)) {
 
-                    Project project = new Project(projectId);
+                    OldProject project = new OldProject(projectId);
 
                     String option = event.getSelectedOptions().get(0).getValue();
 
@@ -140,7 +140,7 @@ public class ProjectTagCommand extends ListenerAdapter {
                         project.getCountry().getLogs().sendMessage(":label: **" + event.getUser().getName() + "#" + event.getUser().getDiscriminator() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
 
                     } else {
-                        project.setTag(Project.Tag.valueOf(option));
+                        project.setTag(OldProject.Tag.valueOf(option));
 
                         event.editMessageEmbeds(
                                 new EmbedBuilder()

@@ -7,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class Config implements CommandExecutor {
     public static int maxProjectsPerPlayer;
     public static int maxProjectPoints;
     public static int easyPoints;
-    public static Map<Project.Difficulty, Integer> points = new HashMap<>();
+    public static Map<OldProject.Difficulty, Integer> points = new HashMap<>();
     public static int mediumPoints;
     public static int hardPoints;
     public static int maxProjectMembers;
@@ -55,9 +55,9 @@ public class Config implements CommandExecutor {
         maxProjectPoints = configuration.getInt("max-project-points");
         maxProjectMembers = configuration.getInt("max-members-per-project");
         ConfigurationSection pointsSection = configuration.getConfigurationSection("points");
-        points.put(Project.Difficulty.FACIL, pointsSection.getInt("facil"));
-        points.put(Project.Difficulty.INTERMEDIO, pointsSection.getInt("intermedio"));
-        points.put(Project.Difficulty.DIFICIL, pointsSection.getInt("dificil"));
+        points.put(OldProject.Difficulty.FACIL, pointsSection.getInt("facil"));
+        points.put(OldProject.Difficulty.INTERMEDIO, pointsSection.getInt("intermedio"));
+        points.put(OldProject.Difficulty.DIFICIL, pointsSection.getInt("dificil"));
 
         ConfigurationSection requestSection = configuration.getConfigurationSection("request");
         requestsAr = conoSurBot.getTextChannelById(requestSection.getString("ar"));

@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,7 +114,7 @@ public class ScoreboardManager {
                     break;
                 case PROJECT:
                     try {
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         ChatColor c;
                         switch (project.getDifficulty()) {

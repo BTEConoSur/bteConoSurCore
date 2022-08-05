@@ -1,21 +1,22 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import org.bukkit.plugin.Plugin;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.AddMembersProjectAction;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.RemoveMembersProjectAction;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.SetTagProjectAction;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.TransferProjectAction;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-public class NewProject {
+public class Project {
 
     /**
      * The difficulty of a project. A higher difficulty gives a higher amount of points.
@@ -59,6 +60,10 @@ public class NewProject {
 
         @Override
         public @NotNull String toString() {
+            return super.toString().toLowerCase();
+        }
+
+        public @NotNull String toFormattedString() {
             return super.toString().replace("_", "");
         }
     }
@@ -68,23 +73,26 @@ public class NewProject {
     private final String id;
     private final Country country;
     private final City city;
-    private Difficulty difficulty;
-    private final List<BlockVector2D> regionPoints;
+    public Difficulty difficulty;
     public final Set<UUID> members = new HashSet<>();
-    private UUID owner;
-    private String name;
-    private Tag tag;
-    private boolean pending;
+    public UUID owner;
+    public String name;
+    public Tag tag;
+    public boolean pending;
+    public ProtectedRegion region;
 
     /**
      * Loads a project from the server's storage. You should check first if the project exists.
      * @param city The city this project belongs to.
      * @param id The id of this project.
      * @param plugin The plugin running. Needed for Configuration loading.
-     * @param manager WorldGuard's region manager.
      */
-    public NewProject(@NotNull City city, @NotNull String id, @NotNull Plugin plugin, @NotNull RegionManager manager) {
+    public Project(@NotNull City city, @NotNull String id, @NotNull BteConoSur plugin) {
         this.id = id;
+
+        this.plugin = plugin;
+
+        this.region = plugin.getRegionsManager().getRegion("project_" + id);
 
         this.city = city;
 
@@ -109,8 +117,6 @@ public class NewProject {
         if (config.contains("owner")) {
             owner = UUID.fromString(config.getString("owner"));
         }
-
-        regionPoints = manager.getRegion("project_" + id).getPoints();
 
         pending = config.getBoolean("pending");
 
@@ -140,6 +146,10 @@ public class NewProject {
         return owner;
     }
 
+    public ProtectedRegion getRegion() {
+        return region;
+    }
+
     public String getName() {
         if (name != null) {
             return name;
@@ -163,16 +173,16 @@ public class NewProject {
         this.difficulty = difficulty;
     }
 
-    public void setOwner(UUID uuid) {
-        this.owner = uuid;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setTag(Tag tag) {
-        this.tag = tag;
+    public SetTagProjectAction setTag(Tag tag) {
+        return new SetTagProjectAction(this, this.tag, tag);
+    }
+
+    public TransferProjectAction transferTo(UUID target) {
+        return new TransferProjectAction(this, this.owner, target);
     }
 
     public void setPending(boolean pending) {
@@ -183,8 +193,8 @@ public class NewProject {
         return new AddMembersProjectAction(this, uuid);
     }
 
-    public void removeMember(UUID uuid) {
-        members.remove(uuid);
+    public RemoveMembersProjectAction removeMembers(UUID... uuid) {
+        return new RemoveMembersProjectAction(this, uuid);
     }
 
     public void saveToDisk() {

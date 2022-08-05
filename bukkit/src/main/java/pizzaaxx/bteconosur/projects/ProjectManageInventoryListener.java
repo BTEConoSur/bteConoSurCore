@@ -51,9 +51,9 @@ public class ProjectManageInventoryListener implements Listener {
 
             String id = name.substring(9, 15).toLowerCase();
 
-            if (Project.isProjectAt(player.getLocation()) && new Project(player.getLocation()).getId().equals(id)) {
+            if (OldProject.isProjectAt(player.getLocation()) && new OldProject(player.getLocation()).getId().equals(id)) {
                 try {
-                    Project project = new Project(id);
+                    OldProject project = new OldProject(id);
 
                     if (project.getOwner().getUniqueId() == player.getUniqueId()) {
 
@@ -208,7 +208,7 @@ public class ProjectManageInventoryListener implements Listener {
 
                 String id = action.split(" ")[2];
 
-                if (Project.isProjectAt(player.getLocation()) && new Project(player.getLocation()).getId().equals(id)) {
+                if (OldProject.isProjectAt(player.getLocation()) && new OldProject(player.getLocation()).getId().equals(id)) {
                     OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
 
                     if (p.isOnline()) {
@@ -255,7 +255,7 @@ public class ProjectManageInventoryListener implements Listener {
 
                 String id = action.split(" ")[2];
 
-                if (Project.isProjectAt(player.getLocation()) && new Project(player.getLocation()).getId().equals(id)) {
+                if (OldProject.isProjectAt(player.getLocation()) && new OldProject(player.getLocation()).getId().equals(id)) {
 
                     player.closeInventory();
 
@@ -293,7 +293,7 @@ public class ProjectManageInventoryListener implements Listener {
 
                 String id = action.split(" ")[3];
 
-                if (Project.isProjectAt(player.getLocation()) && new Project(player.getLocation()).getId().equals(id) && Bukkit.getOfflinePlayer(uuid).isOnline()) {
+                if (OldProject.isProjectAt(player.getLocation()) && new OldProject(player.getLocation()).getId().equals(id) && Bukkit.getOfflinePlayer(uuid).isOnline()) {
                     transferConfirmation.add(player);
                     player.closeInventory();
                     player.performCommand("p transfer " + playerRegistry.get(uuid).getName());

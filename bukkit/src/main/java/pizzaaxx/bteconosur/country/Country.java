@@ -28,6 +28,8 @@ public class Country {
 
     private final JDA bot;
 
+    private final Configuration tags;
+
     public Country(@NotNull Configuration config, Plugin plugin, String name, JDA bot) {
 
         this.name = name;
@@ -36,6 +38,8 @@ public class Country {
         registry = new CityRegistry(this, plugin);
 
         this.folder = new File(plugin.getDataFolder(), "countries/" + name);
+
+        this.tags = new Configuration(plugin, "countries/" + name + "/tags");
 
         this.guildID = config.getString("guildID");
         this.projectsLogsChannelID = config.getString("projectsLogsChannelID");
@@ -88,4 +92,7 @@ public class Country {
         return name;
     }
 
+    public Configuration getTags() {
+        return tags;
+    }
 }

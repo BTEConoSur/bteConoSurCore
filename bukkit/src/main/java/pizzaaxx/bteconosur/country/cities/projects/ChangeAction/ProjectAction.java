@@ -1,17 +1,17 @@
 package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 
-import pizzaaxx.bteconosur.country.cities.projects.NewProject;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
 
 /**
- * Represents an action to be called on a {@link NewProject}.
+ * Represents an action to be called on a {@link Project}.
  */
 public interface ProjectAction {
 
     /**
      *
-     * @return The {@link NewProject} this action belongs to.
+     * @return The {@link Project} this action belongs to.
      */
-    NewProject getProject();
+    Project getProject();
 
     /**
      * Execute this action. Each Class handles this differently.

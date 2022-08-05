@@ -35,7 +35,7 @@ import static pizzaaxx.bteconosur.methods.CodeGenerator.generateCode;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegion;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
-public class Project {
+public class OldProject {
     private final OldCountry country;
     private final String id;
     private final Configuration config;
@@ -78,7 +78,7 @@ public class Project {
             Configuration tags = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "projectTags/tags");
             if (tags.contains(tagName)) {
                 for (String id : tags.getConfigurationSection(tagName).getStringList(country.getName())) {
-                    Project project = new Project(id);
+                    OldProject project = new OldProject(id);
                     if (project.getOwner() == null && project.getDifficulty() == difficulty) {
                         projects.get(tag).add(id);
                     }
@@ -126,10 +126,10 @@ public class Project {
 
     // CONSTRUCTORS
 
-    public Project(String id) {
+    public OldProject(String id) {
 
         if (projectRegistry.exists(id)) {
-            Project origin = projectRegistry.get(id);
+            OldProject origin = projectRegistry.get(id);
 
             this.id = origin.id;
             this.country = origin.country;
@@ -182,15 +182,15 @@ public class Project {
 
     }
 
-    public Project(Location location) {
+    public OldProject(Location location) {
         this(getProjectAt(location));
     }
 
-    public Project(BlockVector2D location) {
+    public OldProject(BlockVector2D location) {
         this(getProjectAt(new Location(mainWorld, location.getX(), 100, location.getZ())));
     }
 
-    public Project(OldCountry country, Difficulty difficulty, List<BlockVector2D> points) {
+    public OldProject(OldCountry country, Difficulty difficulty, List<BlockVector2D> points) {
         this.country = country;
         this.difficulty = difficulty;
         this.points = points;

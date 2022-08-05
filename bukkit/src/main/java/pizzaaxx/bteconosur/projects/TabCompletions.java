@@ -42,9 +42,9 @@ public class TabCompletions implements TabCompleter {
                     completions.add("pending");
                 }
 
-                if (Project.isProjectAt(p.getLocation())) {
+                if (OldProject.isProjectAt(p.getLocation())) {
 
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
 
                     completions.add("leave");
@@ -74,9 +74,9 @@ public class TabCompletions implements TabCompleter {
 
                 if (args[0].equalsIgnoreCase("add")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (project.getOwner().getUniqueId() == p.getUniqueId()) {
 
@@ -123,9 +123,9 @@ public class TabCompletions implements TabCompleter {
 
                 } else if (args[0].equalsIgnoreCase("redefine")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        OldCountry country = new Project(p.getLocation()).getCountry();
+                        OldCountry country = new OldProject(p.getLocation()).getCountry();
 
                         if (s.getPermissionCountries().contains(country.getName())) {
 
@@ -137,9 +137,9 @@ public class TabCompletions implements TabCompleter {
                     }
                 } else if (args[0].equalsIgnoreCase("remove")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (project.getOwner().getUniqueId() == p.getUniqueId()) {
 
@@ -156,9 +156,9 @@ public class TabCompletions implements TabCompleter {
                     Collections.sort(completions);
                 } else if (args[0].equalsIgnoreCase("tag")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (s.getPermissionCountries().contains(project.getCountry().getName())) {
 
@@ -177,9 +177,9 @@ public class TabCompletions implements TabCompleter {
 
                 } else if (args[0].equalsIgnoreCase("transfer")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (project.getOwner().getUniqueId() == p.getUniqueId()) {
 
@@ -202,9 +202,9 @@ public class TabCompletions implements TabCompleter {
 
                 } else if (args[0].equalsIgnoreCase("review")) {
 
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (project.isPending() && s.getPermissionCountries().contains(project.getCountry().getName())) {
 
@@ -242,7 +242,7 @@ public class TabCompletions implements TabCompleter {
 
                     if (s.getPermissionCountries().contains(country.getName())) {
 
-                        for (Project.Tag tag : Project.Tag.values()) {
+                        for (OldProject.Tag tag : OldProject.Tag.values()) {
 
                             completions.add(tag.toString().toLowerCase());
 

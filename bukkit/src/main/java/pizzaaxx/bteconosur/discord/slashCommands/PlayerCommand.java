@@ -15,7 +15,7 @@ import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.DataTime;
 import pizzaaxx.bteconosur.helper.DateHelper;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.server.player.*;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
@@ -172,7 +172,7 @@ public class PlayerCommand extends ListenerAdapter {
                     boolean max = false;
 
                     for (String id : projects.getAllOwnedProjects()) {
-                        Project project = new Project(id);
+                        OldProject project = new OldProject(id);
                         projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                         if (projectsLines.size() >= 15 && projects.getAllOwnedProjects().size() != 15) {
                             projectsLines.add("y " + (allProjects.size() - 15) + " más...");
@@ -184,7 +184,7 @@ public class PlayerCommand extends ListenerAdapter {
 
                     if (!max) {
                         for (String id : allProjects) {
-                            Project project = new Project(id);
+                            OldProject project = new OldProject(id);
                             if (project.getOwner() != s.getPlayer()) {
                                 projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                             }
@@ -368,7 +368,7 @@ public class PlayerCommand extends ListenerAdapter {
                 boolean max = false;
 
                 for (String id : projects.getAllOwnedProjects()) {
-                    Project project = new Project(id);
+                    OldProject project = new OldProject(id);
                     projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " :crown: `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                     if (projectsLines.size() >= 15) {
                         projectsLines.add("y " + (allProjects.size() - 15) + " más...");
@@ -380,7 +380,7 @@ public class PlayerCommand extends ListenerAdapter {
 
                 if (!max) {
                     for (String id : allProjects) {
-                        Project project = new Project(id);
+                        OldProject project = new OldProject(id);
                         if (project.getOwner() != s.getPlayer()) {
                             projectsLines.add("• :flag_" + project.getCountry().getAbbreviation() + ": " + project.getDifficulty().toString().toLowerCase().replace("facil", ":green_circle:").replace("intermedio", ":yellow_circle:").replace("dificil", ":red_circle:") + " `" + project.getId() + "`" + ((!project.getName().equals(project.getId())) ? " - " + project.getName() : ""));
                         }

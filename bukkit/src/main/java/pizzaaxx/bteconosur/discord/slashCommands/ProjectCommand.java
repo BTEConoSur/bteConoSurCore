@@ -9,7 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 
 import java.awt.*;
@@ -34,8 +34,8 @@ public class ProjectCommand extends ListenerAdapter {
 
             if (id.matches("[a-z]{6}")) {
 
-                if (Project.projectExists(id)) {
-                    Project project = new Project(id);
+                if (OldProject.projectExists(id)) {
+                    OldProject project = new OldProject(id);
 
                     // DIFICULTAD
 
@@ -43,10 +43,10 @@ public class ProjectCommand extends ListenerAdapter {
 
                         EmbedBuilder embed = new EmbedBuilder();
 
-                        if (project.getDifficulty() ==  Project.Difficulty.DIFICIL) {
+                        if (project.getDifficulty() ==  OldProject.Difficulty.DIFICIL) {
                             embed.setColor(new Color(255, 0, 0));
                             embed.addField("Dificultad: ", ":red_circle: Difícil", false);
-                        } else if (project.getDifficulty() == Project.Difficulty.INTERMEDIO) {
+                        } else if (project.getDifficulty() == OldProject.Difficulty.INTERMEDIO) {
                             embed.setColor(new Color(255, 220, 0));
                             embed.addField("Dificultad: ", ":yellow_circle: Intermedio", false);
                         } else {

@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.server.player;
 
 import org.bukkit.configuration.ConfigurationSection;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +61,7 @@ public class ProjectsManager {
         return projects.getOrDefault(country.getName(), new ArrayList<>());
     }
 
-    public void addProject(Project project) {
+    public void addProject(OldProject project) {
         List<String> ps = projects.getOrDefault(project.getCountry().getName(), new ArrayList<>());
         ps.add(project.getId());
         projects.put(project.getCountry().getName(), ps);
@@ -76,7 +76,7 @@ public class ProjectsManager {
         }
     }
 
-    public void removeProject(Project project) {
+    public void removeProject(OldProject project) {
         projects.getOrDefault(project.getCountry().getName(), new ArrayList<>()).remove(project.getId());
         data.set("projects", projects);
         data.save();
@@ -132,7 +132,7 @@ public class ProjectsManager {
         projects.forEach((country, ps) -> {
             List<String> owned = new ArrayList<>();
             ps.forEach(id -> {
-                Project project = new Project(id);
+                OldProject project = new OldProject(id);
 
                 if (project.getOwner() == serverPlayer.getPlayer()) {
                     owned.add(id);
@@ -148,7 +148,7 @@ public class ProjectsManager {
 
         for (Map.Entry<String, List<String>> list : projects.entrySet()) {
             for (String id : list.getValue()) {
-                Project project = new Project(id);
+                OldProject project = new OldProject(id);
 
                 if (project.getOwner() == serverPlayer.getPlayer()) {
                     owned.add(id);

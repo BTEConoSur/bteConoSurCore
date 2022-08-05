@@ -19,8 +19,8 @@ public class ProjectActionBar implements Listener {
         for (ProtectedRegion region : getEnteredRegions(from, to)) {
             if (region.getId().startsWith("project_")) {
                 String id = region.getId().replace("project_", "");
-                if (Project.projectExists(id)) {
-                    Project project = new Project(id);
+                if (OldProject.projectExists(id)) {
+                    OldProject project = new OldProject(id);
                     ChatColor color;
                     if (project.getDifficulty().toString().equalsIgnoreCase("facil")) {
                         color = ChatColor.GREEN;

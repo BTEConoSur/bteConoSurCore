@@ -107,7 +107,7 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    Project project = new Project(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.valueOf(args[1].toUpperCase()), points);
+                    OldProject project = new OldProject(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), OldProject.Difficulty.valueOf(args[1].toUpperCase()), points);
 
                     boolean usedTag = false;
 
@@ -115,7 +115,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         try {
 
-                            project.setTag(Project.Tag.valueOf(args[2].toUpperCase()));
+                            project.setTag(OldProject.Tag.valueOf(args[2].toUpperCase()));
                             usedTag = true;
 
                         } catch (IllegalArgumentException e) {
@@ -150,7 +150,7 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 } else {
                     if (projectsManager.getProjects(country).size() < maxProjectsPerPlayer) {
-                        Project project = new Project(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), Project.Difficulty.FACIL, points);
+                        OldProject project = new OldProject(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), OldProject.Difficulty.FACIL, points);
 
                         EmbedBuilder request = new EmbedBuilder();
                         request.setColor(new Color(0, 255, 42));
@@ -199,7 +199,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("reclamar")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     if (project.getOwner() != null) {
                         if (project.getOwner() == p) {
                             p.sendMessage(projectsPrefix + "Ya eres dueñ@ de este proyecto.");
@@ -210,7 +210,7 @@ public class ProjectsCommand implements CommandExecutor {
                         p.sendMessage(projectsPrefix + "No puedes ser líder de más de 10 proyectos al mismo tiempo.");
                     } else {
                         GroupsManager manager = s.getGroupsManager();
-                        if ((manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.POSTULANTE || manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT) && project.getDifficulty() != Project.Difficulty.FACIL) {
+                        if ((manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.POSTULANTE || manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT) && project.getDifficulty() != OldProject.Difficulty.FACIL) {
                             p.sendMessage(projectsPrefix + "En tu rango solo puedes reclamar proyectos fáciles.");
                             return true;
                         }
@@ -245,8 +245,8 @@ public class ProjectsCommand implements CommandExecutor {
 
                 deleteConfirmation.remove(p);
                 if (args.length >= 2) {
-                    if (Project.projectExists(args[1])) {
-                        Project project = new Project(args[1]);
+                    if (OldProject.projectExists(args[1])) {
+                        OldProject project = new OldProject(args[1]);
 
                         if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
 
@@ -276,7 +276,7 @@ public class ProjectsCommand implements CommandExecutor {
                     }
                 } else {
                     try {
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
 
@@ -298,9 +298,9 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("agregar")) {
 
-                Project project;
+                OldProject project;
                 try {
-                    project = new Project(p.getLocation());
+                    project = new OldProject(p.getLocation());
                     if (project.getOwner() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
@@ -347,9 +347,9 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("quitar")) {
 
-                Project project;
+                OldProject project;
                 try {
-                    project = new Project(p.getLocation());
+                    project = new OldProject(p.getLocation());
                     if (project.getOwner() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
@@ -397,7 +397,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("transfer") || args[0].equalsIgnoreCase("transferir")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     if (project.getOwner() == p) {
                         if (project.isPending()) {
                             p.sendMessage("No puedes hacer esto mientras el proyecto está pendiente de revisión.");
@@ -456,7 +456,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("abandonar")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     TextChannel logs = project.getCountry().getLogs();
 
                     if (project.isPending()) {
@@ -520,7 +520,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("borders") || args[0].equalsIgnoreCase("bordes")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
                     int maxY = p.getLocation().getBlockY() + 10;
                     int minY = p.getLocation().getBlockY() - 10;
@@ -537,7 +537,7 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("review") || args[0].equalsIgnoreCase("revisar")) {
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     OldCountry country = project.getCountry();
 
                     if (s.getPermissionCountries().contains(project.getCountry().getName())) {
@@ -648,7 +648,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("nombre")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     if (project.getOwner() == p) {
                         if (!(project.isPending())) {
                             if (args.length > 1 && args[1].matches("[a-zA-Z0-9_-]{1,32}")) {
@@ -705,7 +705,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         for (String str : subList) {
                             try {
-                                Project project = new Project(str);
+                                OldProject project = new OldProject(str);
 
                                 String coord = project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ();
 
@@ -734,7 +734,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("finish") || args[0].equalsIgnoreCase("terminar")|| args[0].equalsIgnoreCase("finalizar")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
                     if (project.getOwner() == p) {
                         if (!(project.isPending())) {
@@ -769,7 +769,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("informacion")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
                     //--------------------------------
 
@@ -895,7 +895,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         try {
 
-                            Project project = new Project(id);
+                            OldProject project = new OldProject(id);
 
                             BookUtil.PageBuilder page = new BookUtil.PageBuilder();
 
@@ -967,7 +967,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("manage") || args[0].equalsIgnoreCase("manejar")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
                     if (project.getOwner() == p) {
                         Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName(true) : ""));
@@ -1036,7 +1036,7 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("request") || args[0].equalsIgnoreCase("solicitar")) {
 
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
                     if (project.getOwner() != null) {
                         if (!(project.getAllMembers().contains(p))) {
                             new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + s.getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
@@ -1195,9 +1195,9 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equals("verifyTutorial")) {
                 if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 2) {
-                    if (Project.isProjectAt(p.getLocation())) {
+                    if (OldProject.isProjectAt(p.getLocation())) {
 
-                        Project project = new Project(p.getLocation());
+                        OldProject project = new OldProject(p.getLocation());
 
                         if (project.isClaimed()) {
                             p.performCommand("p tutorial step3claimed");
@@ -1213,8 +1213,8 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("redefine") || args[0].equalsIgnoreCase("redefinir")) {
 
-                if (Project.isProjectAt(p.getLocation())) {
-                    Project project = new Project(p.getLocation());
+                if (OldProject.isProjectAt(p.getLocation())) {
+                    OldProject project = new OldProject(p.getLocation());
 
                     // GET POINTS
 
@@ -1258,7 +1258,7 @@ public class ProjectsCommand implements CommandExecutor {
                             return true;
                         }
 
-                        project.setDifficulty(Project.Difficulty.valueOf(args[1].toUpperCase()));
+                        project.setDifficulty(OldProject.Difficulty.valueOf(args[1].toUpperCase()));
                         project.setPoints(points);
 
                         project.save();
@@ -1367,8 +1367,8 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             if (args[0].equalsIgnoreCase("tag") || args[0].equalsIgnoreCase("etiqueta")) {
-                if (Project.isProjectAt(p.getLocation())) {
-                    Project project = new Project(p.getLocation());
+                if (OldProject.isProjectAt(p.getLocation())) {
+                    OldProject project = new OldProject(p.getLocation());
 
                     if (!(s.getPermissionCountries().contains(project.getCountry().getName()))) {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
@@ -1377,7 +1377,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     if (args.length > 1) {
                         if (args[1].equalsIgnoreCase("edificios") || args[1].equalsIgnoreCase("departamentos") || args[1].equalsIgnoreCase("casas") || args[1].equalsIgnoreCase("parques") || args[1].equalsIgnoreCase("establecimientos") || args[1].equalsIgnoreCase("carreteras") || args[1].equalsIgnoreCase("centros_comerciales")) {
-                            project.setTag(Project.Tag.valueOf(args[1].toUpperCase()));
+                            project.setTag(OldProject.Tag.valueOf(args[1].toUpperCase()));
                             project.save();
 
                             for (Player player : getPlayersInRegion("project_" + project.getId())) {

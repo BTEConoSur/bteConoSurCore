@@ -7,7 +7,7 @@ import pizzaaxx.bteconosur.projects.ProjectsCommand;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.PointsManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -73,7 +73,7 @@ public class Chat {
             return this.name.toUpperCase();
         } else if (this.name.startsWith("project_")) {
             try {
-                Project project = new Project(this.name.replace("project_", ""));
+                OldProject project = new OldProject(this.name.replace("project_", ""));
 
                 return "Proyecto " + project.getName(true);
             } catch (Exception exception) {
@@ -103,7 +103,7 @@ public class Chat {
         if (!cName.equals("global")) {
             if (cName.startsWith("project_")) {
                 try {
-                    Project project = new Project(cName.replace("project_", ""));
+                    OldProject project = new OldProject(cName.replace("project_", ""));
                     country = project.getCountry();
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage("No se pudo encontrar el proyecto " + cName.replace("project_", "").toUpperCase());

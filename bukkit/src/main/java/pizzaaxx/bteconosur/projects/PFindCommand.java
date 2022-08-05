@@ -21,26 +21,26 @@ import java.util.Map;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.*;
-import static pizzaaxx.bteconosur.projects.Project.Tag.*;
-import static pizzaaxx.bteconosur.projects.Project.getAvailableProjects;
+import static pizzaaxx.bteconosur.projects.OldProject.Tag.*;
+import static pizzaaxx.bteconosur.projects.OldProject.getAvailableProjects;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
 
 public class PFindCommand implements Listener {
 
-    Map<Player, Project.Difficulty> pRandomDifficulties = new HashMap<>();
+    Map<Player, OldProject.Difficulty> pRandomDifficulties = new HashMap<>();
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (e.getInventory().getName().equals("1. Elige una dificultad")) {
             e.setCancelled(true);
             if (e.getSlot() == 11 || e.getSlot() == 13 || e.getSlot() == 15) {
-                Project.Difficulty difficulty;
+                OldProject.Difficulty difficulty;
                 if (e.getSlot() == 11) {
-                    difficulty = Project.Difficulty.FACIL;
+                    difficulty = OldProject.Difficulty.FACIL;
                 } else if (e.getSlot() == 13) {
-                    difficulty = Project.Difficulty.INTERMEDIO;
+                    difficulty = OldProject.Difficulty.INTERMEDIO;
                 } else {
-                    difficulty = Project.Difficulty.DIFICIL;
+                    difficulty = OldProject.Difficulty.DIFICIL;
                 }
 
                 pRandomDifficulties.put((Player) e.getWhoClicked(), difficulty);
@@ -57,7 +57,7 @@ public class PFindCommand implements Listener {
                 }
 
                 OldCountry country = new OldCountry(e.getWhoClicked().getLocation());
-                Map<Project.Tag, List<String>> availableProjects = getAvailableProjects(country, difficulty);
+                Map<OldProject.Tag, List<String>> availableProjects = getAvailableProjects(country, difficulty);
                 int available = availableProjects.get(EDIFICIOS).size();
                 pRandomGui.setItem(10, getCustomHead("§aEdificios", "§fEdificios de oficinas y otros edificios de gran magnitud.\n\n" + "§aDisponibles: §f" + available, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWY2YmIzYWQ4ZGFmMGMxNDk5YjVlNDZkY2Y0MTc2YzgzNDU0MzU1M2ExYTgxODAwOWU3Njc1ZTg5NjI5NWUxYSJ9fX0="));
 
@@ -89,7 +89,7 @@ public class PFindCommand implements Listener {
             e.setCancelled(true);
 
             if (e.getSlot() >= 10 && e.getSlot() <= 16) {
-                Project.Tag tag;
+                OldProject.Tag tag;
                 if (e.getSlot() == 10) {
                     tag = EDIFICIOS;
                 } else if (e.getSlot() == 11) {
@@ -111,12 +111,12 @@ public class PFindCommand implements Listener {
 
                 if (projects.size() > 0) {
                     double minDistance = 100000000.0;
-                    Project closest = new Project(projects.get(0));
+                    OldProject closest = new OldProject(projects.get(0));
 
                     BlockVector2D loc1 = new BlockVector2D(p.getLocation().getX(), p.getLocation().getZ());
 
                     for (String id : projects) {
-                        Project project = new Project(id);
+                        OldProject project = new OldProject(id);
                         if (loc1.distance(project.getAverageCoordinate()) < minDistance) {
                             minDistance = loc1.distance(project.getAverageCoordinate());
                             closest = project;

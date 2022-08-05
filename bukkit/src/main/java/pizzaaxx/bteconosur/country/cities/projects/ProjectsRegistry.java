@@ -12,7 +12,7 @@ import java.util.Set;
 public class ProjectsRegistry {
 
     private final City city;
-    private final Map<String, NewProject> registry = new HashMap<>();
+    private final Map<String, Project> registry = new HashMap<>();
 
     private final Map<String, Long> deletionRegistry = new HashMap<>();
 
@@ -41,7 +41,7 @@ public class ProjectsRegistry {
         return registry.containsKey(id);
     }
 
-    public void register(NewProject project) {
+    public void register(Project project) {
 
     }
 
@@ -50,7 +50,7 @@ public class ProjectsRegistry {
         deletionRegistry.remove(id);
     }
 
-    public NewProject get(String id) {
+    public Project get(String id) {
 
     }
 

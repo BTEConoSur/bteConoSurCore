@@ -4,7 +4,7 @@ import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.country.cities.projects.NewProject;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 
 import java.util.Arrays;
@@ -17,23 +17,22 @@ import java.util.UUID;
  */
 public class AddMembersProjectAction implements ProjectAction {
 
-    private final NewProject project;
+    private final Project project;
     private final Set<UUID> members = new HashSet<>();
 
-    public AddMembersProjectAction(@NotNull NewProject project, UUID... members) {
+    public AddMembersProjectAction(@NotNull Project project, UUID... members) {
         this.project = project;
         this.members.addAll(Arrays.asList(members));
     }
 
     @Override
-    public NewProject getProject() {
+    public Project getProject() {
         return project;
     }
 
     @Override
     public void exec() {
 
-        project.members.addAll(members);
         BteConoSur plugin = project.getPlugin();
         PlayerRegistry registry = plugin.getPlayerRegistry();
         DefaultDomain domain = new DefaultDomain();
@@ -41,10 +40,12 @@ public class AddMembersProjectAction implements ProjectAction {
             domain.addPlayer(uuid);
             registry.get(uuid).getProjectsManager().addProject(project);
         }
-        ProtectedRegion region = plugin.getRegionsManager().getRegion("project_" + project.getId());
-        if (region != null) {
-            region.setMembers(domain);
+
+        if (!project.pending) {
+            project.getRegion().setMembers(domain);
         }
+
+        project.members.addAll(members);
         project.saveToDisk();
 
     }

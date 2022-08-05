@@ -10,7 +10,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -65,9 +65,9 @@ public class ProjectBlockPlacingListener implements Listener {
 
                             String id = name.replace("project_", "");
 
-                            if (Project.projectExists(id)) {
+                            if (OldProject.projectExists(id)) {
 
-                                Project project = new Project(id);
+                                OldProject project = new OldProject(id);
 
                                 if (project.getAllMembers().stream().map(OfflinePlayer::getUniqueId).collect(Collectors.toList()).contains(p.getUniqueId())) {
 
@@ -84,9 +84,9 @@ public class ProjectBlockPlacingListener implements Listener {
 
                 if (!canBuild) {
 
-                    if (Project.isProjectAt(targetBlock.getLocation())) {
+                    if (OldProject.isProjectAt(targetBlock.getLocation())) {
 
-                        Project project = new Project(targetBlock.getLocation());
+                        OldProject project = new OldProject(targetBlock.getLocation());
 
                         if (project.isClaimed()) {
 

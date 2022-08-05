@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.configuration.Configuration;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.io.File;
 import java.io.IOException;
@@ -171,7 +171,7 @@ public class Fixing implements CommandExecutor {
 
                             List<String> projects = player.getStringList("projects.chile");
 
-                            projects.removeIf(id -> !Project.projectExists(id));
+                            projects.removeIf(id -> !OldProject.projectExists(id));
 
                             player.set("projects.chile", projects);
 

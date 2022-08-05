@@ -8,7 +8,7 @@ import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.ScoreboardManager;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
-import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class ChatCommand implements CommandExecutor {
                 p.sendMessage(CHAT_PREFIX + "§a" + target.getName() + "§f está en el chat §a" + target.getChatManager().getChat().getFormattedName() + "§f.");
             } else if (args[0].equalsIgnoreCase("project") || args[0].equalsIgnoreCase("proyecto")) {
                 try {
-                    Project project = new Project(p.getLocation());
+                    OldProject project = new OldProject(p.getLocation());
 
                     if (project.getAllMembers() != null && project.getAllMembers().contains(p)) {
                         if (!(pChat.getName().equals(args[0]))) {
@@ -83,7 +83,7 @@ public class ChatCommand implements CommandExecutor {
                         }
                     } else if (args[1].equalsIgnoreCase("project") || args[1].equals("proyecto")) {
                         try {
-                            Project project = new Project(p.getLocation());
+                            OldProject project = new OldProject(p.getLocation());
 
                             if (project.getAllMembers() != null && project.getAllMembers().contains(p)) {
                                 if (!(manager.getDefaultChat().getName().equals("project_" + project.getId()))) {

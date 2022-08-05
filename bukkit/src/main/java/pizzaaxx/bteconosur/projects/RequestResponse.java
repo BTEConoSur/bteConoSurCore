@@ -69,7 +69,7 @@ public class RequestResponse extends ListenerAdapter {
                         points.add(new BlockVector2D(Double.parseDouble(coord.split(" ")[0]), Double.parseDouble(coord.split(" ")[2])));
                     }
 
-                    Project project = new Project(Misc.getCountryAtLocation(points.get(0)), Project.Difficulty.valueOf(e.getComponentId().toUpperCase()), points);
+                    OldProject project = new OldProject(Misc.getCountryAtLocation(points.get(0)), OldProject.Difficulty.valueOf(e.getComponentId().toUpperCase()), points);
                     project.setOwner(target);
                     project.save();
 
@@ -130,9 +130,9 @@ public class RequestResponse extends ListenerAdapter {
                     }
 
                     try {
-                        Project project = new Project(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
+                        OldProject project = new OldProject(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
                         project.setPoints(points);
-                        project.setDifficulty(Project.Difficulty.valueOf(e.getComponentId().toUpperCase()));
+                        project.setDifficulty(OldProject.Difficulty.valueOf(e.getComponentId().toUpperCase()));
                         project.save();
 
                         new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto **§a" + project.getName(true) + "§f** ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
@@ -198,7 +198,7 @@ public class RequestResponse extends ListenerAdapter {
             OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
 
             try {
-                Project project = new Project(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
+                OldProject project = new OldProject(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
 
                 new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto `§a" + project.getId() + "§f` ha sido rechazada.");
             } catch (Exception exception) {
