@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
@@ -82,6 +83,7 @@ public class Project {
     public boolean pending;
 
     public ProtectedRegion region;
+    private final Chat chat;
 
     /**
      * Loads a project from the server's storage. You should check first if the project exists.
@@ -215,6 +217,10 @@ public class Project {
 
     public RemoveMembersProjectAction removeMember(UUID uuid) {
         return new RemoveMembersProjectAction(this, uuid);
+    }
+
+    public Chat getChat() {
+        return chat;
     }
 
     public void saveToDisk() {

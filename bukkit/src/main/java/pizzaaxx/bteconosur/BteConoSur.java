@@ -71,21 +71,9 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
-    public static Map<String, CityRegistry> cityRegistries = new HashMap<>();
-
-    public static World mainWorld = null;
+    public static World mainWorld;
     public static File pluginFolder = null;
     public static String key;
-    public static ProjectRegistry projectRegistry;
-    public static final ChatRegistry chatRegistry = new ChatRegistry();
-    public static final Map<String, Guild> guilds = new HashMap<>();
-    public static final Map<String, Map<String, String>> countryRoles = new HashMap<>();
-
-    private final Configuration links = new Configuration(this, "link/links");
-
-    private final CountryManager countryManager = new CountryManager(this);
-
-    private final Map<String, Pair<String, String>> projectsMapping = new HashMap<>();
 
     private final PlayerRegistry playerRegistry = new PlayerRegistry(this);
 
@@ -99,10 +87,16 @@ public final class BteConoSur extends JavaPlugin {
         return regionsManager;
     }
 
+    private CountryManager countryManager;
+
+    public CountryManager getCountryManager() {
+        return countryManager;
+    }
+
     @Override
     public void onEnable() {
 
-        getLogger().info("Enabling  BTE Cono Sur!");
+        getLogger().info("Enabling BTE Cono Sur!");
 
         SelectionCommands selectionCommands = new SelectionCommands(this);
 
@@ -219,7 +213,7 @@ public final class BteConoSur extends JavaPlugin {
                 whereCommand,
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.SchematicCommand(),
-                new LinkUnlinkCommand(links, this),
+                new LinkUnlinkCommand(new Configuration(this, "link/links"), this),
                 new pizzaaxx.bteconosur.discord.slashCommands.ProjectCommand(),
                 new PlayerCommand(new Configuration(this, "discord/groupEmojis")),
                 new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(),
@@ -243,17 +237,9 @@ public final class BteConoSur extends JavaPlugin {
             e.printStackTrace();
         }
 
-        Configuration guildsSection = new Configuration(this, "discord/guilds");
-        countryNames.forEach(name -> guilds.put(name, conoSurBot.getGuildById(guildsSection.getString(name))));
-
-        Configuration configuration = new Configuration(this, "config");
-        Config config = new Config(configuration);
-        getCommand("btecs_reload").setExecutor(config);
-
         key = new Configuration(this, "key").getString("key");
 
         // LUCKPERMS
-
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
             lp = provider.getProvider();
@@ -266,68 +252,9 @@ public final class BteConoSur extends JavaPlugin {
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
-        chatRegistry.register("global");
-        chatRegistry.register("argentina");
-        chatRegistry.register("bolivia");
-        chatRegistry.register("chile");
-        chatRegistry.register("paraguay");
-        chatRegistry.register("peru");
-        chatRegistry.register("uruguay");
-
         getLogger().info("Starting automatic scoreboards checker sequence...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
-        projectRegistry = new ProjectRegistry(this);
-
-        getLogger().info("Loading projects requests...");
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            playerRegistry.add(new ServerPlayer(player));
-            ServerPlayer s = playerRegistry.get(player.getUniqueId());
-            ChatManager manager = s.getChatManager();
-            manager.setChat(manager.getChat().getName());
-        }
-
-        Configuration roles = new Configuration(this, "countryRoles");
-        for (String key : roles.getKeys(false)) {
-
-            ConfigurationSection section = roles.getConfigurationSection(key);
-
-            Map<String, String> rolesById = new HashMap<>();
-            for (String name : section.getKeys(false)) {
-
-                rolesById.put(name, section.getString(name));
-            }
-
-            countryRoles.put(key, rolesById);
-        }
-
-        File countriesFolder = new File(this.getDataFolder(), "countries");
-        File[] countries = countriesFolder.listFiles();
-
-        for (File country : countries) {
-
-            File citiesFolder = new File(country, "cities");
-            File[] cities = citiesFolder.listFiles();
-
-            for (File city : cities) {
-
-                File projectsFolder = new File(city, "projects");
-                File[] projects = projectsFolder.listFiles();
-
-                for (File project : projects) {
-
-                    String id = project.getName().replace(".yml", "");
-                    String cityName = city.getName();
-                    String countryName = country.getName();
-
-                    projectsMapping.put(id, new Pair<>(countryName, cityName));
-
-                }
-
-            }
-
-        }
     }
 
     @Override

@@ -41,13 +41,16 @@ public class ProjectsRegistry {
         return ids.contains(id);
     }
 
+    public boolean hasLoaded() {
+        return !registry.isEmpty();
+    }
+
     public boolean isRegistered(String id) {
         return registry.containsKey(id);
     }
 
     public void register(Project project) {
         registry.put(project.getId(), project);
-        scheduleDeletion(project.getId());
     }
 
     public void unregister(String id) {
@@ -57,11 +60,14 @@ public class ProjectsRegistry {
     }
 
     public Project get(String id) {
-        if (!isRegistered(id)) {
-            register(new Project(city, id, plugin));
+        if (exists(id)) {
+            if (!isRegistered(id)) {
+                register(new Project(city, id, plugin));
+            }
+            scheduleDeletion(id);
+            return registry.get(id);
         }
-        scheduleDeletion(id);
-        return registry.get(id);
+        return null;
     }
 
     public City getCity() {

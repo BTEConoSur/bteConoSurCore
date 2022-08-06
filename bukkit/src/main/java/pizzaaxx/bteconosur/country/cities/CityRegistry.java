@@ -1,8 +1,8 @@
 package pizzaaxx.bteconosur.country.cities;
 
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
 
 import java.io.File;
@@ -17,9 +17,9 @@ public class CityRegistry {
     private final Map<String, City> registry = new HashMap<>();
     private final Map<String, Long> deletionRegistry = new HashMap<>();
     private final List<String> names = new ArrayList<>();
-    private final Plugin plugin;
+    private final BteConoSur plugin;
 
-    public CityRegistry(@NotNull Country country, Plugin plugin) {
+    public CityRegistry(@NotNull Country country, BteConoSur plugin) {
 
         this.country = country;
         this.plugin = plugin;
@@ -55,7 +55,14 @@ public class CityRegistry {
     }
 
     public City get(String name) {
-        return registry.get(name);
+        if (exists(name)) {
+            if (!isRegistered(name)) {
+                register(new City(country, name, plugin));
+            }
+            scheduleDeletion(name);
+            return registry.get(name);
+        }
+        return null;
     }
 
     // TODO ADD PROJECT LOADING CHECK
@@ -67,7 +74,9 @@ public class CityRegistry {
             @Override
             public void run() {
                 if (deletionRegistry.containsKey(name)) {
-                    if (System.currentTimeMillis() - deletionRegistry.get(name) > 590000) {
+                    if (registry.get(name).getRegistry().hasLoaded()) {
+                        scheduleDeletion(name);
+                    } else if (System.currentTimeMillis() - deletionRegistry.get(name) > 590000) {
                         unregister(name);
                     }
                 }

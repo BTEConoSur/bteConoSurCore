@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.country;
 import net.dv8tion.jda.api.JDA;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.StringHelper;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
@@ -11,18 +12,18 @@ import java.util.Map;
 
 public class CountryManager {
 
-    private final Plugin plugin;
+    private final BteConoSur plugin;
     private final JDA bot;
     private final Map<String, Country> registry = new HashMap<>();
     private final Map<String, String> abbreviations = new HashMap<>();
 
-    public CountryManager(Plugin plugin, JDA bot) {
+    public CountryManager(BteConoSur plugin, JDA bot) {
         this.plugin = plugin;
         this.bot = bot;
     }
 
     public void add(String name, String abbreviation) {
-        registry.put(name, new Country(new Configuration(plugin, "countries/" + name + "/config"), plugin, name, bot));
+        registry.put(name, new Country(plugin, name, bot));
         abbreviations.put(abbreviation, name);
     }
 
