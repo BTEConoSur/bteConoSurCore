@@ -73,8 +73,10 @@ public class Project {
     private final Country country;
     private final City city;
     public Difficulty difficulty;
+
     public final Set<UUID> members = new HashSet<>();
     public UUID owner;
+
     public String name;
     public Tag tag;
     public boolean pending;
@@ -183,6 +185,10 @@ public class Project {
         return pending;
     }
 
+    public Configuration getConfig() {
+        return config;
+    }
+
     public void updatePlayersScoreboard() {
         new UpdateScoreboardProjectAction(this).exec();
     }
@@ -203,11 +209,11 @@ public class Project {
         return new SetPendingProjectAction(this, pending);
     }
 
-    public AddMembersProjectAction addMembers(UUID... uuid) {
+    public AddMembersProjectAction addMember(UUID uuid) {
         return new AddMembersProjectAction(this, uuid);
     }
 
-    public RemoveMembersProjectAction removeMembers(UUID... uuid) {
+    public RemoveMembersProjectAction removeMember(UUID uuid) {
         return new RemoveMembersProjectAction(this, uuid);
     }
 
