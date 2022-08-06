@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.country;
 
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -29,6 +30,8 @@ public class Country {
     private final JDA bot;
 
     private final Configuration tags;
+    private final Configuration pending;
+    private final ProtectedPolygonalRegion region;
 
     public Country(@NotNull Configuration config, Plugin plugin, String name, JDA bot) {
 
@@ -40,6 +43,7 @@ public class Country {
         this.folder = new File(plugin.getDataFolder(), "countries/" + name);
 
         this.tags = new Configuration(plugin, "countries/" + name + "/tags");
+        this.tags = new Configuration(plugin, "countries/" + name + "/pending");
 
         this.guildID = config.getString("guildID");
         this.projectsLogsChannelID = config.getString("projectsLogsChannelID");
@@ -94,5 +98,13 @@ public class Country {
 
     public Configuration getTags() {
         return tags;
+    }
+
+    public Configuration getPending() {
+        return pending;
+    }
+
+    public ProtectedPolygonalRegion getRegion() {
+        return region;
     }
 }

@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
 /**
@@ -16,6 +17,6 @@ public interface ProjectAction {
     /**
      * Execute this action. Each Class handles this differently.
      */
-    void exec();
+    void exec() throws ProjectActionException;
 
 }

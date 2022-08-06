@@ -47,9 +47,7 @@ public class SetTagProjectAction implements ProjectAction {
 
             tags.save();
             project.tag = newTag;
-            project.saveToDisk();
+            project.updatePlayersScoreboard();
         }
-
-
     }
 }

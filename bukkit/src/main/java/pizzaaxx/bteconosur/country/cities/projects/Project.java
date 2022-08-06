@@ -1,18 +1,17 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
-import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.AddMembersProjectAction;
-import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.RemoveMembersProjectAction;
-import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.SetTagProjectAction;
-import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.TransferProjectAction;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.*;
 
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -79,6 +78,7 @@ public class Project {
     public String name;
     public Tag tag;
     public boolean pending;
+
     public ProtectedRegion region;
 
     /**
@@ -161,6 +161,20 @@ public class Project {
         return plugin;
     }
 
+    public Set<Player> getPlayersInsideProject() {
+
+        RegionManager manager = plugin.getRegionsManager();
+        Set<Player> players = new HashSet<>();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (manager.getApplicableRegions(player.getLocation()).getRegions().contains(region)) {
+                players.add(player);
+            }
+        }
+
+        return players;
+    }
+
     public Tag getTag() {
         return tag;
     }
@@ -169,12 +183,12 @@ public class Project {
         return pending;
     }
 
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
+    public void updatePlayersScoreboard() {
+        new UpdateScoreboardProjectAction(this).exec();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public SetNameProjectAction setName(String name) {
+        return new SetNameProjectAction(this, name);
     }
 
     public SetTagProjectAction setTag(Tag tag) {
@@ -185,8 +199,8 @@ public class Project {
         return new TransferProjectAction(this, this.owner, target);
     }
 
-    public void setPending(boolean pending) {
-        this.pending = pending;
+    public SetPendingProjectAction setPending(boolean pending) {
+        return new SetPendingProjectAction(this, pending);
     }
 
     public AddMembersProjectAction addMembers(UUID... uuid) {

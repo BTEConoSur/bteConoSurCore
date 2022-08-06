@@ -1,15 +1,13 @@
 package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -18,11 +16,11 @@ import java.util.UUID;
 public class AddMembersProjectAction implements ProjectAction {
 
     private final Project project;
-    private final Set<UUID> members = new HashSet<>();
+    private final UUID member;
 
-    public AddMembersProjectAction(@NotNull Project project, UUID... members) {
+    public AddMembersProjectAction(@NotNull Project project, UUID member) {
         this.project = project;
-        this.members.addAll(Arrays.asList(members));
+        this.member = member;
     }
 
     @Override
@@ -31,22 +29,34 @@ public class AddMembersProjectAction implements ProjectAction {
     }
 
     @Override
-    public void exec() {
+    public void exec() throws ProjectActionException {
 
-        BteConoSur plugin = project.getPlugin();
-        PlayerRegistry registry = plugin.getPlayerRegistry();
-        DefaultDomain domain = new DefaultDomain();
-        for (UUID uuid : members) {
-            domain.addPlayer(uuid);
-            registry.get(uuid).getProjectsManager().addProject(project);
+        if (project.getMembers().size() < 14) {
+
+            if (!project.members.contains(member)) {
+
+                BteConoSur plugin = project.getPlugin();
+                PlayerRegistry registry = plugin.getPlayerRegistry();
+                DefaultDomain domain = new DefaultDomain();
+                if (Bukkit.getOfflinePlayer(member).isOnline()) {
+                    domain.addPlayer(member);
+                    registry.get(member).getProjectsManager().addProject(project);
+
+                    if (!project.pending) {
+                        project.getRegion().setMembers(domain);
+                    }
+
+                    project.members.add(member);
+                    project.updatePlayersScoreboard();
+                } else {
+                    throw new ProjectActionException(ProjectActionException.Type.PlayerNotOnline);
+                }
+            } else {
+                throw new ProjectActionException(ProjectActionException.Type.PlayerAlreadyAMember);
+            }
+        } else {
+            throw new ProjectActionException(ProjectActionException.Type.MemberLimitReached);
         }
-
-        if (!project.pending) {
-            project.getRegion().setMembers(domain);
-        }
-
-        project.members.addAll(members);
-        project.saveToDisk();
 
     }
 }

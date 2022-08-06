@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
 import java.util.UUID;
@@ -27,12 +28,20 @@ public class TransferProjectAction implements ProjectAction {
     }
 
     @Override
-    public void exec() {
+    public void exec() throws ProjectActionException {
 
-        project.members.remove(target);
-        project.members.add(from);
-        project.owner = target;
-        project.saveToDisk();
+        if (project.members.contains(target)) {
+            if (project.getPlugin().getPlayerRegistry().get(target).getProjectsManager().getAllOwnedProjects().size() < 10) {
+                project.members.remove(target);
+                project.members.add(from);
+                project.owner = target;
+                project.updatePlayersScoreboard();
+            } else {
+                throw new ProjectActionException(ProjectActionException.Type.TargetLimitReached);
+            }
+        } else {
+            throw new ProjectActionException(ProjectActionException.Type.PlayerNotMember);
+        }
 
     }
 }

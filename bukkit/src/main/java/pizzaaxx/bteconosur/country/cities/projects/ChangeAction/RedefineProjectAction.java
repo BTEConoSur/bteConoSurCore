@@ -9,8 +9,11 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.jetbrains.annotations.Contract;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,31 +50,36 @@ public class RedefineProjectAction implements ProjectAction {
     }
 
     @Override
-    public void exec() {
+    public void exec() throws ProjectActionException {
 
         project.difficulty = difficulty;
         RegionManager manager = project.getPlugin().getRegionsManager();
 
         ProtectedPolygonalRegion newRegion = new ProtectedPolygonalRegion("project_" + project.getId(), points, -100, 8000);
 
-        newRegion.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
-        newRegion.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
-        newRegion.setPriority(1);
+        if (!newRegion.getIntersectingRegions(Collections.singletonList(project.getCountry().getRegion())).isEmpty()) {
+            newRegion.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
+            newRegion.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
+            newRegion.setPriority(1);
 
-        FlagRegistry registry = getWorldGuard().getFlagRegistry();
-        newRegion.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
-        newRegion.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
+            FlagRegistry registry = getWorldGuard().getFlagRegistry();
+            newRegion.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
+            newRegion.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
 
-        if (!project.pending) {
-            DefaultDomain domain = new DefaultDomain();
-            for (UUID uuid : project.members) {
-                domain.addPlayer(uuid);
+            if (!project.pending) {
+                DefaultDomain domain = new DefaultDomain();
+                for (UUID uuid : project.members) {
+                    domain.addPlayer(uuid);
+                }
+                newRegion.setMembers(domain);
             }
-            newRegion.setMembers(domain);
-        }
 
-        manager.addRegion(newRegion);
-        project.region = manager.getRegion("project_" + project.getId());
+            manager.addRegion(newRegion);
+            project.region = manager.getRegion("project_" + project.getId());
+            project.updatePlayersScoreboard();
+        } else {
+            throw new ProjectActionException(ProjectActionException.Type.NewRegionOutsideCountry);
+        }
 
     }
 }

@@ -4,6 +4,7 @@ import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.server.player.PlayerRegistry;
 import pizzaaxx.bteconosur.server.player.ServerPlayer;
@@ -19,11 +20,11 @@ import java.util.UUID;
 public class RemoveMembersProjectAction implements ProjectAction {
 
     private final Project project;
-    private final Set<UUID> members = new HashSet<>();
+    private final UUID member;
 
-    public RemoveMembersProjectAction(Project project, UUID... members) {
+    public RemoveMembersProjectAction(Project project, UUID member) {
         this.project = project;
-        this.members.addAll(Arrays.asList(members));
+        this.member = member;
     }
 
     @Override
@@ -32,19 +33,21 @@ public class RemoveMembersProjectAction implements ProjectAction {
     }
 
     @Override
-    public void exec() {
+    public void exec() throws ProjectActionException {
 
-        BteConoSur plugin = project.getPlugin();
-        PlayerRegistry registry = plugin.getPlayerRegistry();
-        ProtectedRegion region = project.getRegion();
-        DefaultDomain domain = new DefaultDomain(region.getMembers());
-        for (UUID uuid : members) {
-            domain.removePlayer(uuid);
-            registry.get(uuid).getProjectsManager().removeProject(project);
+        if (project.members.contains(member)) {
+            BteConoSur plugin = project.getPlugin();
+            PlayerRegistry registry = plugin.getPlayerRegistry();
+            ProtectedRegion region = project.getRegion();
+            DefaultDomain domain = new DefaultDomain(region.getMembers());
+            domain.removePlayer(member);
+            registry.get(member).getProjectsManager().removeProject(project);
+            project.getRegion().setMembers(domain);
+            project.members.remove(member);
+            project.updatePlayersScoreboard();
+        } else {
+            throw new ProjectActionException(ProjectActionException.Type.PlayerNotMember);
         }
-        project.getRegion().setMembers(domain);
-        project.members.removeAll(members);
-        project.saveToDisk();
 
     }
 }
