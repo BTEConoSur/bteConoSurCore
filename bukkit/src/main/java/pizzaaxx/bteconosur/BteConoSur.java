@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
@@ -14,15 +13,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.chats.ChatCommand;
-import pizzaaxx.bteconosur.chats.ChatRegistry;
 import pizzaaxx.bteconosur.chats.Events;
-import pizzaaxx.bteconosur.country.cities.CityRegistry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
@@ -37,7 +32,6 @@ import pizzaaxx.bteconosur.discord.slashCommands.*;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkCommand;
 import pizzaaxx.bteconosur.discord.slashCommands.link.LinkUnlinkMinecraftCommand;
 import pizzaaxx.bteconosur.events.EventsCommand;
-import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.item.ItemBuilder;
 import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
@@ -61,11 +55,8 @@ import pizzaaxx.bteconosur.worldguard.MovementHandler;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
@@ -89,6 +80,12 @@ public final class BteConoSur extends JavaPlugin {
     }
 
     private CountryManager countryManager;
+
+    private final pizzaaxx.bteconosur.chats.ChatManager chatManager = new pizzaaxx.bteconosur.chats.ChatManager(this);
+
+    public pizzaaxx.bteconosur.chats.ChatManager getChatManager() {
+        return chatManager;
+    }
 
     public CountryManager getCountryManager() {
         return countryManager;

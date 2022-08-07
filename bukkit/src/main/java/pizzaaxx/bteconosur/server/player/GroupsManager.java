@@ -6,6 +6,7 @@ import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
@@ -22,7 +23,11 @@ public class GroupsManager {
 
     public enum PrimaryGroup {
 
-        DEFAULT(1), POSTULANTE(2), BUILDER(3), MOD(4), ADMIN(5);
+        DEFAULT(1, "VISITA", "f", ":flag_white:"),
+        POSTULANTE(2, "POSTULANTE", "7", ":books:"),
+        BUILDER(3, "BUILDER", "9", ":hammer_pick:"),
+        MOD(4, "MOD", "5", ":shield:"),
+        ADMIN(5, "ADMIN", "c", ":crown:");
 
         public static PrimaryGroup fromInt(int i) {
             if (i < 6 && i > 0) {
@@ -42,10 +47,17 @@ public class GroupsManager {
             return null;
         }
 
+        private final String prefix;
+        private final String discordEmoji;
         private final int priority;
 
-        PrimaryGroup(Integer priority) {
+        PrimaryGroup(Integer priority,
+                     String displayName,
+                     String color,
+                     String discordEmoji) {
             this.priority = priority;
+            this.discordEmoji = discordEmoji;
+            this.prefix = "§f[§" + color + displayName + "§f]";
         }
 
         public int getPriority() {
@@ -58,28 +70,38 @@ public class GroupsManager {
         }
 
         public String getAsPrefix() {
-            return groupsPrefixes.get(this.toString());
+            return prefix;
         }
 
-        public String getCapitalized() {
-            return StringUtils.capitalize(this.toString());
+        public String getDiscordEmoji() {
+            return discordEmoji;
         }
     }
 
     public enum SecondaryGroup {
-        EVENTO, DONADOR, STREAMER;
+        EVENTO("EVENTO", "7", ":calendar_spiral:"),
+        DONADOR("DONADOR", "b", ":gem:"),
+        STREAMER("STREAMER", "a", ":video_game:");
+
+        private final String prefix;
+        private final String discordEmoji;
+
+        SecondaryGroup(String displayName, String color, String discordEmoji) {
+            this.prefix = "§f[§" + color + displayName + "§f]";
+            this.discordEmoji = discordEmoji;
+        }
 
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return super.toString().toLowerCase();
         }
 
         public String getAsPrefix() {
-            return groupsPrefixes.get(this.toString());
+            return prefix;
         }
 
-        public String getCapitalized() {
-            return StringUtils.capitalize(this.toString());
+        public String getDiscordEmoji() {
+            return discordEmoji;
         }
     }
 

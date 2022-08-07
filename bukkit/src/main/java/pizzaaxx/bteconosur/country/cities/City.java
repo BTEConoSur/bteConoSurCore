@@ -26,7 +26,6 @@ public class City {
     private List<BlockVector2D> urbanArea;
     private final List<String> showcaseIDs = new ArrayList<>();
     private final List<List<BlockVector2D>> finishedRegions = new ArrayList<>();
-    private final Chat chat;
 
     public City(@NotNull Country country, @NotNull String name, @NotNull BteConoSur plugin) {
 
@@ -140,7 +139,4 @@ public class City {
         finishedRegions.add(points);
     }
 
-    public Chat getChat() {
-        return chat;
-    }
 }
