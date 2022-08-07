@@ -96,7 +96,7 @@ public class City {
         return country;
     }
 
-    public ProjectsRegistry getRegistry() {
+    public ProjectsRegistry getProjectsRegistry() {
         return registry;
     }
 

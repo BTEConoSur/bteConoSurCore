@@ -28,6 +28,7 @@ import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.CountryManager;
+import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.BedrockListener;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.IPListener;
@@ -93,10 +94,18 @@ public final class BteConoSur extends JavaPlugin {
         return countryManager;
     }
 
+    private final GlobalProjectsManager projectsManager = new GlobalProjectsManager(this);
+
+    public GlobalProjectsManager getProjectsManager() {
+        return projectsManager;
+    }
+
     @Override
     public void onEnable() {
 
         getLogger().info("Enabling BTE Cono Sur!");
+
+        projectsManager.initialize();
 
         SelectionCommands selectionCommands = new SelectionCommands(this);
 

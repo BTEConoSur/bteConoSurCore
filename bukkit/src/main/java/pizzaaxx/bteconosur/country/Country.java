@@ -4,8 +4,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
@@ -51,7 +49,7 @@ public class Country {
 
     }
 
-    public CityRegistry getRegistry() {
+    public CityRegistry getCityRegistry() {
         return registry;
     }
 

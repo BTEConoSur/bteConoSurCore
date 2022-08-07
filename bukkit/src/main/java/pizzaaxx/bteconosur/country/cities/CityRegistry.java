@@ -74,7 +74,7 @@ public class CityRegistry {
             @Override
             public void run() {
                 if (deletionRegistry.containsKey(name)) {
-                    if (registry.get(name).getRegistry().hasLoaded()) {
+                    if (registry.get(name).getProjectsRegistry().hasLoaded()) {
                         scheduleDeletion(name);
                     } else if (System.currentTimeMillis() - deletionRegistry.get(name) > 590000) {
                         unregister(name);
