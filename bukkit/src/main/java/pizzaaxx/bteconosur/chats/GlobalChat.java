@@ -83,6 +83,10 @@ public class GlobalChat implements IChat {
     @Override
     public void broadcast(String message) {
 
+        for (UUID uuid : members) {
+            Bukkit.getPlayer(uuid).sendMessage(message);
+        }
+
     }
 
     @Override
