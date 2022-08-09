@@ -13,6 +13,7 @@ import java.util.*;
 
 public class GlobalChat implements IChat {
 
+    private final String CHAT_PREFIX = "§f[§aCHAT§f] §7>>§r ";
     private final BteConoSur plugin;
 
     public GlobalChat(BteConoSur plugin) {
@@ -84,7 +85,29 @@ public class GlobalChat implements IChat {
     public void broadcast(String message) {
 
         for (UUID uuid : members) {
-            Bukkit.getPlayer(uuid).sendMessage(message);
+
+            if (!plugin.getPlayerRegistry().get(uuid).getChatManager().isHidden()) {
+                Bukkit.getPlayer(uuid).sendMessage(message);
+            }
+
+        }
+
+    }
+
+    @Override
+    public void broadcast(String message, boolean ignoreHidden) {
+
+        for (UUID uuid : members) {
+
+            if (ignoreHidden) {
+                Bukkit.getPlayer(uuid).sendMessage(message);
+            } else {
+                if (!plugin.getPlayerRegistry().get(uuid).getChatManager().isHidden()) {
+                    Bukkit.getPlayer(uuid).sendMessage(message);
+                }
+            }
+
+
         }
 
     }
@@ -92,10 +115,19 @@ public class GlobalChat implements IChat {
     @Override
     public void receiveMember(UUID uuid) {
 
+        members.add(uuid);
+        ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+        broadcast(CHAT_PREFIX + s.getChatManager().getDisplayName() + "§f se ha unido al chat.", true);
+
     }
 
     @Override
-    public void sendMember(IChat chat) {
+    public void sendMember(UUID uuid, IChat chat) {
+
+        members.remove(uuid);
+        ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+        broadcast(CHAT_PREFIX + s.getChatManager().getDisplayName() + "§f ha abandonado el chat.", true);
+        chat.receiveMember(uuid);
 
     }
 }

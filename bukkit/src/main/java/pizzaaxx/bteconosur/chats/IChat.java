@@ -15,8 +15,10 @@ public interface IChat {
 
     void broadcast(String message);
 
+    void broadcast(String message, boolean ignoreHidden);
+
     void receiveMember(UUID uuid);
 
-    void sendMember(IChat chat);
+    void sendMember(UUID uuid, IChat chat);
 
 }
