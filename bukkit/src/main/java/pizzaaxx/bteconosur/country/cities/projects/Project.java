@@ -146,6 +146,16 @@ public class Project {
         return members;
     }
 
+    /**
+     *
+     * @return All members, included the owner.
+     */
+    public Set<UUID> getAllMembers() {
+        Set<UUID> members = new HashSet<>(this.members);
+        members.add(owner);
+        return members;
+    }
+
     public UUID getOwner() {
         return owner;
     }

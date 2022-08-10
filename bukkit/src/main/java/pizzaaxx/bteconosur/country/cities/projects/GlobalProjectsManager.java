@@ -1,12 +1,18 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
+import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.IProjectSelector;
 import pizzaaxx.bteconosur.helper.Pair;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,6 +85,37 @@ public class GlobalProjectsManager {
 
         return path.getKey().getCityRegistry().get(path.getValue()).getProjectsRegistry().get(id);
 
+    }
+
+    public Set<Project> getProjectsAt(Location location) {
+
+        Set<Project> projects = new HashSet<>();
+        for (ProtectedRegion region : plugin.getRegionsManager().getApplicableRegions(location).getRegions()) {
+
+            if (region.getId().startsWith("project_")) {
+
+                projects.add(this.getFromId(region.getId().replace("project_", "")));
+
+            }
+
+        }
+
+        return projects;
+
+    }
+
+    public Set<Project> getProjectsAt(@NotNull BlockVector2D vector) {
+        Location loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
+        return this.getProjectsAt(loc);
+    }
+
+    public Set<Project> getProjectsAt(@NotNull Coords2D coords) {
+        Location loc = new Location(plugin.getWorld(), coords.getX(), 100, coords.getZ());
+        return this.getProjectsAt(loc);
+    }
+
+    public Project getProjectAt(Location location, @NotNull IProjectSelector selector) throws IllegalArgumentException {
+        return selector.select(getProjectsAt(location));
     }
 
 }

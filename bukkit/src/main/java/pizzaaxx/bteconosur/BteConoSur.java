@@ -63,7 +63,12 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
-    public static World mainWorld;
+    private World mainWorld = Bukkit.getWorld("BTECS");
+
+    public World getWorld() {
+        return mainWorld;
+    }
+
     public static File pluginFolder = null;
     public static String key;
 
@@ -169,7 +174,6 @@ public final class BteConoSur extends JavaPlugin {
 
 
         pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
-        mainWorld = Bukkit.getWorld("BTECS");
 
         createDirectories(
                 "",

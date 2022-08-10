@@ -90,4 +90,8 @@ public class ProjectsRegistry {
         };
         runnable.runTaskLaterAsynchronously(plugin, 12000);
     }
+
+    public Set<String> getIds() {
+        return ids;
+    }
 }

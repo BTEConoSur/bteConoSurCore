@@ -13,7 +13,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TerramapHandler implements HttpHandler {
 
@@ -38,9 +40,7 @@ public class TerramapHandler implements HttpHandler {
 
         ProtectedRegion region = new ProtectedPolygonalRegion("terramapRequest", points, 100, 100);
 
-
-        // TODO IMPLEMENT CITIES WITH THIS
-        region.getIntersectingRegions()
+        Set<ProtectedPolygonalRegion> regions =
     }
 
     private @NotNull List<BlockVector2D> getPointsFromRequest(int zoom, int x, int y) {
