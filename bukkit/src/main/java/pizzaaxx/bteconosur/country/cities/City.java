@@ -139,4 +139,12 @@ public class City {
         finishedRegions.add(points);
     }
 
+    public int getProjectAmount() {
+        return registry.getIds().size();
+    }
+
+    public int getFinishedProjectsAmount() {
+        return finishedRegions.size();
+    }
+
 }
