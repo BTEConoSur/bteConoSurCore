@@ -1,15 +1,22 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
+import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.RegionGroup;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.cities.City;
+import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.UpdateScoreboardProjectAction;
+import pizzaaxx.bteconosur.methods.CodeGenerator;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class ProjectsRegistry {
 
@@ -20,13 +27,14 @@ public class ProjectsRegistry {
     private final Map<String, Long> deletionRegistry = new HashMap<>();
 
     private final Set<String> ids = new HashSet<>();
+    private final File folder;
 
     public ProjectsRegistry(@NotNull City city, @NotNull BteConoSur plugin) {
 
         this.city = city;
         this.plugin = plugin;
 
-        File folder = new File(city.getFolder(), "/projects");
+        folder = new File(city.getFolder(), "/projects");
         File[] files = folder.listFiles();
 
         if (files != null) {
@@ -93,5 +101,61 @@ public class ProjectsRegistry {
 
     public Set<String> getIds() {
         return ids;
+    }
+
+    public boolean createProject(Project.@NotNull Difficulty difficulty, @NotNull List<BlockVector2D> points) throws IOException {
+
+        String id = CodeGenerator.generateCode(6, plugin.getProjectsManager().getIDs());
+
+        File projectFile = new File(folder, id + ".yml");
+        if (projectFile.createNewFile()) {
+
+            Configuration config = new Configuration(plugin, "countries/" + city.getCountry().getName() + "/cities/" + city.getName() + "/projects/" + id);
+            config.set("difficulty", difficulty.toString().toLowerCase());
+            config.set("pending", false);
+            config.save();
+
+            ProtectedPolygonalRegion region = new ProtectedPolygonalRegion("project_" + id, points, -100, 8000);
+
+            region.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
+            region.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
+            region.setPriority(1);
+
+            FlagRegistry registry = plugin.getWorldGuard().getFlagRegistry();
+
+            region.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
+            region.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
+
+            plugin.getRegionsManager().addRegion(region);
+
+            ids.add(id);
+
+            plugin.getProjectsManager().add(this.get(id));
+
+            this.get(id).updatePlayersScoreboard();
+
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteProject(@NotNull String id) {
+        File projectFile = new File(folder, id + ".yml");
+        if (projectFile.exists()) {
+
+            if (projectFile.delete()) {
+
+                UpdateScoreboardProjectAction action = new UpdateScoreboardProjectAction(this.get(id));
+                this.unregister(id);
+                plugin.getRegionsManager().removeRegion("project_" + id);
+                ids.remove(id);
+                plugin.getProjectsManager().remove(id);
+                action.exec();
+                return true;
+
+            }
+
+        }
+        return false;
     }
 }

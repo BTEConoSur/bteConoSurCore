@@ -78,6 +78,12 @@ public final class BteConoSur extends JavaPlugin {
         return playerRegistry;
     }
 
+    private final WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
+
+    public WorldGuardPlugin getWorldGuard() {
+        return worldGuard;
+    }
+
     private final RegionManager regionsManager = WorldGuardPlugin.inst().getRegionManager(mainWorld);
 
     public RegionManager getRegionsManager() {

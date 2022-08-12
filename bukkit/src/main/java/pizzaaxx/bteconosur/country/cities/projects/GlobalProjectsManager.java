@@ -118,4 +118,8 @@ public class GlobalProjectsManager {
         return selector.select(getProjectsAt(location));
     }
 
+    public Pair<Country, String> getPathFromId(@NotNull String id) {
+        return registry.get(id);
+    }
+
 }

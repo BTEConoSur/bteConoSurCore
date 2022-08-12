@@ -34,7 +34,7 @@ public class ChatRegistry {
         return registry.get(name);
     }
 
-    public void movePlayer(ServerPlayer player, String name) {
+    public void movePlayer(@NotNull ServerPlayer player, String name) {
         Chat oldChat = player.getChatManager().getChat();
         Chat newChat = forceGet(name);
         if (!oldChat.getName().equals(newChat.getName())) {

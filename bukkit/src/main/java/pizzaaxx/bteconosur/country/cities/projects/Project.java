@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.chats.Chat;
+import pizzaaxx.bteconosur.chats.ProjectChat;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
@@ -83,7 +84,8 @@ public class Project {
     public boolean pending;
 
     public ProtectedRegion region;
-    private final Chat chat;
+    private final ProjectChat chat;
+    private final ProjectsRegistry registry;
 
     /**
      * Loads a project from the server's storage. You should check first if the project exists.
@@ -91,14 +93,14 @@ public class Project {
      * @param id The id of this project.
      * @param plugin The plugin running. Needed for Configuration loading.
      */
-    public Project(@NotNull City city, @NotNull String id, @NotNull BteConoSur plugin) {
+    public Project(@NotNull ProjectsRegistry registry, @NotNull String id) {
         this.id = id;
 
-        this.plugin = plugin;
+        this.plugin = registry.getPlugin();
 
         this.region = plugin.getRegionsManager().getRegion("project_" + id);
 
-        this.city = city;
+        this.city = registry.getCity();
 
         this.country = city.getCountry();
 
@@ -229,8 +231,12 @@ public class Project {
         return new RemoveMembersProjectAction(this, uuid);
     }
 
-    public Chat getChat() {
+    public ProjectChat getChat() {
         return chat;
+    }
+
+    public ProjectsRegistry getRegistry() {
+        return registry;
     }
 
     public void saveToDisk() {
