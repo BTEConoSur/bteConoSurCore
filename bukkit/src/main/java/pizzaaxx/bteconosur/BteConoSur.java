@@ -3,9 +3,11 @@ package pizzaaxx.bteconosur;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.luckperms.api.LuckPerms;
@@ -17,7 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.Chat.ChatCommand;
-import pizzaaxx.bteconosur.Chat.Events;
+import pizzaaxx.bteconosur.Chat.ChatEventsListener;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
@@ -107,6 +109,23 @@ public final class BteConoSur extends JavaPlugin {
     public GlobalProjectsManager getProjectsManager() {
         return projectsManager;
     }
+
+    private JDA bot;
+
+    public JDA getBot() {
+        return bot;
+    }
+
+    private String gatewayId;
+
+    public String getGatewayId() {
+        return gatewayId;
+    }
+
+    public TextChannel getGateway() {
+        return bot.getTextChannelById(gatewayId);
+    }
+
     @Override
     public void onEnable() {
 
@@ -124,7 +143,7 @@ public final class BteConoSur extends JavaPlugin {
                 new PresetsCommand(),
                 new PFindCommand(),
                 new ShortCuts(playerRegistry, selectionCommands),
-                new Events(),
+                new ChatEventsListener(),
                 new ScoreboardCommand(),
                 new GetCommand(),
                 new PrefixCommand(),
@@ -223,7 +242,7 @@ public final class BteConoSur extends JavaPlugin {
         registerDiscordListener(builder,
                 handler,
                 new RequestResponse(),
-                new Events(),
+                new ChatEventsListener(),
                 new OnlineCommand(),
                 whereCommand,
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),

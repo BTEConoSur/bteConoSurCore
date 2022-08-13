@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static pizzaaxx.bteconosur.HelpMethods.ColorHelper.colorDistance;
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
 public class FindColorCommand extends ListenerAdapter {
@@ -164,15 +165,5 @@ public class FindColorCommand extends ListenerAdapter {
 
             event.replyFile(is, "image.png").queue();
         }
-    }
-
-    public static double colorDistance(Color c1, Color c2) {
-        int red1 = c1.getRed();
-        int red2 = c2.getRed();
-        int rMean = (red1 + red2) >> 1;
-        int r = red1 - red2;
-        int g = c1.getGreen() - c2.getGreen();
-        int b = c1.getBlue() - c2.getBlue();
-        return Math.sqrt((((512+rMean)*r*r)>>8) + 4*g*g + (((767-rMean)*b*b)>>8));
     }
 }

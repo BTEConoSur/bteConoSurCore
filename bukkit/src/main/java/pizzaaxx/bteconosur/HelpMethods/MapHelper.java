@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class MapHelper {
 
-    public static <K, T> @Nullable T getSingleValue(@NotNull Map<K, T> map) {
+    public static <K, V> @Nullable V getSingleValue(@NotNull Map<K, V> map) {
         for (K key : map.keySet()) {
             return map.get(key);
         }
