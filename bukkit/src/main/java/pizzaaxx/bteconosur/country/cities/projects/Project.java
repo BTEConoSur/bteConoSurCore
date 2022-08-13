@@ -6,8 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.chats.Chat;
-import pizzaaxx.bteconosur.chats.ProjectChat;
+import pizzaaxx.bteconosur.chats.newChat.ProjectChat;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
@@ -89,11 +88,13 @@ public class Project {
 
     /**
      * Loads a project from the server's storage. You should check first if the project exists.
-     * @param city The city this project belongs to.
+     * @param registry The {@link pizzaaxx.bteconosur.projects.ProjectRegistry} this project belongs to.
      * @param id The id of this project.
-     * @param plugin The plugin running. Needed for Configuration loading.
      */
     public Project(@NotNull ProjectsRegistry registry, @NotNull String id) {
+
+        this.registry = registry;
+
         this.id = id;
 
         this.plugin = registry.getPlugin();
@@ -125,6 +126,8 @@ public class Project {
         }
 
         pending = config.getBoolean("pending");
+
+        this.chat = plugin.getChatManager().getChat(this);
 
     }
 

@@ -218,7 +218,7 @@ public class PointsManager {
                 case MAESTRO:
                     return "§f[§6MAESTRO§f]";
                 default:
-                    return "";
+                    return "§f[§9BUILDER§f]";
             }
         }
     }

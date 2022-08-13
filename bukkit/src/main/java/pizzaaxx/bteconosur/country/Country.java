@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.chats.Chat;
+import pizzaaxx.bteconosur.chats.newChat.CountryChat;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
@@ -13,6 +14,7 @@ import java.io.File;
 
 public class Country {
 
+    private final BteConoSur plugin;
     private final CityRegistry registry;
     private final File folder;
     private final String guildID;
@@ -20,14 +22,18 @@ public class Country {
     private final String projectsRequestsChannelID;
     private final String showcaseChannelID;
     private final String name;
+    private final String abbreviation;
     private final JDA bot;
     private final Configuration tags;
     private final Configuration pending;
     private final ProtectedPolygonalRegion region;
     private final Configuration config;
-    private final Chat chat;
+    private final CountryChat chat;
 
-    public Country(BteConoSur plugin, String name, JDA bot) {
+    public Country(BteConoSur plugin, String name, String abbreviation, JDA bot) {
+
+        this.abbreviation = abbreviation;
+        this.plugin = plugin;
 
         this.name = name;
         this.bot = bot;
@@ -46,6 +52,8 @@ public class Country {
         this.showcaseChannelID = config.getString("showcaseChannelID");
 
         region = (ProtectedPolygonalRegion) plugin.getRegionsManager().getRegion(name);
+
+        this.chat = plugin.getChatManager().getChat(this);
 
     }
 
@@ -105,7 +113,15 @@ public class Country {
         return region;
     }
 
-    public Chat getChat() {
+    public CountryChat getChat() {
         return chat;
+    }
+
+    public BteConoSur getPlugin() {
+        return plugin;
+    }
+
+    public String getDiscordEmoji() {
+        return ":flag_" + abbreviation + ":";
     }
 }

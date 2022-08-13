@@ -1,9 +1,13 @@
-package pizzaaxx.bteconosur.chats;
+package pizzaaxx.bteconosur.chats.newChat;
 
 import java.util.Set;
 import java.util.UUID;
 
 public interface IChat {
+
+    String CHAT_PREFIX = "§f[§aCHAT§f] §7>>§r ";
+
+    String getId();
 
     String getDisplayName();
 

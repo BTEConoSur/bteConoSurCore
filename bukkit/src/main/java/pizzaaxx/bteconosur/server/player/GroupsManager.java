@@ -4,18 +4,17 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.Config.groupsPrefixes;
 import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.*;
 
@@ -121,7 +120,7 @@ public class GroupsManager {
         }
     }
 
-    public PrimaryGroup getPrimaryGroupFromCountry(OldCountry country) {
+    public PrimaryGroup getPrimaryGroupFromCountry(Country country) {
         ProjectsManager projectsManager = serverPlayer.getProjectsManager();
         PointsManager pointsManager = serverPlayer.getPointsManager();
 

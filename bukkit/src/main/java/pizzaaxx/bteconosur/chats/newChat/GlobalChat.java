@@ -1,8 +1,9 @@
-package pizzaaxx.bteconosur.chats;
+package pizzaaxx.bteconosur.chats.newChat;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.server.player.ChatManager;
 import pizzaaxx.bteconosur.server.player.GroupsManager;
@@ -12,8 +13,6 @@ import xyz.upperlevel.spigot.book.BookUtil;
 import java.util.*;
 
 public class GlobalChat implements IChat {
-
-    private final String CHAT_PREFIX = "§f[§aCHAT§f] §7>>§r ";
     private final BteConoSur plugin;
 
     public GlobalChat(BteConoSur plugin) {
@@ -21,6 +20,11 @@ public class GlobalChat implements IChat {
     }
 
     private final Set<UUID> members = new HashSet<>();
+
+    @Override
+    public String getId() {
+        return "global";
+    }
 
     @Override
     public String getDisplayName() {
@@ -122,7 +126,7 @@ public class GlobalChat implements IChat {
     }
 
     @Override
-    public void sendMember(UUID uuid, IChat chat) {
+    public void sendMember(UUID uuid, @NotNull IChat chat) {
 
         members.remove(uuid);
         ServerPlayer s = plugin.getPlayerRegistry().get(uuid);

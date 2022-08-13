@@ -63,7 +63,7 @@ import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
 
-    private World mainWorld = Bukkit.getWorld("BTECS");
+    private final World mainWorld = Bukkit.getWorld("BTECS");
 
     public World getWorld() {
         return mainWorld;
@@ -92,14 +92,14 @@ public final class BteConoSur extends JavaPlugin {
 
     private CountryManager countryManager;
 
-    private final pizzaaxx.bteconosur.chats.ChatManager chatManager = new pizzaaxx.bteconosur.chats.ChatManager(this);
-
-    public pizzaaxx.bteconosur.chats.ChatManager getChatManager() {
-        return chatManager;
-    }
-
     public CountryManager getCountryManager() {
         return countryManager;
+    }
+
+    private final pizzaaxx.bteconosur.chats.newChat.ChatManager chatManager = new pizzaaxx.bteconosur.chats.newChat.ChatManager(this);
+
+    public pizzaaxx.bteconosur.chats.newChat.ChatManager getChatManager() {
+        return chatManager;
     }
 
     private final GlobalProjectsManager projectsManager = new GlobalProjectsManager(this);
@@ -107,7 +107,6 @@ public final class BteConoSur extends JavaPlugin {
     public GlobalProjectsManager getProjectsManager() {
         return projectsManager;
     }
-
     @Override
     public void onEnable() {
 
@@ -270,6 +269,14 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Starting automatic scoreboards checker sequence...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
+
+        countryManager = new CountryManager(this, conoSurBot);
+        countryManager.add("argentina", "ar");
+        countryManager.add("bolivia", "bo");
+        countryManager.add("chile", "cl");
+        countryManager.add("paraguay", "py");
+        countryManager.add("peru", "pe");
+        countryManager.add("uruguay", "uy");
 
     }
 
