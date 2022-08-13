@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur.discord.slashCommands.link;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,8 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
-import pizzaaxx.bteconosur.server.player.DiscordManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DiscordManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.Map;

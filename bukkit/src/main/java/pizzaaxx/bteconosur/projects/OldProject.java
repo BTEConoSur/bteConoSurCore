@@ -22,9 +22,9 @@ import pizzaaxx.bteconosur.Config;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.server.player.ProjectsManager;
-import pizzaaxx.bteconosur.server.player.ScoreboardManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ProjectsManager;
+import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.io.File;
 import java.util.*;

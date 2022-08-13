@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
-import pizzaaxx.bteconosur.server.player.PlayerRegistry;
+import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
 
 import java.util.UUID;
 

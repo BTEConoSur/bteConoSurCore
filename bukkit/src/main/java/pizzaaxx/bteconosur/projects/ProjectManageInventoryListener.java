@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.*;
 import java.util.stream.Collectors;

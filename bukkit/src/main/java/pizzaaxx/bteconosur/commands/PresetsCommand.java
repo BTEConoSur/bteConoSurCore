@@ -9,8 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.server.player.DataManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 public class PresetsCommand implements CommandExecutor, Listener {
     public static String presetsPrefix = "§f[§3PRESETS§f] §7>>§r ";

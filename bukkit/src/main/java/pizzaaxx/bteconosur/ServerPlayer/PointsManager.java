@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.server.player;
+package pizzaaxx.bteconosur.ServerPlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
-import static pizzaaxx.bteconosur.server.player.ScoreboardManager.ScoreboardType.TOP;
+import static pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager.ScoreboardType.TOP;
 
 public class PointsManager {
 

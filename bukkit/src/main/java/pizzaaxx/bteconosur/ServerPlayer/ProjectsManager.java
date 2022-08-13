@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.server.player;
+package pizzaaxx.bteconosur.ServerPlayer;
 
 import org.bukkit.configuration.ConfigurationSection;
 import pizzaaxx.bteconosur.country.OldCountry;

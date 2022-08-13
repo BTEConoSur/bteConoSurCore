@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.ServerPlayer.*;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.server.player.*;
 import xyz.upperlevel.spigot.book.BookUtil;
@@ -21,7 +22,7 @@ import xyz.upperlevel.spigot.book.BookUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pizzaaxx.bteconosur.chats.ChatCommand.CHAT_PREFIX;
+import static pizzaaxx.bteconosur.Chat.ChatCommand.CHAT_PREFIX;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.tutorialSteps;
 
 public class Join implements Listener, CommandExecutor {

@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.chats.newChat;
+package pizzaaxx.bteconosur.Chat;
 
 import java.util.Set;
 import java.util.UUID;

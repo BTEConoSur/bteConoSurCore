@@ -10,7 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.projects.OldProject;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.io.IOException;

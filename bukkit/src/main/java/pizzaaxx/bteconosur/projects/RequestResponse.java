@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.util.*;

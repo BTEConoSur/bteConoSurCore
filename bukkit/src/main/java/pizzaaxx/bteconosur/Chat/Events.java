@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.chats;
+package pizzaaxx.bteconosur.Chat;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,9 +13,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import pizzaaxx.bteconosur.server.player.ChatManager;
-import pizzaaxx.bteconosur.server.player.GroupsManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 

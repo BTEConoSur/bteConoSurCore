@@ -6,8 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.server.player.DataManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 

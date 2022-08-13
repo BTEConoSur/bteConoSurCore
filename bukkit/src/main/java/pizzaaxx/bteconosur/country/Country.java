@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.chats.Chat;
-import pizzaaxx.bteconosur.chats.newChat.CountryChat;
+import pizzaaxx.bteconosur.Chat.CountryChat;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 import pizzaaxx.bteconosur.configuration.Configuration;
 

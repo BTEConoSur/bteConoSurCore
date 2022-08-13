@@ -8,7 +8,7 @@ import java.util.*;
 public class AlphabeticProjectSelector implements IProjectSelector {
 
     @Override
-    public Project select(@NotNull Collection<Project> projects) throws IllegalArgumentException {
+    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException {
 
         if (projects.size() > 0) {
             Map<String, Project> map = new HashMap<>();
@@ -22,7 +22,7 @@ public class AlphabeticProjectSelector implements IProjectSelector {
 
             return map.get(ids.get(0));
         }
-        throw new IllegalArgumentException();
+        throw new NoProjectsFoundException();
     }
 
 }

@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.projects.OldProject;
-import pizzaaxx.bteconosur.server.player.DiscordManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DiscordManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.io.IOException;

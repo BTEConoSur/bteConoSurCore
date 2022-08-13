@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.events.ServerEvent;
 import pizzaaxx.bteconosur.helper.Pair;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.io.IOException;

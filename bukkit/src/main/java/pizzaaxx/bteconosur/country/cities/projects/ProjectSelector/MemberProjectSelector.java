@@ -20,7 +20,7 @@ public class MemberProjectSelector implements IProjectSelector {
     }
 
     @Override
-    public Project select(@NotNull Collection<Project> projects) throws IllegalArgumentException {
+    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException {
 
         if (projects.size() > 0) {
             Set<Project> memberProjects = new HashSet<>();
@@ -35,7 +35,7 @@ public class MemberProjectSelector implements IProjectSelector {
 
             return new SmallestProjectSelector(plugin).select(memberProjects);
         }
-        throw new IllegalArgumentException();
+        throw new NoProjectsFoundException();
 
     }
 

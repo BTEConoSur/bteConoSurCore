@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.server.player;
+package pizzaaxx.bteconosur.ServerPlayer;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.luckperms.api.model.user.User;

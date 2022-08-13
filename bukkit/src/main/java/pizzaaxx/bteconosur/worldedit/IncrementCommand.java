@@ -4,9 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.server.player.DataManager;
-import pizzaaxx.bteconosur.server.player.PlayerRegistry;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.WORLD_EDIT_PREFIX;
 

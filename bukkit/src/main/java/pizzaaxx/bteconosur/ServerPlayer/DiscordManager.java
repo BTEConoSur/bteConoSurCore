@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.server.player;
+package pizzaaxx.bteconosur.ServerPlayer;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,7 +15,7 @@ import java.util.UUID;
 
 import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
-import static pizzaaxx.bteconosur.server.player.GroupsManager.PrimaryGroup.BUILDER;
+import static pizzaaxx.bteconosur.ServerPlayer.GroupsManager.PrimaryGroup.BUILDER;
 
 public class DiscordManager {
 

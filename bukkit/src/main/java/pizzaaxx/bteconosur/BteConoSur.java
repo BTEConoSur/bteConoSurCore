@@ -16,8 +16,8 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import pizzaaxx.bteconosur.chats.ChatCommand;
-import pizzaaxx.bteconosur.chats.Events;
+import pizzaaxx.bteconosur.Chat.ChatCommand;
+import pizzaaxx.bteconosur.Chat.Events;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
@@ -41,10 +41,10 @@ import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
-import pizzaaxx.bteconosur.server.player.ChatManager;
-import pizzaaxx.bteconosur.server.player.PlayerRegistry;
-import pizzaaxx.bteconosur.server.player.ScoreboardManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
+import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
@@ -96,9 +96,9 @@ public final class BteConoSur extends JavaPlugin {
         return countryManager;
     }
 
-    private final pizzaaxx.bteconosur.chats.newChat.ChatManager chatManager = new pizzaaxx.bteconosur.chats.newChat.ChatManager(this);
+    private final pizzaaxx.bteconosur.Chat.ChatManager chatManager = new pizzaaxx.bteconosur.Chat.ChatManager(this);
 
-    public pizzaaxx.bteconosur.chats.newChat.ChatManager getChatManager() {
+    public pizzaaxx.bteconosur.Chat.ChatManager getChatManager() {
         return chatManager;
     }
 
@@ -145,7 +145,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
         getCommand("prefix").setExecutor(new PrefixCommand());
-        getCommand("chat").setExecutor(new ChatCommand());
+        getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NickNameCommand());
         getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());

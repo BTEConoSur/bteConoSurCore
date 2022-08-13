@@ -4,12 +4,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.server.player.DiscordManager;
-import pizzaaxx.bteconosur.server.player.PointsManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.DiscordManager;
+import pizzaaxx.bteconosur.ServerPlayer.PointsManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;
 import java.util.UUID;

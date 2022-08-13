@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.chats.newChat;
+package pizzaaxx.bteconosur.Chat;
 
 public class ChatException extends Exception {
 

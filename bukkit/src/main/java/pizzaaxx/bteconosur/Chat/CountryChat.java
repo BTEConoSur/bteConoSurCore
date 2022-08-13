@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.chats.newChat;
+package pizzaaxx.bteconosur.Chat;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringUtils;
@@ -7,10 +7,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.server.player.ChatManager;
-import pizzaaxx.bteconosur.server.player.GroupsManager;
-import pizzaaxx.bteconosur.server.player.PointsManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.PointsManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.util.*;
@@ -128,6 +128,7 @@ public class CountryChat implements IChat {
 
     @Override
     public void receiveMember(UUID uuid) {
+        Bukkit.getPlayer(uuid).sendMessage(CHAT_PREFIX + "Te has unido al chat de §a" + country.getName().toUpperCase() + "§f. §7(Jugadores: " + members.size() + ")");
         members.add(uuid);
         ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
         broadcast(CHAT_PREFIX + s.getChatManager().getDisplayName() + "§f se ha unido al chat.", true);
@@ -139,5 +140,13 @@ public class CountryChat implements IChat {
         ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
         broadcast(CHAT_PREFIX + s.getChatManager().getDisplayName() + "§f ha abandonado el chat.", true);
         chat.receiveMember(uuid);
+    }
+
+    public BteConoSur getPlugin() {
+        return plugin;
+    }
+
+    public Country getCountry() {
+        return country;
     }
 }

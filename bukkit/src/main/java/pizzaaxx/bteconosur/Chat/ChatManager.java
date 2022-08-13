@@ -1,12 +1,14 @@
-package pizzaaxx.bteconosur.chats.newChat;
+package pizzaaxx.bteconosur.Chat;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChatManager {
 
@@ -22,7 +24,7 @@ public class ChatManager {
         return registry.containsKey(id);
     }
 
-    public boolean register(IChat chat) {
+    public void register(IChat chat) {
         registry.put(chat.getId(), chat);
     }
 
@@ -37,7 +39,7 @@ public class ChatManager {
 
     }
 
-    public GlobalChat getGlobalChat(BteConoSur plugin) {
+    public GlobalChat getGlobalChat() {
         if (!exists("global")) {
             register(
                     new GlobalChat(plugin)
@@ -47,22 +49,49 @@ public class ChatManager {
     }
 
     public ProjectChat getChat(@NotNull Project project) {
-
         if (!exists("project_" + project.getId())) {
             register(
                     new ProjectChat(project)
             );
         }
         return (ProjectChat) registry.get("project_" + project.getId());
-
     }
 
     public IChat getChat(String id) throws ChatException {
-
         if (exists(id)) {
             return registry.get(id);
+        } else {
+
+            if (id.startsWith("project_")) {
+
+                if (plugin.getProjectsManager().exists(id.replace("project_", ""))) {
+
+                    Project project = plugin.getProjectsManager().getFromId(id.replace("project_", ""));
+
+                    register(
+                            new ProjectChat(project)
+                    );
+
+                }
+                return registry.get(id);
+
+            }
+
         }
         throw new ChatException(ChatException.Type.IdNotFound);
+    }
+
+    public void closeChat(@NotNull IChat chat) {
+
+        for (UUID uuid : chat.getMembers()) {
+            chat.sendMember(uuid, getGlobalChat());
+        }
+        registry.remove(chat.getId());
+
+    }
+
+    public void remove(@NotNull IChat chat) {
+        registry.remove(chat.getId());
     }
 
 }

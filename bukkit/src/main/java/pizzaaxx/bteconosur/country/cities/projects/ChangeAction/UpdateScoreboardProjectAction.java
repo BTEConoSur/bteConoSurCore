@@ -1,11 +1,10 @@
 package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
-import pizzaaxx.bteconosur.server.player.ScoreboardManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.HashSet;
 import java.util.Set;

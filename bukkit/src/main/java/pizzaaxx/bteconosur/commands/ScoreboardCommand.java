@@ -13,8 +13,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import pizzaaxx.bteconosur.server.player.ScoreboardManager;
-import pizzaaxx.bteconosur.server.player.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import static pizzaaxx.bteconosur.country.OldCountry.countryRegionNames;
 import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;

@@ -6,6 +6,6 @@ import java.util.Collection;
 
 public interface IProjectSelector {
 
-    Project select(Collection<Project> projects) throws IllegalArgumentException;
+    Project select(Collection<Project> projects) throws NoProjectsFoundException;
 
 }

@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.chats.newChat.ProjectChat;
+import pizzaaxx.bteconosur.Chat.ProjectChat;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
