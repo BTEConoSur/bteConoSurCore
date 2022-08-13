@@ -12,17 +12,27 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.Misc.itemBuilder;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class GetCommand implements CommandExecutor, Listener {
+
+    private final BteConoSur plugin;
+
+    public GetCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, String label, String[] args) {
 
         if (command.getName().equals("get")) {
             if (sender instanceof Player) {
@@ -56,12 +66,11 @@ public class GetCommand implements CommandExecutor, Listener {
                 p.openInventory(gui);
             }
         }
-
         return true;
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
+    public void onInventoryClick(@NotNull InventoryClickEvent e) {
         if (e.getInventory().getName().equals("Bloques especiales")) {
             if (e.getCurrentItem() == background) {
                 e.setCancelled(true);
@@ -70,7 +79,7 @@ public class GetCommand implements CommandExecutor, Listener {
     }
 
     @EventHandler
-    public void onClick(PlayerInteractEvent e) {
+    public void onClick(@NotNull PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (getWorldGuard().canBuild(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()))) {
                 Player p = e.getPlayer();
@@ -153,11 +162,8 @@ public class GetCommand implements CommandExecutor, Listener {
                             }
 
                             e.setCancelled(true);
-
-                            if (WorldGuardProvider.getWorldGuard().canBuild(p, e.getClickedBlock().getRelative(e.getBlockFace()))) {
-                                e.getClickedBlock().getRelative(e.getBlockFace()).setType(material);
-                                e.getClickedBlock().getRelative(e.getBlockFace()).setData(metadata);
-                            }
+                            e.getClickedBlock().getRelative(e.getBlockFace()).setType(material);
+                            e.getClickedBlock().getRelative(e.getBlockFace()).setData(metadata);
 
                         }
                     }
