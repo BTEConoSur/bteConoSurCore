@@ -140,7 +140,7 @@ public final class BteConoSur extends JavaPlugin {
                 new Join(playerRegistry, this),
                 new ProjectActionBar(),
                 new OnTeleport(),
-                new PresetsCommand(),
+                new PresetsCommand(plugin),
                 new PFindCommand(),
                 new ShortCuts(playerRegistry, selectionCommands),
                 new ChatEventsListener(),
@@ -169,10 +169,10 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
-        getCommand("presets").setExecutor(new PresetsCommand());
+        getCommand("presets").setExecutor(new PresetsCommand(plugin));
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
-        getCommand("pwarp").setExecutor(new PWarpCommand());
+        getCommand("pwarp").setExecutor(new PWarpCommand(plugin));
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("donator").setExecutor(new Donator());
         getCommand("streamer").setExecutor(new Streamer());

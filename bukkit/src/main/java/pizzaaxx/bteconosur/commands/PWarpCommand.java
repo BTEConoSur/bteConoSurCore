@@ -6,19 +6,24 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-
 public class PWarpCommand implements CommandExecutor {
     public static String pWarpPrefix = "§f[§6PWARP§f] §7>>§r ";
+
+    private final BteConoSur plugin;
+
+    public PWarpCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                DataManager data = new ServerPlayer(p).getDataManager();
+                DataManager data = plugin.getPlayerRegistry().get(p.getUniqueId()).getDataManager();
                 if (args.length > 0) {
                     if (args[0].equals("set")) {
                         if (args.length > 1 && args[1].matches("[a-zA-Z0-9_]{1,32}") && !(args[1].equals("set")) && !(args[1].equals("delete")) && !(args[1].equals("list"))) {
@@ -68,7 +73,7 @@ public class PWarpCommand implements CommandExecutor {
                                     int y = pwarps.getInt(args[0] + ".y");
                                     int z = pwarps.getInt(args[0] + ".z");
 
-                                    p.teleport(new Location(mainWorld, x, y, z));
+                                    p.teleport(new Location(plugin.getWorld(), x, y, z));
 
                                     p.sendMessage(pWarpPrefix + "Teletransportándote al warp personal §a" + args[0] + "§f.");
                                 } else {

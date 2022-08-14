@@ -5,10 +5,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 public class NickNameCommand implements CommandExecutor {
     public static String nickPrefix = "§f[§9NICK§f] §7>>§r ";
+
+    private final BteConoSur plugin;
+
+    public NickNameCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -23,7 +31,7 @@ public class NickNameCommand implements CommandExecutor {
                 if (Bukkit.getOfflinePlayer(args[0]).isOnline() && Bukkit.getPlayer(args[0]) != p) {
                     if (p.hasPermission("bteconosur.nickname.others")) {
                         Player target = Bukkit.getPlayer(args[0]);
-                        ServerPlayer t = new ServerPlayer(target);
+                        ServerPlayer t = plugin.getPlayerRegistry().get(target.getUniqueId());
 
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,16}")) {
@@ -44,8 +52,8 @@ public class NickNameCommand implements CommandExecutor {
                         p.sendMessage(nickPrefix + "No puedes hacer esto.");
                     }
                 } else {
-                    if ((!p.hasPermission("bteconsur.nickname.others") && args[0].matches("[a-zA-Z0-9_]{1,16}")) || (p.hasPermission("bteconsur.nickname.others") && args[0].matches("[a-zA-Z0-9_&]{1,16}"))) {
-                        if (!(new ServerPlayer(p).getName().equalsIgnoreCase(args[0]))) {
+                    if ((!p.hasPermission("bteconosur.nickname.others") && args[0].matches("[a-zA-Z0-9_]{1,16}")) || (p.hasPermission("bteconosur.nickname.others") && args[0].matches("[a-zA-Z0-9_&]{1,16}"))) {
+                        if (!(plugin.getPlayerRegistry().get(p.getUniqueId()).getName().equalsIgnoreCase(args[0]))) {
                             s.getChatManager().setNick(args[0]);
                             p.sendMessage(nickPrefix + "Has establecido tu apodo en §a" + args[0].replace("&", "§") + "§f.");
                         } else {

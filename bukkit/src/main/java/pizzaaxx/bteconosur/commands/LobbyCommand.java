@@ -12,32 +12,31 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.misc.Misc;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.misc.Misc;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 
 public class LobbyCommand implements CommandExecutor, Listener {
 
-    private final Plugin plugin;
+    private final BteConoSur plugin;
 
     public static final String tpPrefix = "§f[§7TELEPORT§f] §7>>§r ";
+    private final Configuration teleports;
 
-    public LobbyCommand(Plugin plugin) {
+    public LobbyCommand(BteConoSur plugin, Configuration teleports) {
         this.plugin = plugin;
+        this.teleports = teleports;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (sender instanceof Player) {
-            Configuration teleports = new Configuration(plugin, "teleports");
             Player p = (Player) sender;
             if (command.getName().equals("assets")) {
-                p.teleport(new Location(mainWorld, teleports.getDouble("assets.x"), teleports.getDouble("assets.y"), teleports.getDouble("assets.z")));
+                p.teleport(new Location(plugin.getWorld(), teleports.getDouble("assets.x"), teleports.getDouble("assets.y"), teleports.getDouble("assets.z")));
                 p.sendMessage(tpPrefix + "Teletransportándote a §oassets§r.");
             }
 
@@ -69,7 +68,6 @@ public class LobbyCommand implements CommandExecutor, Listener {
             e.setCancelled(true);
             if (e.getCurrentItem() != background) {
                 Player p = (Player) e.getWhoClicked();
-                ServerPlayer s = new ServerPlayer(p);
                 if (e.getSlot() == 26) {
                     e.getWhoClicked().closeInventory();
                 } else {
@@ -77,7 +75,7 @@ public class LobbyCommand implements CommandExecutor, Listener {
                     if (meta.hasDisplayName()) {
                         String name = ChatColor.stripColor(meta.getDisplayName()).replace("Perú", "Peru").toLowerCase();
                         Configuration teleports = new Configuration(plugin, "teleports");
-                        p.teleport(new Location(mainWorld, teleports.getDouble("lobby_" + name + ".x"), teleports.getDouble("lobby_" + name + ".y"), teleports.getDouble("lobby_" + name + ".z")));
+                        p.teleport(new Location(plugin.getWorld(), teleports.getDouble("lobby_" + name + ".x"), teleports.getDouble("lobby_" + name + ".y"), teleports.getDouble("lobby_" + name + ".z")));
                         p.sendMessage(tpPrefix + "Teletransportándote al lobby...");
                         e.getWhoClicked().closeInventory();
                     }

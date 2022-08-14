@@ -9,6 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
@@ -20,13 +22,19 @@ import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
 public class PrefixCommand implements CommandExecutor, Listener {
     public static String prefixPrefix = "§f[§3PAÍS§f] §7>>§r ";
 
+    private final BteConoSur plugin;
+
+    public PrefixCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
+    public void onInventoryClick(@NotNull InventoryClickEvent e) {
         if (e.getInventory().getName().equals("Selecciona un país") && (e.getInventory().getSize() == 36)) {
             e.setCancelled(true);
             if (e.getCurrentItem() != background) {
                 Player p = (Player) e.getWhoClicked();
-                ServerPlayer s = new ServerPlayer(p);
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
                 ChatManager manager = s.getChatManager();
                 if (e.getSlot() == 35) {
                     e.getWhoClicked().closeInventory();

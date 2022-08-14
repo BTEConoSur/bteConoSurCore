@@ -9,24 +9,33 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 public class PresetsCommand implements CommandExecutor, Listener {
     public static String presetsPrefix = "§f[§3PRESETS§f] §7>>§r ";
 
+    private final BteConoSur plugin;
+
+    public PresetsCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Solo jugadores.");
+            return true;
         }
 
         Player p = (Player) sender;
-        final ServerPlayer s = new ServerPlayer(p);
+        final ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
         final DataManager data = s.getDataManager();
 
         if (args.length > 0) {
-                if (args[0].equals("set")) {
+            switch (args[0]) {
+                case "set":
                     if (args.length > 1) {
                         if (args[1].matches("[a-zA-Z0-9_]{1,32}")) {
                             if (args.length > 2) {
@@ -46,7 +55,8 @@ public class PresetsCommand implements CommandExecutor, Listener {
                     } else {
                         p.sendMessage(presetsPrefix + "Introduce un nombre para el §opreset§f.");
                     }
-                } else if (args[0].equals("delete")) {
+                    break;
+                case "delete":
                     if (args.length > 1) {
                         if (args[1].matches("[a-zA-Z0-9_]{1,32}")) {
 
@@ -64,7 +74,8 @@ public class PresetsCommand implements CommandExecutor, Listener {
                     } else {
                         p.sendMessage(presetsPrefix + "Introduce el nombre del §opreset§f que quieres eliminar.");
                     }
-                } else if (args[0].equals("list")) {
+                    break;
+                case "list":
                     if (data.contains("presets")) {
                         p.sendMessage(">+-----------+[-< §3PRESETS §f>-]+-----------+<");
 
@@ -78,13 +89,14 @@ public class PresetsCommand implements CommandExecutor, Listener {
                     } else {
                         p.sendMessage(presetsPrefix + "No tienes ningún §opreset§f.");
                     }
-                } else {
+                    break;
+                default:
                     p.sendMessage(presetsPrefix + "Introduce un subcomando válido.");
-                }
-            } else {
-                p.sendMessage(presetsPrefix + "Introduce un subcomando.");
+                    break;
             }
-
+        } else {
+            p.sendMessage(presetsPrefix + "Introduce un subcomando.");
+        }
         return true;
     }
 
@@ -92,7 +104,7 @@ public class PresetsCommand implements CommandExecutor, Listener {
     public void onCommand(@NotNull PlayerCommandPreprocessEvent e) {
         String message = e.getMessage();
         if (message.contains("$")) {
-            DataManager data = new ServerPlayer(e.getPlayer()).getDataManager();
+            DataManager data = plugin.getPlayerRegistry().get(e.getPlayer().getUniqueId()).getDataManager();
             ConfigurationSection presets = data.getConfigurationSection("presets");
             for (String word : message.split(" ")) {
                 if (word.startsWith("$")) {
