@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
 import java.util.ArrayList;
@@ -27,53 +28,24 @@ public class ServerPlayer {
     private DiscordManager discordManager;
     private ScoreboardManager scoreboardManager;
 
-    private final String actualCountry = "";
+    private final BteConoSur plugin;
 
     // CONSTRUCTOR
 
-    public ServerPlayer(UUID uuid, boolean storeManagers) {
+    public ServerPlayer(UUID uuid, boolean storeManagers, BteConoSur plugin) {
         this.uuid = uuid;
-
-        if (playerRegistry.isLoaded(uuid)) {
-            ServerPlayer origin = playerRegistry.get(uuid);
-            this.dataManager = origin.getDataManager();
-
-            if (origin.chatManager != null) {
-                this.chatManager = origin.chatManager;
-            }
-            if (origin.projectsManager != null) {
-                this.projectsManager = origin.projectsManager;
-            }
-            if (origin.scoreboardManager != null) {
-                this.scoreboardManager = origin.scoreboardManager;
-            }
-            if (origin.groupsManager != null) {
-                this.groupsManager = origin.groupsManager;
-            }
-            if (origin.pointsManager != null) {
-                this.pointsManager = origin.pointsManager;
-            }
-            if (origin.discordManager != null) {
-                this.discordManager = origin.discordManager;
-            }
-
-        } else {
-            this.dataManager = new DataManager(this);
-        }
+        this.dataManager = new DataManager(this);
         if (storeManagers) {
             loadManagers();
         }
     }
 
 
-    public ServerPlayer(UUID uuid) {
-        this(uuid, false);
+    public ServerPlayer(UUID uuid, BteConoSur plugin) {
+        this(uuid, false, plugin);
     }
 
-    public ServerPlayer(OfflinePlayer p) {
-        this(p.getUniqueId());
-    }
-
+    // TODO ADD LINKING SUPPORT TO NEW REGISTRY
     public ServerPlayer(User user) throws Exception {
         this(getPlayerFromDiscordUser(user));
     }

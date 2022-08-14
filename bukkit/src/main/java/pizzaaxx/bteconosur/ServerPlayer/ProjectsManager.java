@@ -1,7 +1,10 @@
 package pizzaaxx.bteconosur.ServerPlayer;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.ArrayList;
@@ -15,10 +18,10 @@ public class ProjectsManager {
 
     private final ServerPlayer serverPlayer;
     private final DataManager data;
-    private final Map<String, List<String>> projects = new HashMap<>();
-    private final Map<String, Integer> finishedProjects = new HashMap<>();
+    private final Map<Country, List<Project>> projects = new HashMap<>();
+    private final Map<Country, Integer> finishedProjects = new HashMap<>();
 
-    public ProjectsManager(ServerPlayer s) {
+    public ProjectsManager(@NotNull ServerPlayer s) {
         data = s.getDataManager();
         serverPlayer = s;
 
@@ -26,7 +29,7 @@ public class ProjectsManager {
             ConfigurationSection projectsSection = data.getConfigurationSection("projects");
             for (String country : countryNames) {
                 if (projectsSection.contains(country)) {
-                    projects.put(country, (List<String>) projectsSection.getList(country));
+                    projects.put(, (List<String>) projectsSection.getList(country));
                 }
             }
         }
