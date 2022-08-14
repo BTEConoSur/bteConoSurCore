@@ -144,7 +144,7 @@ public final class BteConoSur extends JavaPlugin {
                 new PFindCommand(),
                 new ShortCuts(playerRegistry, selectionCommands),
                 new ChatEventsListener(),
-                new ScoreboardCommand(),
+                new ScoreboardCommand(plugin),
                 new GetCommand(),
                 new PrefixCommand(),
                 new LobbyCommand(this),
@@ -176,9 +176,9 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("donator").setExecutor(new Donator());
         getCommand("streamer").setExecutor(new Streamer());
-        getCommand("streaming").setExecutor(new StreamingCommand());
+        getCommand("streaming").setExecutor(new StreamingCommand(plugin));
         getCommand("get").setExecutor(new GetCommand());
-        getCommand("scoreboard").setExecutor(new ScoreboardCommand());
+        getCommand("scoreboard").setExecutor(new ScoreboardCommand(plugin));
         getCommand("tpdir").setExecutor(new TpDirCommand());
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand(this));

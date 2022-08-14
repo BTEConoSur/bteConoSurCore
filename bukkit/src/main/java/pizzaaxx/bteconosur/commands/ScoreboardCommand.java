@@ -8,11 +8,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
@@ -25,9 +28,15 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
 
     public static String scoreboardPrefix = getSimplePrefix("SCOREBOARD", "9");
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        new ServerPlayer(e.getPlayer()).getScoreboardManager().update();
+    private final BteConoSur plugin;
+
+    public ScoreboardCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onJoin(@NotNull PlayerJoinEvent e) {
+        plugin.getPlayerRegistry().get(e.getPlayer().getUniqueId()).getScoreboardManager().update();
     }
 
     public void checkScoreboardMovement(Location from, Location to, Player player) {
@@ -52,7 +61,7 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
             }
         }
 
-        ServerPlayer s = new ServerPlayer(player);
+        ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
         ScoreboardManager manager = s.getScoreboardManager();
         if (project && manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
             BukkitRunnable runnable = new BukkitRunnable() {
@@ -71,7 +80,7 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
                     }
 
                     for (Player oPlayer : Bukkit.getOnlinePlayers()) {
-                        ServerPlayer p = new ServerPlayer(oPlayer);
+                        ServerPlayer p = plugin.getPlayerRegistry().get(oPlayer.getUniqueId());
                         if (p.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.SERVER) {
                             p.getScoreboardManager().update();
                         }
@@ -83,22 +92,22 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
     }
 
     @EventHandler
-    public void onMove(PlayerMoveEvent e) {
+    public void onMove(@NotNull PlayerMoveEvent e) {
         checkScoreboardMovement(e.getFrom(), e.getTo(), e.getPlayer());
     }
 
     @EventHandler
-    public void onTeleport(PlayerTeleportEvent e) {
+    public void onTeleport(@NotNull PlayerTeleportEvent e) {
         checkScoreboardMovement(e.getFrom(), e.getTo(), e.getPlayer());
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, String label, String[] args) {
 
         if (command.getName().equals("scoreboard")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                ServerPlayer s = new ServerPlayer(p);
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
                 ScoreboardManager manager = s.getScoreboardManager();
                 if (args.length > 0) {
                     if (args[0].equals("project") || args[0].equals("me") || args[0].equals("server") || args[0].equals("top") || args[0].equals("proyecto")) {

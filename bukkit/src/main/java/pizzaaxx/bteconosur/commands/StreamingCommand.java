@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -19,12 +20,18 @@ import static pizzaaxx.bteconosur.BteConoSur.broadcast;
 
 public class StreamingCommand implements CommandExecutor {
 
+    private final BteConoSur plugin;
+
+    public StreamingCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                ServerPlayer s = new ServerPlayer(p);
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
                 if (args.length > 0) {
                     try {
                         URL url = new URL(args[0]);
@@ -96,7 +103,6 @@ public class StreamingCommand implements CommandExecutor {
                     sender.sendMessage(streamerPrefix + "Introduce un enlace.");
                 }
             }
-
         return true;
     }
 }

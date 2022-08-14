@@ -35,8 +35,6 @@ public class TpDirCommand implements CommandExecutor {
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         connection.setRequestMethod("GET");
 
-                        int status = connection.getResponseCode();
-
                         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                         String inputLine;
                         StringBuilder content = new StringBuilder();
@@ -65,7 +63,7 @@ public class TpDirCommand implements CommandExecutor {
                             map.put(string.split(":")[0].replace("\"", ""), string.split(":")[1].replace("\"", ""));
                         }
 
-                        Coords2D coords = new Coords2D(Double.valueOf(map.get("lat")), Double.valueOf(map.get("lon")));
+                        Coords2D coords = new Coords2D(Double.parseDouble(map.get("lat")), Double.parseDouble(map.get("lon")));
 
                         if (new OldCountry(coords.toBlockVector2D()).getName().equals("global")) {
                             p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
