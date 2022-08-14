@@ -1,7 +1,11 @@
 package pizzaaxx.bteconosur.country.cities;
 
+import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
 
@@ -63,6 +67,46 @@ public class CityRegistry {
             return registry.get(name);
         }
         return null;
+    }
+
+    public boolean isInsideCity(@NotNull Location loc) {
+        if (country.isInside(loc)){
+            for (ProtectedRegion region : plugin.getWorldGuard().getRegionManager(plugin.getWorld()).getApplicableRegions(loc)) {
+
+                if (region.getId().startsWith("city_")) {
+
+                    String cityName = region.getId().replace("city_", "");
+                    if (exists(cityName)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isInsideCity(@NotNull BlockVector2D vector) {
+        return this.isInsideCity(new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ()));
+    }
+
+    public City get(@NotNull Location loc) {
+        if (country.isInside(loc)){
+            for (ProtectedRegion region : plugin.getWorldGuard().getRegionManager(plugin.getWorld()).getApplicableRegions(loc)) {
+
+                if (region.getId().startsWith("city_")) {
+
+                    String cityName = region.getId().replace("city_", "");
+                    if (exists(cityName)) {
+                        return get(cityName);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public City get(@NotNull BlockVector2D vector) {
+        return this.get(new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ()));
     }
 
     // TODO ADD PROJECT LOADING CHECK

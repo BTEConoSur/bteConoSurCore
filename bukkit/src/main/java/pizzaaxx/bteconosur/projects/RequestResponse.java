@@ -25,7 +25,7 @@ import java.util.List;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.projectsPrefix;
 
 public class RequestResponse extends ListenerAdapter {
     public Map<String, String> requestsClicks = new HashMap<>();

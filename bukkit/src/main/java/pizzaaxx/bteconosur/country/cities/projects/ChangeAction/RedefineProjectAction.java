@@ -8,11 +8,9 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
-import org.jetbrains.annotations.Contract;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +55,7 @@ public class RedefineProjectAction implements ProjectAction {
 
         ProtectedPolygonalRegion newRegion = new ProtectedPolygonalRegion("project_" + project.getId(), points, -100, 8000);
 
-        if (!newRegion.getIntersectingRegions(Collections.singletonList(project.getCountry().getRegion())).isEmpty()) {
+        if (!newRegion.getIntersectingRegions(project.getCountry().getRegions()).isEmpty()) {
             newRegion.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
             newRegion.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
             newRegion.setPriority(1);

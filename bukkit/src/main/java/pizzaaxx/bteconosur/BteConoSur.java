@@ -25,6 +25,7 @@ import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.CountryManager;
+import pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand;
 import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.BedrockListener;
@@ -60,7 +61,7 @@ import java.io.File;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
 public final class BteConoSur extends JavaPlugin {
@@ -136,18 +137,21 @@ public final class BteConoSur extends JavaPlugin {
         SelectionCommands selectionCommands = new SelectionCommands(this);
 
         WhereCommand whereCommand = new WhereCommand(this);
+
+        Configuration teleportsConfig = new Configuration(this, "teleports");
+
         registerListeners(
                 new Join(playerRegistry, this),
                 new ProjectActionBar(),
                 new OnTeleport(),
-                new PresetsCommand(plugin),
+                new PresetsCommand(this),
                 new PFindCommand(),
                 new ShortCuts(playerRegistry, selectionCommands),
-                new ChatEventsListener(),
-                new ScoreboardCommand(plugin),
-                new GetCommand(),
-                new PrefixCommand(),
-                new LobbyCommand(this),
+                new ChatEventsListener(this),
+                new ScoreboardCommand(this),
+                new GetCommand(this),
+                new PrefixCommand(this),
+                new LobbyCommand(this, teleportsConfig),
                 new EventsCommand(),
                 new ProjectManageInventoryListener(this),
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
@@ -160,29 +164,29 @@ public final class BteConoSur extends JavaPlugin {
 
         getLogger().info("Registering commands...");
         getCommand("/divide").setExecutor(new DivideCommand());
-        getCommand("project").setExecutor(new ProjectsCommand());
+        getCommand("project").setExecutor(new ProjectsCommand(this));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote());
-        getCommand("prefix").setExecutor(new PrefixCommand());
+        getCommand("prefix").setExecutor(new PrefixCommand(this));
         getCommand("chat").setExecutor(new ChatCommand(this));
-        getCommand("nickname").setExecutor(new NickNameCommand());
+        getCommand("nickname").setExecutor(new NickNameCommand(this));
         getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote());
         getCommand("project").setTabCompleter(new TabCompletions());
-        getCommand("presets").setExecutor(new PresetsCommand(plugin));
+        getCommand("presets").setExecutor(new PresetsCommand(this));
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
-        getCommand("pwarp").setExecutor(new PWarpCommand(plugin));
+        getCommand("pwarp").setExecutor(new PWarpCommand(this));
         getCommand("/polywalls").setExecutor(new Polywall());
         getCommand("donator").setExecutor(new Donator());
         getCommand("streamer").setExecutor(new Streamer());
-        getCommand("streaming").setExecutor(new StreamingCommand(plugin));
-        getCommand("get").setExecutor(new GetCommand());
-        getCommand("scoreboard").setExecutor(new ScoreboardCommand(plugin));
+        getCommand("streaming").setExecutor(new StreamingCommand(this));
+        getCommand("get").setExecutor(new GetCommand(this));
+        getCommand("scoreboard").setExecutor(new ScoreboardCommand(this));
         getCommand("tpdir").setExecutor(new TpDirCommand());
         getCommand("event").setExecutor(new EventsCommand());
-        getCommand("lobby").setExecutor(new LobbyCommand(this));
-        getCommand("assets").setExecutor(new LobbyCommand(this));
+        getCommand("lobby").setExecutor(new LobbyCommand(this, teleportsConfig));
+        getCommand("assets").setExecutor(new LobbyCommand(this, teleportsConfig));
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
         getCommand("help").setExecutor(new HelpCommand(new Configuration(this, "help")));
@@ -242,7 +246,7 @@ public final class BteConoSur extends JavaPlugin {
         registerDiscordListener(builder,
                 handler,
                 new RequestResponse(),
-                new ChatEventsListener(),
+                new ChatEventsListener(this),
                 new OnlineCommand(),
                 whereCommand,
                 new pizzaaxx.bteconosur.discord.slashCommands.ModsCommand(),
@@ -290,12 +294,12 @@ public final class BteConoSur extends JavaPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
         countryManager = new CountryManager(this, conoSurBot);
-        countryManager.add("argentina", "ar");
-        countryManager.add("bolivia", "bo");
-        countryManager.add("chile", "cl");
-        countryManager.add("paraguay", "py");
-        countryManager.add("peru", "pe");
-        countryManager.add("uruguay", "uy");
+        countryManager.add("argentina", "ar", false);
+        countryManager.add("bolivia", "bo", true);
+        countryManager.add("chile", "cl", true);
+        countryManager.add("paraguay", "py", true);
+        countryManager.add("peru", "pe", true);
+        countryManager.add("uruguay", "uy", true);
 
     }
 

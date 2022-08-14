@@ -27,7 +27,7 @@ import java.util.*;
 
 import static pizzaaxx.bteconosur.Chat.IChat.CHAT_PREFIX;
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.tutorialSteps;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.tutorialSteps;
 
 public class ChatEventsListener extends ListenerAdapter implements Listener {
 

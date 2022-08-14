@@ -1,6 +1,9 @@
 package pizzaaxx.bteconosur.country.cities;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
 
@@ -104,5 +107,14 @@ public class GlobalCityManager {
         }
         return new HashMap<>();
 
+    }
+
+    public boolean isInCity(Location loc) {
+        for (ProtectedRegion region : plugin.getWorldGuard().getRegionManager(plugin.getWorld()).getApplicableRegions(loc)) {
+            if (region.getId().startsWith("city_")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.projectsPrefix;
 
 public class ProjectBlockPlacingListener implements Listener {
 

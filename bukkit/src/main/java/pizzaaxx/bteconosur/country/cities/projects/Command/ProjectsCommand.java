@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.projects;
+package pizzaaxx.bteconosur.country.cities.projects.Command;
 
 import com.google.common.collect.Lists;
 import com.sk89q.worldedit.BlockVector2D;
@@ -23,25 +23,31 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.*;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.country.cities.City;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.server.player.*;
+import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.*;
+import static pizzaaxx.bteconosur.BteConoSur.key;
 import static pizzaaxx.bteconosur.Config.*;
+import static pizzaaxx.bteconosur.ServerPlayer.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.*;
 import static pizzaaxx.bteconosur.projects.ProjectManageInventoryListener.inventoryActions;
-import static pizzaaxx.bteconosur.ServerPlayer.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegion;
@@ -55,6 +61,12 @@ public class ProjectsCommand implements CommandExecutor {
     public static Map<UUID, Integer> tutorialSteps = new HashMap<>();
     public static ItemStack background;
 
+    private final BteConoSur plugin;
+
+    public ProjectsCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
             if (!(sender instanceof Player)) {
@@ -63,7 +75,7 @@ public class ProjectsCommand implements CommandExecutor {
             }
 
             Player p = (Player) sender;
-            ServerPlayer s = new ServerPlayer(p);
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
             ProjectsManager projectsManager = s.getProjectsManager();
             if (args.length == 0) {
                 sender.sendMessage(projectsPrefix + "Debes introducir un subcomando.");
@@ -83,17 +95,28 @@ public class ProjectsCommand implements CommandExecutor {
                     p.sendMessage(projectsPrefix + "Debes seleccionar una region cúbica o poligonal.");
                     return true;
                 }
-
                 if (points.size() > maxProjectPoints) {
                     p.sendMessage(projectsPrefix + "La selección no puede tener más de " + maxProjectPoints + " puntos.");
                     return true;
                 }
 
-                OldCountry country = new OldCountry(points.get(0));
-
-                if (country.getName().equalsIgnoreCase("global") || (country.getName().equalsIgnoreCase("argentina") && !WorldGuardProvider.getRegionNamesAt(points.get(0)).contains("postulantes_arg"))) {
-                    p.sendMessage(projectsPrefix + "Los proyectos no funcionan aquí.");
+                if (!plugin.getCountryManager().isInsideAnyCountry(points.get(0))) {
+                    p.sendMessage(projectsPrefix + "La selección no está dentro de ningún país.");
                     return true;
+                }
+
+                Country country = plugin.getCountryManager().get(points.get(0));
+
+                if (!country.allowsProjects()) {
+                    p.sendMessage(projectsPrefix + "El país en el que estas no tiene soporte para proyectos.");
+                    return true;
+                }
+
+                City city;
+                if (country.getCityRegistry().isInsideCity(points.get(0))) {
+                    city = country.getCityRegistry().get(points.get(0));
+                } else {
+                    city = country.getCityRegistry().get("default");
                 }
 
                 if (s.getPermissionCountries().contains(country.getName())) {
@@ -103,52 +126,42 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if ((!(args[1].equalsIgnoreCase("facil"))) && (!(args[1].equalsIgnoreCase("intermedio"))) && (!(args[1].equalsIgnoreCase("dificil")))) {
+                    if ((!args[1].equalsIgnoreCase("facil")) && (!(args[1].equalsIgnoreCase("intermedio"))) && (!(args[1].equalsIgnoreCase("dificil")))) {
                         p.sendMessage(projectsPrefix + "Introduce una dificultad válida, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
                         return true;
                     }
 
-                    OldProject project = new OldProject(new OldCountry(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), OldProject.Difficulty.valueOf(args[1].toUpperCase()), points);
+                    ProjectsRegistry registry = city.getProjectsRegistry();
 
-                    boolean usedTag = false;
+                    try {
 
-                    if (args.length > 2) {
-
-                        try {
-
-                            project.setTag(OldProject.Tag.valueOf(args[2].toUpperCase()));
-                            usedTag = true;
-
-                        } catch (IllegalArgumentException e) {
-
-                            p.sendMessage(projectsPrefix + "Etiqueta inválida.");
-                            return true;
+                        Project project =  registry.createProject(Project.Difficulty.valueOf(args[1].toUpperCase()), points);
+                        boolean usedTag = false;
+                        if (args.length > 2) {
+                            try {
+                                project.setTag(Project.Tag.valueOf(args[2].toUpperCase())).exec();
+                                usedTag = true;
+                            } catch (IllegalArgumentException e) {
+                                p.sendMessage(projectsPrefix + "Etiqueta inválida.");
+                            }
                         }
+                        project.updatePlayersScoreboard();
 
-                    }
+                        // SEND MESSAGES
+                        p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f" + (usedTag ? " y la etiqueta §a" + project.getTag().toString().replace("_", " ") + "§f" : "") + ".");
 
-                    project.save();
-
-                    for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                        ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                        if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                            manager.update();
+                        StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "`" + (usedTag ? " y la etiqueta `" + project.getTag().toString().replace("_", " ") + "`" : "") + " en las coordenadas: \n");
+                        for (BlockVector2D point : project.getPoints()) {
+                            dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }
+                        dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
+
+                        project.getCountry().getProjectsLogsChannel().sendMessage(dscMessage.toString()).queue();
+
+                    } catch (IOException e) {
+                        p.sendMessage(projectsPrefix + "Ha ocurrido un error al crear tu proyecto.");
+                        return true;
                     }
-
-                    // SEND MESSAGES
-
-                    p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f" + (usedTag ? " y la etiqueta §a" + project.getTag().toString().replace("_", " ") + "§f" : "") + ".");
-
-                    StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "`" + (usedTag ? " y la etiqueta `" + project.getTag().toString().replace("_", " ") + "`" : "") + " en las coordenadas: \n");
-                    for (BlockVector2D point : project.getPoints()) {
-                        dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
-                    }
-                    dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
-
-                    project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
-
-                    return true;
                 } else {
                     if (projectsManager.getProjects(country).size() < maxProjectsPerPlayer) {
                         OldProject project = new OldProject(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), OldProject.Difficulty.FACIL, points);

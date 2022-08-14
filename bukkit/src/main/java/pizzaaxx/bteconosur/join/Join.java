@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static pizzaaxx.bteconosur.Chat.ChatCommand.CHAT_PREFIX;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.tutorialSteps;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.tutorialSteps;
 
 public class Join implements Listener, CommandExecutor {
 

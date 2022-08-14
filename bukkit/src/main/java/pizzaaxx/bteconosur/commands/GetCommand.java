@@ -12,15 +12,12 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.Misc.itemBuilder;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
 import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class GetCommand implements CommandExecutor, Listener {

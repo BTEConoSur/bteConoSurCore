@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.*;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.*;
 
 public class ProjectManageInventoryListener implements Listener {
 

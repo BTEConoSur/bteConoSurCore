@@ -16,7 +16,7 @@ import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.misc.Misc;
 
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.background;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
 
 public class LobbyCommand implements CommandExecutor, Listener {
 

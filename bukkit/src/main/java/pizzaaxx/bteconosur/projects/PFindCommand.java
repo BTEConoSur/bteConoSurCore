@@ -23,7 +23,7 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.misc.Misc.*;
 import static pizzaaxx.bteconosur.projects.OldProject.Tag.*;
 import static pizzaaxx.bteconosur.projects.OldProject.getAvailableProjects;
-import static pizzaaxx.bteconosur.projects.ProjectsCommand.projectsPrefix;
+import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.projectsPrefix;
 
 public class PFindCommand implements Listener {
 

@@ -1,6 +1,8 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,9 +14,7 @@ import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Project {
 
@@ -56,11 +56,6 @@ public class Project {
 
         public String getEmoji() {
             return emoji;
-        }
-
-        @Override
-        public @NotNull String toString() {
-            return super.toString().toLowerCase();
         }
 
         public @NotNull String toFormattedString() {
@@ -238,11 +233,42 @@ public class Project {
         return chat;
     }
 
+    public List<BlockVector2D> getPoints() {
+        return region.getPoints();
+    }
+
+    public boolean isClaimed() {
+        return owner != null;
+    }
+
     public ProjectsRegistry getRegistry() {
         return registry;
     }
 
     public void saveToDisk() {
 
+        config.set("difficulty", difficulty.toString());
+
+        config.set("pending", pending);
+
+        if (name != null) {
+            config.set("name", name);
+        }
+
+        if (tag != null) {
+            config.set("tag", tag.toString());
+        }
+
+        if (owner != null) {
+            config.set("owner", owner.toString());
+        }
+
+        if (!members.isEmpty()) {
+            List<String> memberUUIDs = new ArrayList<>();
+            for (UUID uuid : members) {
+                memberUUIDs.add(uuid.toString());
+            }
+            config.set("members", memberUUIDs);
+        }
     }
 }

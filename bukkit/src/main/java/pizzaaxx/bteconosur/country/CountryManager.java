@@ -1,11 +1,15 @@
 package pizzaaxx.bteconosur.country;
 
+import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.JDA;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.StringHelper;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class CountryManager {
@@ -20,8 +24,8 @@ public class CountryManager {
         this.bot = bot;
     }
 
-    public void add(String name, String abbreviation) {
-        registry.put(name, new Country(plugin, name, abbreviation, bot));
+    public void add(String name, String abbreviation, boolean allowsProjects) {
+        registry.put(name, new Country(plugin, name, abbreviation, allowsProjects, bot));
         abbreviations.put(abbreviation, name);
     }
 
@@ -47,6 +51,32 @@ public class CountryManager {
             return registry.containsKey(StringHelper.removeAccents(name));
         }
 
+    }
+
+    public boolean isInsideAnyCountry(Location loc) {
+        for (Country country : registry.values()) {
+            if (country.isInside(loc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInsideAnyCountry(@NotNull BlockVector2D vector) {
+        return this.isInsideAnyCountry(new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ()));
+    }
+
+    public Country get(@NotNull Location loc) {
+        for (Country country : registry.values()) {
+            if (country.isInside(loc)) {
+                return country;
+            }
+        }
+        return null;
+    }
+
+    public Country get(@NotNull BlockVector2D vector) {
+        return this.get(new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ()));
     }
 
 }

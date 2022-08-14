@@ -70,7 +70,7 @@ public class ProjectsRegistry {
     public Project get(String id) {
         if (exists(id)) {
             if (!isRegistered(id)) {
-                register(new Project(city, id, plugin));
+                register(new Project(this, id));
             }
             scheduleDeletion(id);
             return registry.get(id);
@@ -103,7 +103,7 @@ public class ProjectsRegistry {
         return ids;
     }
 
-    public boolean createProject(Project.@NotNull Difficulty difficulty, @NotNull List<BlockVector2D> points) throws IOException {
+    public Project createProject(Project.@NotNull Difficulty difficulty, @NotNull List<BlockVector2D> points) throws IOException {
 
         String id = CodeGenerator.generateCode(6, plugin.getProjectsManager().getIDs());
 
@@ -134,9 +134,9 @@ public class ProjectsRegistry {
 
             this.get(id).updatePlayersScoreboard();
 
-            return true;
+            return this.get(id);
         }
-        return false;
+        throw new IOException();
     }
 
     public boolean deleteProject(@NotNull String id) {
