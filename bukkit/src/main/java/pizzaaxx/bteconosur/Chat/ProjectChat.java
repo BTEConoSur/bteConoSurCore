@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
-import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
-import pizzaaxx.bteconosur.ServerPlayer.PointsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import xyz.upperlevel.spigot.book.BookUtil;
 

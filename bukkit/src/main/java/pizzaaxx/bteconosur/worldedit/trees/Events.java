@@ -21,7 +21,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.ServerPlayer.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 

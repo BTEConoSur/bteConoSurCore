@@ -17,8 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.ServerPlayer.DataManager;
-import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.*;

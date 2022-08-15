@@ -6,15 +6,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
-import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.configuration.Configuration;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.util.*;
-
-import static pizzaaxx.bteconosur.Config.gateway;
 
 public class GlobalChat implements IChat {
     private final BteConoSur plugin;

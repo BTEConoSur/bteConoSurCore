@@ -1,9 +1,10 @@
-package pizzaaxx.bteconosur.ServerPlayer;
+package pizzaaxx.bteconosur.ServerPlayer.Managers;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.ChatException;
 import pizzaaxx.bteconosur.Chat.IChat;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,7 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.Objects;

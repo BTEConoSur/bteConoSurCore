@@ -4,7 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 

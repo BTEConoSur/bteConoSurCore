@@ -1,7 +1,8 @@
-package pizzaaxx.bteconosur.ServerPlayer;
+package pizzaaxx.bteconosur.ServerPlayer.Managers;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.cities.projects.Project;

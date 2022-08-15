@@ -44,10 +44,9 @@ import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
 import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
-import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
-import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
@@ -58,6 +57,10 @@ import pizzaaxx.bteconosur.worldguard.MovementHandler;
 import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
@@ -109,6 +112,44 @@ public final class BteConoSur extends JavaPlugin {
 
     public GlobalProjectsManager getProjectsManager() {
         return projectsManager;
+    }
+
+    private final Configuration maxPoints = new Configuration(this, "maxPoints");
+
+    private class GlobalPointsComparator implements Comparator<UUID> {
+
+        private final BteConoSur plugin;
+
+        public GlobalPointsComparator(BteConoSur plugin) {
+            this.plugin = plugin;
+        }
+
+        @Override
+        public int compare(UUID u1, UUID u2) {
+            int p1 = plugin.getPlayerRegistry().get(u1).getPointsManager().getPoints(plugin);
+            int p2 = plugin.getPlayerRegistry().get(u2).getPointsManager().getPoints(plugin);
+            return Integer.compare(p1, p2);
+        }
+    }
+
+    public void checkMaxPoints(UUID uuid) {
+
+        java.util.List<UUID> uuids = new ArrayList<>();
+        for (String key : maxPoints.getStringList("max")) {
+            uuids.add(UUID.fromString(key));
+        }
+        if (!uuids.contains(uuid)) {
+            uuids.add(uuid);
+        }
+        uuids.sort(new GlobalPointsComparator(this));
+
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            result.add(uuids.get(i).toString());
+        }
+        maxPoints.set("max", result);
+        maxPoints.save();
+
     }
 
     private JDA bot;
@@ -315,22 +356,20 @@ public final class BteConoSur extends JavaPlugin {
         gateway.sendMessageEmbeds(online.build()).queue();
 
         conoSurBot.shutdown();
-
-
     }
 
-    public static void broadcast(String message) {
+    public void broadcast(String message) {
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
-            ChatManager chatManager = new ServerPlayer(p).getChatManager();
+            ChatManager chatManager = this.getPlayerRegistry().get(p.getUniqueId()).getChatManager();
             if (!(chatManager.isHidden())) {
                 p.sendMessage(message);
             }
         }
     }
 
-    public static void broadcast(BaseComponent message) {
+    public void broadcast(BaseComponent message) {
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
-            ChatManager chatManager = new ServerPlayer(p).getChatManager();
+            ChatManager chatManager = this.getPlayerRegistry().get(p.getUniqueId()).getChatManager();
             if (!(chatManager.isHidden())) {
                 p.sendMessage(message);
             }

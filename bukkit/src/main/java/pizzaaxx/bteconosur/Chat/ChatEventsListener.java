@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.ColorHelper;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.awt.*;

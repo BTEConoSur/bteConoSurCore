@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.ServerPlayer.PointsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager;
 import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;

@@ -7,8 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.DataManager;
-import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 
 public class PWarpCommand implements CommandExecutor {
     public static String pWarpPrefix = "§f[§6PWARP§f] §7>>§r ";

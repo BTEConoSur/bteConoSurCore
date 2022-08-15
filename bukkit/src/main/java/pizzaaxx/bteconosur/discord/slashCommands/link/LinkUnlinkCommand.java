@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
-import pizzaaxx.bteconosur.ServerPlayer.DiscordManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DiscordManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;
 

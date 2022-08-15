@@ -14,8 +14,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.ServerPlayer.DataManager;
-import pizzaaxx.bteconosur.ServerPlayer.GroupsManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.Set;

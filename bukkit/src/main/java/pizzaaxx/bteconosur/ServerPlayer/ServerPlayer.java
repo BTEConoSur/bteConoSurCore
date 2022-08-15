@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.ServerPlayer;
 
-import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -8,14 +7,14 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.*;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
 
 public class ServerPlayer {
 
@@ -29,10 +28,13 @@ public class ServerPlayer {
     private ScoreboardManager scoreboardManager;
 
     private final BteConoSur plugin;
+    private final PlayerRegistry registry;
 
     // CONSTRUCTOR
 
-    public ServerPlayer(UUID uuid, boolean storeManagers, BteConoSur plugin) {
+    public ServerPlayer(UUID uuid, boolean storeManagers, @NotNull PlayerRegistry registry) {
+        this.registry = registry;
+        this.plugin = registry.getPlugin();
         this.uuid = uuid;
         this.dataManager = new DataManager(this);
         if (storeManagers) {
@@ -40,29 +42,15 @@ public class ServerPlayer {
         }
     }
 
-
-    public ServerPlayer(UUID uuid, BteConoSur plugin) {
-        this(uuid, false, plugin);
-    }
-
-    // TODO ADD LINKING SUPPORT TO NEW REGISTRY
-    public ServerPlayer(User user) throws Exception {
-        this(getPlayerFromDiscordUser(user));
-    }
-
-    public static OfflinePlayer getPlayerFromDiscordUser(User user) throws Exception {
-        if (DiscordManager.isLinked(user.getId())) {
-            return DiscordManager.getFromID(user.getId());
-        } else {
-            throw new Exception();
-        }
+    public ServerPlayer(UUID uuid, PlayerRegistry registry) {
+        this(uuid, false, registry);
     }
 
     // MANAGERS
 
     public void loadManagers() {
         if (chatManager ==  null) {
-            chatManager = new ChatManager(this);
+            chatManager = new ChatManager(this, plugin);
         }
         if (projectsManager == null) {
             projectsManager = new ProjectsManager(this);
@@ -105,7 +93,7 @@ public class ServerPlayer {
 
     public ChatManager getChatManager() {
         if (chatManager == null) {
-            ChatManager manager = new ChatManager(this);
+            ChatManager manager = new ChatManager(this, plugin);
             chatManager = manager;
             return manager;
         }
@@ -223,7 +211,6 @@ public class ServerPlayer {
     }
 
     public List<String> getPermissionCountries() {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
         if (dataManager.contains("projectsManageCountries")) {
             return dataManager.getStringList("projectsManageCountries");
@@ -262,5 +249,13 @@ public class ServerPlayer {
             dataManager.getStringList("notificaciones").forEach(notif -> notifications.add(notif.replace("&", "§")));
         }
         return notifications;
+    }
+
+    public BteConoSur getPlugin() {
+        return plugin;
+    }
+
+    public PlayerRegistry getPlayerRegistry() {
+        return registry;
     }
 }

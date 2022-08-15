@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import static pizzaaxx.bteconosur.country.OldCountry.countryRegionNames;

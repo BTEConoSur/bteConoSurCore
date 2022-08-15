@@ -1,7 +1,8 @@
-package pizzaaxx.bteconosur.ServerPlayer;
+package pizzaaxx.bteconosur.ServerPlayer.Managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 public class DataManager extends pizzaaxx.bteconosur.configuration.Configuration {
 

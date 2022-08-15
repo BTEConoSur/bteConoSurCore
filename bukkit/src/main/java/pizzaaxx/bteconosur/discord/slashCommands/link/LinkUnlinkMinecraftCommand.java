@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
-import pizzaaxx.bteconosur.ServerPlayer.DiscordManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.DiscordManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.HashMap;

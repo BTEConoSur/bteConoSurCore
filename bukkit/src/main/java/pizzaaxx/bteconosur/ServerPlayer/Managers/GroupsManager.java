@@ -1,12 +1,12 @@
-package pizzaaxx.bteconosur.ServerPlayer;
+package pizzaaxx.bteconosur.ServerPlayer.Managers;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.types.InheritanceNode;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.country.OldCountry.allCountries;
 import static pizzaaxx.bteconosur.ranks.PromoteDemote.*;
 
 public class GroupsManager {
@@ -276,12 +275,6 @@ public class GroupsManager {
     }
 
     public void checkGroups() {
-
-
-        DiscordManager discord = serverPlayer.getDiscordManager();
-        for (OldCountry country : allCountries) {
-            discord.checkDiscordRoles(country);
-        }
 
         if (primaryGroup == PrimaryGroup.ADMIN || primaryGroup == PrimaryGroup.MOD) {
             return;

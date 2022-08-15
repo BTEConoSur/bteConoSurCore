@@ -5,9 +5,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.io.File;
 import java.util.HashMap;
@@ -16,7 +16,10 @@ import java.util.UUID;
 
 public class PlayerRegistry implements Listener {
 
-    private final Plugin plugin;
+    private final BteConoSur plugin;
+    private final LinksManager linksManager;
+
+    // TODO ADD CENTRALISED DATA CREATION ON JOIN
 
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
@@ -28,16 +31,16 @@ public class PlayerRegistry implements Listener {
         scheduleDeletion(event.getPlayer().getUniqueId());
     }
 
-    public PlayerRegistry(Plugin plugin) {
+    public PlayerRegistry(BteConoSur plugin) {
         this.plugin = plugin;
+        this.linksManager = new LinksManager(plugin);
     }
 
     private final Map<UUID, ServerPlayer> registry = new HashMap<>();
     private final Map<UUID, Long> deletionRegistry = new HashMap<>();
 
     public void load(UUID uuid) {
-        ServerPlayer serverPlayer = new ServerPlayer(uuid);
-        serverPlayer.loadManagers();
+        ServerPlayer serverPlayer = new ServerPlayer(uuid, true, this);
         registry.put(uuid, serverPlayer);
         scheduleDeletion(uuid);
     }
@@ -84,8 +87,23 @@ public class PlayerRegistry implements Listener {
 
     }
 
-    public boolean exists(UUID uuid) {
-        return (Bukkit.getOfflinePlayer(uuid).hasPlayedBefore() && new File(plugin.getDataFolder(), "playerData/" + uuid.toString() + ".yml").exists());
+    public boolean exists(@NotNull UUID uuid) {
+        return (Bukkit.getOfflinePlayer(uuid).hasPlayedBefore() && new File(plugin.getDataFolder(), "playerData/" + uuid + ".yml").exists());
     }
 
+    public LinksManager getLinksManager() {
+        return linksManager;
+    }
+
+    public boolean isLinked(String discordId) {
+        return this.linksManager.isLinked(discordId);
+    }
+
+    public ServerPlayer get(String discordID) {
+        return this.get(linksManager.getFromUUID(discordID));
+    }
+
+    public BteConoSur getPlugin() {
+        return plugin;
+    }
 }

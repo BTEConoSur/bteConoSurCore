@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.ServerPlayer;
+package pizzaaxx.bteconosur.ServerPlayer.Managers;
 
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.OldProject;
 

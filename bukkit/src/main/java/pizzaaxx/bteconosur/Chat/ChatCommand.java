@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.MemberProjectSelector;

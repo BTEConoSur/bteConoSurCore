@@ -3,7 +3,7 @@ package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
-import pizzaaxx.bteconosur.ServerPlayer.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
 import java.util.HashSet;

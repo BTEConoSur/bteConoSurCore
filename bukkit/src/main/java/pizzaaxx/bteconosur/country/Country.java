@@ -1,8 +1,6 @@
 package pizzaaxx.bteconosur.country;
 
-import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -15,8 +13,7 @@ import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Country {
 
@@ -32,6 +29,7 @@ public class Country {
     private final JDA bot;
     private final Configuration tags;
     private final Configuration pending;
+    private final Configuration maxPoints;
     private final Set<ProtectedRegion> regions = new HashSet<>();
     private final Configuration config;
     private final CountryChat chat;
@@ -54,6 +52,7 @@ public class Country {
 
         this.tags = new Configuration(plugin, "countries/" + name + "/tags");
         this.pending = new Configuration(plugin, "countries/" + name + "/pending");
+        this.maxPoints = new Configuration(plugin, "countries/" + name + "/maxPoints");
 
         this.guildID = config.getString("guildID");
         this.projectsLogsChannelID = config.getString("projectsLogsChannelID");
@@ -151,5 +150,48 @@ public class Country {
 
     public boolean allowsProjects() {
         return allowsProjects;
+    }
+
+    private class CountryPointsComparator implements Comparator<UUID> {
+
+        private final Country country;
+
+        public CountryPointsComparator(Country country) {
+            this.country = country;
+        }
+
+        @Override
+        public int compare(UUID u1, UUID u2) {
+            int p1 = plugin.getPlayerRegistry().get(u1).getPointsManager().getPoints(country);
+            int p2 = plugin.getPlayerRegistry().get(u2).getPointsManager().getPoints(country);
+
+            return Integer.compare(p1, p2);
+        }
+    }
+
+    public void checkMaxPoints(UUID uuid) {
+
+        if (allowsProjects) {
+            List<UUID> uuids = new ArrayList<>();
+            for (String key : maxPoints.getStringList("max")) {
+                uuids.add(UUID.fromString(key));
+            }
+            if (!uuids.contains(uuid)) {
+                uuids.add(uuid);
+            }
+            uuids.sort(new CountryPointsComparator(this));
+
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                result.add(uuids.get(i).toString());
+            }
+            maxPoints.set("max", result);
+            maxPoints.save();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
