@@ -18,8 +18,13 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Chat.ChatCommand;
 import pizzaaxx.bteconosur.Chat.ChatEventsListener;
+import pizzaaxx.bteconosur.Points.PointsContainer;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
+import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
 import pizzaaxx.bteconosur.commands.HelpCommand;
 import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
@@ -44,9 +49,6 @@ import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
-import pizzaaxx.bteconosur.ServerPlayer.Managers.ChatManager;
-import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
-import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
@@ -63,11 +65,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.discord.Bot.conoSurBot;
 import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
-import static pizzaaxx.bteconosur.ranks.PromoteDemote.lp;
 
-public final class BteConoSur extends JavaPlugin {
+public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
     private final World mainWorld = Bukkit.getWorld("BTECS");
 
@@ -75,13 +75,18 @@ public final class BteConoSur extends JavaPlugin {
         return mainWorld;
     }
 
-    public static File pluginFolder = null;
     public static String key;
 
     private final PlayerRegistry playerRegistry = new PlayerRegistry(this);
 
     public PlayerRegistry getPlayerRegistry() {
         return playerRegistry;
+    }
+
+    private LuckPerms luckPerms;
+
+    public LuckPerms getLuckPerms() {
+        return luckPerms;
     }
 
     private final WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
@@ -116,7 +121,7 @@ public final class BteConoSur extends JavaPlugin {
 
     private final Configuration maxPoints = new Configuration(this, "maxPoints");
 
-    private class GlobalPointsComparator implements Comparator<UUID> {
+    private static class GlobalPointsComparator implements Comparator<UUID> {
 
         private final BteConoSur plugin;
 
@@ -132,6 +137,7 @@ public final class BteConoSur extends JavaPlugin {
         }
     }
 
+    @Override
     public void checkMaxPoints(UUID uuid) {
 
         java.util.List<UUID> uuids = new ArrayList<>();
@@ -150,6 +156,15 @@ public final class BteConoSur extends JavaPlugin {
         maxPoints.set("max", result);
         maxPoints.save();
 
+    }
+
+    @Override
+    public @NotNull List<UUID> getMaxPoints() {
+        List<UUID> max = new ArrayList<>();
+        for (String key : maxPoints.getStringList("max")) {
+            max.add(UUID.fromString(key));
+        }
+        return max;
     }
 
     private JDA bot;
@@ -171,15 +186,15 @@ public final class BteConoSur extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        getLogger().info("Enabling BTE Cono Sur!");
+        getLogger().info("¡Iniciando BTE Cono Sur!");
 
         projectsManager.initialize();
 
-        SelectionCommands selectionCommands = new SelectionCommands(this);
 
         WhereCommand whereCommand = new WhereCommand(this);
-
         Configuration teleportsConfig = new Configuration(this, "teleports");
+        SelectionCommands selectionCommands = new SelectionCommands(this);
+
 
         registerListeners(
                 new Join(playerRegistry, this),
@@ -231,8 +246,7 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
         getCommand("help").setExecutor(new HelpCommand(new Configuration(this, "help")));
-        TerraformCommand terraformExecutor = new TerraformCommand();
-        getCommand("terraform").setExecutor(terraformExecutor);
+        getCommand("terraform").setExecutor(new TerraformCommand());
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
         getCommand("height").setExecutor(new HeightCommand());
@@ -240,9 +254,6 @@ public final class BteConoSur extends JavaPlugin {
         getCommand("/selundo").setExecutor(selectionCommands);
         getCommand("/selredo").setExecutor(selectionCommands);
         getCommand("reloadPlayer").setExecutor(new ReloadPlayer());
-
-
-        pluginFolder = Bukkit.getPluginManager().getPlugin("bteConoSur").getDataFolder();
 
         createDirectories(
                 "",
@@ -263,8 +274,12 @@ public final class BteConoSur extends JavaPlugin {
                 .name(" ")
                 .build();
 
+        Configuration discordConfig = new Configuration(this, "discord/config");
+
+        gatewayId = discordConfig.getString("gateway");
+
         // DISCORD BOT
-        JDABuilder builder = JDABuilder.createDefault(new Configuration(this, "discord/token").getString("token"));
+        JDABuilder builder = JDABuilder.createDefault(discordConfig.getString("token"));
         builder.setActivity(Activity.playing("IP: bteconosur.com"));
         builder.setStatus(OnlineStatus.ONLINE);
 
@@ -295,7 +310,7 @@ public final class BteConoSur extends JavaPlugin {
                 new LinkUnlinkCommand(new Configuration(this, "link/links"), this),
                 new pizzaaxx.bteconosur.discord.slashCommands.ProjectCommand(),
                 new PlayerCommand(new Configuration(this, "discord/groupEmojis")),
-                new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(),
+                new pizzaaxx.bteconosur.discord.slashCommands.ScoreboardCommand(this),
                 new FindColorCommand(this),
                 new ProjectTagCommand(),
                 new pizzaaxx.bteconosur.discord.slashCommands.HelpCommand(new Configuration(this, "help")),
@@ -308,33 +323,31 @@ public final class BteConoSur extends JavaPlugin {
 
         builder.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         try {
-            conoSurBot = builder.build().awaitReady();
-            getCommand("btecsUpdateSlashCommands").setExecutor(new UpdateSlashCommands(conoSurBot));
-            getCommand("link").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot, this));
-            getCommand("unlink").setExecutor(new LinkUnlinkMinecraftCommand(conoSurBot, this));
+            bot = builder.build().awaitReady();
+            getCommand("btecsUpdateSlashCommands").setExecutor(new UpdateSlashCommands(bot));
+            getCommand("link").setExecutor(new LinkUnlinkMinecraftCommand(bot, this));
+            getCommand("unlink").setExecutor(new LinkUnlinkMinecraftCommand(bot, this));
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
 
         key = new Configuration(this, "key").getString("key");
 
-        // LUCKPERMS
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
-            lp = provider.getProvider();
+            luckPerms = provider.getProvider();
         }
 
         EmbedBuilder online = new EmbedBuilder();
         online.setColor(new Color(0, 255, 42));
         online.setTitle("¡El servidor ya está online!");
         online.setDescription("\uD83D\uDD17 **IP:** bteconosur.com");
+        getGateway().sendMessageEmbeds(online.build()).queue();
 
-        gateway.sendMessageEmbeds(online.build()).queue();
-
-        getLogger().info("Starting automatic scoreboards checker sequence...");
+        getLogger().info("Iniciando la secuancia de chqueo de scoreboards automáticos.");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
-        countryManager = new CountryManager(this, conoSurBot);
+        countryManager = new CountryManager(this, bot);
         countryManager.add("argentina", "ar", false);
         countryManager.add("bolivia", "bo", true);
         countryManager.add("chile", "cl", true);
@@ -355,7 +368,7 @@ public final class BteConoSur extends JavaPlugin {
 
         gateway.sendMessageEmbeds(online.build()).queue();
 
-        conoSurBot.shutdown();
+        bot.shutdown();
     }
 
     public void broadcast(String message) {
@@ -376,20 +389,20 @@ public final class BteConoSur extends JavaPlugin {
         }
     }
 
-    private void registerListeners(Listener... listeners) {
+    private void registerListeners(Listener @NotNull ... listeners) {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager()
                     .registerEvents(listener, this);
         }
     }
 
-    private void registerDiscordListener(JDABuilder builder, EventListener... listeners) {
+    private void registerDiscordListener(JDABuilder builder, EventListener @NotNull ... listeners) {
         for (EventListener listener : listeners) {
             builder.addEventListeners(listener);
         }
     }
 
-    private void createDirectories(String... names) {
+    private void createDirectories(String @NotNull ... names) {
         for (String name : names) {
             File file = new File(getDataFolder(), name);
             file.mkdirs();

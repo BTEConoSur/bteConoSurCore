@@ -235,13 +235,13 @@ public class GroupsManager {
     private void removeLuckPermsGroup(String group) {
         InheritanceNode node = InheritanceNode.builder(group).build();
 
-        UserManager userManager = lp.getUserManager();
+        UserManager userManager = serverPlayer.getPlugin().getLuckPerms().getUserManager();
         CompletableFuture<User> userFuture = userManager.loadUser(serverPlayer.getPlayer().getUniqueId());
 
         userFuture.thenAcceptAsync(user -> {
             user.data().remove(node);
 
-            lp.getUserManager().saveUser(user);
+            serverPlayer.getPlugin().getLuckPerms().getUserManager().saveUser(user);
         });
     }
 
@@ -249,13 +249,13 @@ public class GroupsManager {
 
         InheritanceNode node = InheritanceNode.builder(group).build();
 
-        UserManager userManager = lp.getUserManager();
+        UserManager userManager = serverPlayer.getPlugin().getLuckPerms().getUserManager();
         CompletableFuture<User> userFuture = userManager.loadUser(serverPlayer.getPlayer().getUniqueId());
 
         userFuture.thenAcceptAsync(user -> {
             user.data().add(node);
 
-            lp.getUserManager().saveUser(user);
+            serverPlayer.getPlugin().getLuckPerms().getUserManager().saveUser(user);
         });
     }
 

@@ -9,13 +9,14 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.CountryChat;
+import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 
 import java.io.File;
 import java.util.*;
 
-public class Country {
+public class Country implements PointsContainer {
 
     private final BteConoSur plugin;
     private final CityRegistry registry;
@@ -35,9 +36,9 @@ public class Country {
     private final CountryChat chat;
     private final boolean allowsProjects;
 
-    public Country(BteConoSur plugin, String name, String abbreviation, boolean allowsProjects, JDA bot) {
+    public Country(BteConoSur plugin, @NotNull String name, String abbreviation, boolean allowsProjects, JDA bot) {
 
-        this.allowsProjects = true;
+        this.allowsProjects = allowsProjects;
 
         this.abbreviation = abbreviation;
         this.plugin = plugin;
@@ -169,6 +170,7 @@ public class Country {
         }
     }
 
+    @Override
     public void checkMaxPoints(UUID uuid) {
 
         if (allowsProjects) {
@@ -188,6 +190,15 @@ public class Country {
             maxPoints.set("max", result);
             maxPoints.save();
         }
+    }
+
+    @Override
+    public @NotNull List<UUID> getMaxPoints() {
+        List<UUID> max = new ArrayList<>();
+        for (String key : maxPoints.getStringList("max")) {
+            max.add(UUID.fromString(key));
+        }
+        return max;
     }
 
     @Override

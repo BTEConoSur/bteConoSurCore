@@ -3,7 +3,7 @@ package pizzaaxx.bteconosur.ServerPlayer.Managers;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
+import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class PointsManager {
 
-    private final Map<Country, Integer> countriesPoints = new HashMap<>();
+    private final Map<PointsContainer, Integer> countriesPoints = new HashMap<>();
 
     public static String pointsPrefix = "§f[§9PUNTOS§f] §7>>§r ";
 
@@ -41,11 +41,14 @@ public class PointsManager {
         return serverPlayer;
     }
 
-    public int getPoints(@NotNull Country country) {
-        return countriesPoints.getOrDefault(country, 0);
+    public int getPoints(@NotNull PointsContainer container) {
+        if (container instanceof BteConoSur) {
+            return getTotalPoints();
+        }
+        return countriesPoints.getOrDefault(container, 0);
     }
 
-    public int getPoints(@NotNull BteConoSur plugin) {
+    public int getTotalPoints() {
         int total = 0;
         for (Integer points : countriesPoints.values()) {
             total += points;
@@ -59,7 +62,7 @@ public class PointsManager {
             countriesPoints.put(country, points);
             country.checkMaxPoints(this.serverPlayer.getId());
             plugin.checkMaxPoints(this.serverPlayer.getId());
-            Map<Country, Integer> map = new HashMap<>(countriesPoints);
+            Map<PointsContainer, Integer> map = new HashMap<>(countriesPoints);
             data.set("points", map);
             data.save();
             int diff = Math.abs(points - old);
@@ -75,9 +78,9 @@ public class PointsManager {
         setPoints(country, newAmount);
     }
 
-    public Map.Entry<Country, Integer> getMaxPoints() {
-        Map.Entry<Country, Integer> max = null;
-        for (Map.Entry<Country, Integer> entry : countriesPoints.entrySet()) {
+    public Map.Entry<PointsContainer, Integer> getMaxPoints() {
+        Map.Entry<PointsContainer, Integer> max = null;
+        for (Map.Entry<PointsContainer, Integer> entry : countriesPoints.entrySet()) {
             if (max == null || entry.getValue().compareTo(max.getValue()) > 0) {
                 max = entry;
             }
@@ -85,8 +88,8 @@ public class PointsManager {
         return max;
     }
 
-    public LinkedHashMap<Country, Integer> getSorted() {
-        LinkedHashMap<Country, Integer> sorted = new LinkedHashMap<>();
+    public LinkedHashMap<PointsContainer, Integer> getSorted() {
+        LinkedHashMap<PointsContainer, Integer> sorted = new LinkedHashMap<>();
         countriesPoints.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))

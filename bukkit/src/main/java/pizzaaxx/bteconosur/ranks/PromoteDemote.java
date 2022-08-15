@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
@@ -14,22 +15,27 @@ public class PromoteDemote implements CommandExecutor {
     public static String promotePrefix = "§f[§2PROMOTE§f] §7>>§r ";
     public static String demotePrefix = "§f[§4DEMOTE§f] §7>>§r ";
 
-    public static LuckPerms lp;
+    private final BteConoSur plugin;
+
+    public PromoteDemote(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Solo jugadores.");
+            return true;
         }
 
         Player p = (Player) sender;
-        GroupsManager pManager = new ServerPlayer(p).getGroupsManager();
+        GroupsManager pManager = plugin.getPlayerRegistry().get(p.getUniqueId()).getGroupsManager();
 
         if (command.getName().equals("promote")) {
             if (args.length > 0) {
                 if (Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
                     OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                    ServerPlayer s = new ServerPlayer(target);
+                    ServerPlayer s = plugin.getPlayerRegistry().get(target.getUniqueId());
                     GroupsManager tManager = s.getGroupsManager();
                     if (target != p) {
                         int targetPriority = tManager.getPrimaryGroup().getPriority();
@@ -55,7 +61,7 @@ public class PromoteDemote implements CommandExecutor {
             if (args.length > 0) {
                 if (Bukkit.getOfflinePlayer(args[0]).hasPlayedBefore()) {
                     OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                    ServerPlayer s = new ServerPlayer(target);
+                    ServerPlayer s = plugin.getPlayerRegistry().get(target.getUniqueId());
                     GroupsManager manager = s.getGroupsManager();
                     if (target != p) {
                         int targetPriority = manager.getPrimaryGroup().getPriority();

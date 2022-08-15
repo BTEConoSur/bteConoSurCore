@@ -5,10 +5,12 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DiscordManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.country.Country;
 
 import java.awt.*;
 import java.util.UUID;
@@ -17,6 +19,12 @@ import java.util.concurrent.TimeUnit;
 import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
 public class ScoreboardCommand extends ListenerAdapter {
+
+    private final BteConoSur plugin;
+
+    public ScoreboardCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -29,21 +37,29 @@ public class ScoreboardCommand extends ListenerAdapter {
                 );
                 return;
             }
-            OldCountry country = new OldCountry(subcommand.replace("perú", "peru"));
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.setColor(Color.GREEN);
-            builder.setTitle("Jugadores con mayor puntaje " + (country.getName().equals("global") ? "global" : "de " + StringUtils.capitalize(country.getName().replace("peru", "perú"))));
-            int i = 1;
 
-            for (UUID uuid : country.getScoreboardUUIDs()) {
+            PointsContainer container;
+            if (subcommand.equals("global")) {
+                container = plugin;
+                builder.setTitle("Jugadores con mayor puntaje global");
+            } else {
+                Country country = plugin.getCountryManager().get(subcommand.replace("perú", "peru"));
+                container = country;
+                builder.setTitle("Jugadores con mayor puntaje de " + StringUtils.capitalize(country.getName().replace("peru", "perú")));
+            }
+
+            int i = 1;
+            for (UUID uuid : container.getMaxPoints()) {
 
                 String emoji;
-                ServerPlayer s = new ServerPlayer(uuid);
+                ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
 
                 PointsManager manager;
                 manager = s.getPointsManager(); // <--- PROBLEM
-                int points = manager.getPoints(country);
+                int points = manager.getPoints(container);
                 if (points >= 1000) {
                     emoji = ":gem:";
                 } else if (points >= 500) {
@@ -55,10 +71,11 @@ public class ScoreboardCommand extends ListenerAdapter {
                 }
                 DiscordManager dsc = s.getDiscordManager();
 
+                int finished = s.getProjectsManager().getFinishedProjects(container);
 
                 builder.addField(
                         "#" + i + " " + emoji + " " + s.getName() + " " + (dsc.isLinked() ? "- " + dsc.getName() + "#" + dsc.getDiscriminator() : ""),
-                        "Puntos: `" + points + "`\nProyectos terminados: `" + s.getProjectsManager().getFinishedProjects(country) + "`",
+                        "Puntos: `" + points + "`\nProyectos terminados: `" + finished + "`",
                         false);
                 i++;
 
