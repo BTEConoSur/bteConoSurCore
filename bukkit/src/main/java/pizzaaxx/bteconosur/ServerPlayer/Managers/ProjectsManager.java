@@ -7,16 +7,12 @@ import pizzaaxx.bteconosur.Chat.ChatException;
 import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
-import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static pizzaaxx.bteconosur.country.OldCountry.countryNames;
 
 public class ProjectsManager {
 
@@ -31,19 +27,15 @@ public class ProjectsManager {
 
         if (data.contains("projects")) {
             ConfigurationSection projectsSection = data.getConfigurationSection("projects");
-            for (String country : countryNames) {
-                if (projectsSection.contains(country)) {
-                    projects.put(s.getPlugin().getCountryManager().get(country), projectsSection.getStringList(country));
-                }
+            for (String country : projectsSection.getKeys(false)) {
+                projects.put(s.getPlugin().getCountryManager().get(country), projectsSection.getStringList(country));
             }
         }
 
         if (data.contains("finishedProjects")) {
             ConfigurationSection finishedProjectsSection = data.getConfigurationSection("finishedProjects");
-            for (String country : countryNames) {
-                if (finishedProjectsSection.contains(country)) {
-                    finishedProjects.put(s.getPlugin().getCountryManager().get(country), finishedProjectsSection.getInt(country));
-                }
+            for (String country : finishedProjectsSection.getKeys(false)) {
+                finishedProjects.put(s.getPlugin().getCountryManager().get(country), finishedProjectsSection.getInt(country));
             }
         }
     }

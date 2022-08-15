@@ -7,6 +7,8 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.OldCountry;
 
 import javax.naming.Name;
@@ -17,13 +19,9 @@ import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
 public class WorldGuardProvider {
 
-    public static WorldGuardPlugin getWorldGuard() {
-        return WorldGuardPlugin.inst();
-    }
-
-    public static Set<Player> getPlayersInRegion(String id) {
+    public static @NotNull Set<Player> getPlayersInRegion(String id, @NotNull BteConoSur plugin) {
         Set<Player> players = new HashSet<>();
-        RegionManager manager = getWorldGuard().getRegionManager(mainWorld);
+        RegionManager manager = plugin.getWorldGuard().getRegionManager(plugin.getWorld());
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (manager.getApplicableRegions(p.getLocation()).getRegions().contains(manager.getRegion(id))) {
                 players.add(p);
@@ -32,40 +30,24 @@ public class WorldGuardProvider {
         return players;
     }
 
-    public static Set<Player> getPlayersInCountry(OldCountry country) {
-        if (!country.getName().equals("chile")) {
-            return getPlayersInRegion(country.getName());
-        } else {
-            Set<Player> players = new HashSet<>();
-            players.addAll(getPlayersInRegion("chile_cont"));
-            players.addAll(getPlayersInRegion("chile_idp"));
-            return players;
-        }
-    }
+    public static @NotNull Set<String> getRegionNamesAt(@NotNull BlockVector2D vector, @NotNull BteConoSur plugin) {
 
-    public static Set<String> getRegionNamesAt(BlockVector2D vector) {
-
-        Location loc = new Location(mainWorld, vector.getX(), 100, vector.getZ());
+        Location loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
 
         return getRegionNamesAt(loc);
 
     }
 
-    public static Set<String> getRegionNamesAt(Location loc) {
+    public static @NotNull Set<String> getRegionNamesAt(Location loc, @NotNull BteConoSur plugin) {
 
         Set<String> names = new HashSet<>();
 
-        RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
-
+        RegionManager manager = plugin.getWorldGuard().getRegionManager(plugin.getWorld());
         Set<ProtectedRegion> regions = manager.getApplicableRegions(loc).getRegions();
 
         for (ProtectedRegion region : regions) {
-
             names.add(region.getId());
-
         }
-
         return names;
-
     }
 }
