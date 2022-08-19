@@ -10,9 +10,11 @@ public class OwnerProjectSelector implements IProjectSelector {
 
     private final UUID target;
     private final BteConoSur plugin;
+    private final boolean exclusive;
 
-    public OwnerProjectSelector(UUID target, BteConoSur plugin) {
+    public OwnerProjectSelector(UUID target, boolean exclusive, BteConoSur plugin) {
         this.target = target;
+        this.exclusive = exclusive;
         this.plugin = plugin;
     }
 
@@ -30,6 +32,9 @@ public class OwnerProjectSelector implements IProjectSelector {
 
             }
 
+            if (ownedProjects.isEmpty() && !exclusive) {
+                return new SmallestProjectSelector(plugin).select(projects);
+            }
             return new SmallestProjectSelector(plugin).select(ownedProjects);
         }
         throw new NoProjectsFoundException();

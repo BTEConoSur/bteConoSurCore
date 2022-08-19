@@ -66,7 +66,7 @@ public class ChatCommand implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("project") || args[0].equalsIgnoreCase("proyecto")) {
                     try {
-                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId(), plugin));
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId(), true, plugin));
 
                         if (!pChat.getId().equals("project_" + project.getId())) {
                             sChatManager.setChat(plugin.getChatManager().getChat(project));
@@ -108,7 +108,7 @@ public class ChatCommand implements CommandExecutor {
                                 }
                             } else if (args[1].equalsIgnoreCase("project") || args[1].equals("proyecto")) {
                                 try {
-                                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId(), plugin));
+                                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId(), true, plugin));
 
                                     if (!defaultChat.getId().equals("project_" + project.getId())) {
                                         sChatManager.setDefaultChat(project.getChat());

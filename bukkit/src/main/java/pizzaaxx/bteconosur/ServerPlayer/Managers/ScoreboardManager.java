@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.projects.OldProject;
@@ -50,7 +51,7 @@ public class ScoreboardManager {
         ME, PROJECT, SERVER, TOP
     }
 
-    public ScoreboardManager(ServerPlayer s) {
+    public ScoreboardManager(@NotNull ServerPlayer s) {
         serverPlayer = s;
         data = s.getDataManager();
 

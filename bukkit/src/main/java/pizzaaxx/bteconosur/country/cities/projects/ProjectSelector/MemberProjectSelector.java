@@ -13,9 +13,11 @@ public class MemberProjectSelector implements IProjectSelector {
 
     private final UUID target;
     private final BteConoSur plugin;
+    private final boolean exclusive;
 
-    public MemberProjectSelector(UUID target, BteConoSur plugin) {
+    public MemberProjectSelector(UUID target, boolean exclusive, BteConoSur plugin) {
         this.target = target;
+        this.exclusive = exclusive;
         this.plugin = plugin;
     }
 
@@ -31,6 +33,10 @@ public class MemberProjectSelector implements IProjectSelector {
                     memberProjects.add(project);
                 }
 
+            }
+
+            if (memberProjects.isEmpty() && !exclusive) {
+                return new SmallestProjectSelector(plugin).select(projects);
             }
 
             return new SmallestProjectSelector(plugin).select(memberProjects);
