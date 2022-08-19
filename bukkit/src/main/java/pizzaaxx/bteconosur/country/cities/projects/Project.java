@@ -241,6 +241,10 @@ public class Project {
         return owner != null;
     }
 
+    public boolean hasName() {
+        return name != null;
+    }
+
     public ProjectsRegistry getRegistry() {
         return registry;
     }

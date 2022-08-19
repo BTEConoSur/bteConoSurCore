@@ -348,12 +348,12 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
 
         countryManager = new CountryManager(this, bot);
-        countryManager.add("argentina", "ar", false);
-        countryManager.add("bolivia", "bo", true);
-        countryManager.add("chile", "cl", true);
-        countryManager.add("paraguay", "py", true);
-        countryManager.add("peru", "pe", true);
-        countryManager.add("uruguay", "uy", true);
+        countryManager.add("argentina", "ar", "Argentina", false);
+        countryManager.add("bolivia", "bo", "Bolivia", true);
+        countryManager.add("chile", "cl", "Chile", true);
+        countryManager.add("paraguay", "py", "Paraguay", true);
+        countryManager.add("peru", "pe", "Perú", true);
+        countryManager.add("uruguay", "uy", "Uruguay", true);
 
     }
 

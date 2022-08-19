@@ -27,6 +27,7 @@ public class Country implements PointsContainer {
     private final String showcaseChannelID;
     private final String name;
     private final String abbreviation;
+    private final String displayName;
     private final JDA bot;
     private final Configuration tags;
     private final Configuration pending;
@@ -36,13 +37,12 @@ public class Country implements PointsContainer {
     private final CountryChat chat;
     private final boolean allowsProjects;
 
-    public Country(BteConoSur plugin, @NotNull String name, String abbreviation, boolean allowsProjects, JDA bot) {
+    public Country(BteConoSur plugin, @NotNull String name, String abbreviation, String displayName, boolean allowsProjects, JDA bot) {
 
         this.allowsProjects = allowsProjects;
-
         this.abbreviation = abbreviation;
+        this.displayName = displayName;
         this.plugin = plugin;
-
         this.name = name;
         this.bot = bot;
         this.config = new Configuration(plugin, "countries/" + name + "/config");
@@ -113,6 +113,10 @@ public class Country implements PointsContainer {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public Configuration getTags() {

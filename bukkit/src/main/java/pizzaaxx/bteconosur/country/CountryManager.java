@@ -4,12 +4,10 @@ import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.JDA;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.StringHelper;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class CountryManager {
@@ -24,8 +22,8 @@ public class CountryManager {
         this.bot = bot;
     }
 
-    public void add(String name, String abbreviation, boolean allowsProjects) {
-        registry.put(name, new Country(plugin, name, abbreviation, allowsProjects, bot));
+    public void add(String name, String abbreviation, String displayName, boolean allowsProjects) {
+        registry.put(name, new Country(plugin, name, abbreviation, displayName, allowsProjects, bot));
         abbreviations.put(abbreviation, name);
     }
 
