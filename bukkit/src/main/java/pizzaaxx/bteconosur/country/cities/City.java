@@ -4,7 +4,6 @@ import com.sk89q.worldedit.BlockVector2D;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.chats.Chat;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
@@ -145,6 +144,10 @@ public class City {
 
     public int getFinishedProjectsAmount() {
         return finishedRegions.size();
+    }
+
+    public boolean isDefault() {
+        return name.equals("default");
     }
 
 }

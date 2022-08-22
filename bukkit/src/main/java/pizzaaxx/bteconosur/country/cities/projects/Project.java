@@ -59,7 +59,7 @@ public class Project {
         }
 
         public @NotNull String toFormattedString() {
-            return super.toString().replace("_", "");
+            return super.toString().replace("_", " ");
         }
     }
 

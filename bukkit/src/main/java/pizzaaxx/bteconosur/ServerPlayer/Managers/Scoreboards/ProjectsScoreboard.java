@@ -11,6 +11,7 @@ import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFou
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ProjectsScoreboard implements ScoreboardType {
 
@@ -42,7 +43,24 @@ public class ProjectsScoreboard implements ScoreboardType {
 
             lines.add("§aPaís: §f" + project.getCountry().getDisplayName());
 
+            if (!project.getCity().isDefault()) {
+                lines.add("§aCiudad: §f" + project.getCity().getDisplayName());
+            }
 
+            if (project.getTag() != null) {
+                lines.add("§aEtiqueta: §f" + project.getTag().toFormattedString());
+            }
+
+            if (project.isClaimed()) {
+                lines.add("§aLíder: §f" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
+
+                if (!project.getMembers().isEmpty()) {
+                    lines.add("§aMiembros:");
+                    for (UUID uuid : project.getMembers()) {
+                        lines.add("- " + plugin.getPlayerRegistry().get(uuid).getName());
+                    }
+                }
+            }
 
         } catch (NoProjectsFoundException e) {
 

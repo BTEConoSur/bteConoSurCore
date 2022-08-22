@@ -222,12 +222,12 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("/divide").setExecutor(new DivideCommand());
         getCommand("project").setExecutor(new ProjectsCommand(this));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
-        getCommand("promote").setExecutor(new PromoteDemote());
+        getCommand("promote").setExecutor(new PromoteDemote(this));
         getCommand("prefix").setExecutor(new PrefixCommand(this));
         getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NickNameCommand(this));
         getCommand("testing").setExecutor(new Testing());
-        getCommand("demote").setExecutor(new PromoteDemote());
+        getCommand("demote").setExecutor(new PromoteDemote(this));
         getCommand("project").setTabCompleter(new TabCompletions());
         getCommand("presets").setExecutor(new PresetsCommand(this));
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
