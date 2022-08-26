@@ -241,6 +241,41 @@ public class Fixing implements CommandExecutor {
 
                 }
 
+            } else if (args[0].equals("ariel")) {
+
+                File dir = new File(plugin.getDataFolder(), "projects");
+                File[] files = dir.listFiles();
+
+                if (files != null) {
+
+                    Configuration ariel = new Configuration(plugin, "playerData/5edd47bf-a4c7-48c3-bbee-e858876835f8");
+
+                    List<String> projects = new ArrayList<>();
+
+                    for (File file : files) {
+
+                        String id = file.getName().replace(".yml", "");
+
+                        Configuration config = new Configuration(plugin, "projects/" + id);
+
+                        if (config.contains("owner") && config.getString("owner").equals("5edd47bf-a4c7-48c3-bbee-e858876835f8")) {
+
+                            projects.add(id);
+
+                        } else if (config.contains("members")) {
+                            List<String> members = config.getStringList("members");
+
+                            if (members.contains("5edd47bf-a4c7-48c3-bbee-e858876835f8")) {
+                                projects.add(id);
+                            }
+                        }
+
+                    }
+
+                    ariel.set("projects.chile", projects);
+                    ariel.save();
+
+                }
             }
         }
 
