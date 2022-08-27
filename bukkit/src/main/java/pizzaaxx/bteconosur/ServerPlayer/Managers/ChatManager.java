@@ -58,7 +58,7 @@ public class ChatManager {
         data.set("chat.actual", chat.getId());
         data.save();
 
-        if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.ME) {
+        if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.PLAYER) {
             serverPlayer.getScoreboardManager().update();
         }
 
@@ -113,7 +113,7 @@ public class ChatManager {
         }
         data.save();
         ScoreboardManager sManager = serverPlayer.getScoreboardManager();
-        if (sManager.getType() == ScoreboardManager.ScoreboardType.ME) {
+        if (sManager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
             serverPlayer.getScoreboardManager().update();
         }
     }

@@ -127,7 +127,7 @@ public class Join implements Listener, CommandExecutor {
         }
         manager.setChat(manager.getDefaultChat().getName());
 
-        if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.ME) {
+        if (serverPlayer.getScoreboardManager().getType() == ScoreboardManager.ScoreboardType.PLAYER) {
             serverPlayer.getScoreboardManager().update();
         }
 

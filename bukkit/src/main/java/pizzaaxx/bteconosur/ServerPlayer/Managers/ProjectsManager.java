@@ -69,7 +69,7 @@ public class ProjectsManager {
         serverPlayer.getGroupsManager().checkGroups();
         if (serverPlayer.getPlayer().isOnline()) {
             ScoreboardManager manager = serverPlayer.getScoreboardManager();
-            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
                 manager.update();
             }
         }
@@ -82,7 +82,7 @@ public class ProjectsManager {
         serverPlayer.getGroupsManager().checkGroups();
         if (serverPlayer.getPlayer().isOnline()) {
             ScoreboardManager manager = serverPlayer.getScoreboardManager();
-            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
                 manager.update();
             }
         }

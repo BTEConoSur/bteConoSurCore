@@ -159,7 +159,7 @@ public class GroupsManager {
             data.set("primaryGroup", group.toString());
             data.save();
             ScoreboardManager manager = serverPlayer.getScoreboardManager();
-            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
                 serverPlayer.getScoreboardManager().update();
             }
         }
@@ -179,7 +179,7 @@ public class GroupsManager {
             data.save();
             addLuckPermsGroup(group.toString());
             ScoreboardManager manager = serverPlayer.getScoreboardManager();
-            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
                 serverPlayer.getScoreboardManager().update();
             }
         }
@@ -220,7 +220,7 @@ public class GroupsManager {
             data.save();
             removeLuckPermsGroup(group.toString());
             ScoreboardManager manager = serverPlayer.getScoreboardManager();
-            if (manager.getType() == ScoreboardManager.ScoreboardType.ME) {
+            if (manager.getType() == ScoreboardManager.ScoreboardType.PLAYER) {
                 serverPlayer.getScoreboardManager().update();
             }
         }

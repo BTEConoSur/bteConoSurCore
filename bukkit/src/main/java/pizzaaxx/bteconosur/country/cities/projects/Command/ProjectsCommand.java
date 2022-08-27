@@ -586,7 +586,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     for (OfflinePlayer member : project.getAllMembers()) {
                                         ServerPlayer m = new ServerPlayer(member);
-                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.ME) {
+                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.PLAYER) {
                                             m.getScoreboardManager().update();
                                         }
                                     }
@@ -633,7 +633,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                                     for (OfflinePlayer member : project.getAllMembers()) {
                                         ServerPlayer m = new ServerPlayer(member);
-                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.ME) {
+                                        if (m.getScoreboardManager().getType() ==  ScoreboardManager.ScoreboardType.PLAYER) {
                                             m.getScoreboardManager().update();
                                         }
                                     }
