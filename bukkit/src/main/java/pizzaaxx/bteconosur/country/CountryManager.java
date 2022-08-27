@@ -7,8 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.StringHelper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CountryManager {
 
@@ -75,6 +74,20 @@ public class CountryManager {
 
     public Country get(@NotNull BlockVector2D vector) {
         return this.get(new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ()));
+    }
+
+    public List<Country> getAllCountries() {
+
+        List<String> names = new ArrayList<>(registry.keySet());
+        Collections.sort(names);
+
+        List<Country> result = new ArrayList<>();
+        for (String name : names) {
+            result.add(registry.get(name));
+        }
+
+        return result;
+
     }
 
 }

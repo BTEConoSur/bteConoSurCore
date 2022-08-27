@@ -5,7 +5,9 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.CountryChat;
@@ -194,6 +196,22 @@ public class Country implements PointsContainer {
             maxPoints.set("max", result);
             maxPoints.save();
         }
+    }
+
+    public List<Player> getPlayersInside() {
+        List<Player> result = new ArrayList<>();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            BlockVector2D vector = new BlockVector2D(player.getLocation().getBlockX(), player.getLocation().getZ());
+            for (ProtectedRegion region : regions) {
+                if (region.contains(vector)) {
+                    result.add(player);
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
