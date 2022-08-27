@@ -88,12 +88,12 @@ public class PointsManager {
         return max;
     }
 
-    public LinkedHashMap<PointsContainer, Integer> getSorted() {
-        LinkedHashMap<PointsContainer, Integer> sorted = new LinkedHashMap<>();
+    public LinkedHashMap<Country, Integer> getSorted() {
+        LinkedHashMap<Country, Integer> sorted = new LinkedHashMap<>();
         countriesPoints.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x -> sorted.put(x.getKey(), x.getValue()));
+                .forEachOrdered(x -> sorted.put((Country) x.getKey(), x.getValue()));
         return sorted;
     }
 
