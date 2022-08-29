@@ -11,6 +11,7 @@ import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.MemberProjectSelector;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 
 import java.util.HashMap;
@@ -75,6 +76,8 @@ public class ChatCommand implements CommandExecutor {
                         }
                     } catch (NoProjectsFoundException exception) {
                         p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto del que seas miembro.");
+                    } catch (NotInsideProjectException exception) {
+                        p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto.");
                     }
                 } else if (args[0].equals("toggle") || args[0].equals("alternar")) {
                     if (sChatManager.toggleChat()) {
@@ -119,6 +122,8 @@ public class ChatCommand implements CommandExecutor {
                                     }
                                 } catch (NoProjectsFoundException exception) {
                                     p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto del que seas miembro. Solo puedes establecer tu chat predeterminado al chat de proyectos de los que eres miembro.");
+                                } catch (NotInsideProjectException exception) {
+                                    p.sendMessage(CHAT_PREFIX + "No estás dentro de ningún proyecto.");
                                 }
                             }
 

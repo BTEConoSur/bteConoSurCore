@@ -10,7 +10,8 @@ public class ProjectActionException extends Exception {
         MemberLimitReached,
         TargetLimitReached,
         PlayerAlreadyAMember,
-        NewRegionOutsideCountry
+        NewRegionOutsideCountry,
+        ProjectAlreadyClaimed
 
     }
 

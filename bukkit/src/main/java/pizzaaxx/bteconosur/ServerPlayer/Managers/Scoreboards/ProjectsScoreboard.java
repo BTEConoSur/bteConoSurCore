@@ -8,6 +8,7 @@ import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.MemberProjectSelector;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ProjectsScoreboard implements ScoreboardType {
                 }
             }
 
-        } catch (NoProjectsFoundException e) {
+        } catch (NoProjectsFoundException | NotInsideProjectException e) {
 
             lines.add("§cNo disponible.");
             titleTemp = "§4PROYECTO";

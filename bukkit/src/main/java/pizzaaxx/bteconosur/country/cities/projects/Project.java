@@ -217,6 +217,10 @@ public class Project {
         return new TransferProjectAction(this, this.owner, target);
     }
 
+    public ClaimProjectAction claim(UUID target) {
+        return new ClaimProjectAction(this, target, plugin);
+    }
+
     public SetPendingProjectAction setPending(boolean pending) {
         return new SetPendingProjectAction(this, pending);
     }

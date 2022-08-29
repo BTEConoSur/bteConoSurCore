@@ -29,6 +29,8 @@ public class ClaimProjectAction implements ProjectAction {
         if (!project.isClaimed()) {
             project.owner = target;
             plugin.getPlayerRegistry().get(target).getProjectsManager().addProject(project);
+        } else {
+            throw new ProjectActionException(ProjectActionException.Type.ProjectAlreadyClaimed);
         }
 
     }

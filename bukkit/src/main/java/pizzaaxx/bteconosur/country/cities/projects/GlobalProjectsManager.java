@@ -9,6 +9,7 @@ import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.IProjectSelector;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
 import pizzaaxx.bteconosur.helper.Pair;
 
 import java.io.File;
@@ -115,7 +116,7 @@ public class GlobalProjectsManager {
         return this.getProjectsAt(loc);
     }
 
-    public Project getProjectAt(Location location, @NotNull IProjectSelector selector) throws NoProjectsFoundException {
+    public Project getProjectAt(Location location, @NotNull IProjectSelector selector) throws NoProjectsFoundException, NotInsideProjectException {
         return selector.select(getProjectsAt(location));
     }
 
