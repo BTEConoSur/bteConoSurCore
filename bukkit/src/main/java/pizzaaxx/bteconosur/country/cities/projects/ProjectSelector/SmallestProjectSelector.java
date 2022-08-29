@@ -39,7 +39,7 @@ public class SmallestProjectSelector implements IProjectSelector {
     }
 
     @Override
-    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException {
+    public Project select(@NotNull Collection<Project> projects) throws NotInsideProjectException {
 
         if (projects.size() > 0) {
 
@@ -49,7 +49,7 @@ public class SmallestProjectSelector implements IProjectSelector {
 
             return ps.get(0);
         }
-        throw new NoProjectsFoundException();
+        throw new NotInsideProjectException();
 
     }
 }

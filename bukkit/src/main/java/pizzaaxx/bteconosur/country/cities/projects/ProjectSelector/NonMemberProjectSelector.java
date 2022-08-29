@@ -9,15 +9,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class MemberProjectSelector implements IProjectSelector {
+public class NonMemberProjectSelector implements IProjectSelector {
 
     private final UUID target;
     private final BteConoSur plugin;
-    private final boolean exclusive;
 
-    public MemberProjectSelector(UUID target, boolean exclusive, BteConoSur plugin) {
+    public NonMemberProjectSelector(UUID target, BteConoSur plugin) {
         this.target = target;
-        this.exclusive = exclusive;
         this.plugin = plugin;
     }
 
@@ -25,24 +23,21 @@ public class MemberProjectSelector implements IProjectSelector {
     public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException, NotInsideProjectException {
 
         if (!projects.isEmpty()) {
-            Set<Project> memberProjects = new HashSet<>();
+            Set<Project> nonMemberProjects = new HashSet<>();
 
             for (Project project : projects) {
 
-                if (project.getAllMembers().contains(target)) {
-                    memberProjects.add(project);
+                if (!project.getAllMembers().contains(target)) {
+                    nonMemberProjects.add(project);
                 }
 
             }
 
-            if (memberProjects.isEmpty()) {
-                if (!exclusive) {
-                    return new SmallestProjectSelector(plugin).select(projects);
-                }
-                throw new NoProjectsFoundException();
+            if (!nonMemberProjects.isEmpty()) {
+                return new SmallestProjectSelector(plugin).select(nonMemberProjects);
             }
+            throw new NoProjectsFoundException();
 
-            return new SmallestProjectSelector(plugin).select(memberProjects);
         }
         throw new NotInsideProjectException();
 

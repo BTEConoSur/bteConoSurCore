@@ -8,9 +8,9 @@ import java.util.*;
 public class AlphabeticProjectSelector implements IProjectSelector {
 
     @Override
-    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException {
+    public Project select(@NotNull Collection<Project> projects) throws NotInsideProjectException {
 
-        if (projects.size() > 0) {
+        if (!projects.isEmpty()) {
             Map<String, Project> map = new HashMap<>();
 
             for (Project project : projects) {
@@ -22,7 +22,7 @@ public class AlphabeticProjectSelector implements IProjectSelector {
 
             return map.get(ids.get(0));
         }
-        throw new NoProjectsFoundException();
+        throw new NotInsideProjectException();
     }
 
 }

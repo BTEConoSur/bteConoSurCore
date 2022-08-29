@@ -19,9 +19,9 @@ public class OwnerProjectSelector implements IProjectSelector {
     }
 
     @Override
-    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException {
+    public Project select(@NotNull Collection<Project> projects) throws NoProjectsFoundException, NotInsideProjectException {
 
-        if (projects.size() > 0) {
+        if (!projects.isEmpty()) {
             Set<Project> ownedProjects = new HashSet<>();
 
             for (Project project : projects) {
@@ -32,12 +32,16 @@ public class OwnerProjectSelector implements IProjectSelector {
 
             }
 
-            if (ownedProjects.isEmpty() && !exclusive) {
-                return new SmallestProjectSelector(plugin).select(projects);
+            if (ownedProjects.isEmpty()) {
+                if (!exclusive) {
+                    return new SmallestProjectSelector(plugin).select(projects);
+                }
+                throw new NoProjectsFoundException();
             }
+
             return new SmallestProjectSelector(plugin).select(ownedProjects);
         }
-        throw new NoProjectsFoundException();
+        throw new NotInsideProjectException();
 
     }
 
