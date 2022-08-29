@@ -24,20 +24,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.ServerPlayer.*;
+import pizzaaxx.bteconosur.HelpMethods.RegionHelper;
+import pizzaaxx.bteconosur.HelpMethods.SatMapHelper;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.ProjectsManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
+import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
+import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.projects.OldProject;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import xyz.upperlevel.spigot.book.BookUtil;
@@ -167,32 +168,28 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
                 } else {
-                    if (projectsManager.getProjects(country).size() < maxProjectsPerPlayer) {
-                        OldProject project = new OldProject(getCountryAtLocation(new Location(mainWorld, points.get(0).getX(), 100 , points.get(0).getZ())), OldProject.Difficulty.FACIL, points);
+                    if (projectsManager.getOwnedProjects().get(country).size() < 10) {
 
                         EmbedBuilder request = new EmbedBuilder();
-                        request.setColor(new Color(0, 255, 42));
+                        request.setColor(Color.GREEN);
 
-                        request.setTitle(new ServerPlayer(p).getName() + " quiere crear un proyecto.");
+                        request.setTitle(s.getName() + " quiere crear un proyecto.");
 
                         List<String> coords = new ArrayList<>();
-                        for (BlockVector2D point : project.getPoints()) {
+                        for (BlockVector2D point : points) {
                             coords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY() + " " + point.getZ()).replace(".0", ""));
                         }
                         request.addField(":round_pushpin: Coordenadas:", String.join("\n", coords), false);
 
                         // GMAPS
 
-                        BlockVector2D average = project.getAverageCoordinate();
-
-                        Coords2D geoCoord = new Coords2D(average);
+                        Coords2D geoCoord = RegionHelper.getAverageCoordinate(points);
 
                         request.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
 
                         // IMAGE
 
-                        request.setImage(project.getImageUrl());
-                        Bukkit.getConsoleSender().sendMessage(project.getImageUrl());
+                        request.setImage(SatMapHelper.getURL(new Pair<>(points, "6382DC50")));
 
                         ActionRow actionRow = ActionRow.of(
                                 Button.of(ButtonStyle.SECONDARY, "facil", "Fácil", Emoji.fromMarkdown("\uD83D\uDFE2")),
@@ -205,7 +202,7 @@ public class ProjectsCommand implements CommandExecutor {
                         message.setEmbeds(request.build());
                         message.setActionRows(actionRow);
 
-                        country.getRequests().sendMessage(message.build()).queue();
+                        country.getProjectsRequestsChannel().sendMessage(message.build()).queue();
 
                         p.sendMessage(projectsPrefix + "Se ha enviado una solicitud para crear tu proyecto.");
                     } else {

@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.ServerPlayer.Managers;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.LinksManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
@@ -42,6 +43,10 @@ public class DiscordManager {
 
     }
 
+    /**
+     * Link this player to a Discord account. Handles linking storage automatically.
+     * @param user The Discord {@link User} to connect this account to.
+     */
     public void connect(@NotNull User user) {
         setName(user.getName());
         setDiscriminator(user.getDiscriminator());
@@ -51,6 +56,9 @@ public class DiscordManager {
         linksManager.link(serverPlayer.getId(), user.getId());
     }
 
+    /**
+     * Unlink this player from whatever account it's connected to.
+     */
     public void disconnect() {
         linksManager.unlink(serverPlayer.getId());
         setName(null);
@@ -76,10 +84,17 @@ public class DiscordManager {
         discord.set("discriminator", discriminator);
     }
 
+    /**
+     *
+     * @return Whether this player is connected to a Discord account.
+     */
     public boolean isLinked() {
         return linked;
     }
 
+    /**
+     * Load the {@link User} this player is connected to. This must be called before {@code getUser()}.
+     */
     public void loadUser() {
         if (linked) {
             if (user == null) {
@@ -93,18 +108,35 @@ public class DiscordManager {
         data.save();
     }
 
+    /**
+     *
+     * @return The Discord {@link User} this player is connected to. This can return null if the user has not been loaded yet or if this player has no connected account.
+     */
+    @Nullable
     public User getUser() {
         return user;
     }
 
+    /**
+     *
+     * @return Get the name of the {@link User}. Does not require to load the user.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @return The discriminator (User#XXXX) of the {@link User}. Does not require to load the user.
+     */
     public String getDiscriminator() {
         return discriminator;
     }
 
+    /**
+     *
+     * @return Return the id of the {@link User}. Does not require to load the user.
+     */
     public String getId() {
         return id;
     }

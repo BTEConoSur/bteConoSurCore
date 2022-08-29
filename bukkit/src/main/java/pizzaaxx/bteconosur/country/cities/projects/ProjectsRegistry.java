@@ -103,6 +103,13 @@ public class ProjectsRegistry {
         return ids;
     }
 
+    /**
+     *
+     * @param difficulty The difficulty of the new project.
+     * @param points The points of the region of the new project.
+     * @return An instance of the new project.
+     * @throws IOException If the server failed to create a configuration file.
+     */
     public Project createProject(Project.@NotNull Difficulty difficulty, @NotNull List<BlockVector2D> points) throws IOException {
 
         String id = CodeGenerator.generateCode(6, plugin.getProjectsManager().getIDs());
