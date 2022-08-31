@@ -12,6 +12,7 @@ import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.UpdateScoreboardProjectAction;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 
 import java.io.File;
@@ -147,21 +148,23 @@ public class ProjectsRegistry {
     }
 
     public boolean deleteProject(@NotNull String id) {
-        File projectFile = new File(folder, id + ".yml");
-        if (projectFile.exists()) {
 
-            if (projectFile.delete()) {
-
-                UpdateScoreboardProjectAction action = new UpdateScoreboardProjectAction(this.get(id));
-                this.unregister(id);
-                plugin.getRegionsManager().removeRegion("project_" + id);
-                ids.remove(id);
-                plugin.getProjectsManager().remove(id);
-                action.exec();
-                return true;
+        if (exists(id)) {
+            File projectFile = new File(folder, id + ".yml");
+            if (projectFile.exists()) {
+                if (projectFile.delete()) {
+                    Project project = this.get(id);
+                    UpdateScoreboardProjectAction action = new UpdateScoreboardProjectAction(project);
+                    project.empty().exec();
+                    this.unregister(id);
+                    plugin.getRegionsManager().removeRegion("project_" + id);
+                    ids.remove(id);
+                    plugin.getProjectsManager().remove(id);
+                    action.exec();
+                    return true;
+                }
 
             }
-
         }
         return false;
     }

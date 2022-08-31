@@ -175,20 +175,6 @@ public class Project {
         return plugin;
     }
 
-    public Set<Player> getPlayersInsideProject() {
-
-        RegionManager manager = plugin.getRegionsManager();
-        Set<Player> players = new HashSet<>();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (manager.getApplicableRegions(player.getLocation()).getRegions().contains(region)) {
-                players.add(player);
-            }
-        }
-
-        return players;
-    }
-
     public Tag getTag() {
         return tag;
     }
@@ -251,6 +237,21 @@ public class Project {
 
     public ProjectsRegistry getRegistry() {
         return registry;
+    }
+
+    public EmptyProjectAction empty() {
+        return new EmptyProjectAction(this);
+    }
+
+    public Set<Player> getPlayersInside() {
+        Set<Player> result = new HashSet<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            BlockVector2D vector = new BlockVector2D(player.getLocation().getX(), player.getLocation().getZ());
+            if (region.contains(vector)) {
+                result.add(player);
+            }
+        }
+        return result;
     }
 
     public void saveToDisk() {

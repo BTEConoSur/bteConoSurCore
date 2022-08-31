@@ -15,7 +15,10 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,7 +38,13 @@ import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
+import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NonMemberProjectSelector;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.SmallestProjectSelector;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.misc.Misc;
@@ -43,7 +52,7 @@ import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
@@ -51,7 +60,8 @@ import java.util.*;
 import static pizzaaxx.bteconosur.BteConoSur.key;
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager.pointsPrefix;
-import static pizzaaxx.bteconosur.misc.Misc.*;
+import static pizzaaxx.bteconosur.misc.Misc.formatStringWithBaseComponents;
+import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.projects.ProjectManageInventoryListener.inventoryActions;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
@@ -213,40 +223,45 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("claim") || args[0].equalsIgnoreCase("reclamar")) {
 
+                GlobalProjectsManager globalManager = plugin.getProjectsManager();
+
                 try {
-                    OldProject project = new OldProject(p.getLocation());
-                    if (project.getOwner() != null) {
-                        if (project.getOwner() == p) {
-                            p.sendMessage(projectsPrefix + "Ya eres dueñ@ de este proyecto.");
-                        } else if (project.getMembers().contains(p)) {
+
+                    Project project = globalManager.getProjectAt(p.getLocation(), new NonMemberProjectSelector(p.getUniqueId(), plugin));
+                    if (project.isClaimed()) {
+                        if (project.getAllMembers().size() < maxProjectMembers) {
                             p.sendMessage("Alguien más ya es dueñ@ de este proyecto. Usa §a/p request §fpara solicitar unirte.");
+                        } else {
+                            p.sendMessage("No puedes unirte a este proyecto porque ya está lleno.");
                         }
                     } else if (projectsManager.getOwnedProjects().getOrDefault(project.getCountry(), new ArrayList<>()).size() >= maxProjectsPerPlayer){
                         p.sendMessage(projectsPrefix + "No puedes ser líder de más de 10 proyectos al mismo tiempo.");
                     } else {
                         GroupsManager manager = s.getGroupsManager();
-                        if ((manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.POSTULANTE || manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT) && project.getDifficulty() != OldProject.Difficulty.FACIL) {
+                        if ((manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.POSTULANTE || manager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT) && project.getDifficulty() != Project.Difficulty.FACIL) {
                             p.sendMessage(projectsPrefix + "En tu rango solo puedes reclamar proyectos fáciles.");
                             return true;
                         }
-                        project.setOwner(p);
-                        project.save();
 
-                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                            ScoreboardManager scoreboardManager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                            if (scoreboardManager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                scoreboardManager.update();
+                        try {
+                            project.claim(p.getUniqueId()).exec();
+                        } catch (ProjectActionException e) {
+                            if (e.getType() == ProjectActionException.Type.ProjectAlreadyClaimed) {
+                                p.sendMessage("Ha ocurrido un error.");
+                                return true;
                             }
                         }
 
+                        project.updatePlayersScoreboard();
+
                         p.sendMessage(projectsPrefix + "Ahora eres dueñ@ de este proyecto.");
 
-                        project.getCountry().getLogs().sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
+                        project.getCountry().getProjectsLogsChannel().sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (NoProjectsFoundException e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto del que no seas miembro aún.");
+                } catch (NotInsideProjectException e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
-                    return true;
                 }
                 return true;
             }
@@ -260,52 +275,47 @@ public class ProjectsCommand implements CommandExecutor {
 
                 deleteConfirmation.remove(p);
                 if (args.length >= 2) {
-                    if (OldProject.projectExists(args[1])) {
-                        OldProject project = new OldProject(args[1]);
+                    if (plugin.getProjectsManager().exists(args[1])) {
+                        Project project = plugin.getProjectsManager().getFromId(args[1]);
 
                         if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
-
                             p.sendMessage(projectsPrefix + "No puedes hacer esto en este país.");
                             return true;
                         }
 
-                        project.delete();
-
-                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                manager.update();
-                            }
-                        }
-
                         p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
 
-                        for (OfflinePlayer member : project.getAllMembers()) {
-                            new ServerPlayer(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName(true) + "§f** ha sido eliminado.");
+                        for (UUID member : project.getAllMembers()) {
+                            plugin.getPlayerRegistry().get(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName() + "§f** ha sido eliminado.");
                         }
 
-                        project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+                        project.getCountry().getProjectsLogsChannel().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+
+                        project.getRegistry().deleteProject(args[1]);
                     } else {
                         p.sendMessage(projectsPrefix + "Este proyecto no existe.");
                         return true;
                     }
                 } else {
                     try {
-                        OldProject project = new OldProject(p.getLocation());
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
                         if (!s.getPermissionCountries().contains(project.getCountry().getName())) {
-
                             p.sendMessage(projectsPrefix + "No puedes hacer esto en este país.");
                             return true;
-
                         }
 
-                        project.delete();
-
                         p.sendMessage(projectsPrefix + "Has eliminado el proyecto §a" + project.getId() + "§f.");
-                        project.getCountry().getLogs().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+
+                        for (UUID member : project.getAllMembers()) {
+                            plugin.getPlayerRegistry().get(member).sendNotification(projectsPrefix + "Tu proyecto **§a" + project.getName() + "§f** ha sido eliminado.");
+                        }
+
+                        project.getCountry().getProjectsLogsChannel().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
+
+                        project.getRegistry().deleteProject(args[1]);
                     } catch (Exception e) {
-                        p.sendMessage(projectsPrefix + "No estás dentro de ningun proyecto.");
+                        p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                     }
                 }
                 return true;

@@ -18,7 +18,7 @@ public class UpdateScoreboardProjectAction implements ProjectAction {
     public UpdateScoreboardProjectAction(Project project) {
         this.project = project;
         this.plugin = project.getPlugin();
-        players.addAll(project.getPlayersInsideProject());
+        players.addAll(project.getPlayersInside());
     }
 
     @Override
