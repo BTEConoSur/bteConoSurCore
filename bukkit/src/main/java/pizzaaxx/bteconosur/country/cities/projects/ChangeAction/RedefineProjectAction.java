@@ -8,14 +8,19 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import org.bukkit.Bukkit;
+import pizzaaxx.bteconosur.HelpMethods.SatMapHelper;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
+import pizzaaxx.bteconosur.helper.Pair;
 
-import java.util.Collections;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
-
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 
 /**
@@ -60,7 +65,7 @@ public class RedefineProjectAction implements ProjectAction {
             newRegion.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
             newRegion.setPriority(1);
 
-            FlagRegistry registry = getWorldGuard().getFlagRegistry();
+            FlagRegistry registry = project.getPlugin().getWorldGuard().getFlagRegistry();
             newRegion.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
             newRegion.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
 
@@ -75,6 +80,15 @@ public class RedefineProjectAction implements ProjectAction {
             manager.addRegion(newRegion);
             project.region = manager.getRegion("project_" + project.getId());
             project.updatePlayersScoreboard();
+
+            try {
+                BufferedImage map = ImageIO.read(new URL(SatMapHelper.getURL(new Pair<>(project.getPoints(), "6382DC50"))));
+                File output = new File(project.getRegistry().getImagesFolder(), project.getId() + ".png");
+                ImageIO.write(map, "png", output);
+            } catch (IOException e) {
+                Bukkit.getConsoleSender().sendMessage("Ha ocurrido un error al cargar el mapa del proyecto " + project.getId().toUpperCase() + ".");
+            }
+
         } else {
             throw new ProjectActionException(ProjectActionException.Type.NewRegionOutsideCountry);
         }

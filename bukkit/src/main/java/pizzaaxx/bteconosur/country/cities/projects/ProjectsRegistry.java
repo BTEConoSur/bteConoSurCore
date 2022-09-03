@@ -9,14 +9,19 @@ import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.HelpMethods.SatMapHelper;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.UpdateScoreboardProjectAction;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
+import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.methods.CodeGenerator;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 public class ProjectsRegistry {
@@ -29,6 +34,7 @@ public class ProjectsRegistry {
 
     private final Set<String> ids = new HashSet<>();
     private final File folder;
+    private final File imagesFolder;
 
     public ProjectsRegistry(@NotNull City city, @NotNull BteConoSur plugin) {
 
@@ -36,6 +42,7 @@ public class ProjectsRegistry {
         this.plugin = plugin;
 
         folder = new File(city.getFolder(), "/projects");
+        imagesFolder = new File(city.getFolder(), "/projectsImages");
         File[] files = folder.listFiles();
 
         if (files != null) {
@@ -77,6 +84,14 @@ public class ProjectsRegistry {
             return registry.get(id);
         }
         return null;
+    }
+
+    public File getFolder() {
+        return folder;
+    }
+
+    public File getImagesFolder() {
+        return imagesFolder;
     }
 
     public City getCity() {
@@ -136,6 +151,10 @@ public class ProjectsRegistry {
 
             plugin.getRegionsManager().addRegion(region);
 
+            BufferedImage map = ImageIO.read(new URL(SatMapHelper.getURL(new Pair<>(points, "6382DC50"))));
+            File output = new File(imagesFolder, id + ".png");
+            ImageIO.write(map, "png", output);
+
             ids.add(id);
 
             plugin.getProjectsManager().add(this.get(id));
@@ -151,8 +170,9 @@ public class ProjectsRegistry {
 
         if (exists(id)) {
             File projectFile = new File(folder, id + ".yml");
+            File imageFile = new File(imagesFolder, id + ".png");
             if (projectFile.exists()) {
-                if (projectFile.delete()) {
+                if (projectFile.delete() && imageFile.delete()) {
                     Project project = this.get(id);
                     UpdateScoreboardProjectAction action = new UpdateScoreboardProjectAction(project);
                     project.empty().exec();
@@ -163,7 +183,6 @@ public class ProjectsRegistry {
                     action.exec();
                     return true;
                 }
-
             }
         }
         return false;
