@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.country.cities.projects.ChangeAction;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -31,7 +32,7 @@ public class TransferProjectAction implements ProjectAction {
     public void exec() throws ProjectActionException {
 
         if (project.members.contains(target)) {
-            if (project.getPlugin().getPlayerRegistry().get(target).getProjectsManager().getAllOwnedProjects().size() < 10) {
+            if (project.getPlugin().getPlayerRegistry().get(target).getProjectsManager().getOwnedProjects().getOrDefault(project.getCountry(), new ArrayList<>()).size() < 10) {
                 project.members.remove(target);
                 project.members.add(from);
                 project.owner = target;
