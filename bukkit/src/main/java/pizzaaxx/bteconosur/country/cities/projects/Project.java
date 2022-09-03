@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.ProjectChat;
+import pizzaaxx.bteconosur.HelpMethods.RegionHelper;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.*;
@@ -225,6 +227,10 @@ public class Project {
 
     public List<BlockVector2D> getPoints() {
         return region.getPoints();
+    }
+
+    public Coords2D getAverageCoordinate() {
+        return RegionHelper.getAverageCoordinate(getPoints());
     }
 
     public boolean isClaimed() {

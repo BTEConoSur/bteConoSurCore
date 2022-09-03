@@ -46,7 +46,6 @@ import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
-import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
@@ -310,7 +309,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         project.getCountry().getProjectsLogsChannel().sendMessage(":wastebasket: **" + s.getName() + "** ha eliminado el proyecto `" + project.getId() + "`.").queue();
 
-                        project.getRegistry().deleteProject(args[1]);
+                        project.getRegistry().deleteProject(project.getId());
                     } catch (Exception e) {
                         p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                     }
@@ -631,34 +630,32 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("pending") || args[0].equalsIgnoreCase("pendientes")) {
 
-                OldCountry country = new OldCountry(p.getLocation());
+                if (plugin.getCountryManager().isInsideAnyCountry(p.getLocation())) {
+                    Country country = plugin.getCountryManager().get(p.getLocation());
 
-                if (!s.getPermissionCountries().contains(country.getName())) {
+                    if (!s.getPermissionCountries().contains(country.getName())) {
+                        p.sendMessage(projectsPrefix + "§cNo puedes revisar los proyectos de este país.");
+                        return true;
+                    }
 
-                    p.sendMessage(projectsPrefix + "§cNo puedes revisar los proyectos de este país.");
-                    return true;
+                    Configuration pendingConfig = country.getPending();
+                    List<String> pending = pendingConfig.getStringList("pending");
+                    if (!pending.isEmpty()) {
+                        BookUtil.BookBuilder book = BookUtil.writtenBook();
 
-                }
+                        List<BaseComponent[]> pages = new ArrayList<>();
 
-                Configuration pendingConfig = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "pending_projects/pending");
-                List<String> pending = pendingConfig.getStringList(country.getName());
-                if (!pending.isEmpty()) {
-                    BookUtil.BookBuilder book = BookUtil.writtenBook();
+                        List<List<String>> subLists= Lists.partition(pending, 12);
 
-                    List<BaseComponent[]> pages = new ArrayList<>();
+                        for (List<String> subList : subLists) {
+                            BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+                            page.add("§7---[ §rPENDIENTES §7]---");
+                            page.newLine();
 
-                    List<List<String>> subLists= Lists.partition(pending, 12);
+                            for (String str : subList) {
+                                Project project = plugin.getProjectsManager().getFromId(str);
 
-                    for (List<String> subList : subLists) {
-                        BookUtil.PageBuilder page = new BookUtil.PageBuilder();
-                        page.add("§7---[ §rPENDIENTES §7]---");
-                        page.newLine();
-
-                        for (String str : subList) {
-                            try {
-                                OldProject project = new OldProject(str);
-
-                                String coord = project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ();
+                                String coord = project.getAverageCoordinate().toBlockVector2D().getBlockX() + " " + project.getAverageCoordinate().getHighestY() + " " + project.getAverageCoordinate().toBlockVector2D().getBlockZ();
 
                                 page.add("- ");
                                 page.add(BookUtil.TextBuilder.of(str)
@@ -666,20 +663,18 @@ public class ProjectsCommand implements CommandExecutor {
                                         .onClick(BookUtil.ClickAction.runCommand("/tp " + coord))
                                         .build());
                                 page.newLine();
-
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
                             }
+                            pages.add(page.build());
                         }
-                        pages.add(page.build());
+
+                        book.pages(pages);
+
+                        BookUtil.openPlayer(p, book.build());
+                    } else {
+                        p.sendMessage(projectsPrefix + "No hay proyectos pendientes de revisión en este país.");
                     }
-
-                    book.pages(pages);
-
-                    BookUtil.openPlayer(p, book.build());
-                } else {
-                    p.sendMessage(projectsPrefix + "No hay proyectos pendientes de revisión en este país.");
                 }
+
             }
 
             if (args[0].equalsIgnoreCase("finish") || args[0].equalsIgnoreCase("terminar")|| args[0].equalsIgnoreCase("finalizar")) {
