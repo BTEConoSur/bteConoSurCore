@@ -18,6 +18,7 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Chat.ChatCommand;
 import pizzaaxx.bteconosur.Chat.ChatEventsListener;
@@ -50,6 +51,7 @@ import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
+import pizzaaxx.bteconosur.terramap.ImagesServer;
 import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
 import pizzaaxx.bteconosur.testing.Testing;
@@ -345,7 +347,16 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getGateway().sendMessageEmbeds(online.build()).queue();
 
         getLogger().info("Iniciando la secuancia de chqueo de scoreboards automáticos.");
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ScoreboardManager::checkAutoScoreboards, 300, 300);
+
+        BteConoSur plugin = this;
+        BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                ScoreboardManager.checkAutoScoreboards(plugin);
+            }
+        };
+
+        runnable.runTaskTimer(this, 300, 300);
 
         countryManager = new CountryManager(this, bot);
         countryManager.add("argentina", "ar", "Argentina", false);
@@ -354,6 +365,10 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         countryManager.add("paraguay", "py", "Paraguay", true);
         countryManager.add("peru", "pe", "Perú", true);
         countryManager.add("uruguay", "uy", "Uruguay", true);
+
+        // Initialize TerramapServer
+
+        ImagesServer imgServer = new ImagesServer(this);
 
     }
 

@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.country.cities;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
@@ -23,6 +24,7 @@ public class City {
     private final File folder;
     private String displayName;
     private List<BlockVector2D> urbanArea;
+    private final ProtectedRegion region;
     private final List<String> showcaseIDs = new ArrayList<>();
     private final List<List<BlockVector2D>> finishedRegions = new ArrayList<>();
 
@@ -31,6 +33,7 @@ public class City {
         this.country = country;
         this.config = new Configuration(plugin, "countries/" + country.getName() + "/cities/" + name + "/config");
         this.plugin = plugin;
+        this.region = plugin.getRegionsManager().getRegion("city_" + country.getName() + "_" + name);
 
         this.registry = new ProjectsRegistry(this, plugin);
         this.name = name;
@@ -150,4 +153,7 @@ public class City {
         return name.equals("default");
     }
 
+    public ProtectedRegion getRegion() {
+        return region;
+    }
 }

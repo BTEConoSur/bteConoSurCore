@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.country.cities.projects;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -13,10 +14,7 @@ import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProj
 import pizzaaxx.bteconosur.helper.Pair;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GlobalProjectsManager {
 
@@ -122,6 +120,48 @@ public class GlobalProjectsManager {
 
     public Pair<Country, String> getPathFromId(@NotNull String id) {
         return registry.get(id);
+    }
+
+    // TODO MOST PROBABLY DOESN'T WORK
+    public Set<ProtectedRegion> getProjectsIntersecting(ProtectedRegion region) {
+
+        Set<ProtectedRegion> projects = new HashSet<>();
+
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+
+            if (!region.getIntersectingRegions(country.getRegions()).isEmpty()) { // <- Is inside country
+
+                Set<ProtectedRegion> cityRegions = new HashSet<>();
+
+                for (String name : country.getCityRegistry().getNames()) {
+                    cityRegions.add(plugin.getRegionsManager().getRegion("city_" + country.getName() + "_" + name));
+                }
+
+                for (ProtectedRegion cityRegion : region.getIntersectingRegions(cityRegions)) { // <- Cities the regions is in
+
+                    File projectsFolder = new File(country.getFolder(), "cities/" + cityRegion.getId().split("_")[2] + "/projects");
+                    File[] projectsFiles = projectsFolder.listFiles();
+
+                    if (projectsFiles != null) {
+
+                        Set<ProtectedRegion> projectRegions = new HashSet<>();
+
+                        for (File project : projectsFiles) {
+                            String id = project.getName().replace(".yml", "");
+                            projectRegions.add(plugin.getRegionsManager().getRegion("project_" + id));
+                        }
+
+                        projects.addAll(region.getIntersectingRegions(projectRegions));
+                    }
+
+                }
+
+            }
+
+        }
+
+        return projects;
+
     }
 
 }

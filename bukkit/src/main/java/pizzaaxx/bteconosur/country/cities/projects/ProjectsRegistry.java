@@ -151,9 +151,12 @@ public class ProjectsRegistry {
 
             plugin.getRegionsManager().addRegion(region);
 
+            // WRITE MAP FILE
             BufferedImage map = ImageIO.read(new URL(SatMapHelper.getURL(new Pair<>(points, "6382DC50"))));
             File output = new File(imagesFolder, id + ".png");
             ImageIO.write(map, "png", output);
+
+            // WRITE TERRAMAP FILES
 
             ids.add(id);
 

@@ -134,4 +134,8 @@ public class CityRegistry {
     public Country getCountry() {
         return country;
     }
+
+    public List<String> getNames() {
+        return names;
+    }
 }
