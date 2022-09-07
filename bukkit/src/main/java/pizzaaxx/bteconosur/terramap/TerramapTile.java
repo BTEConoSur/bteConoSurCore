@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.terramap;
 
+import org.jetbrains.annotations.NotNull;
+
 public class TerramapTile {
 
     private final int x;
@@ -66,5 +68,9 @@ public class TerramapTile {
 
     public double getMinLat() {
         return minLat;
+    }
+
+    public boolean equals(@NotNull TerramapTile tile) {
+        return (this.x == tile.x && this.y == tile.y && this.zoom == tile.zoom);
     }
 }

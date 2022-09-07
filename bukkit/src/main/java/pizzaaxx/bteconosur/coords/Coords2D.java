@@ -5,6 +5,7 @@ import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.bukkit.Location;
+import pizzaaxx.bteconosur.helper.Pair;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
@@ -73,5 +74,9 @@ public class Coords2D {
 
     public int getHighestY() {
         return mainWorld.getHighestBlockYAt(new Location(mainWorld, this.x, 100, this.z));
+    }
+
+    public Pair<Double, Double> getGeoPair() {
+        return new Pair<>(lon, lat);
     }
 }
