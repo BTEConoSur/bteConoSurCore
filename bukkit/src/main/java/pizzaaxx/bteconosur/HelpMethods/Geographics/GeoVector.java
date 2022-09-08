@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.HelpMethods;
+package pizzaaxx.bteconosur.HelpMethods.Geographics;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.helper.Pair;
