@@ -1,7 +1,6 @@
-package pizzaaxx.bteconosur.misc;
+package pizzaaxx.bteconosur.HelpMethods;
 
-public class NumberMethods {
-
+public class NumberHelper {
     public static double getNumberInNewRange(double oldMin, double oldMax, double newMin, double newMax, double oldNumber) {
 
         double oldRange = oldMax - oldMin;
@@ -17,5 +16,4 @@ public class NumberMethods {
         }
 
     }
-
 }

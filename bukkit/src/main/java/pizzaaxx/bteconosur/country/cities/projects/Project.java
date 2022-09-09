@@ -63,6 +63,38 @@ public class Project {
         public @NotNull String toFormattedString() {
             return super.toString().replace("_", " ");
         }
+
+        public @NotNull List<Project> getAvailableProjects(Country country) {
+            List<String> ids = country.getTags().getStringList(this.toString().toLowerCase());
+
+            List<Project> result = new ArrayList<>();
+
+            for (String id : ids) {
+
+                GlobalProjectsManager manager = country.getPlugin().getProjectsManager();
+
+                if (manager.exists(id)) {
+                    result.add(manager.getFromId(id));
+                }
+            }
+
+            return result;
+        }
+
+        public @NotNull List<Project> getAvailableProjects(Country country, Difficulty difficulty) {
+
+            List<Project> available = this.getAvailableProjects(country);
+
+            List<Project> result = new ArrayList<>();
+
+            for (Project project : available) {
+                if (project.getDifficulty() == difficulty) {
+                    result.add(project);
+                }
+            }
+
+            return result;
+        }
     }
 
     private final BteConoSur plugin;

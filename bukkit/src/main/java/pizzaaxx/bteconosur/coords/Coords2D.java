@@ -5,6 +5,8 @@ import net.buildtheearth.terraplusplus.generator.EarthGeneratorSettings;
 import net.buildtheearth.terraplusplus.projection.GeographicProjection;
 import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.helper.Pair;
 
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
@@ -52,8 +54,8 @@ public class Coords2D {
         return new BlockVector2D(this.x, this.z);
     }
 
-    public Location toHighestLocation() {
-        return new Location(mainWorld, this.x, getHighestY(), this.z);
+    public Location toHighestLocation(@NotNull BteConoSur plugin) {
+        return new Location(plugin.getWorld(), this.x, getHighestY(plugin), this.z);
     }
 
     public double getLon() {
@@ -80,8 +82,8 @@ public class Coords2D {
         return (int) z;
     }
 
-    public int getHighestY() {
-        return mainWorld.getHighestBlockYAt(new Location(mainWorld, this.x, 100, this.z));
+    public int getHighestY(@NotNull BteConoSur plugin) {
+        return plugin.getWorld().getHighestBlockYAt((int) x, (int) z);
     }
 
     public Pair<Double, Double> getGeoPair() {

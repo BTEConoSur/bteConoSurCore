@@ -4,8 +4,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.OldCountry;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +19,12 @@ import java.util.concurrent.CompletableFuture;
 public class TpDirCommand implements CommandExecutor {
 
     public static String tpdirPrefix = "§f[§9TPDIR§f] §7>>§r ";
+
+    private final BteConoSur plugin;
+
+    public TpDirCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -65,12 +71,12 @@ public class TpDirCommand implements CommandExecutor {
 
                         Coords2D coords = new Coords2D(Double.parseDouble(map.get("lat")), Double.parseDouble(map.get("lon")));
 
-                        if (new OldCountry(coords.toBlockVector2D()).getName().equals("global")) {
+                        if (!plugin.getCountryManager().isInsideAnyCountry(coords.toBlockVector2D())) {
                             p.sendMessage(tpdirPrefix + "El lugar introducido está fuera del Cono Sur.");
                             return;
                         }
 
-                        p.teleport(coords.toHighestLocation());
+                        p.teleport(coords.toHighestLocation(plugin));
                         p.sendMessage(tpdirPrefix + "Teletransportándote a §a" + map.get("display_name").split(",")[0] + "§f.");
                     } catch (IOException e) {
                         p.sendMessage(tpdirPrefix + "Ha ocurrido un error.");

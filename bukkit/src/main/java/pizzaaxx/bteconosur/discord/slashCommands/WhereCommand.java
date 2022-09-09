@@ -7,15 +7,14 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.HelpMethods.NumberHelper;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.OldCountry;
-import pizzaaxx.bteconosur.misc.NumberMethods;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -116,8 +115,8 @@ public class WhereCommand extends ListenerAdapter implements Listener {
                                 continue;
                             }
 
-                            double pixelX = NumberMethods.getNumberInNewRange(-118, -14, 0, 1183, lon) - 23;
-                            double pixelY = Math.abs(NumberMethods.getNumberInNewRange(-57, 1, -806, 0, lat)) - 69;
+                            double pixelX = NumberHelper.getNumberInNewRange(-118, -14, 0, 1183, lon) - 23;
+                            double pixelY = Math.abs(NumberHelper.getNumberInNewRange(-57, 1, -806, 0, lat)) - 69;
 
                             graphics.drawImage(headImages.get(p.getUniqueId()), (int) pixelX, (int) pixelY, null);
 

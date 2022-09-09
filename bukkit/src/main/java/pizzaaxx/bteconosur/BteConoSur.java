@@ -203,7 +203,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
                 new ProjectActionBar(),
                 new OnTeleport(),
                 new PresetsCommand(this),
-                new PFindCommand(),
+                new PFindCommand(this),
                 new ShortCuts(playerRegistry, selectionCommands),
                 new ChatEventsListener(this),
                 new ScoreboardCommand(this),
@@ -241,7 +241,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("streaming").setExecutor(new StreamingCommand(this));
         getCommand("get").setExecutor(new GetCommand(this));
         getCommand("scoreboard").setExecutor(new ScoreboardCommand(this));
-        getCommand("tpdir").setExecutor(new TpDirCommand());
+        getCommand("tpdir").setExecutor(new TpDirCommand(this));
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand(this, teleportsConfig));
         getCommand("assets").setExecutor(new LobbyCommand(this, teleportsConfig));
