@@ -209,6 +209,10 @@ public class Project {
         return new ClaimProjectAction(this, target, plugin);
     }
 
+    public RedefineProjectAction redefine(List<BlockVector2D> points, Difficulty difficulty) {
+        return new RedefineProjectAction(this, points, difficulty);
+    }
+
     public SetPendingProjectAction setPending(boolean pending) {
         return new SetPendingProjectAction(this, pending);
     }

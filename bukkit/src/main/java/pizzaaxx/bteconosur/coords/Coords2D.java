@@ -68,8 +68,16 @@ public class Coords2D {
         return x;
     }
 
+    public int getBlockX() {
+        return (int) x;
+    }
+
     public double getZ() {
         return z;
+    }
+
+    public double getBlockZ() {
+        return (int) z;
     }
 
     public int getHighestY() {

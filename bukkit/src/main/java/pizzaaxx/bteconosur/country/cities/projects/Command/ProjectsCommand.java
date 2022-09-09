@@ -53,7 +53,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.key;
 import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.formatStringWithBaseComponents;
@@ -61,7 +60,6 @@ import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.projects.ProjectManageInventoryListener.inventoryActions;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getPlayersInRegion;
 
 public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
@@ -680,42 +678,36 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("finish") || args[0].equalsIgnoreCase("terminar")|| args[0].equalsIgnoreCase("finalizar")) {
 
                 try {
-                    OldProject project = new OldProject(p.getLocation());
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), true, plugin));
 
-                    if (project.getOwner() == p) {
-                        if (!(project.isPending())) {
-                            if (finishConfirmation.contains(p)) {
-                                finishConfirmation.remove(p);
-                                project.setPending(true);
-                                project.save();
+                    if (!(project.isPending())) {
+                        if (finishConfirmation.contains(p)) {
+                            finishConfirmation.remove(p);
+                            project.setPending(true).exec();
 
-                                p.sendMessage(projectsPrefix + "Has marcado el proyecto §a" + project.getName() + "§f como terminado.");
+                            p.sendMessage(projectsPrefix + "Has marcado el proyecto §a" + project.getName() + "§f como terminado.");
 
-                                for (OfflinePlayer member : project.getMembers()) {
-                                    new ServerPlayer(member).sendNotification(projectsPrefix + "**§a" + new ServerPlayer(project.getOwner()).getName() + "§f** ha marcado el proyecto **§a" + project.getName(true) + "§f** como terminado.");
-                                }
-
-                                project.getCountry().getLogs().sendMessage(":lock: **" + s.getName() + "** ha marcado el proyecto `" + project.getId() + "` como terminado.").queue();
-                            } else {
-                                finishConfirmation.add(p);
-                                p.sendMessage(projectsPrefix + "§cNo podrás construir ni administrar tu proyecto mientras está en revisión. §fUsa el comando de nuevo para confirmar.");
+                            for (UUID member : project.getMembers()) {
+                                plugin.getPlayerRegistry().get(member).sendNotification(projectsPrefix + "**§a" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "§f** ha marcado el proyecto **§a" + project.getName() + "§f** como terminado.");
                             }
+
+                            project.getCountry().getProjectsLogsChannel().sendMessage(":lock: **" + s.getName() + "** ha marcado el proyecto `" + project.getId() + "` como terminado.").queue();
                         } else {
-                            p.sendMessage(projectsPrefix + "Este proyecto ya está marcado como terminado.");
+                            finishConfirmation.add(p);
+                            p.sendMessage(projectsPrefix + "§cNo podrás construir ni administrar tu proyecto mientras está en revisión. §fUsa el comando de nuevo para confirmar.");
                         }
                     } else {
-                        p.sendMessage(projectsPrefix + " No eres el líder de este proyecto.");
+                        p.sendMessage(projectsPrefix + "Este proyecto ya está marcado como terminado.");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                } catch (NotInsideProjectException | NoProjectsFoundException e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto del que seas líder.");
                 }
             }
 
             if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("informacion")) {
 
                 try {
-                    OldProject project = new OldProject(p.getLocation());
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
                     //--------------------------------
 
@@ -775,7 +767,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     // GMAPS
 
-                    Coords2D gMaps = new Coords2D(project.getAverageCoordinate());
+                    Coords2D gMaps = project.getAverageCoordinate();
                     page.add(BookUtil.TextBuilder.of("GoogleMaps: ")
                             .color(ChatColor.GREEN)
                             .style(ChatColor.BOLD)
@@ -796,8 +788,9 @@ public class ProjectsCommand implements CommandExecutor {
                                 .style(ChatColor.BOLD)
                                 .build()
                         );
-                        page.add(BookUtil.TextBuilder.of(new ServerPlayer(project.getOwner()).getName())
-                                .onHover(BookUtil.HoverAction.showText(new ServerPlayer(project.getOwner()).getLore()))
+                        ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
+                        page.add(BookUtil.TextBuilder.of(owner.getName())
+                                .onHover(BookUtil.HoverAction.showText(owner.getLore()))
                                 .build()
                         );
                         page.newLine();
@@ -806,10 +799,11 @@ public class ProjectsCommand implements CommandExecutor {
                     int i = 1;
                     if (!project.getMembers().isEmpty()) {
                         page.add("§a§lMiembro(s) (" + project.getMembers().size() + "): §r");
-                        for (OfflinePlayer member : project.getMembers()) {
+                        for (UUID uuid : project.getMembers()) {
+                            ServerPlayer member = plugin.getPlayerRegistry().get(uuid);
                             page.add(
-                                    BookUtil.TextBuilder.of(new ServerPlayer(member).getName())
-                                            .onHover(BookUtil.HoverAction.showText(new ServerPlayer(member).getLore()))
+                                    BookUtil.TextBuilder.of(member.getName())
+                                            .onHover(BookUtil.HoverAction.showText(member.getLore()))
                                             .build()
                             );
 
@@ -824,7 +818,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     BookUtil.openPlayer(p, builder.build());
 
-                } catch (Exception e) {
+                } catch (NotInsideProjectException | NoProjectsFoundException e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
 
@@ -839,9 +833,9 @@ public class ProjectsCommand implements CommandExecutor {
 
                     for (String id : projectsManager.getAllProjects()) {
 
-                        try {
+                        if (plugin.getProjectsManager().exists(id)) {
 
-                            OldProject project = new OldProject(id);
+                            Project project = plugin.getProjectsManager().getFromId(id);
 
                             BookUtil.PageBuilder page = new BookUtil.PageBuilder();
 
@@ -860,17 +854,17 @@ public class ProjectsCommand implements CommandExecutor {
                             page.newLine();
 
                             page.add("§a§lCoordenadas: §r\n");
+                            Coords2D avgCoord = project.getAverageCoordinate();
                             page.add(
-                                    BookUtil.TextBuilder.of(project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ())
+                                    BookUtil.TextBuilder.of(avgCoord.getBlockX() + " " + avgCoord.getHighestY() + " " + avgCoord.getBlockZ())
                                             .onHover(BookUtil.HoverAction.showText("Click para ir"))
-                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + project.getAverageCoordinate().getBlockX() + " " + new Coords2D(project.getAverageCoordinate()).getHighestY() + " " + project.getAverageCoordinate().getBlockZ()))
+                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + avgCoord.getBlockX() + " " + avgCoord.getHighestY() + " " + avgCoord.getBlockZ()))
                                             .build()
                             );
                             page.newLine();
 
-
                             page.add("§a§lLíder: §r");
-                            ServerPlayer sOwner = new ServerPlayer(project.getOwner());
+                            ServerPlayer sOwner = plugin.getPlayerRegistry().get(project.getOwner());
                             page.add(
                                     BookUtil.TextBuilder.of(sOwner.getName())
                                             .onHover(BookUtil.HoverAction.showText(sOwner.getLore()))
@@ -879,11 +873,11 @@ public class ProjectsCommand implements CommandExecutor {
                             page.newLine();
 
                             int i = 1;
-                            List<OfflinePlayer> members = project.getMembers();
+                            Set<UUID> members = project.getMembers();
                             if (!members.isEmpty()) {
                                 page.add("§a§lMiembro(s)" + project.getMembers().size() + ": §r");
-                                for (OfflinePlayer member : members) {
-                                    ServerPlayer sMember = new ServerPlayer(member);
+                                for (UUID member : members) {
+                                    ServerPlayer sMember = plugin.getPlayerRegistry().get(member);
                                     page.add(
                                             BookUtil.TextBuilder.of(sMember.getName())
                                                     .onHover(BookUtil.HoverAction.showText(sMember.getLore()))
@@ -898,8 +892,6 @@ public class ProjectsCommand implements CommandExecutor {
                             }
 
                             pages.add(page.build());
-                        } catch (Exception e) {
-                            Bukkit.getConsoleSender().sendMessage("Problema con el proyecto: " + id);
                         }
                     }
 
@@ -913,89 +905,79 @@ public class ProjectsCommand implements CommandExecutor {
             if (args[0].equalsIgnoreCase("manage") || args[0].equalsIgnoreCase("manejar")) {
 
                 try {
-                    OldProject project = new OldProject(p.getLocation());
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), true, plugin));
 
-                    if (project.getOwner() == p) {
-                        Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName(true) : ""));
+                    Inventory gui = Bukkit.createInventory(null, 54, "Proyecto " + project.getId().toUpperCase() + (project.getName() != null ? " - " + project.getName() : ""));
 
-                        List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
+                    List<Integer> membersSlots = Arrays.asList(28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
 
-                        for (int i = 0; i <= 53; i++) {
-                            if (!membersSlots.contains(i)) {
-                                gui.setItem(i, background);
-                            }
+                    for (int i = 0; i <= 53; i++) {
+                        if (!membersSlots.contains(i)) {
+                            gui.setItem(i, background);
                         }
-
-                        final Map<Integer, String> actions = new HashMap<>();
-
-                        int i = 0;
-                        for (OfflinePlayer member : project.getMembers()) {
-                            ItemStack memberHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                            SkullMeta meta = (SkullMeta) memberHead.getItemMeta();
-                            ServerPlayer sMember = new ServerPlayer(member);
-                            meta.setDisplayName("§f" + sMember.getName());
-                            meta.setLore(Arrays.asList(
-                                    sMember.getLoreWithoutTitle(),
-                                    "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto"
-                            ));
-                            actions.put(membersSlots.get(i), "remove " + sMember.getPlayer().getUniqueId());
-                            meta.setOwningPlayer(member);
-                            memberHead.setItemMeta(meta);
-
-                            gui.setItem(membersSlots.get(i), memberHead);
-                            i++;
-                        }
-
-                        if (project.getMembers().size() < 14) {
-                            ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
-                            gui.setItem(membersSlots.get(i), add);
-                            actions.put(membersSlots.get(i), "add");
-                        }
-
-                        OfflinePlayer owner = project.getOwner();
-                        ServerPlayer sOwner = new ServerPlayer(owner);
-                        ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                        SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
-                        meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
-                        meta.setLore(Arrays.asList(
-                                s.getLoreWithoutTitle(),
-                                "\n§e[➡] §7Haz click para §etransferir §7el proyecto"
-                        ));
-                        actions.put(13, "transfer");
-                        meta.setOwningPlayer(owner);
-                        ownerHead.setItemMeta(meta);
-
-                        gui.setItem(13, ownerHead);
-
-                        p.openInventory(gui);
-
-                        inventoryActions.put(p.getUniqueId(), actions);
-
-                    } else {
-                        p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                     }
-                } catch (Exception e) {
-                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+
+                    final Map<Integer, String> actions = new HashMap<>();
+
+                    int i = 0;
+                    for (UUID member : project.getMembers()) {
+                        ItemStack memberHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                        SkullMeta meta = (SkullMeta) memberHead.getItemMeta();
+                        ServerPlayer sMember = plugin.getPlayerRegistry().get(member);
+                        meta.setDisplayName("§f" + sMember.getName());
+                        meta.setLore(Arrays.asList(
+                                sMember.getLoreWithoutTitle(),
+                                "\n§c[-] §7Haz click para §cremover §7al jugador del proyecto"
+                        ));
+                        actions.put(membersSlots.get(i), "remove " + sMember.getPlayer().getUniqueId());
+                        meta.setOwningPlayer(Bukkit.getOfflinePlayer(member));
+                        memberHead.setItemMeta(meta);
+
+                        gui.setItem(membersSlots.get(i), memberHead);
+                        i++;
+                    }
+
+                    if (project.getMembers().size() < 14) {
+                        ItemStack add = Misc.getCustomHead("§fAgregar miembros", "§a[+] §7Haz click para §aagregar §7miembros al proyecto", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19");
+                        gui.setItem(membersSlots.get(i), add);
+                        actions.put(membersSlots.get(i), "add");
+                    }
+
+                    UUID owner = project.getOwner();
+                    ServerPlayer sOwner = plugin.getPlayerRegistry().get(owner);
+                    ItemStack ownerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                    SkullMeta meta = (SkullMeta) ownerHead.getItemMeta();
+                    meta.setDisplayName("§a§lLíder: §f" + sOwner.getName());
+                    meta.setLore(Arrays.asList(
+                            s.getLoreWithoutTitle(),
+                            "\n§e[➡] §7Haz click para §etransferir §7el proyecto"
+                    ));
+                    actions.put(13, "transfer");
+                    meta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+                    ownerHead.setItemMeta(meta);
+
+                    gui.setItem(13, ownerHead);
+
+                    p.openInventory(gui);
+
+                    inventoryActions.put(p.getUniqueId(), actions);
+                } catch (NoProjectsFoundException | NotInsideProjectException e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto del que seas líder.");
                 }
             }
 
             if (args[0].equalsIgnoreCase("request") || args[0].equalsIgnoreCase("solicitar")) {
 
                 try {
-                    OldProject project = new OldProject(p.getLocation());
-                    if (project.getOwner() != null) {
-                        if (!(project.getAllMembers().contains(p))) {
-                            new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + "**§a" + s.getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName(true) + "§f**.");
-                            p.sendMessage(projectsPrefix + "Se ha enviado la solicitud.");
-
-                        } else {
-                            p.sendMessage(projectsPrefix + "Ya eres parte de este proyecto.");
-                        }
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new NonMemberProjectSelector(p.getUniqueId(), plugin));
+                    if (!project.isClaimed()) {
+                        plugin.getPlayerRegistry().get(project.getOwner()).sendNotification(projectsPrefix + "**§a" + s.getName() + "§f** ha solicitado unirse a tu proyecto **§a" + project.getName() + "§f**.");
+                        p.sendMessage(projectsPrefix + "Se ha enviado la solicitud.");
                     } else {
                         p.sendMessage(projectsPrefix + "Este proyecto no está reclamado aún.");
                     }
-                } catch (Exception e) {
-                    p.sendMessage(projectsPrefix + "No estás dentro de ningun proyecto.");
+                } catch (NotInsideProjectException | NoProjectsFoundException e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto del que no seas miembro.");
                 }
             }
 
@@ -1141,9 +1123,8 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equals("verifyTutorial")) {
                 if (tutorialSteps.containsKey(p.getUniqueId()) && tutorialSteps.get(p.getUniqueId()) == 2) {
-                    if (OldProject.isProjectAt(p.getLocation())) {
-
-                        OldProject project = new OldProject(p.getLocation());
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
                         if (project.isClaimed()) {
                             p.performCommand("p tutorial step3claimed");
@@ -1151,7 +1132,7 @@ public class ProjectsCommand implements CommandExecutor {
                             p.performCommand("p tutorial step3claim");
                         }
 
-                    } else {
+                    } catch (NotInsideProjectException | NoProjectsFoundException e) {
                         p.performCommand("p tutorial step3create");
                     }
                 }
@@ -1159,8 +1140,9 @@ public class ProjectsCommand implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("redefine") || args[0].equalsIgnoreCase("redefinir")) {
 
-                if (OldProject.isProjectAt(p.getLocation())) {
-                    OldProject project = new OldProject(p.getLocation());
+                try {
+
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), false, plugin));
 
                     // GET POINTS
 
@@ -1180,11 +1162,9 @@ public class ProjectsCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (!project.getCountry().getName().equals(new OldCountry(points.get(0)).getName())) {
-
-                        p.sendMessage(projectsPrefix + "No puedes redefinir un proyecto fuera del país original.");
+                    if (project.getRegion().getIntersectingRegions(project.getCountry().getRegions()).isEmpty()) {
+                        p.sendMessage(projectsPrefix + "No puedes redefinir un proyecto fuera de su país original.");
                         return true;
-
                     }
 
                     if (s.getPermissionCountries().contains(project.getCountry().getName())) {
@@ -1204,17 +1184,13 @@ public class ProjectsCommand implements CommandExecutor {
                             return true;
                         }
 
-                        project.setDifficulty(OldProject.Difficulty.valueOf(args[1].toUpperCase()));
-                        project.setPoints(points);
-
-                        project.save();
-
-                        for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                            ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                            if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                manager.update();
-                            }
+                        try {
+                            project.redefine(points, Project.Difficulty.valueOf(args[1].toUpperCase())).exec();
+                        } catch (ProjectActionException e) {
+                            p.sendMessage(projectsPrefix + "Ha ocurrido un error.");
+                            return true;
                         }
+
                         // SEND MESSAGES
 
                         p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId() + "§f redefinido con dificultad §a" + project.getDifficulty().toString().toUpperCase()  + "§f.");
@@ -1225,20 +1201,21 @@ public class ProjectsCommand implements CommandExecutor {
                         }
                         dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
 
-                        StringBuilder notif = new StringBuilder("Tu proyecto **§a" + project.getName(true) + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toString().toUpperCase() + "§f** en las coordenadas: \n§7");
+                        StringBuilder notif = new StringBuilder("Tu proyecto **§a" + project.getName() + "§f** ha sido redefinido con dificultad **§a" + project.getDifficulty().toString().toUpperCase() + "§f** en las coordenadas: \n§7");
                         for (BlockVector2D point : project.getPoints()) {
                             notif.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }
 
-                        if (project.getOwner() != null) {
-                            new ServerPlayer(project.getOwner()).sendNotification(projectsPrefix + notif);
+                        if (project.isClaimed()) {
+                            plugin.getPlayerRegistry().get(project.getOwner()).sendNotification(projectsPrefix + notif);
                         }
 
-                        project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
+                        project.getCountry().getProjectsLogsChannel().sendMessage(dscMessage.toString()).queue();
                         return true;
+
                     } else {
 
-                        if (project.getOwner() != p) {
+                        if (project.getOwner() != p.getUniqueId()) {
                             p.sendMessage(projectsPrefix + "No eres el líder de este proyecto.");
                             return true;
                         }
@@ -1250,7 +1227,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         EmbedBuilder request = new EmbedBuilder();
                         request.setColor(new Color(0, 255, 42));
-                        request.setTitle(new ServerPlayer(p).getName() + " quiere redefinir el proyecto " + project.getId().toUpperCase() + ".");
+                        request.setTitle(plugin.getPlayerRegistry().get(p.getUniqueId()).getName() + " quiere redefinir el proyecto " + project.getId().toUpperCase() + ".");
 
                         List<String> oldCoords = new ArrayList<>();
                         for (BlockVector2D point : project.getPoints()) {
@@ -1266,29 +1243,16 @@ public class ProjectsCommand implements CommandExecutor {
 
                         // GMAPS
 
-                        BlockVector2D average = project.getAverageCoordinate();
-
-                        Coords2D geoCoord = new Coords2D(average);
+                        Coords2D geoCoord = project.getAverageCoordinate();
 
                         request.addField(":map: Google Maps:", "https://www.google.com/maps/@" + geoCoord.getLat() + "," + geoCoord.getLon() + ",19z", false);
 
                         // IMAGE
 
-                        String url;
-
-                        List<String> coordsOld = new ArrayList<>();
-                        for (BlockVector2D point : project.getPoints()) {
-                            coordsOld.add(new Coords2D(point).getLat() + "," + new Coords2D(point).getLon());
-                        }
-                        coordsOld.add(new Coords2D(project.getPoints().get(0)).getLat() + "," + new Coords2D(project.getPoints().get(0)).getLon());
-
-                        List<String> coordsNew = new ArrayList<>();
-                        for (BlockVector2D point : points) {
-                            coordsNew.add(new Coords2D(point).getLat() + "," + new Coords2D(point).getLon());
-                        }
-                        coordsNew.add(new Coords2D(points.get(0)).getLat() + "," + new Coords2D(points.get(0)).getLon());
-
-                        url = "https://open.mapquestapi.com/staticmap/v5/map?key=" + key + "&type=sat&shape=" + String.join("|", coordsOld) + "|fill:6382DC50&shape=" + String.join("|", coordsNew) + "|fill:ff000050|border:ff0000&size=1280,720&imagetype=png";
+                        String url = SatMapHelper.getURL(
+                                new Pair<>(project.getPoints(), "6382DC50"),
+                                new Pair<>(points, "ff000050")
+                        );
 
                         request.setImage(url);
 
@@ -1303,18 +1267,18 @@ public class ProjectsCommand implements CommandExecutor {
                         message.setEmbeds(request.build());
                         message.setActionRows(actionRow);
 
-                        project.getCountry().getRequests().sendMessage(message.build()).queue();
+                        project.getCountry().getProjectsRequestsChannel().sendMessage(message.build()).queue();
 
                         p.sendMessage(projectsPrefix + "Se ha enviado una solicitud para redefinir tu proyecto.");
-                    } p.sendMessage(projectsPrefix + "§cNo tienes permiso para hacer eso.");
-                } else {
-                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
+                    }
+                } catch (NotInsideProjectException | NoProjectsFoundException e) {
+                    p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto del que seas líder.");
                 }
             }
 
             if (args[0].equalsIgnoreCase("tag") || args[0].equalsIgnoreCase("etiqueta")) {
-                if (OldProject.isProjectAt(p.getLocation())) {
-                    OldProject project = new OldProject(p.getLocation());
+                try {
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
                     if (!(s.getPermissionCountries().contains(project.getCountry().getName()))) {
                         p.sendMessage(projectsPrefix + "No puedes hacer esto aquí.");
@@ -1323,31 +1287,15 @@ public class ProjectsCommand implements CommandExecutor {
 
                     if (args.length > 1) {
                         if (args[1].equalsIgnoreCase("edificios") || args[1].equalsIgnoreCase("departamentos") || args[1].equalsIgnoreCase("casas") || args[1].equalsIgnoreCase("parques") || args[1].equalsIgnoreCase("establecimientos") || args[1].equalsIgnoreCase("carreteras") || args[1].equalsIgnoreCase("centros_comerciales")) {
-                            project.setTag(OldProject.Tag.valueOf(args[1].toUpperCase()));
-                            project.save();
+                            project.setTag(Project.Tag.valueOf(args[1].toUpperCase())).exec();
 
-                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                    manager.update();
-                                }
-                            }
-
-                            project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
+                            project.getCountry().getProjectsLogsChannel().sendMessage(":label: **" + s.getName() + "** ha establecido la etiqueta del proyecto `" + project.getId() + "` en **" + args[1].replace("_", " ").toUpperCase() + "**.").queue();
 
                             p.sendMessage(projectsPrefix + "Has establecido la etiquteda del proyecto §a" + project.getId() + "§f en §a" + args[1].replace("_", " ").toUpperCase() + "§f.");
                         } else if (args[1].equalsIgnoreCase("delete")) {
-                            project.setTag(null);
-                            project.save();
+                            project.setTag(null).exec();
 
-                            for (Player player : getPlayersInRegion("project_" + project.getId())) {
-                                ScoreboardManager manager = playerRegistry.get(player.getUniqueId()).getScoreboardManager();
-                                if (manager.getType() == ScoreboardManager.ScoreboardType.PROJECT) {
-                                    manager.update();
-                                }
-                            }
-
-                            project.getCountry().getLogs().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
+                            project.getCountry().getProjectsLogsChannel().sendMessage(":label: **" + s.getName() + "** ha eliminado la etiqueta del proyecto `" + project.getId() + "`.").queue();
 
                             p.sendMessage(projectsPrefix + "Has eliminado la etiqueta del proyecto §a" + project.getId() + "§f.");
 
@@ -1357,7 +1305,7 @@ public class ProjectsCommand implements CommandExecutor {
                     } else {
                         p.sendMessage(projectsPrefix + "Introduce una etiqueta.");
                     }
-                } else {
+                } catch (NotInsideProjectException | NoProjectsFoundException e) {
                     p.sendMessage(projectsPrefix + "No estás dentro de ningún proyecto.");
                 }
             }
