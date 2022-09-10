@@ -31,7 +31,12 @@ import pizzaaxx.bteconosur.commands.ScoreboardCommand;
 import pizzaaxx.bteconosur.commands.*;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.country.CountryManager;
+import pizzaaxx.bteconosur.country.cities.projects.Command.PFindCommand;
 import pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand;
+import pizzaaxx.bteconosur.country.cities.projects.Events.ProjectActionBar;
+import pizzaaxx.bteconosur.country.cities.projects.Events.ProjectManageInventoryListener;
+import pizzaaxx.bteconosur.country.cities.projects.Events.RequestResponse;
+import pizzaaxx.bteconosur.country.cities.projects.Events.TabCompletions;
 import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.FuzzyMatchListenerHandler;
 import pizzaaxx.bteconosur.discord.fuzzyMatching.listeners.BedrockListener;
@@ -46,7 +51,6 @@ import pizzaaxx.bteconosur.join.Join;
 import pizzaaxx.bteconosur.listener.AsyncPlayerPreLoginListener;
 import pizzaaxx.bteconosur.listener.ProjectBlockPlacingListener;
 import pizzaaxx.bteconosur.misc.Security;
-import pizzaaxx.bteconosur.projects.*;
 import pizzaaxx.bteconosur.ranks.Donator;
 import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
@@ -200,7 +204,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
         registerListeners(
                 new Join(playerRegistry, this),
-                new ProjectActionBar(),
+                new ProjectActionBar(this),
                 new OnTeleport(),
                 new PresetsCommand(this),
                 new PFindCommand(this),
@@ -384,6 +388,10 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         gateway.sendMessageEmbeds(online.build()).queue();
 
         bot.shutdown();
+    }
+
+    public String getPlayerName(UUID uuid) {
+        return playerRegistry.get(uuid).getName();
     }
 
     public void broadcast(String message) {
