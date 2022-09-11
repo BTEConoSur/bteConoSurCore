@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.projects;
+package pizzaaxx.bteconosur.country.cities.projects.Command;
 
 import com.sk89q.worldedit.BlockVector2D;
 import org.bukkit.Bukkit;

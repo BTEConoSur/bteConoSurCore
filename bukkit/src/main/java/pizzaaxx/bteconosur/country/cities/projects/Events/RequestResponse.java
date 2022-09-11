@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.projects;
+package pizzaaxx.bteconosur.country.cities.projects.Events;
 
 
 import com.sk89q.worldedit.BlockVector2D;
@@ -16,22 +16,37 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import pizzaaxx.bteconosur.misc.Misc;
+import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.cities.City;
+import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
 
 import java.awt.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.projectsPrefix;
+import static pizzaaxx.bteconosur.discord.HelpMethods.errorEmbed;
 
 public class RequestResponse extends ListenerAdapter {
+
+    private final BteConoSur plugin;
+
+    public RequestResponse(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     public Map<String, String> requestsClicks = new HashMap<>();
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent e) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent e) {
         if (e.getMessage().getEmbeds().size() > 0) {
             MessageEmbed embed = e.getMessage().getEmbeds().get(0);
             if (embed.getTitle().contains("quiere crear un proyecto")) {
@@ -58,7 +73,7 @@ public class RequestResponse extends ListenerAdapter {
                 } else {
                     String title = embed.getTitle();
                     OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
-                    ServerPlayer s = new ServerPlayer(target);
+                    ServerPlayer s = plugin.getPlayerRegistry().get(target.getUniqueId());
 
                     MessageEmbed.Field field = embed.getFields().get(0);
                     String value = field.getValue();
@@ -69,26 +84,37 @@ public class RequestResponse extends ListenerAdapter {
                         points.add(new BlockVector2D(Double.parseDouble(coord.split(" ")[0]), Double.parseDouble(coord.split(" ")[2])));
                     }
 
-                    OldProject project = new OldProject(Misc.getCountryAtLocation(points.get(0)), OldProject.Difficulty.valueOf(e.getComponentId().toUpperCase()), points);
-                    project.setOwner(target);
-                    project.save();
+                    Country country = plugin.getCountryManager().get(points.get(0));
 
-                    new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
+                    City city = country.getCityRegistry().get(points.get(0));
 
-                    StringBuilder dscMessage = new StringBuilder(":clipboard: **" + s.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + e.getComponentId().toUpperCase() + "` en las coordenadas: \n");
-                    for (BlockVector2D point : project.getPoints()) {
-                        dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(mainWorld.getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
+                    try {
+                        Project project = city.getProjectsRegistry().createProject(Project.Difficulty.valueOf(e.getComponentId().toUpperCase()), points);
+
+                        project.claim(target.getUniqueId()).exec();
+
+                        plugin.getPlayerRegistry().get(target.getUniqueId()).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
+
+                        StringBuilder dscMessage = new StringBuilder(":clipboard: **" + s.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + e.getComponentId().toUpperCase() + "` en las coordenadas: \n");
+                        for (BlockVector2D point : project.getPoints()) {
+                            dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(plugin.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
+                        }
+                        dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
+
+                        TextChannel logs = project.getCountry().getProjectsLogsChannel();
+                        logs.sendMessage(dscMessage.toString()).queue();
+                        logs.sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
+
+                        requestsClicks.remove(e.getMessage().getId());
+                        e.getMessage().delete().queue();
+
+                    } catch (IOException exception) {
+                        requestsClicks.remove(e.getMessage().getId());
+                        e.replyEmbeds(errorEmbed("Ha ocurrido un error al crear el proyecto.")).queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.SECONDS)
+                        );
+                    } catch (ProjectActionException ignored) {
                     }
-                    dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
-
-                    TextChannel logs = project.getCountry().getLogs();
-                    logs.sendMessage(dscMessage.toString()).queue();
-                    logs.sendMessage(":inbox_tray: **" + s.getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
-
-
-                    requestsClicks.remove(e.getMessage().getId());
-
-                    e.getMessage().delete().queue();
                 }
             }
 
@@ -116,7 +142,7 @@ public class RequestResponse extends ListenerAdapter {
                 } else {
                     String title = embed.getTitle();
                     OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
-                    ServerPlayer s = new ServerPlayer(target);
+                    ServerPlayer s = plugin.getPlayerRegistry().get(target.getUniqueId());
 
                     MessageEmbed.Field field = embed.getFields().get(1);
                     String value = field.getValue();
@@ -129,25 +155,18 @@ public class RequestResponse extends ListenerAdapter {
                         points.add(new BlockVector2D(Double.parseDouble(coord.split(" ")[0]), Double.parseDouble(coord.split(" ")[2])));
                     }
 
-                    try {
-                        OldProject project = new OldProject(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
-                        project.setPoints(points);
-                        project.setDifficulty(OldProject.Difficulty.valueOf(e.getComponentId().toUpperCase()));
-                        project.save();
+                    Project project = plugin.getProjectsManager().getFromId(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
+                    project.redefine(points, Project.Difficulty.valueOf(e.getComponentId().toUpperCase()));
 
-                        new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto **§a" + project.getName(true) + "§f** ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
+                    plugin.getPlayerRegistry().get(target.getUniqueId()).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto **§a" + project.getName() + "§f** ha sido aceptada con dificultad **§a" + e.getComponentId().toUpperCase() + "§f**.");
 
-                        StringBuilder dscMessage = new StringBuilder(":pencil: **" + s.getName() + "** ha redefinido el proyecto `" + project.getId() + "` con dificultad `" + e.getComponentId().toUpperCase() + "` en las coordenadas: \n");
-                        for (BlockVector2D point : project.getPoints()) {
-                            dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(mainWorld.getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
-                        }
-                        dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
-
-                        project.getCountry().getLogs().sendMessage(dscMessage.toString()).queue();
-
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                    StringBuilder dscMessage = new StringBuilder(":pencil: **" + s.getName() + "** ha redefinido el proyecto `" + project.getId() + "` con dificultad `" + e.getComponentId().toUpperCase() + "` en las coordenadas: \n");
+                    for (BlockVector2D point : project.getPoints()) {
+                        dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(plugin.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                     }
+                    dscMessage = new StringBuilder(dscMessage.toString().replace(".0", ""));
+
+                    project.getCountry().getProjectsLogsChannel().sendMessage(dscMessage.toString()).queue();
 
                     requestsClicks.remove(e.getMessage().getId());
 
@@ -171,7 +190,7 @@ public class RequestResponse extends ListenerAdapter {
             String title = embed.getTitle();
             OfflinePlayer target = Bukkit.getOfflinePlayer(title.replace(" quiere crear un proyecto.", ""));
 
-            new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido rechazada. Razón: " + event.getValue("reason").getAsString());
+            plugin.getPlayerRegistry().get(target.getUniqueId()).sendNotification(projectsPrefix + "Tu solicitud de proyecto ha sido rechazada. Razón: " + event.getValue("reason").getAsString());
 
             message.delete().queue();
 
@@ -197,13 +216,7 @@ public class RequestResponse extends ListenerAdapter {
             String title = embed.getTitle();
             OfflinePlayer target = Bukkit.getOfflinePlayer(title.split(" quiere redefinir el proyecto")[0]);
 
-            try {
-                OldProject project = new OldProject(title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase());
-
-                new ServerPlayer(target).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto `§a" + project.getId() + "§f` ha sido rechazada.");
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+            plugin.getPlayerRegistry().get(target.getUniqueId()).sendNotification(projectsPrefix + "Tu solicitud para redefinir el proyecto `§a" + title.replace(".", "").split(" quiere redefinir el proyecto ")[1].toLowerCase() + "§f` ha sido rechazada.");
 
             message.delete().queue();
 

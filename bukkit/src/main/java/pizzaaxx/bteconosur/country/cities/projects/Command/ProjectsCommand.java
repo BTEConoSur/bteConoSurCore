@@ -57,7 +57,7 @@ import static pizzaaxx.bteconosur.Config.*;
 import static pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager.pointsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.formatStringWithBaseComponents;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
-import static pizzaaxx.bteconosur.projects.ProjectManageInventoryListener.inventoryActions;
+import static pizzaaxx.bteconosur.country.cities.projects.Events.ProjectManageInventoryListener.inventoryActions;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
 

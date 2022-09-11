@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.projects;
+package pizzaaxx.bteconosur.country.cities.projects.Events;
 
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.IncompleteRegionException;

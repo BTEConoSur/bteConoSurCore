@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.projects;
+package pizzaaxx.bteconosur.country.cities.projects.Events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

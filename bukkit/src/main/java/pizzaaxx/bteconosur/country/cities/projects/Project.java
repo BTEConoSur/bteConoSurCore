@@ -117,7 +117,7 @@ public class Project {
 
     /**
      * Loads a project from the server's storage. You should check first if the project exists.
-     * @param registry The {@link pizzaaxx.bteconosur.projects.ProjectRegistry} this project belongs to.
+     * @param registry The {@link ProjectsRegistry} this project belongs to.
      * @param id The id of this project.
      */
     public Project(@NotNull ProjectsRegistry registry, @NotNull String id) {
