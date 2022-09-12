@@ -181,7 +181,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                         List<String> coords = new ArrayList<>();
                         for (BlockVector2D point : points) {
-                            coords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY() + " " + point.getZ()).replace(".0", ""));
+                            coords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY(plugin) + " " + point.getZ()).replace(".0", ""));
                         }
                         request.addField(":round_pushpin: Coordenadas:", String.join("\n", coords), false);
 
@@ -653,7 +653,7 @@ public class ProjectsCommand implements CommandExecutor {
                             for (String str : subList) {
                                 Project project = plugin.getProjectsManager().getFromId(str);
 
-                                String coord = project.getAverageCoordinate().toBlockVector2D().getBlockX() + " " + project.getAverageCoordinate().getHighestY() + " " + project.getAverageCoordinate().toBlockVector2D().getBlockZ();
+                                String coord = project.getAverageCoordinate().toBlockVector2D().getBlockX() + " " + project.getAverageCoordinate().getHighestY(plugin) + " " + project.getAverageCoordinate().toBlockVector2D().getBlockZ();
 
                                 page.add("- ");
                                 page.add(BookUtil.TextBuilder.of(str)
@@ -855,10 +855,11 @@ public class ProjectsCommand implements CommandExecutor {
 
                             page.add("§a§lCoordenadas: §r\n");
                             Coords2D avgCoord = project.getAverageCoordinate();
+                            int y = avgCoord.getHighestY(plugin);
                             page.add(
-                                    BookUtil.TextBuilder.of(avgCoord.getBlockX() + " " + avgCoord.getHighestY() + " " + avgCoord.getBlockZ())
+                                    BookUtil.TextBuilder.of(avgCoord.getBlockX() + " " + y + " " + avgCoord.getBlockZ())
                                             .onHover(BookUtil.HoverAction.showText("Click para ir"))
-                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + avgCoord.getBlockX() + " " + avgCoord.getHighestY() + " " + avgCoord.getBlockZ()))
+                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + avgCoord.getBlockX() + " " + y + " " + avgCoord.getBlockZ()))
                                             .build()
                             );
                             page.newLine();
@@ -1231,13 +1232,13 @@ public class ProjectsCommand implements CommandExecutor {
 
                         List<String> oldCoords = new ArrayList<>();
                         for (BlockVector2D point : project.getPoints()) {
-                            oldCoords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY() + " " + point.getZ()).replace(".0", ""));
+                            oldCoords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY(plugin) + " " + point.getZ()).replace(".0", ""));
                         }
                         request.addField(":blue_circle: Coordenadas antiguas:", String.join("\n", oldCoords), false);
 
                         List<String> newCoords = new ArrayList<>();
                         for (BlockVector2D point : points) {
-                            newCoords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY() + " " + point.getZ()).replace(".0", ""));
+                            newCoords.add(("> " + point.getX() + " " + new Coords2D(point).getHighestY(plugin) + " " + point.getZ()).replace(".0", ""));
                         }
                         request.addField(":red_circle: Coordenadas nuevas:", String.join("\n", newCoords), false);
 
