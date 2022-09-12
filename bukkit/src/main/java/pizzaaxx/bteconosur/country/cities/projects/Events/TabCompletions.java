@@ -11,8 +11,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.country.cities.projects.Project;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.SmallestProjectSelector;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 
 import java.util.ArrayList;
@@ -22,6 +27,13 @@ import java.util.List;
 import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 
 public class TabCompletions implements TabCompleter {
+
+    private final BteConoSur plugin;
+
+    public TabCompletions(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 
@@ -30,7 +42,7 @@ public class TabCompletions implements TabCompleter {
         if (sender instanceof Player) {
 
             Player p = (Player) sender;
-            ServerPlayer s = new ServerPlayer(p);
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
             if (args.length == 1) {
 
                 completions.add("find");
@@ -42,10 +54,8 @@ public class TabCompletions implements TabCompleter {
                     completions.add("pending");
                 }
 
-                if (OldProject.isProjectAt(p.getLocation())) {
-
-                    OldProject project = new OldProject(p.getLocation());
-
+                try {
+                    Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
                     completions.add("leave");
                     completions.add("borders");
@@ -68,8 +78,9 @@ public class TabCompletions implements TabCompleter {
                         completions.add("tag");
                         completions.add("delete");
                     }
-                }
+                } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
                 Collections.sort(completions);
+
             } else if (args.length == 2) {
 
                 if (args[0].equalsIgnoreCase("add")) {

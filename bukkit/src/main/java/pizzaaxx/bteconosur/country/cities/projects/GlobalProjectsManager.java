@@ -164,4 +164,17 @@ public class GlobalProjectsManager {
 
     }
 
+    public boolean isProjectAt(Location loc) {
+
+        for (ProtectedRegion region : plugin.getWorldGuard().getRegionManager(plugin.getWorld()).getApplicableRegions(loc)) {
+            if (region.getId().startsWith("project_")) {
+                if (exists(region.getId().replace("project_", ""))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
