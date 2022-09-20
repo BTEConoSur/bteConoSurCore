@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.country;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.dv8tion.jda.api.JDA;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -89,6 +90,16 @@ public class CountryManager {
 
         return result;
 
+    }
+
+    public Set<ProtectedRegion> getAllRegions() {
+        Set<ProtectedRegion> regions = new HashSet<>();
+
+        for (Country country : registry.values()) {
+            regions.addAll(country.getRegions());
+        }
+
+        return regions;
     }
 
 }

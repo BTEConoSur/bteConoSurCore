@@ -19,7 +19,8 @@ import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
-import static pizzaaxx.bteconosur.country.OldCountry.countryRegionNames;
+import java.util.Set;
+
 import static pizzaaxx.bteconosur.misc.Misc.getSimplePrefix;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
 import static pizzaaxx.bteconosur.worldguard.RegionEvents.getLeftRegions;
@@ -43,11 +44,13 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
         boolean project = false;
         boolean country = false;
 
+        Set<ProtectedRegion> regions = plugin.getCountryManager().getAllRegions();
+
         for (ProtectedRegion region : getEnteredRegions(from, to)) {
             if (region.getId().startsWith("project_")) {
                 project = true;
             }
-            if (countryRegionNames.contains(region.getId())) {
+            if (regions.contains(region)) {
                 country = true;
             }
         }
@@ -56,7 +59,7 @@ public class ScoreboardCommand implements Listener, CommandExecutor {
             if (region.getId().startsWith("project_")) {
                 project = true;
             }
-            if (countryRegionNames.contains(region.getId())) {
+            if (regions.contains(region)) {
                 country = true;
             }
         }
