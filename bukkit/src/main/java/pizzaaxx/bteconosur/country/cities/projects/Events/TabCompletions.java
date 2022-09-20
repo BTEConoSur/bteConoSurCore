@@ -6,25 +6,24 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NoProjectsFoundException;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.NotInsideProjectException;
+import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.OwnerProjectSelector;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.SmallestProjectSelector;
 import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+import java.util.UUID;
 
 public class TabCompletions implements TabCompleter {
 
@@ -84,59 +83,35 @@ public class TabCompletions implements TabCompleter {
             } else if (args.length == 2) {
 
                 if (args[0].equalsIgnoreCase("add")) {
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), true, plugin));
 
-                    if (OldProject.isProjectAt(p.getLocation())) {
-
-                        OldProject project = new OldProject(p.getLocation());
-
-                        if (project.getOwner().getUniqueId() == p.getUniqueId()) {
-
-                            for (Player player : Bukkit.getOnlinePlayers()) {
-
-                                if (!project.getMemberUUIDs().contains(player.getUniqueId())) {
-
-                                    completions.add(player.getName());
-
-                                }
-
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (!project.getMembers().contains(player.getUniqueId())) {
+                                completions.add(player.getName());
                             }
-
                         }
-                    }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
                     Collections.sort(completions);
                 } else if (args[0].equalsIgnoreCase("create")) {
 
-                    OldCountry country;
+                    Location loc;
 
                     try {
-
                         Region region = WorldEditHelper.getSelection(p);
 
                         Polygonal2DRegion polygon = WorldEditHelper.polyRegion(region);
 
                         BlockVector2D vector = polygon.getPoints().get(0);
 
-                        country = new OldCountry(new Location(mainWorld, vector.getX(), mainWorld.getHighestBlockYAt(vector.getBlockX(), vector.getBlockZ()), vector.getZ()));
+                        loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
 
                     } catch (IncompleteRegionException e) {
-
-                        country = new OldCountry(p.getLocation());
-
+                        loc = p.getLocation();
                     }
 
-                    if (s.getPermissionCountries().contains(country.getName())) {
-
-                        completions.add("facil");
-                        completions.add("intermedio");
-                        completions.add("dificil");
-
-                    }
-
-                } else if (args[0].equalsIgnoreCase("redefine")) {
-
-                    if (OldProject.isProjectAt(p.getLocation())) {
-
-                        OldCountry country = new OldProject(p.getLocation()).getCountry();
+                    if (plugin.getCountryManager().isInsideAnyCountry(loc)) {
+                        Country country = plugin.getCountryManager().get(loc);
 
                         if (s.getPermissionCountries().contains(country.getName())) {
 
@@ -146,32 +121,41 @@ public class TabCompletions implements TabCompleter {
 
                         }
                     }
-                } else if (args[0].equalsIgnoreCase("remove")) {
+                } else if (args[0].equalsIgnoreCase("redefine")) {
 
-                    if (OldProject.isProjectAt(p.getLocation())) {
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
-                        OldProject project = new OldProject(p.getLocation());
+                        Country country = project.getCountry();
 
-                        if (project.getOwner().getUniqueId() == p.getUniqueId()) {
+                        if (s.getPermissionCountries().contains(country.getName())) {
 
-                            for (OfflinePlayer player : project.getMembers()) {
-
-                                ServerPlayer member = new ServerPlayer(player);
-
-                                completions.add(member.getName());
-
-                            }
+                            completions.add("facil");
+                            completions.add("intermedio");
+                            completions.add("dificil");
 
                         }
-                    }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
+
+                } else if (args[0].equalsIgnoreCase("remove")) {
+
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), true, plugin));
+
+                        for (UUID member : project.getMembers()) {
+                            completions.add(plugin.getPlayerName(member));
+                        }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
                     Collections.sort(completions);
+
                 } else if (args[0].equalsIgnoreCase("tag")) {
 
-                    if (OldProject.isProjectAt(p.getLocation())) {
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
-                        OldProject project = new OldProject(p.getLocation());
+                        Country country = project.getCountry();
 
-                        if (s.getPermissionCountries().contains(project.getCountry().getName())) {
+                        if (s.getPermissionCountries().contains(country.getName())) {
 
                             completions.add("edificios");
                             completions.add("departamentos");
@@ -183,49 +167,40 @@ public class TabCompletions implements TabCompleter {
                             completions.add("delete");
 
                         }
-
-                    }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
 
                 } else if (args[0].equalsIgnoreCase("transfer")) {
 
-                    if (OldProject.isProjectAt(p.getLocation())) {
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId(), true, plugin));
 
-                        OldProject project = new OldProject(p.getLocation());
+                        for (UUID member : project.getMembers()) {
 
-                        if (project.getOwner().getUniqueId() == p.getUniqueId()) {
+                            Player player = Bukkit.getPlayer(member);
 
-                            for (OfflinePlayer player : project.getMembers()) {
+                            if (player.isOnline()) {
 
-                                if (player.isOnline()) {
-
-                                    ServerPlayer member = new ServerPlayer(player);
-
-                                    completions.add(member.getName());
-
-                                }
+                                completions.add(plugin.getPlayerName(member));
 
                             }
 
                         }
-
-                    }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
                     Collections.sort(completions);
 
                 } else if (args[0].equalsIgnoreCase("review")) {
 
-                    if (OldProject.isProjectAt(p.getLocation())) {
+                    try {
+                        Project project = plugin.getProjectsManager().getProjectAt(p.getLocation(), new SmallestProjectSelector(plugin));
 
-                        OldProject project = new OldProject(p.getLocation());
+                        Country country = project.getCountry();
 
-                        if (project.isPending() && s.getPermissionCountries().contains(project.getCountry().getName())) {
-
+                        if (project.isPending() && s.getPermissionCountries().contains(country.getName())) {
                             completions.add("accept");
                             completions.add("continue");
                             completions.add("deny");
-
                         }
-
-                    }
+                    } catch (NotInsideProjectException | NoProjectsFoundException ignored) {}
 
                 }
 
@@ -233,30 +208,28 @@ public class TabCompletions implements TabCompleter {
 
                 if (args[0].equalsIgnoreCase("create") && (args[1].equalsIgnoreCase("facil") || args[1].equalsIgnoreCase("intermedio") || args[1].equalsIgnoreCase("dificil"))) {
 
-                    OldCountry country;
+                    Location loc;
 
                     try {
-
                         Region region = WorldEditHelper.getSelection(p);
-
                         Polygonal2DRegion polygon = WorldEditHelper.polyRegion(region);
-
                         BlockVector2D vector = polygon.getPoints().get(0);
 
-                        country = new OldCountry(new Location(mainWorld, vector.getX(), mainWorld.getHighestBlockYAt(vector.getBlockX(), vector.getBlockZ()), vector.getZ()));
-
+                        loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
                     } catch (IncompleteRegionException e) {
-
-                        country = new OldCountry(p.getLocation());
-
+                        loc = p.getLocation();
                     }
 
-                    if (s.getPermissionCountries().contains(country.getName())) {
+                    if (plugin.getCountryManager().isInsideAnyCountry(loc)) {
+                        Country country = plugin.getCountryManager().get(loc);
 
-                        for (OldProject.Tag tag : OldProject.Tag.values()) {
+                        if (s.getPermissionCountries().contains(country.getName())) {
 
-                            completions.add(tag.toString().toLowerCase());
+                            for (Project.Tag tag : Project.Tag.values()) {
 
+                                completions.add(tag.toString().toLowerCase());
+
+                            }
                         }
                     }
                 }
