@@ -14,11 +14,36 @@ public class TerramapTilesManager {
 
     public void drawPolygon(@NotNull List<Coords2D> points, Color color) {
 
-        // FIND 15-ZOOM TILES THAT CONTAIN PART OF THE POLYGON
-
-        List<TerramapTile> tiles = getIntersectingTiles(15, points);
+        // METHOD: Create BufferedImage polygon and crop from it to generate layer tiles. Then loop all affected tiles and combine all available layers into one.
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public List<TerramapTile> getIntersectingTiles(int zoom, @NotNull List<Coords2D> points) {
 

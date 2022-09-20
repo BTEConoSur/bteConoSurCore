@@ -234,7 +234,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("nickname").setExecutor(new NickNameCommand(this));
         getCommand("testing").setExecutor(new Testing());
         getCommand("demote").setExecutor(new PromoteDemote(this));
-        getCommand("project").setTabCompleter(new TabCompletions());
+        getCommand("project").setTabCompleter(new TabCompletions(this));
         getCommand("presets").setExecutor(new PresetsCommand(this));
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
@@ -307,7 +307,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
         registerDiscordListener(builder,
                 handler,
-                new RequestResponse(),
+                new RequestResponse(this),
                 new ChatEventsListener(this),
                 new OnlineCommand(),
                 whereCommand,
