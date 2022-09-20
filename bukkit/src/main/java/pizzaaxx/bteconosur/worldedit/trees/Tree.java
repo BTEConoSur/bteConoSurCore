@@ -18,17 +18,15 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Random;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Tree {
 
@@ -39,10 +37,12 @@ public class Tree {
     private final Integer yOffset;
     private final Integer zOffset;
     private final File schematic;
+    private final BteConoSur plugin;
 
     // CONSTRUCTOR
-    public Tree(String name) throws Exception {
+    public Tree(String name, BteConoSur plugin) throws Exception {
         this.name = name;
+        this.plugin = plugin;
 
         Configuration data = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "trees/data");
         if (data.contains(name)) {
@@ -51,13 +51,14 @@ public class Tree {
             yOffset = tree.getInt("yOffset");
             zOffset = tree.getInt("zOffset");
 
-            schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
+            schematic = new File(plugin.getDataFolder(), "trees/schematics/" + data.get("schematic") + ".schematic");
         } else {
             throw new Exception("noSuchTree");
         }
     }
 
-    public Tree(ItemStack item) throws Exception {
+    public Tree(ItemStack item, BteConoSur plugin) throws Exception {
+        this.plugin = plugin;
         if (item.getType() == Material.SAPLING) {
             if (item.getItemMeta().hasDisplayName() && ChatColor.stripColor(item.getItemMeta().getDisplayName()).startsWith("Árbol: ")) {
                 String name = ChatColor.stripColor(item.getItemMeta().getDisplayName()).replace("Árbol: ", "");
@@ -71,7 +72,7 @@ public class Tree {
                     yOffset = tree.getInt("yOffset");
                     zOffset = tree.getInt("zOffset");
 
-                    schematic = new File(pluginFolder, "trees/schematics/" + data.get("schematic") + ".schematic");
+                    schematic = new File(plugin.getDataFolder(), "trees/schematics/" + data.get("schematic") + ".schematic");
                 } else {
                     throw new Exception("noSuchTree");
                 }
@@ -101,7 +102,7 @@ public class Tree {
 
         ClipboardFormat format = ClipboardFormat.SCHEMATIC;
         try {
-            ClipboardReader reader = format.getReader(new FileInputStream(schematic));
+            ClipboardReader reader = format.getReader(Files.newInputStream(schematic.toPath()));
             clipboard = reader.read(actor.getWorld().getWorldData());
             clipboard.setOrigin(new Vector(xOffset, yOffset, zOffset));
             Region region = clipboard.getRegion();
@@ -154,7 +155,7 @@ public class Tree {
                     }
 
                     Vector newVector = new Vector(x, y + clipboard.getDimensions().getBlockY() - 1, z);
-                    if (mask.test(newVector) &&  getWorldGuard().canBuild(player, mainWorld.getBlockAt(newVector.getBlockX(), newVector.getBlockY(), newVector.getBlockZ()))) {
+                    if (mask.test(newVector) &&  plugin.getWorldGuard().canBuild(player, plugin.getWorld().getBlockAt(newVector.getBlockX(), newVector.getBlockY(), newVector.getBlockZ()))) {
                         editSession.setBlock(newVector, clipboard.getBlock(p));
                     }
                 }

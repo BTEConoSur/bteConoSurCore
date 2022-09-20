@@ -21,23 +21,29 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.worldedit.PoissonDiskSampling;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
 import static pizzaaxx.bteconosur.worldedit.trees.Tree.treePrefix;
 
 public class Events implements Listener, CommandExecutor {
 
+    private final BteConoSur plugin;
+
+    public Events(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent e) {
         if (e.getAction().equals(Action.PHYSICAL)) {
             if (e.getClickedBlock().getType() == Material.IRON_PLATE) {
-                Block target = mainWorld.getBlockAt(e.getClickedBlock().getX(), e.getClickedBlock().getY() + 1, e.getClickedBlock().getZ());
+                Block target = plugin.getWorld().getBlockAt(e.getClickedBlock().getX(), e.getClickedBlock().getY() + 1, e.getClickedBlock().getZ());
                 if (target.getState() instanceof Sign) {
                     Sign s = (Sign) target.getState();
                     List<String> actualLines = new ArrayList<>();
@@ -49,7 +55,7 @@ public class Events implements Listener, CommandExecutor {
                     String name = String.join(" ", actualLines);
 
                     try {
-                        Tree tree = new Tree(name);
+                        Tree tree = new Tree(name, plugin);
 
                         ItemStack sapling = new ItemStack(Material.SAPLING, 1, (byte) 0);
                         ItemMeta meta = sapling.getItemMeta();
@@ -74,7 +80,7 @@ public class Events implements Listener, CommandExecutor {
                 if (meta.hasDisplayName()) {
                     String name = ChatColor.stripColor(meta.getDisplayName());
 
-                    ServerPlayer s = new ServerPlayer(e.getPlayer());
+                    ServerPlayer s = plugin.getPlayerRegistry().get(e.getPlayer().getUniqueId());
 
                     Block origin = e.getClickedBlock().getRelative(e.getBlockFace());
 
@@ -98,7 +104,7 @@ public class Events implements Listener, CommandExecutor {
                         name = name.replace("Árbol: ", "");
 
                         try {
-                            Tree tree = new Tree(name);
+                            Tree tree = new Tree(name, plugin);
 
                             getLocalSession(e.getPlayer()).remember(tree.place(new Vector(origin.getX(), origin.getY(), origin.getZ()), e.getPlayer(), null));
                         } catch (Exception exception) {
@@ -115,7 +121,7 @@ public class Events implements Listener, CommandExecutor {
         if (command.getName().equals("treegroup")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                ServerPlayer s = new ServerPlayer(p);
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
                 DataManager data = s.getDataManager();
 
                 if (args.length > 0) {
@@ -135,7 +141,7 @@ public class Events implements Listener, CommandExecutor {
 
                                     if (p.getInventory().getItemInMainHand() != null) {
                                         try {
-                                            Tree tree = new Tree(p.getInventory().getItemInMainHand());
+                                            Tree tree = new Tree(p.getInventory().getItemInMainHand(), plugin);
                                             String treeName = tree.getName();
 
                                             trees.add(treeName);
@@ -202,7 +208,7 @@ public class Events implements Listener, CommandExecutor {
 
                                         if (p.getInventory().getItemInMainHand() != null) {
                                             try {
-                                                Tree tree = new Tree(p.getInventory().getItemInMainHand());
+                                                Tree tree = new Tree(p.getInventory().getItemInMainHand(), plugin);
                                                 String treeName = tree.getName();
 
                                                 if (!(trees.contains(treeName))) {
@@ -357,7 +363,7 @@ public class Events implements Listener, CommandExecutor {
         if (command.getName().equals("/treecover")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                ServerPlayer s = new ServerPlayer(p);
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
 
                 List<Tree> trees = new ArrayList<>();
                 int radius;
@@ -377,7 +383,7 @@ public class Events implements Listener, CommandExecutor {
                         }
                     } else {
                         try {
-                            Tree tree = new Tree(p.getInventory().getItemInMainHand());
+                            Tree tree = new Tree(p.getInventory().getItemInMainHand(), plugin);
 
                             trees.add(tree);
                         } catch (Exception e) {

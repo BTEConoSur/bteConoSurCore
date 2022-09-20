@@ -20,15 +20,21 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class DivideCommand implements CommandExecutor {
+
+    private final BteConoSur plugin;
+
+    public DivideCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -92,7 +98,7 @@ public class DivideCommand implements CommandExecutor {
             return true;
         }
 
-        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(mainWorld), localSession.getBlockChangeLimit());
+        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(plugin.getWorld()), localSession.getBlockChangeLimit());
 
         Region selection;
         try {
@@ -146,7 +152,7 @@ public class DivideCommand implements CommandExecutor {
                             if (mask != null && !(mask.test(vector))) {
                                 continue;
                             }
-                            if (getWorldGuard().canBuild(p, mainWorld.getBlockAt(new Location(mainWorld, vector.getX(), vector.getY(), vector.getZ())))) {
+                            if (plugin.getWorldGuard().canBuild(p, plugin.getWorld().getBlockAt(new Location(plugin.getWorld(), vector.getX(), vector.getY(), vector.getZ())))) {
                                 editSession.setBlock(vector, (k % 2 == 0 ? pattern1 : pattern2).apply(vector));
                             }
                         } catch (MaxChangedBlocksException e) {
