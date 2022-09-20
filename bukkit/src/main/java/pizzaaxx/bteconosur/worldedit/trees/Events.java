@@ -94,7 +94,7 @@ public class Events implements Listener, CommandExecutor {
                             int i = 0;
                             for(Tree tree : trees) {
                                 if (i == item)
-                                    getLocalSession(e.getPlayer()).remember(tree.place(new Vector(origin.getX(), origin.getY(), origin.getZ()), e.getPlayer(), null));
+                                    plugin.getWorldEditHelper().getLocalSession(e.getPlayer()).remember(tree.place(new Vector(origin.getX(), origin.getY(), origin.getZ()), e.getPlayer(), null));
                                 i++;
                             }
                         } else {
@@ -106,7 +106,7 @@ public class Events implements Listener, CommandExecutor {
                         try {
                             Tree tree = new Tree(name, plugin);
 
-                            getLocalSession(e.getPlayer()).remember(tree.place(new Vector(origin.getX(), origin.getY(), origin.getZ()), e.getPlayer(), null));
+                            plugin.getWorldEditHelper().getLocalSession(e.getPlayer()).remember(tree.place(new Vector(origin.getX(), origin.getY(), origin.getZ()), e.getPlayer(), null));
                         } catch (Exception exception) {
                             e.getPlayer().sendMessage(treePrefix + "Árbol no encontrado.");
                         }
@@ -400,7 +400,7 @@ public class Events implements Listener, CommandExecutor {
 
                 Region region;
                 try {
-                    region = getSelection(p);
+                    region = plugin.getWorldEditHelper().getSelection(p);
                 } catch (IncompleteRegionException e) {
                     p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona un área primero.");
                     return true;

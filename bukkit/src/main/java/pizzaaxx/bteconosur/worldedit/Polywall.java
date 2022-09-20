@@ -45,7 +45,7 @@ public class Polywall implements CommandExecutor {
 
                 Region region;
                 try {
-                    region = getSelection(p);
+                    region = plugin.getWorldEditHelper().getSelection(p);
                 } catch (IncompleteRegionException e) {
                     p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona un área primero.");
                     return true;
@@ -117,7 +117,7 @@ public class Polywall implements CommandExecutor {
                             BlockVector2D v1 = pointsFinal.get(j);
                             BlockVector2D v2 = pointsFinal.get(j + 1);
 
-                            setBlocksInLine(p, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
+                            plugin.getWorldEditHelper().setBlocksInLine(p, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
                         }
                     }
 

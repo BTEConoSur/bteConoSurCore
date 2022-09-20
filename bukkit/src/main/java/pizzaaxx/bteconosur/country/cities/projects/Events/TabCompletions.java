@@ -98,9 +98,9 @@ public class TabCompletions implements TabCompleter {
                     Location loc;
 
                     try {
-                        Region region = WorldEditHelper.getSelection(p);
+                        Region region = plugin.getWorldEditHelper().getSelection(p);
 
-                        Polygonal2DRegion polygon = WorldEditHelper.polyRegion(region);
+                        Polygonal2DRegion polygon = plugin.getWorldEditHelper().polyRegion(region);
 
                         BlockVector2D vector = polygon.getPoints().get(0);
 
@@ -211,8 +211,8 @@ public class TabCompletions implements TabCompleter {
                     Location loc;
 
                     try {
-                        Region region = WorldEditHelper.getSelection(p);
-                        Polygonal2DRegion polygon = WorldEditHelper.polyRegion(region);
+                        Region region = plugin.getWorldEditHelper().getSelection(p);
+                        Polygonal2DRegion polygon = plugin.getWorldEditHelper().polyRegion(region);
                         BlockVector2D vector = polygon.getPoints().get(0);
 
                         loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());

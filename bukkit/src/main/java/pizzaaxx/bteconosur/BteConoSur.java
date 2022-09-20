@@ -132,6 +132,12 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
     private final Configuration maxPoints = new Configuration(this, "maxPoints");
 
+    private final WorldEditHelper worldEditHelper = new WorldEditHelper(this);
+
+    public WorldEditHelper getWorldEditHelper() {
+        return worldEditHelper;
+    }
+
     private static class GlobalPointsComparator implements Comparator<UUID> {
 
         private final BteConoSur plugin;

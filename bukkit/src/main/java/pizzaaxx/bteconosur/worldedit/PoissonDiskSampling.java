@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.*;
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getLocalSession;
 
 public class PoissonDiskSampling {
     private final BlockVector2D[][] grid;
@@ -64,7 +62,7 @@ public class PoissonDiskSampling {
         int n = 2;
         this.cellsize = floor(radius/Math.sqrt(n));
         this.flatRegion = new Polygonal2DRegion(region.getWorld(), this.region.getPoints(), this.region.getMaximumY(), this.region.getMaximumY());
-        this.editSession = getEditSession(this.player);
+        this.editSession = plugin.getWorldEditHelper().getEditSession(this.player);
 
         // POINTS
 
@@ -141,7 +139,7 @@ public class PoissonDiskSampling {
             }
         }
 
-        getLocalSession(this.player).remember(editSession);
+        plugin.getWorldEditHelper().getLocalSession(this.player).remember(editSession);
     }
 
     private boolean isValid(BlockVector2D point) {

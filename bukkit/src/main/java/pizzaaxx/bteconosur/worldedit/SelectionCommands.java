@@ -30,9 +30,6 @@ import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getLocalSession;
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.transform;
-
 public class SelectionCommands implements CommandExecutor, Listener {
 
     private final BteConoSur plugin;
@@ -50,7 +47,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
     public void onShortcutBefore(Player player) {
 
-        RegionSelector region = getLocalSession(player).getRegionSelector(plugin.getWEWorld());
+        RegionSelector region = plugin.getWorldEditHelper().getLocalSession(player).getRegionSelector(plugin.getWEWorld());
 
         pendingShortcuts.put(player.getUniqueId(), cloneSelector(region));
 
@@ -60,7 +57,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         RegionSelector beforeRegion = pendingShortcuts.get(player.getUniqueId());
 
-        RegionSelector afterRegion = getLocalSession(player).getRegionSelector((plugin.getWEWorld()));
+        RegionSelector afterRegion = plugin.getWorldEditHelper().getLocalSession(player).getRegionSelector((plugin.getWEWorld()));
 
         if (!compareRegionSelectors(beforeRegion, afterRegion)) {
 
@@ -78,7 +75,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         if (event.getItem() != null && event.getItem().getType() == Material.WOOD_AXE && (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 
-            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
+            RegionSelector region = plugin.getWorldEditHelper().getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             pendingInteractions.put(event.getPlayer().getUniqueId(), cloneSelector(region));
         }
@@ -90,7 +87,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
             RegionSelector beforeRegion = pendingInteractions.get(event.getPlayer().getUniqueId());
 
-            RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
+            RegionSelector afterRegion = plugin.getWorldEditHelper().getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             if (!compareRegionSelectors(beforeRegion, afterRegion)) {
 
@@ -112,7 +109,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         if (COMMANDS.contains(event.getMessage().split(" ")[0])) {
 
-            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
+            RegionSelector region = plugin.getWorldEditHelper().getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             pendingCommands.put(event.getPlayer().getUniqueId(), cloneSelector(region));
         }
@@ -129,7 +126,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
+                    RegionSelector afterRegion = plugin.getWorldEditHelper().getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
                     // STOPS HERE
                     if (!compareRegionSelectors(beforeRegion, afterRegion)) {
@@ -192,12 +189,12 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
             }
 
-            com.sk89q.worldedit.entity.Player actor = transform(p);
+            com.sk89q.worldedit.entity.Player actor = plugin.getWorldEditHelper().transform(p);
 
             List<RegionSelector> steps = undoSteps.get(p.getUniqueId());
             RegionSelector selector = steps.get(steps.size() - 1);
 
-            LocalSession localSession = getLocalSession(p);
+            LocalSession localSession = plugin.getWorldEditHelper().getLocalSession(p);
 
             List<RegionSelector> redoRegions = redoSteps.getOrDefault(p.getUniqueId(), new ArrayList<>());
             redoRegions.add(cloneSelector(localSession.getRegionSelector(world)));
@@ -221,12 +218,12 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
             }
 
-            com.sk89q.worldedit.entity.Player actor = transform(p);
+            com.sk89q.worldedit.entity.Player actor = plugin.getWorldEditHelper().transform(p);
 
             List<RegionSelector> steps = redoSteps.get(p.getUniqueId());
             RegionSelector selector = steps.get(steps.size() - 1);
 
-            LocalSession localSession = getLocalSession(p);
+            LocalSession localSession = plugin.getWorldEditHelper().getLocalSession(p);
 
             List<RegionSelector> undoRegions = undoSteps.getOrDefault(p.getUniqueId(), new ArrayList<>());
             undoRegions.add(cloneSelector(localSession.getRegionSelector(world)));

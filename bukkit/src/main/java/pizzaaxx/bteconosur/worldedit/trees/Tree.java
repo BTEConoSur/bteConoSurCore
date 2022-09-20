@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Random;
 
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
 
 public class Tree {
 
@@ -93,7 +92,7 @@ public class Tree {
     // PLACE
     public EditSession place(Vector loc, Player player, EditSession editSession) {
         if (editSession == null) {
-            editSession = getEditSession(player);
+            editSession = plugin.getWorldEditHelper().getEditSession(player);
         }
 
         com.sk89q.worldedit.entity.Player actor = new BukkitPlayer((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit"), ((WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit")).getServerInterface(), player);

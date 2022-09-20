@@ -102,7 +102,7 @@ public class DivideCommand implements CommandExecutor {
 
         Region selection;
         try {
-            selection =  WorldEditHelper.getSelection(p);
+            selection =  plugin.getWorldEditHelper().getSelection(p);
         } catch (IncompleteRegionException e) {
             p.sendMessage(WORLD_EDIT_PREFIX + "Selecciona una región válida.");
             return true;
@@ -110,7 +110,7 @@ public class DivideCommand implements CommandExecutor {
 
         if (selection instanceof CuboidRegion) {
             CuboidRegion cuboid = (CuboidRegion) selection;
-            List<Vector> allVectors = getBlocksInLine(cuboid.getPos1(), cuboid.getPos2());
+            List<Vector> allVectors = plugin.getWorldEditHelper().getBlocksInLine(cuboid.getPos1(), cuboid.getPos2());
 
             allVectors.sort(new VectorDistanceComparator(cuboid.getPos1()));
 

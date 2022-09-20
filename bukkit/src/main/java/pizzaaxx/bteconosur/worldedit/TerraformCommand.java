@@ -49,7 +49,7 @@ public class TerraformCommand implements CommandExecutor {
 
                 Region selection;
                 try {
-                    selection = WorldEditHelper.getSelection(p);
+                    selection = plugin.getWorldEditHelper().getSelection(p);
                 } catch (IncompleteRegionException e) {
                     p.sendMessage(PREFIX + "Selecciona un área primero.");
                     return true;
@@ -69,7 +69,7 @@ public class TerraformCommand implements CommandExecutor {
 
             } else if (args[0].equals("inner")) {
 
-                Region selection = WorldEditHelper.getIncompleteSelection(p);
+                Region selection = plugin.getWorldEditHelper().getIncompleteSelection(p);
 
                 if (selection instanceof ConvexPolyhedralRegion) {
 

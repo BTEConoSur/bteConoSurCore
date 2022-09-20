@@ -45,7 +45,6 @@ import pizzaaxx.bteconosur.country.cities.projects.ProjectSelector.*;
 import pizzaaxx.bteconosur.country.cities.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.misc.Misc;
-import pizzaaxx.bteconosur.worldedit.WorldEditHelper;
 import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
@@ -58,8 +57,6 @@ import static pizzaaxx.bteconosur.ServerPlayer.Managers.PointsManager.pointsPref
 import static pizzaaxx.bteconosur.misc.Misc.formatStringWithBaseComponents;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.country.cities.projects.Events.ProjectManageInventoryListener.inventoryActions;
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getSelection;
-import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.polyRegion;
 
 public class ProjectsCommand implements CommandExecutor {
     public static String projectsPrefix = "§f[§dPROYECTO§f] §7>>§r ";
@@ -96,7 +93,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                 List<BlockVector2D> points;
                 try {
-                    points = polyRegion(getSelection(p)).getPoints();
+                    points = plugin.getWorldEditHelper().polyRegion(plugin.getWorldEditHelper().getSelection(p)).getPoints();
                 } catch (IncompleteRegionException e) {
                     p.sendMessage(projectsPrefix + "Selecciona un área primero.");
                     return true;
@@ -508,7 +505,7 @@ public class ProjectsCommand implements CommandExecutor {
                     int minY = p.getLocation().getBlockY() - 10;
 
                     Polygonal2DRegionSelector selector = new Polygonal2DRegionSelector((World) new BukkitWorld(plugin.getWorld()), project.getPoints(), minY, maxY);
-                    WorldEditHelper.setSelection(p, selector);
+                    plugin.getWorldEditHelper().setSelection(p, selector);
 
                     p.sendMessage(BookUtil.TextBuilder.of(projectsPrefix + "Mostrando los bordes del proyecto §a" + project.getName() + "§f. §eRequiere ").build(), BookUtil.TextBuilder.of("§e§nWorldEdit CUI").onClick(BookUtil.ClickAction.openUrl("https://www.curseforge.com/minecraft/mc-mods/worldeditcui-forge-edition-2/download/2629418")).build(), BookUtil.TextBuilder.of(".").color(ChatColor.YELLOW).build());
                 } catch (Exception e) {
@@ -1149,7 +1146,7 @@ public class ProjectsCommand implements CommandExecutor {
 
                     List<BlockVector2D> points;
                     try {
-                        points = polyRegion(getSelection(p)).getPoints();
+                        points = plugin.getWorldEditHelper().polyRegion(plugin.getWorldEditHelper().getSelection(p)).getPoints();
                     } catch (IncompleteRegionException e) {
                         p.sendMessage(projectsPrefix + "Selecciona un área primero.");
                         return true;
