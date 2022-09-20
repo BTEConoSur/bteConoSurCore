@@ -58,8 +58,8 @@ public class MovementHandler implements Listener {
     }
 
     private void exec(Location from, Location to, Player p) {
-        final Set<ProtectedRegion> regionsLeft = RegionEvents.getLeftRegions(from, to);
-        final Set<ProtectedRegion> regionsEntered = RegionEvents.getEnteredRegions(from, to);
+        final Set<ProtectedRegion> regionsLeft = plugin.getRegionEventsManager().getLeftRegions(from, to);
+        final Set<ProtectedRegion> regionsEntered = plugin.getRegionEventsManager().getEnteredRegions(from, to);
         final Set<String> regionsLeftNames = regionsLeft.stream().map(ProtectedRegion::getId).collect(Collectors.toSet());
         final Set<String> regionsEnteredNames = regionsEntered.stream().map(ProtectedRegion::getId).collect(Collectors.toSet());
 

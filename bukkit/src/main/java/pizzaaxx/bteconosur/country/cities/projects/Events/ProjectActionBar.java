@@ -11,8 +11,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.cities.projects.Project;
 
-import static pizzaaxx.bteconosur.worldguard.RegionEvents.getEnteredRegions;
-
 public class ProjectActionBar implements Listener {
 
     private final BteConoSur plugin;
@@ -23,7 +21,7 @@ public class ProjectActionBar implements Listener {
 
     public void actionBar(Location from, Location to, Player player) {
 
-        for (ProtectedRegion region : getEnteredRegions(from, to)) {
+        for (ProtectedRegion region : plugin.getRegionEventsManager().getEnteredRegions(from, to)) {
             if (region.getId().startsWith("project_")) {
                 String id = region.getId().replace("project_", "");
 

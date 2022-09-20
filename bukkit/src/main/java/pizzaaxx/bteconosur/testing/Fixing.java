@@ -10,14 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.configuration.Configuration;
-import pizzaaxx.bteconosur.projects.OldProject;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Fixing implements CommandExecutor {
 

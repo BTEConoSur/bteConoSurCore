@@ -14,7 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.coords.Coords2D;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -22,7 +21,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.BteConoSur.*;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class Misc {
 

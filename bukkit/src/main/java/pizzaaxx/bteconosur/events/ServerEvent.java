@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
-import pizzaaxx.bteconosur.country.OldCountry;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
@@ -28,7 +27,6 @@ import java.util.List;
 import static pizzaaxx.bteconosur.Config.gateway;
 import static pizzaaxx.bteconosur.events.EventsCommand.eventsPrefix;
 import static pizzaaxx.bteconosur.misc.Misc.getMapURL;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class ServerEvent {
     private Status status;

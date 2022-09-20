@@ -5,19 +5,23 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
-
 public class RegionEvents {
 
-    public static @NotNull Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
+    private final BteConoSur plugin;
+
+    public RegionEvents(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
+    public @NotNull Set<ProtectedRegion> getLeftRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
-        RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
+        RegionManager manager = plugin.getWorldGuard().getRegionContainer().get(plugin.getWorld());
 
         ApplicableRegionSet regionSet1 = manager.getApplicableRegions(from);
         Set<ProtectedRegion> regionListFrom = regionSet1.getRegions();
@@ -33,10 +37,10 @@ public class RegionEvents {
         return regions;
     }
 
-    public static @NotNull Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
+    public @NotNull Set<ProtectedRegion> getEnteredRegions(Location from, Location to) {
         Set<ProtectedRegion> regions = new HashSet<>();
 
-        RegionManager manager = getWorldGuard().getRegionContainer().get(mainWorld);
+        RegionManager manager = plugin.getWorldGuard().getRegionContainer().get(plugin.getWorld());
 
         ApplicableRegionSet regionSet1 = manager.getApplicableRegions(from);
         Set<ProtectedRegion> regionListFrom = regionSet1.getRegions();

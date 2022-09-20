@@ -1,7 +1,6 @@
 package pizzaaxx.bteconosur.worldguard;
 
 import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
@@ -9,17 +8,19 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
-import pizzaaxx.bteconosur.country.OldCountry;
 
-import javax.naming.Name;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
+public class WorldGuardHelper {
 
-public class WorldGuardProvider {
+    private final BteConoSur plugin;
 
-    public static @NotNull Set<Player> getPlayersInRegion(String id, @NotNull BteConoSur plugin) {
+    public WorldGuardHelper(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
+    public @NotNull Set<Player> getPlayersInRegion(String id) {
         Set<Player> players = new HashSet<>();
         RegionManager manager = plugin.getWorldGuard().getRegionManager(plugin.getWorld());
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -30,7 +31,7 @@ public class WorldGuardProvider {
         return players;
     }
 
-    public static @NotNull Set<String> getRegionNamesAt(@NotNull BlockVector2D vector, @NotNull BteConoSur plugin) {
+    public @NotNull Set<String> getRegionNamesAt(@NotNull BlockVector2D vector) {
 
         Location loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
 
@@ -38,7 +39,7 @@ public class WorldGuardProvider {
 
     }
 
-    public static @NotNull Set<String> getRegionNamesAt(Location loc, @NotNull BteConoSur plugin) {
+    public @NotNull Set<String> getRegionNamesAt(Location loc) {
 
         Set<String> names = new HashSet<>();
 

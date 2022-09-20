@@ -62,6 +62,8 @@ import pizzaaxx.bteconosur.testing.ReloadPlayer;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
 import pizzaaxx.bteconosur.worldguard.MovementHandler;
+import pizzaaxx.bteconosur.worldguard.RegionEvents;
+import pizzaaxx.bteconosur.worldguard.WorldGuardHelper;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
@@ -136,6 +138,18 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
     public WorldEditHelper getWorldEditHelper() {
         return worldEditHelper;
+    }
+
+    private final RegionEvents regionEventsManager = new RegionEvents(this);
+
+    public RegionEvents getRegionEventsManager() {
+        return regionEventsManager;
+    }
+
+    private final WorldGuardHelper worldGuardHelper = new WorldGuardHelper(this);
+
+    public WorldGuardHelper getWorldGuardHelper() {
+        return worldGuardHelper;
     }
 
     private static class GlobalPointsComparator implements Comparator<UUID> {
@@ -229,7 +243,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
                 new ProjectManageInventoryListener(this),
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
                 new MovementHandler(this),
-                new ProjectBlockPlacingListener(),
+                new ProjectBlockPlacingListener(this),
                 new Security(),
                 selectionCommands,
                 whereCommand
