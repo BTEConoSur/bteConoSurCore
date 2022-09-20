@@ -3,7 +3,6 @@ package pizzaaxx.bteconosur.worldedit;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.regions.*;
 import com.sk89q.worldedit.regions.selector.ConvexPolyhedralRegionSelector;
 import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
@@ -25,21 +24,20 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getLocalSession;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.transform;
 
 public class SelectionCommands implements CommandExecutor, Listener {
 
-    private final Plugin plugin;
+    private final BteConoSur plugin;
 
-    public SelectionCommands(Plugin plugin) {
+    public SelectionCommands(BteConoSur plugin) {
         this.plugin = plugin;
     }
 
@@ -52,7 +50,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
     public void onShortcutBefore(Player player) {
 
-        RegionSelector region = getLocalSession(player).getRegionSelector((World) new BukkitWorld(mainWorld));
+        RegionSelector region = getLocalSession(player).getRegionSelector(plugin.getWEWorld());
 
         pendingShortcuts.put(player.getUniqueId(), cloneSelector(region));
 
@@ -62,7 +60,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         RegionSelector beforeRegion = pendingShortcuts.get(player.getUniqueId());
 
-        RegionSelector afterRegion = getLocalSession(player).getRegionSelector((World) new BukkitWorld(mainWorld));
+        RegionSelector afterRegion = getLocalSession(player).getRegionSelector((plugin.getWEWorld()));
 
         if (!compareRegionSelectors(beforeRegion, afterRegion)) {
 
@@ -80,7 +78,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         if (event.getItem() != null && event.getItem().getType() == Material.WOOD_AXE && (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 
-            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector((World) new BukkitWorld(mainWorld));
+            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             pendingInteractions.put(event.getPlayer().getUniqueId(), cloneSelector(region));
         }
@@ -92,7 +90,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
             RegionSelector beforeRegion = pendingInteractions.get(event.getPlayer().getUniqueId());
 
-            RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector((World) new BukkitWorld(mainWorld));
+            RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             if (!compareRegionSelectors(beforeRegion, afterRegion)) {
 
@@ -114,7 +112,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
 
         if (COMMANDS.contains(event.getMessage().split(" ")[0])) {
 
-            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector((World) new BukkitWorld(mainWorld));
+            RegionSelector region = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
             pendingCommands.put(event.getPlayer().getUniqueId(), cloneSelector(region));
         }
@@ -131,7 +129,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector((World) new BukkitWorld(mainWorld));
+                    RegionSelector afterRegion = getLocalSession(event.getPlayer()).getRegionSelector(plugin.getWEWorld());
 
                     // STOPS HERE
                     if (!compareRegionSelectors(beforeRegion, afterRegion)) {
@@ -183,7 +181,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
         }
 
         Player p = (Player) sender;
-        World world = new BukkitWorld(mainWorld);
+        World world = plugin.getWEWorld();
 
         if (command.getName().equals("/selundo")) {
 
@@ -205,7 +203,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
             redoRegions.add(cloneSelector(localSession.getRegionSelector(world)));
             redoSteps.put(p.getUniqueId(), redoRegions);
 
-            localSession.setRegionSelector((World) new BukkitWorld(mainWorld), selector);
+            localSession.setRegionSelector(plugin.getWEWorld(), selector);
             localSession.dispatchCUISelection(actor);
 
             steps.remove(steps.size() - 1);
@@ -234,7 +232,7 @@ public class SelectionCommands implements CommandExecutor, Listener {
             undoRegions.add(cloneSelector(localSession.getRegionSelector(world)));
             undoSteps.put(p.getUniqueId(), undoRegions);
 
-            localSession.setRegionSelector((World) new BukkitWorld(mainWorld), selector);
+            localSession.setRegionSelector(plugin.getWEWorld(), selector);
             localSession.dispatchCUISelection(actor);
 
             steps.remove(steps.size() - 1);

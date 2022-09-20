@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur;
 
+import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -79,6 +80,10 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
 
     public World getWorld() {
         return mainWorld;
+    }
+
+    public com.sk89q.worldedit.world.World getWEWorld() {
+        return new BukkitWorld(mainWorld);
     }
 
     public static String key;
@@ -252,7 +257,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("event").setExecutor(new EventsCommand());
         getCommand("manageevent").setExecutor(new EventsCommand());
         getCommand("help").setExecutor(new HelpCommand(new Configuration(this, "help")));
-        getCommand("terraform").setExecutor(new TerraformCommand());
+        getCommand("terraform").setExecutor(new TerraformCommand(this));
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
         getCommand("height").setExecutor(new HeightCommand());

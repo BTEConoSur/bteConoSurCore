@@ -1,9 +1,8 @@
 package pizzaaxx.bteconosur.worldedit;
 
-import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
@@ -20,14 +19,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pizzaaxx.bteconosur.helper.Pair;
-import pizzaaxx.bteconosur.worldguard.WorldGuardProvider;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
-
 public class TerraformCommand implements CommandExecutor {
+
+    private final BteConoSur plugin;
+
+    public TerraformCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     private final Map<UUID, ConvexPolyhedralRegion> borderRegions = new HashMap<>();
     private final Map<UUID, ConvexPolyhedralRegion> innerRegions = new HashMap<>();
@@ -92,7 +94,7 @@ public class TerraformCommand implements CommandExecutor {
 
                 if (borderRegions.containsKey(p.getUniqueId())) {
 
-                    World world = new BukkitWorld(mainWorld); // probably useless
+                    World world = plugin.getWEWorld(); // probably useless
 
                     // CREATE POLYGONAL REGION FOR LOOPING
 
@@ -214,7 +216,7 @@ public class TerraformCommand implements CommandExecutor {
                         for (double y = vMin; y <= v; y++) {
                             Vector finalVector = new Vector(vector.getX(), y, vector.getZ());
 
-                            if (WorldGuardProvider.getWorldGuard().canBuild(p, new Location(mainWorld, vector.getX(), y, vector.getZ()))) {
+                            if (plugin.getWorldGuard().canBuild(p, new Location(plugin.getWorld(), vector.getX(), y, vector.getZ()))) {
                                 if (mask != null && !mask.test(finalVector)) {
                                     continue;
                                 }
