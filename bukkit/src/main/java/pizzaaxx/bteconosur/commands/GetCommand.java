@@ -18,7 +18,6 @@ import pizzaaxx.bteconosur.BteConoSur;
 import static pizzaaxx.bteconosur.misc.Misc.getCustomHead;
 import static pizzaaxx.bteconosur.misc.Misc.itemBuilder;
 import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
-import static pizzaaxx.bteconosur.worldguard.WorldGuardProvider.getWorldGuard;
 
 public class GetCommand implements CommandExecutor, Listener {
 
@@ -78,7 +77,7 @@ public class GetCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (getWorldGuard().canBuild(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()))) {
+            if (plugin.getWorldGuard().canBuild(e.getPlayer(), e.getClickedBlock().getRelative(e.getBlockFace()))) {
                 Player p = e.getPlayer();
                 if (p.getInventory().getItemInMainHand() != null) {
                     if (p.getInventory().getItemInMainHand().getType() == Material.SKULL_ITEM) {
