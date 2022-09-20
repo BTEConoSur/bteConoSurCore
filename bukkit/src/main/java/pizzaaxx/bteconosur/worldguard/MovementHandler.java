@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
@@ -22,6 +23,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MovementHandler implements Listener {
+
+    private final BteConoSur plugin;
+
+    public MovementHandler(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onDamage(@NotNull EntityDamageEvent event) {
@@ -58,7 +65,7 @@ public class MovementHandler implements Listener {
 
         // LOBBY LEAVE
 
-        ServerPlayer s = new ServerPlayer(p);
+        ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
         GroupsManager.PrimaryGroup group = s.getGroupsManager().getPrimaryGroup();
         if (regionsLeftNames.contains("lobby")) {
             if (group != GroupsManager.PrimaryGroup.ADMIN) {

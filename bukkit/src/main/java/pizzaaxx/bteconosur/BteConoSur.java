@@ -228,7 +228,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
                 new EventsCommand(),
                 new ProjectManageInventoryListener(this),
                 new AsyncPlayerPreLoginListener(playerRegistry, this),
-                new MovementHandler(),
+                new MovementHandler(this),
                 new ProjectBlockPlacingListener(),
                 new Security(),
                 selectionCommands,

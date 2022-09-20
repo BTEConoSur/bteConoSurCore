@@ -158,7 +158,7 @@ public class WorldEditHelper {
         return new ArrayList<>(vset);
     }
 
-    public EditSession setBlocksInLine(Player p, EditSession editSession, Pattern pattern, Mask mask, Vector pos1, Vector pos2) {
+    public EditSession setBlocksInLine(Player p, EditSession editSession, Pattern pattern, Mask mask, @NotNull Vector pos1, @NotNull Vector pos2) {
 
 
         Set<Vector> vset = new HashSet<>();
