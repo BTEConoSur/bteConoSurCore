@@ -5,7 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
@@ -25,7 +24,7 @@ public class NickNameCommand implements CommandExecutor {
         }
 
         Player p = (Player) sender;
-        ServerPlayer s = new ServerPlayer(p);
+        ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
 
             if (args.length > 0) {
                 if (Bukkit.getOfflinePlayer(args[0]).isOnline() && Bukkit.getPlayer(args[0]) != p) {
@@ -33,20 +32,21 @@ public class NickNameCommand implements CommandExecutor {
                         Player target = Bukkit.getPlayer(args[0]);
                         ServerPlayer t = plugin.getPlayerRegistry().get(target.getUniqueId());
 
+                        String name = plugin.getPlayerName(target.getUniqueId());
                         if (args.length > 1) {
                             if (args[1].matches("[a-zA-Z0-9_]{1,16}")) {
                                 if (!t.getName().equalsIgnoreCase(args[1])) {
                                     t.getChatManager().setNick(args[1]);
-                                    p.sendMessage(nickPrefix + "Has establecido el apodo de §a" + new ServerPlayer(target).getName() + "§f en §a" + args[1] + "§f.");
+                                    p.sendMessage(nickPrefix + "Has establecido el apodo de §a" + name + "§f en §a" + args[1] + "§f.");
                                 } else {
                                     t.getChatManager().setNick(null);
-                                    p.sendMessage(nickPrefix + "Has reeestablecido el apodo de §a" + new ServerPlayer(target).getName() + "§f.");
+                                    p.sendMessage(nickPrefix + "Has reeestablecido el apodo de §a" + name + "§f.");
                                 }
                             } else {
                                 p.sendMessage(nickPrefix + "Introduce un apodo válido.");
                             }
                         } else {
-                            p.sendMessage(nickPrefix + "Introduce un apodo para §a" + new ServerPlayer(target).getName() + "§f.");
+                            p.sendMessage(nickPrefix + "Introduce un apodo para §a" + name + "§f.");
                         }
                     } else {
                         p.sendMessage(nickPrefix + "No puedes hacer esto.");
