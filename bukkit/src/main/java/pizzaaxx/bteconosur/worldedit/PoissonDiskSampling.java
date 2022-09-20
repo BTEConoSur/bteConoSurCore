@@ -7,6 +7,7 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.World;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.worldedit.trees.Tree;
 
 import java.util.ArrayList;
@@ -14,12 +15,11 @@ import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.*;
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getEditSession;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.getLocalSession;
 
 public class PoissonDiskSampling {
-    private BlockVector2D[][] grid;
+    private final BlockVector2D[][] grid;
     private final double radius;
     private final Polygonal2DRegion region;
     private final Polygonal2DRegion flatRegion;
@@ -27,18 +27,18 @@ public class PoissonDiskSampling {
     private final List<Tree> trees;
     private final double cellsize;
     private final List<BlockVector2D> active = new ArrayList<>();
-    private final List<BlockVector2D> points = new ArrayList<>();
     private final Random random = new Random();
     private EditSession editSession;
     private int minX;
     private int minZ;
-    private int maxX;
-    private int maxZ;
-    private int cellsWidth;
-    private int cellsHeight;
+    private final int cellsWidth;
+    private final int cellsHeight;
+
+    private final BteConoSur plugin;
 
     // CONSTRUCTOR
-    public PoissonDiskSampling(int radius, Region region, Player player, List<Tree> trees){
+    public PoissonDiskSampling(int radius, Region region, Player player, List<Tree> trees, BteConoSur plugin){
+        this.plugin = plugin;
         this.radius = radius;
         if (region instanceof CuboidRegion) {
             CuboidRegion cuboidRegion = (CuboidRegion) region;
@@ -55,7 +55,7 @@ public class PoissonDiskSampling {
             cuboidPoints.add(new BlockVector2D(second.getX(), second.getZ()));
             cuboidPoints.add(new BlockVector2D(first.getX(), second.getZ()));
 
-            this.region = new Polygonal2DRegion((World) new BukkitWorld(mainWorld), cuboidPoints, maxY, minY);
+            this.region = new Polygonal2DRegion((World) new BukkitWorld(plugin.getWorld()), cuboidPoints, maxY, minY);
         } else {
             this.region = (Polygonal2DRegion) region;
         }
@@ -70,8 +70,8 @@ public class PoissonDiskSampling {
 
         minX = this.region.getPoints().get(0).getBlockX();
         minZ = this.region.getPoints().get(0).getBlockZ();
-        maxX = this.region.getPoints().get(0).getBlockX();
-        maxZ = this.region.getPoints().get(0).getBlockZ();
+        int maxX = this.region.getPoints().get(0).getBlockX();
+        int maxZ = this.region.getPoints().get(0).getBlockZ();
 
         for (BlockVector2D b : this.region.getPoints()) {
             if (b.getBlockX() < minX) {
@@ -111,11 +111,7 @@ public class PoissonDiskSampling {
         }
 
         insertPoint(startingPoint);
-        try {
-            tryToPlace(startingPoint);
-        } catch (MaxChangedBlocksException e) {
-            throw e;
-        }
+        tryToPlace(startingPoint);
 
         active.add(startingPoint);
 
@@ -174,7 +170,7 @@ public class PoissonDiskSampling {
     private void tryToPlace(BlockVector2D point) throws MaxChangedBlocksException {
         Tree tree = trees.get(random.nextInt(trees.size()));
         for (int y = region.getMaximumY(); y >= region.getMinimumY(); y = y - 1) {
-            if (mainWorld.getBlockAt(point.getBlockX(), y, point.getBlockZ()).getType().isSolid() && mainWorld.getBlockAt(point.getBlockX(), y + 1, point.getBlockZ()).isEmpty()) {
+            if (plugin.getWorld().getBlockAt(point.getBlockX(), y, point.getBlockZ()).getType().isSolid() && plugin.getWorld().getBlockAt(point.getBlockX(), y + 1, point.getBlockZ()).isEmpty()) {
                 editSession = tree.place(new Vector(point.getBlockX(), y + 1, point.getBlockZ()), this.player, editSession);
                 break;
             }

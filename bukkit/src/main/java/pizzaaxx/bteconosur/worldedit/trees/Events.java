@@ -406,7 +406,7 @@ public class Events implements Listener, CommandExecutor {
                     return true;
                 }
 
-                PoissonDiskSampling sampling = new PoissonDiskSampling(radius + 1, region, p, trees);
+                PoissonDiskSampling sampling = new PoissonDiskSampling(radius + 1, region, p, trees, plugin);
                 try {
                     sampling.generate();
                 } catch (MaxChangedBlocksException e) {
