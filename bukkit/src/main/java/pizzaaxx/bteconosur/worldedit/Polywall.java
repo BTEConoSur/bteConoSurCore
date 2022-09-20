@@ -4,7 +4,6 @@ import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.extension.factory.PatternFactory;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.Extent;
@@ -19,14 +18,21 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BteConoSur;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static pizzaaxx.bteconosur.BteConoSur.mainWorld;
 import static pizzaaxx.bteconosur.worldedit.WorldEditHelper.*;
 
 public class Polywall implements CommandExecutor {
+
+    private final BteConoSur plugin;
+
+    public Polywall(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -37,7 +43,7 @@ public class Polywall implements CommandExecutor {
 
                 // GET REGION
 
-                Region region = null;
+                Region region;
                 try {
                     region = getSelection(p);
                 } catch (IncompleteRegionException e) {
@@ -104,14 +110,14 @@ public class Polywall implements CommandExecutor {
                     List<BlockVector2D> pointsFinal = new ArrayList<>(points);
                     pointsFinal.add(points.get(0));
 
-                    EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(mainWorld), WorldEdit.getInstance().getSessionManager().get(actor).getBlockChangeLimit());
+                    EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(plugin.getWorld()), WorldEdit.getInstance().getSessionManager().get(actor).getBlockChangeLimit());
 
                     for (int i = minY; i <= maxY; i++) {
                         for (int j = 0; j < pointsFinal.size() - 1; j++) {
                             BlockVector2D v1 = pointsFinal.get(j);
                             BlockVector2D v2 = pointsFinal.get(j + 1);
 
-                            editSession = setBlocksInLine(p, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
+                            setBlocksInLine(p, editSession, pattern, mask, v1.toVector(i), v2.toVector(i));
                         }
                     }
 

@@ -225,7 +225,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         );
 
         getLogger().info("Registering commands...");
-        getCommand("/divide").setExecutor(new DivideCommand());
+        getCommand("/divide").setExecutor(new DivideCommand(this));
         getCommand("project").setExecutor(new ProjectsCommand(this));
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("promote").setExecutor(new PromoteDemote(this));
@@ -239,7 +239,7 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("googlemaps").setExecutor(new GoogleMapsCommand());
         getCommand("increment").setExecutor(new IncrementCommand(playerRegistry));
         getCommand("pwarp").setExecutor(new PWarpCommand(this));
-        getCommand("/polywalls").setExecutor(new Polywall());
+        getCommand("/polywalls").setExecutor(new Polywall(this));
         getCommand("donator").setExecutor(new Donator());
         getCommand("streamer").setExecutor(new Streamer());
         getCommand("streaming").setExecutor(new StreamingCommand(this));
