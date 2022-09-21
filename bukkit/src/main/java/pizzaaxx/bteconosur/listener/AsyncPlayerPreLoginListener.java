@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.PlayerRegistry;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;
@@ -15,16 +15,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.pluginFolder;
 import static pizzaaxx.bteconosur.Config.maxPlayers;
 
 public class AsyncPlayerPreLoginListener implements Listener {
 
     private final PlayerRegistry playerRegistry;
     private final Random random = new Random();
-    private final Plugin plugin;
+    private final BteConoSur plugin;
 
-    public AsyncPlayerPreLoginListener(PlayerRegistry playerRegistry, Plugin plugin) {
+    public AsyncPlayerPreLoginListener(PlayerRegistry playerRegistry, BteConoSur plugin) {
         this.playerRegistry = playerRegistry;
         this.plugin = plugin;
     }
@@ -33,7 +32,7 @@ public class AsyncPlayerPreLoginListener implements Listener {
     public void onPreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
 
         boolean isFirst = false;
-        File file = new File(pluginFolder, "playerData/" + event.getUniqueId() + ".yml");
+        File file = new File(plugin.getDataFolder(), "playerData/" + event.getUniqueId() + ".yml");
         try {
             if (file.createNewFile()) {
                 Bukkit.getLogger().info("Created new playerData file for player with UUID " + event.getUniqueId());
@@ -88,7 +87,7 @@ public class AsyncPlayerPreLoginListener implements Listener {
 
         data.save();
 
-        ServerPlayer serverPlayer = new ServerPlayer(event.getUniqueId());
+        ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getUniqueId());
 
         // PRIORIDAD DE ENTRADA
 
@@ -118,7 +117,7 @@ public class AsyncPlayerPreLoginListener implements Listener {
 
         }
 
-        playerRegistry.add(serverPlayer);
+        playerRegistry.load(serverPlayer.getId());
     }
 
 }
