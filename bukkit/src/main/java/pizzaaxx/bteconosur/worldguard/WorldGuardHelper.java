@@ -20,25 +20,6 @@ public class WorldGuardHelper {
         this.plugin = plugin;
     }
 
-    public @NotNull Set<Player> getPlayersInRegion(String id) {
-        Set<Player> players = new HashSet<>();
-        RegionManager manager = plugin.getWorldGuard().getRegionManager(plugin.getWorld());
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (manager.getApplicableRegions(p.getLocation()).getRegions().contains(manager.getRegion(id))) {
-                players.add(p);
-            }
-        }
-        return players;
-    }
-
-    public @NotNull Set<String> getRegionNamesAt(@NotNull BlockVector2D vector) {
-
-        Location loc = new Location(plugin.getWorld(), vector.getX(), 100, vector.getZ());
-
-        return getRegionNamesAt(loc);
-
-    }
-
     public @NotNull Set<String> getRegionNamesAt(Location loc) {
 
         Set<String> names = new HashSet<>();

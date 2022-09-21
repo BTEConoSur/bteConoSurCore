@@ -48,18 +48,6 @@ public class Configuration extends YamlConfiguration {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
-    public String getStringWithoutColors(String path) {
-        return super.getString(path);
-    }
-
-    public List<String> getColoredList(String path) {
-        List<String> coloredList = new ArrayList<>();
-        super.getStringList(path).forEach(text -> {
-            coloredList.add(ChatColor.translateAlternateColorCodes('&', text));
-        });
-        return coloredList;
-    }
-
     private void createFile() {
 
         try {

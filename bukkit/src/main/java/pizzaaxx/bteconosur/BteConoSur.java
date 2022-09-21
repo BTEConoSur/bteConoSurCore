@@ -57,7 +57,6 @@ import pizzaaxx.bteconosur.ranks.PromoteDemote;
 import pizzaaxx.bteconosur.ranks.Streamer;
 import pizzaaxx.bteconosur.teleport.OnTeleport;
 import pizzaaxx.bteconosur.terramap.ImagesServer;
-import pizzaaxx.bteconosur.testing.Fixing;
 import pizzaaxx.bteconosur.testing.ReloadPlayer;
 import pizzaaxx.bteconosur.testing.Testing;
 import pizzaaxx.bteconosur.worldedit.*;
@@ -281,10 +280,9 @@ public final class BteConoSur extends JavaPlugin implements PointsContainer {
         getCommand("welcomeBook").setExecutor(new Join(playerRegistry, this));
         getCommand("banner").setExecutor(new BannersCommand());
         getCommand("height").setExecutor(new HeightCommand());
-        getCommand("fix").setExecutor(new Fixing(this));
         getCommand("/selundo").setExecutor(selectionCommands);
         getCommand("/selredo").setExecutor(selectionCommands);
-        getCommand("reloadPlayer").setExecutor(new ReloadPlayer());
+        getCommand("reloadPlayer").setExecutor(new ReloadPlayer(this));
 
         createDirectories(
                 "",

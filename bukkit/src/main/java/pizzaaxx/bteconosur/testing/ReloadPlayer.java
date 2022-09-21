@@ -6,11 +6,16 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
-
-import static pizzaaxx.bteconosur.BteConoSur.playerRegistry;
+import pizzaaxx.bteconosur.BteConoSur;
 
 public class ReloadPlayer implements CommandExecutor {
+
+    private final BteConoSur plugin;
+
+    public ReloadPlayer(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -22,8 +27,8 @@ public class ReloadPlayer implements CommandExecutor {
 
                 if (player.hasPlayedBefore()) {
 
-                    playerRegistry.remove(player.getUniqueId());
-                    playerRegistry.add(new ServerPlayer(player));
+                    plugin.getPlayerRegistry().remove(player.getUniqueId());
+                    plugin.getPlayerRegistry().load(player.getUniqueId());
 
                     sender.sendMessage("Jugador recargado.");
 
