@@ -15,7 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static pizzaaxx.bteconosur.Config.gateway;
-import static pizzaaxx.bteconosur.ranks.Streamer.streamerPrefix;
+import static pizzaaxx.bteconosur.commands.StreamerCommand.streamerPrefix;
 
 public class StreamingCommand implements CommandExecutor {
 

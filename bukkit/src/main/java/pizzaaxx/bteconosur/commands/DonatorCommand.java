@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.ranks;
+package pizzaaxx.bteconosur.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 
-public class Donator implements CommandExecutor {
+public class DonatorCommand implements CommandExecutor {
     public static String donatorPrefix = "§f[§dDONADOR§f] §7>>§r ";
 
     @Override

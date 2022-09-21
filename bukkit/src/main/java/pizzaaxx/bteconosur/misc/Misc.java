@@ -3,10 +3,7 @@ package pizzaaxx.bteconosur.misc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemStack;
@@ -20,53 +17,9 @@ import xyz.upperlevel.spigot.book.BookUtil;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import static pizzaaxx.bteconosur.BteConoSur.*;
+import static pizzaaxx.bteconosur.BteConoSur.key;
 
 public class Misc {
-
-    public static final Map<String, String> COUNTRIES = new HashMap<>();
-
-    static  {
-        COUNTRIES.put("argentina" , "arg");
-        COUNTRIES.put("bolivia", "bo");
-        COUNTRIES.put("chile", "cl");
-        COUNTRIES.put("paraguay", "pa");
-        COUNTRIES.put("peru", "pe");
-        COUNTRIES.put("uruguay", "uy");
-    }
-
-    public static OldCountry getCountryAtLocation(BlockVector2D loc) {
-        return getCountryAtLocation(new Location(mainWorld, loc.getX(), 100.0, loc.getZ()));
-    }
-
-    public static OldCountry getCountryAtLocation(Location loc) {
-        RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
-        Set<ProtectedRegion> regions = regionManager.getApplicableRegions(loc).getRegions();
-        if (regions.contains(regionManager.getRegion("argentina"))) {
-            return new OldCountry("argentina");
-        }
-        if (regions.contains(regionManager.getRegion("bolivia"))) {
-            return new OldCountry("bolivia");
-        }
-        if (regions.contains(regionManager.getRegion("chile_cont")) || regions.contains(regionManager.getRegion("chile_idp"))) {
-            return new OldCountry("chile");
-        }
-        if (regions.contains(regionManager.getRegion("paraguay"))) {
-            return new OldCountry("paraguay");
-        }
-        if (regions.contains(regionManager.getRegion("peru"))) {
-            return new OldCountry("peru");
-        }
-        if (regions.contains(regionManager.getRegion("uruguay"))) {
-            return new OldCountry("uruguay");
-        }
-        return null;
-
-    }
-
-    public static String getCountryPrefix(String country) {
-        return COUNTRIES.get(country);
-    }
 
     public static ItemStack itemBuilder(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);
