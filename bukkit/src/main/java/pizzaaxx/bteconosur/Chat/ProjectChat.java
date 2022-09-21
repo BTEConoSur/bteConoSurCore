@@ -167,6 +167,16 @@ public class ProjectChat implements IChat {
         }
     }
 
+    @Override
+    public void quitMember(UUID uuid) {
+        members.remove(uuid);
+        ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+        broadcast(CHAT_PREFIX + s.getChatManager().getDisplayName() + "§f ha abandonado el chat.", true);
+        if (members.isEmpty()) {
+            plugin.getChatManager().remove(this);
+        }
+    }
+
     public BteConoSur getPlugin() {
         return plugin;
     }

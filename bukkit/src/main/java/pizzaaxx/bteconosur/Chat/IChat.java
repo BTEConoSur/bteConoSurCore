@@ -25,4 +25,6 @@ public interface IChat {
 
     void sendMember(UUID uuid, IChat chat);
 
+    void quitMember(UUID uuid);
+
 }
