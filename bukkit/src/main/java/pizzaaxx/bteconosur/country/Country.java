@@ -38,6 +38,7 @@ public class Country implements PointsContainer {
     private final Configuration config;
     private final CountryChat chat;
     private final boolean allowsProjects;
+    private final String iconURL;
 
     public Country(BteConoSur plugin, @NotNull String name, String abbreviation, String displayName, boolean allowsProjects, JDA bot) {
 
@@ -61,6 +62,7 @@ public class Country implements PointsContainer {
         this.projectsLogsChannelID = config.getString("projectsLogsChannelID");
         this.projectsRequestsChannelID = config.getString("projectRequestsChannelID");
         this.showcaseChannelID = config.getString("showcaseChannelID");
+        this.iconURL = config.getString("iconURL");
 
         if (!name.equals("chile")) {
             regions.add(plugin.getRegionsManager().getRegion(name));
@@ -226,5 +228,9 @@ public class Country implements PointsContainer {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String getIcon() {
+        return iconURL;
     }
 }

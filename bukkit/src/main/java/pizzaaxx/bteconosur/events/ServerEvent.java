@@ -12,9 +12,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
 import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.helper.Pair;
 import pizzaaxx.bteconosur.configuration.Configuration;
 
@@ -39,13 +41,16 @@ public class ServerEvent {
     private ProtectedPolygonalRegion region;
     private final Configuration config;
     private final ConfigurationSection countrySection;
-    private final OldCountry country;
+    private final Country country;
+    private final BteConoSur plugin;
+
 
     public enum Status {
         READY, OFF, ON
     }
 
-    public ServerEvent(OldCountry country) {
+    public ServerEvent(Country country, BteConoSur plugin) {
+        this.plugin = plugin;
         this.country = country;
         String c = country.getName();
         config = new Configuration(Bukkit.getPluginManager().getPlugin("bteConoSur"), "events");
@@ -57,11 +62,11 @@ public class ServerEvent {
         image = countrySection.getString("image");
         minPoints = countrySection.getInt("minPoints");
         ConfigurationSection tpSection = countrySection.getConfigurationSection("tp");
-        tp = new Location(mainWorld, tpSection.getDouble("x"), tpSection.getDouble("y"), tpSection.getDouble("z"));
+        tp = new Location(plugin.getWorld(), tpSection.getDouble("x"), tpSection.getDouble("y"), tpSection.getDouble("z"));
         for (String uuid : countrySection.getStringList("participants")) {
             participants.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
         }
-        region = (ProtectedPolygonalRegion) getWorldGuard().getRegionManager(mainWorld).getRegion("evento_" + c);
+        region = (ProtectedPolygonalRegion) plugin.getRegionsManager().getRegion("evento_" + c);
     }
 
     public String getName() {
@@ -153,7 +158,7 @@ public class ServerEvent {
         this.setDate("notSet");
         this.setImage("notSet");
         this.setStatus(Status.OFF);
-        this.setTp(new Location(mainWorld, 0, 0, 0));
+        this.setTp(new Location(plugin.getWorld(), 0, 0, 0));
         this.setMinPoints(0);
         this.setParticipants(new ArrayList<>());
     }
@@ -187,7 +192,7 @@ public class ServerEvent {
         }
         region.setMembers(defaultDomain);
 
-        RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
+        RegionManager regionManager = plugin.getRegionsManager();
         if (regionManager.getRegion("evento_" + country.getName()) != region) {
             regionManager.addRegion(region);
         }
@@ -198,7 +203,7 @@ public class ServerEvent {
         this.save();
         List<String> names = new ArrayList<>();
         for (OfflinePlayer player : participants) {
-            ServerPlayer serverPlayer = new ServerPlayer(player);
+            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(player.getUniqueId());
             GroupsManager groupsManager = serverPlayer.getGroupsManager();
             if (groupsManager.getPrimaryGroup() == GroupsManager.PrimaryGroup.DEFAULT && !(groupsManager.getSecondaryGroups().contains(GroupsManager.SecondaryGroup.EVENTO))) {
                 groupsManager.addSecondaryGroup(GroupsManager.SecondaryGroup.EVENTO);
@@ -247,7 +252,7 @@ public class ServerEvent {
 
         List<String> names = new ArrayList<>();
         for (OfflinePlayer player : participants) {
-            ServerPlayer serverPlayer = new ServerPlayer(player);
+            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(player.getUniqueId());
             DataManager data = serverPlayer.getDataManager();
             GroupsManager groups = serverPlayer.getGroupsManager();
             names.add(serverPlayer.getName());
@@ -281,7 +286,7 @@ public class ServerEvent {
         }
         gateway.sendMessageEmbeds(embed.build()).queue();
         embed.setTitle("Evento \"" + name + "\"");
-        country.getLogs().sendMessageEmbeds(embed.build()).queue();
+        country.getProjectsLogsChannel().sendMessageEmbeds(embed.build()).queue();
 
         this.reset();
         this.save();

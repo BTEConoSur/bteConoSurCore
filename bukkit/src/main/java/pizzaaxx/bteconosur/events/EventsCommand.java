@@ -15,7 +15,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.country.OldCountry;
+import pizzaaxx.bteconosur.BteConoSur;
+import pizzaaxx.bteconosur.country.Country;
 import pizzaaxx.bteconosur.misc.Misc;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.DataManager;
 import pizzaaxx.bteconosur.ServerPlayer.Managers.GroupsManager;
@@ -26,6 +27,12 @@ import java.util.*;
 import static pizzaaxx.bteconosur.country.cities.projects.Command.ProjectsCommand.background;
 
 public class EventsCommand implements CommandExecutor, Listener {
+
+    private final BteConoSur plugin;
+
+    public EventsCommand(BteConoSur plugin) {
+        this.plugin = plugin;
+    }
 
     public static String eventsPrefix = "[§5EVENTO§f] §7>> §f";
     public static Set<CommandSender> startConfirm = new HashSet<>();
@@ -44,7 +51,7 @@ public class EventsCommand implements CommandExecutor, Listener {
                     p.closeInventory();
                 } else {
                     String name = ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replace("Perú", "Peru").toLowerCase();
-                    ServerEvent event = new ServerEvent(new OldCountry(name));
+                    ServerEvent event = new ServerEvent(plugin.getCountryManager().get(name), plugin);
                     if (event.getStatus() != ServerEvent.Status.OFF) {
                         p.closeInventory();
                         p.teleport(event.getTp());
@@ -63,19 +70,19 @@ public class EventsCommand implements CommandExecutor, Listener {
                 Player player = (Player) p;
                 if (args.length > 0) {
                     if (args[0].equals("join")) {
-                        OldCountry country = null;
+                        Country country = null;
                         if (args.length > 1) {
-                            country = new OldCountry(args[1]);
+                            country = plugin.getCountryManager().get(args[1]);
                             if (country.getName() == null) {
                                 p.sendMessage(eventsPrefix + "Introduce un país válido.");
                                 return true;
                             }
                         } else {
-                            RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
+                            RegionManager regionManager = plugin.getRegionsManager();
                             boolean found = false;
                             for (ProtectedRegion region : regionManager.getApplicableRegions(player.getLocation()).getRegions()) {
                                 if (region.getId().startsWith("evento_")) {
-                                    country = new OldCountry(region.getId().replace("evento_", ""));
+                                    country = plugin.getCountryManager().get(region.getId().replace("evento_", ""));
                                     found = true;
                                     break;
                                 }
@@ -85,10 +92,10 @@ public class EventsCommand implements CommandExecutor, Listener {
                                 return true;
                             }
                         }
-                        ServerEvent event = new ServerEvent(country);
+                        ServerEvent event = new ServerEvent(country, plugin);
                         if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (!event.getParticipants().contains(player)) {
-                                ServerPlayer s = new ServerPlayer(player);
+                                ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
                                 if (s.getPointsManager().getMaxPoints().getValue() >= event.getMinPoints()) {
                                     player.sendMessage(eventsPrefix + "¡Te has unido al evento \"" + event.getName() + "\"! ¡Esperamos que te diviertas!");
                                     if (event.getStatus() == ServerEvent.Status.ON) {
@@ -127,19 +134,19 @@ public class EventsCommand implements CommandExecutor, Listener {
                             player.sendMessage(eventsPrefix + "No estás en la zona de ningún evento.");
                         }
                     } else if (args[0].equals("leave")) {
-                        OldCountry country = null;
+                        Country country = null;
                         if (args.length > 1) {
-                            country = new OldCountry(args[1]);
+                            country = plugin.getCountryManager().get(args[1]);
                             if (country.getName() == null) {
                                 p.sendMessage(eventsPrefix + "Introduce un país válido.");
                                 return true;
                             }
                         } else {
-                            RegionManager regionManager = getWorldGuard().getRegionManager(mainWorld);
+                            RegionManager regionManager = plugin.getRegionsManager();
                             boolean found = false;
                             for (ProtectedRegion region : regionManager.getApplicableRegions(player.getLocation()).getRegions()) {
                                 if (region.getId().startsWith("evento_")) {
-                                    country = new OldCountry(region.getId().replace("evento_", ""));
+                                    country = plugin.getCountryManager().get(region.getId().replace("evento_", ""));
                                     found = true;
                                     break;
                                 }
@@ -149,10 +156,10 @@ public class EventsCommand implements CommandExecutor, Listener {
                                 return true;
                             }
                         }
-                        ServerEvent event = new ServerEvent(country);
+                        ServerEvent event = new ServerEvent(country, plugin);
                         if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (event.getParticipants().contains(player)) {
-                                ServerPlayer s = new ServerPlayer(player);
+                                ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
                                 DataManager data = s.getDataManager();
                                 player.sendMessage(eventsPrefix + "Has abandonado el evento \"" + event.getName() + "\".");
                                 if (event.getStatus() == ServerEvent.Status.ON) {
@@ -189,22 +196,22 @@ public class EventsCommand implements CommandExecutor, Listener {
                     }
                     gui.setItem(26, Misc.getCustomHead("§fSalir", null, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzdhZWU5YTc1YmYwZGY3ODk3MTgzMDE1Y2NhMGIyYTdkNzU1YzYzMzg4ZmYwMTc1MmQ1ZjQ0MTlmYzY0NSJ9fX0="));
 
-                    ServerEvent event = new ServerEvent(new OldCountry("argentina"));
+                    ServerEvent event = new ServerEvent(plugin.getCountryManager().get("argentina"), plugin);
                     gui.setItem(10, Misc.getCustomHead("§a§lArgentina", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkMDMzZGM1ZjY3NWFkNTFiYzA2YzdhMTk0OWMzNWExZDM3ZTQ4YTJlMWMyNzg5YzJjZjdkMzBlYzU4ZjMyYyJ9fX0="));
 
-                    event = new ServerEvent(new OldCountry("bolivia"));
+                    event = new ServerEvent(plugin.getCountryManager().get("bolivia"), plugin);
                     gui.setItem(11, Misc.getCustomHead("§a§lBolivia", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmQyYzlmOTg2MThjZDVmN2RiZjBjMWE1NGVlMDk0NzQ2NjJiNzEzYjVhYTI2NWM4NWVmYmZjNDY0MThlOTE1In19fQ=="));
 
-                    event = new ServerEvent(new OldCountry("chile"));
+                    event = new ServerEvent(plugin.getCountryManager().get("chile"), plugin);
                     gui.setItem(12, Misc.getCustomHead("§a§lChile", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTAzNTk0YzBjMTE2YjA1ZDc1NjA2MGEyMjM5ODM3NzQ3ODg4NzMyMjY5MzVkOTYyNzExYmMzZTI1ODQ2ZGM2YiJ9fX0="));
 
-                    event = new ServerEvent(new OldCountry("paraguay"));
+                    event = new ServerEvent(plugin.getCountryManager().get("paraguay"), plugin);
                     gui.setItem(13, Misc.getCustomHead("§a§lParaguay", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE3OGRlNjkxYjUwOGQ2MjQ5MTA5ZmM1NGFmNmZiYTQ5YmFhODM3N2FkMzcwNjEyZWQ2MTdkNzdkZDZhZDU4OCJ9fX0="));
 
-                    event = new ServerEvent(new OldCountry("peru"));
+                    event = new ServerEvent(plugin.getCountryManager().get("peru"), plugin);
                     gui.setItem(14, Misc.getCustomHead("§a§lPerú", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRkMDNiZDQ0MTBiYWJkYzY4MjQ5M2IzYzJiYmEyNmU3MzBlNmJjNjU4ZDM4ODhlNzliZjcxMmY4NTMifX19"));
 
-                    event = new ServerEvent(new OldCountry("uruguay"));
+                    event = new ServerEvent(plugin.getCountryManager().get("uruguay"), plugin);
                     gui.setItem(15, Misc.getCustomHead("§a§lUruguay", (event.getStatus() == ServerEvent.Status.OFF ? "§aEstado: §c§lApagado" : "§aEstado: " + (event.getStatus() == ServerEvent.Status.ON ? "§2§lEn curso" : "§e§lPreparado") + "\n§aNombre: §f" + event.getName() + "\n§aFecha: §f" + event.getDate() + "\n§aPuntos mínimos: §f" + event.getMinPoints() + "\n§7§oHaz click para ir"), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjg0NDA1OTdjNGJjMmFhZDYwMGE1NDYwNGRjN2IxZmI3NzEzNDNlMDIyZTZhMmUwMjJmOTBlNDBjYzI1ZjlmOCJ9fX0="));
 
                     event = new ServerEvent(new OldCountry("global"));
