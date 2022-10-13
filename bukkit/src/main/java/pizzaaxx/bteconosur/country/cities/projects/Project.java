@@ -13,29 +13,13 @@ import pizzaaxx.bteconosur.HelpMethods.RegionHelper;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.ProjectTypes.ProjectType;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.*;
 
 import java.util.*;
 
 public class Project {
-
-    /**
-     * The difficulty of a project. A higher difficulty gives a higher amount of points.
-     */
-    public enum Difficulty {
-        FACIL(15), INTERMEDIO(50), DIFICIL(100);
-
-        private final int points;
-
-        Difficulty(int points) {
-            this.points = points;
-        }
-
-        public int getPoints() {
-            return points;
-        }
-    }
 
     /**
      * Represents what kind of buildings this project contains.
@@ -102,7 +86,10 @@ public class Project {
     private final String id;
     private final Country country;
     private final City city;
-    public Difficulty difficulty;
+
+    public ProjectType type;
+
+    public int points;
 
     public final Set<UUID> members = new HashSet<>();
     public UUID owner;
@@ -136,7 +123,9 @@ public class Project {
 
         config = new Configuration(plugin, "countries/" + country.getName() + "/cities/" + city.getName() + "/projects/" + id);
 
-        difficulty = Difficulty.valueOf(config.getString("difficulty").toUpperCase());
+        type = country.getProjectType(config.getString("type"));
+
+        points = config.getInt("points");
 
         if (config.contains("tag")) {
             tag = Tag.valueOf(config.getString("tag").toUpperCase());
@@ -172,8 +161,8 @@ public class Project {
         return id;
     }
 
-    public Difficulty getDifficulty() {
-        return difficulty;
+    public ProjectType getType() {
+        return type;
     }
 
     public Set<UUID> getMembers() {
@@ -241,8 +230,8 @@ public class Project {
         return new ClaimProjectAction(this, target, plugin);
     }
 
-    public RedefineProjectAction redefine(List<BlockVector2D> points, Difficulty difficulty) {
-        return new RedefineProjectAction(this, points, difficulty);
+    public RedefineProjectAction redefine(List<BlockVector2D> regionPoints, Difficulty difficulty) {
+        return new RedefineProjectAction(this, regionPoints, difficulty);
     }
 
     public SetPendingProjectAction setPending(boolean pending) {

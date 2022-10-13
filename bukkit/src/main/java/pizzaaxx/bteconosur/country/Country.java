@@ -7,12 +7,14 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.CountryChat;
 import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.country.ProjectTypes.ProjectType;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 
 import java.io.File;
@@ -40,6 +42,8 @@ public class Country implements PointsContainer {
     private final boolean allowsProjects;
     private final String iconURL;
 
+    private final Map<String, ProjectType> projectTypes = new HashMap<>();
+
     public Country(BteConoSur plugin, @NotNull String name, String abbreviation, String displayName, boolean allowsProjects, JDA bot) {
 
         this.allowsProjects = allowsProjects;
@@ -51,6 +55,11 @@ public class Country implements PointsContainer {
         this.config = new Configuration(plugin, "countries/" + name + "/config");
 
         registry = new CityRegistry(this, plugin);
+
+        ConfigurationSection projectsSection = config.getConfigurationSection("projects");
+        for (String key : projectsSection.getKeys(false)) {
+            projectTypes.put(key, new ProjectType(projectsSection.getConfigurationSection(key), plugin, this));
+        }
 
         this.folder = new File(plugin.getDataFolder(), "countries/" + name);
 
@@ -232,5 +241,17 @@ public class Country implements PointsContainer {
 
     public String getIcon() {
         return iconURL;
+    }
+
+    public Map<String, ProjectType> getProjectTypes() {
+        return projectTypes;
+    }
+
+    public boolean isProjectType(String id) {
+        return projectTypes.containsKey(id);
+    }
+
+    public ProjectType getProjectType(String id) {
+        return projectTypes.get(id);
     }
 }
