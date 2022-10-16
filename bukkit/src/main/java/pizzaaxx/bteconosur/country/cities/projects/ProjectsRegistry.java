@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.HelpMethods.SatMapHelper;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.country.ProjectTypes.ProjectType;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.ChangeAction.UpdateScoreboardProjectAction;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
@@ -121,12 +122,11 @@ public class ProjectsRegistry {
 
     /**
      *
-     * @param difficulty The difficulty of the new project.
-     * @param points The points of the region of the new project.
+     * @param regionPoints The points of the region of the new project.
      * @return An instance of the new project.
      * @throws IOException If the server failed to create a configuration file.
      */
-    public Project createProject(Project.@NotNull Difficulty difficulty, @NotNull List<BlockVector2D> points) throws IOException {
+    public Project createProject(ProjectType type, int points, @NotNull List<BlockVector2D> regionPoints) throws IOException {
 
         String id = CodeGenerator.generateCode(6, plugin.getProjectsManager().getIDs());
 
@@ -134,11 +134,12 @@ public class ProjectsRegistry {
         if (projectFile.createNewFile()) {
 
             Configuration config = new Configuration(plugin, "countries/" + city.getCountry().getName() + "/cities/" + city.getName() + "/projects/" + id);
-            config.set("difficulty", difficulty.toString().toLowerCase());
+            config.set("type", type.getId());
+            config.set("points", points);
             config.set("pending", false);
             config.save();
 
-            ProtectedPolygonalRegion region = new ProtectedPolygonalRegion("project_" + id, points, -100, 8000);
+            ProtectedPolygonalRegion region = new ProtectedPolygonalRegion("project_" + id, regionPoints, -100, 8000);
 
             region.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
             region.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
@@ -152,7 +153,7 @@ public class ProjectsRegistry {
             plugin.getRegionsManager().addRegion(region);
 
             // WRITE MAP FILE
-            BufferedImage map = ImageIO.read(new URL(SatMapHelper.getURL(new Pair<>(points, "6382DC50"))));
+            BufferedImage map = ImageIO.read(new URL(SatMapHelper.getURL(new Pair<>(regionPoints, "6382DC50"))));
             File output = new File(imagesFolder, id + ".png");
             ImageIO.write(map, "png", output);
 

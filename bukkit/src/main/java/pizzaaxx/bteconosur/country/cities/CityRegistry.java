@@ -10,17 +10,14 @@ import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.country.Country;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CityRegistry {
 
     private final Country country;
     private final Map<String, City> registry = new HashMap<>();
     private final Map<String, Long> deletionRegistry = new HashMap<>();
-    private final List<String> names = new ArrayList<>();
+    private final Map<String, ProtectedRegion> regions = new HashMap<>();
     private final BteConoSur plugin;
 
     public CityRegistry(@NotNull Country country, BteConoSur plugin) {
@@ -33,14 +30,15 @@ public class CityRegistry {
 
         if (files != null) {
             for (File file : files) {
-                names.add(file.getName().replace(".yml", ""));
+                String name = file.getName();
+                regions.put(name, plugin.getRegionsManager().getRegion("city_" + country.getName() + "_" + name));
             }
         }
 
     }
 
     public boolean exists(String name) {
-        return names.contains(name);
+        return regions.containsKey(name);
     }
 
     public boolean isRegistered(String name) {
@@ -75,7 +73,7 @@ public class CityRegistry {
 
                 if (region.getId().startsWith("city_")) {
 
-                    String cityName = region.getId().replace("city_", "");
+                    String cityName = region.getId().split("_")[2];
                     if (exists(cityName)) {
                         return true;
                     }
@@ -95,7 +93,7 @@ public class CityRegistry {
 
                 if (region.getId().startsWith("city_")) {
 
-                    String cityName = region.getId().replace("city_", "");
+                    String cityName = region.getId().split("_")[2];
                     if (exists(cityName)) {
                         return get(cityName);
                     }
@@ -103,6 +101,34 @@ public class CityRegistry {
             }
         }
         return null;
+    }
+
+    public Collection<ProtectedRegion> getRegions() {
+        Map<String, ProtectedRegion> map = new HashMap<>(regions);
+        map.remove("default");
+        return map.values();
+    }
+
+    /**
+     * Get the city this belongs region to. Alphabetical order is used if there's more than one city.
+     * @param region The region.
+     * @return
+     */
+    public City get(@NotNull ProtectedRegion region) {
+        List<ProtectedRegion> intersecting = region.getIntersectingRegions(getRegions());
+
+        if (intersecting.isEmpty()) {
+            return get("default");
+        }
+
+        List<String> names = new ArrayList<>();
+        for (ProtectedRegion r : intersecting) {
+            names.add(r.getId().split("_")[2]);
+        }
+
+        Collections.sort(names);
+
+        return get(names.get(0));
     }
 
     public City get(@NotNull BlockVector2D vector) {
@@ -136,6 +162,8 @@ public class CityRegistry {
     }
 
     public List<String> getNames() {
+        List<String> names = new ArrayList<>(regions.keySet());
+        names.remove("default");
         return names;
     }
 }

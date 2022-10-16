@@ -6,6 +6,8 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
 import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -37,6 +39,10 @@ import pizzaaxx.bteconosur.ServerPlayer.ServerPlayer;
 import pizzaaxx.bteconosur.configuration.Configuration;
 import pizzaaxx.bteconosur.coords.Coords2D;
 import pizzaaxx.bteconosur.country.Country;
+import pizzaaxx.bteconosur.country.ProjectTypes.Points.OptionPoints;
+import pizzaaxx.bteconosur.country.ProjectTypes.Points.RangePoints;
+import pizzaaxx.bteconosur.country.ProjectTypes.Points.StaticPoints;
+import pizzaaxx.bteconosur.country.ProjectTypes.ProjectType;
 import pizzaaxx.bteconosur.country.cities.City;
 import pizzaaxx.bteconosur.country.cities.projects.Exceptions.ProjectActionException;
 import pizzaaxx.bteconosur.country.cities.projects.GlobalProjectsManager;
@@ -118,45 +124,73 @@ public class ProjectsCommand implements CommandExecutor {
                     return true;
                 }
 
-                City city;
-                if (country.getCityRegistry().isInsideCity(points.get(0))) {
-                    city = country.getCityRegistry().get(points.get(0));
-                } else {
-                    city = country.getCityRegistry().get("default");
-                }
+                ProtectedPolygonalRegion region = new ProtectedPolygonalRegion("temp", points, -100, 8000);
+                City city = country.getCityRegistry().get(region);
 
                 if (s.getPermissionCountries().contains(country.getName())) {
 
                     if (args.length < 2) {
-                        p.sendMessage(projectsPrefix + "Introduce una dificultad, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
+                        p.sendMessage(projectsPrefix + "Introduce un tipo de proyecto, puede ser §a" + String.join("§f, §a", country.getProjectTypes().keySet()) + "§f.");
                         return true;
                     }
 
-                    if ((!args[1].equalsIgnoreCase("facil")) && (!(args[1].equalsIgnoreCase("intermedio"))) && (!(args[1].equalsIgnoreCase("dificil")))) {
-                        p.sendMessage(projectsPrefix + "Introduce una dificultad válida, puede ser §afacil§f, §aintermedio§f o §adificil§f.");
+                    final ProjectType type = country.getProjectType(args[1]);
+
+                    if (type == null) {
+                        p.sendMessage(projectsPrefix + "Introduce un tipo de proyecto válido, puede ser §a" + String.join("§f, §a", country.getProjectTypes().keySet()) + "§f.");
                         return true;
+                    }
+
+                    if (args.length < 3) {
+                        if (type.getPointType() instanceof RangePoints) {
+                            RangePoints rangePoints = (RangePoints) type.getPointType();
+                            p.sendMessage(projectsPrefix + "Introduce un puntaje entre §a" + rangePoints.getMin() + "§f y §a" + rangePoints.getMax() + "§f.");
+                            return true;
+                        } else if (type.getPointType() instanceof OptionPoints) {
+                            OptionPoints optionPoints = (OptionPoints) type.getPointType();
+                            List<String> options = new ArrayList<>();
+                            for (Integer option : optionPoints.getPoints()) {
+                                options.add(option.toString());
+                            }
+                            p.sendMessage(projectsPrefix + "Introduce un puntaje disponible: §a" + String.join("§f, §a", options) + "§f.");
+                            return true;
+                        }
+                    }
+
+                    final int inputPoints = Integer.parseInt(args[2]);
+                    final int projectPoints;
+                    if (type.getPointType() instanceof StaticPoints) {
+                        projectPoints = ((StaticPoints) type.getPointType()).getAmount();
+                    } else {
+                        if (!type.getPointType().isValid(inputPoints)) {
+                            if (type.getPointType() instanceof RangePoints) {
+                                RangePoints rangePoints = (RangePoints) type.getPointType();
+                                p.sendMessage(projectsPrefix + "Introduce un puntaje entre §a" + rangePoints.getMin() + "§f y §a" + rangePoints.getMax() + "§f.");
+                            } else if (type.getPointType() instanceof OptionPoints) {
+                                OptionPoints optionPoints = (OptionPoints) type.getPointType();
+                                List<String> options = new ArrayList<>();
+                                for (Integer option : optionPoints.getPoints()) {
+                                    options.add(option.toString());
+                                }
+                                p.sendMessage(projectsPrefix + "Introduce un puntaje disponible: §a" + String.join("§f, §a", options) + "§f.");
+                            }
+                            return true;
+                        }
+
+                        projectPoints = inputPoints;
                     }
 
                     ProjectsRegistry registry = city.getProjectsRegistry();
 
                     try {
 
-                        Project project =  registry.createProject(Project.Difficulty.valueOf(args[1].toUpperCase()), points);
-                        boolean usedTag = false;
-                        if (args.length > 2) {
-                            try {
-                                project.setTag(Project.Tag.valueOf(args[2].toUpperCase())).exec();
-                                usedTag = true;
-                            } catch (IllegalArgumentException e) {
-                                p.sendMessage(projectsPrefix + "Etiqueta inválida.");
-                            }
-                        }
+                        Project project =  registry.createProject(type, projectPoints, points);
                         project.updatePlayersScoreboard();
 
                         // SEND MESSAGES
-                        p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con la dificultad §a" + project.getDifficulty().toString().toUpperCase() + "§f" + (usedTag ? " y la etiqueta §a" + project.getTag().toString().replace("_", " ") + "§f" : "") + ".");
+                        p.sendMessage(projectsPrefix + "Proyecto con la ID §a" + project.getId()  + "§f creado con el tipo §a" + type.getDisplayName() + "§f y con puntaje §a" + projectPoints + ".");
 
-                        StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con dificultad `" + args[1].toUpperCase() + "`" + (usedTag ? " y la etiqueta `" + project.getTag().toString().replace("_", " ") + "`" : "") + " en las coordenadas: \n");
+                        StringBuilder dscMessage = new StringBuilder(":clipboard: **" + p.getName() + "** ha creado el proyecto `" + project.getId() + "` con el tipo `" + type.getDisplayName() + "` y con puntaje `" + projectPoints + "` en las coordenadas: \n");
                         for (BlockVector2D point : project.getPoints()) {
                             dscMessage.append("> ").append(Math.floor(point.getX())).append(" ").append(Math.floor(p.getWorld().getHighestBlockAt(point.getBlockX(), point.getBlockZ()).getY())).append(" ").append(Math.floor(point.getZ())).append("\n");
                         }

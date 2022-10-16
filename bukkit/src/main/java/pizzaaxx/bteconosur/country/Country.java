@@ -14,6 +14,8 @@ import pizzaaxx.bteconosur.BteConoSur;
 import pizzaaxx.bteconosur.Chat.CountryChat;
 import pizzaaxx.bteconosur.Points.PointsContainer;
 import pizzaaxx.bteconosur.configuration.Configuration;
+import pizzaaxx.bteconosur.country.ProjectTypes.Points.ProjectPointsTypeParseException;
+import pizzaaxx.bteconosur.country.ProjectTypes.Points.ProjectTypeParseException;
 import pizzaaxx.bteconosur.country.ProjectTypes.ProjectType;
 import pizzaaxx.bteconosur.country.cities.CityRegistry;
 
@@ -44,7 +46,7 @@ public class Country implements PointsContainer {
 
     private final Map<String, ProjectType> projectTypes = new HashMap<>();
 
-    public Country(BteConoSur plugin, @NotNull String name, String abbreviation, String displayName, boolean allowsProjects, JDA bot) {
+    public Country(BteConoSur plugin, @NotNull String name, String abbreviation, String displayName, boolean allowsProjects, JDA bot) throws ProjectTypeParseException, ProjectPointsTypeParseException {
 
         this.allowsProjects = allowsProjects;
         this.abbreviation = abbreviation;

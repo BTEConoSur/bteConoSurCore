@@ -285,9 +285,12 @@ public class Project {
         return result;
     }
 
+    /**
+     * Saves this project to the server's storage.
+     */
     public void saveToDisk() {
 
-        config.set("difficulty", difficulty.toString());
+        config.set("type", type.getId());
 
         config.set("pending", pending);
 
