@@ -28,6 +28,7 @@ dependencies {
     implementation("com.github.BuildTheEarth:terraplusplus:v1.1.0")
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
     implementation("fr.minuskube:netherboard-bukkit:1.2.2")
+    implementation("com.mysql:mysql-connector-j:8.0.31")
 }
 
 tasks.withType<JavaCompile> {

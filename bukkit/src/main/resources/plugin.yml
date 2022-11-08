@@ -1,6 +1,6 @@
 name: bteConoSur
 version: 2.0
-main: pizzaaxx.bteconosur.BteConoSur
+main: pizzaaxx.bteconosur.BTEConoSur
 
 commands:
   reloadPlayer:
