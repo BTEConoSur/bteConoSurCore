@@ -38,7 +38,6 @@ public class InsertAction {
 
         query.append("(").append(String.join(",", columns)).append(")");
         query.append(" VALUES ").append("(").append(String.join(",", values)).append(")");
-
-        plugin.getDBConnection().prepareStatement(query.toString()).executeUpdate();
+        plugin.getSqlManager().getConnection().prepareStatement(query.toString()).executeUpdate();
     }
 }

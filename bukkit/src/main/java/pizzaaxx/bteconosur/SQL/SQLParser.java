@@ -15,6 +15,9 @@ public class SQLParser {
         if (object instanceof UUID) {
             // binary(16)
             UUID uuid = (UUID) object;
+            if (insideJSON) {
+                return "\"" + uuid + "\"";
+            }
             return "unhex(replace(\"" + uuid + "\",'-',''))";
         } else if (object instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) object;
@@ -26,7 +29,7 @@ public class SQLParser {
             for (Object obj : collection) {
                 builder.append(SQLParser.getString(obj, true));
                 if (counter < size) {
-                    builder.append(",");
+                    builder.append(", ");
                 }
                 counter++;
             }
@@ -43,7 +46,7 @@ public class SQLParser {
             for (Map.Entry<?,?> entry : map.entrySet()) {
                 builder.append("\"").append(entry.getKey().toString()).append("\": ").append(SQLParser.getString(entry.getValue(), true));
                 if (counter < size) {
-                    builder.append(",");
+                    builder.append(", ");
                 }
                 counter++;
             }

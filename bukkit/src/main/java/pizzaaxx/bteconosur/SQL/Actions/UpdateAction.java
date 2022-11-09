@@ -52,8 +52,7 @@ public class UpdateAction {
         }
 
         query.append(" WHERE ").append(conditions.getString());
-
-        plugin.getDBConnection().prepareStatement(query.toString()).executeUpdate();
+        plugin.getSqlManager().getConnection().prepareStatement(query.toString()).executeUpdate();
     }
 
 }

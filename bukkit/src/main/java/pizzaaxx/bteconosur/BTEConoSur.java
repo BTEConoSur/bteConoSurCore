@@ -4,19 +4,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
+import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.SQL.SQLParser;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.*;
 
 public class BTEConoSur extends JavaPlugin {
 
     private final String CONSOLE_PREFIX = "§f[§2CONO §aSUR§f] §7>> ";
 
-    private Connection connection;
+    private SQLManager sqlManager;
 
-    public Connection getDBConnection() {
-        return connection;
+    public SQLManager getSqlManager() {
+        return sqlManager;
     }
 
     @Override
@@ -27,16 +31,10 @@ public class BTEConoSur extends JavaPlugin {
         this.log("Starting plugin...");
 
         this.log("Starting database connection...");
-        Configuration databaseConfig = new Configuration(this, "database");
         try {
-            connection = DriverManager.getConnection(
-                    databaseConfig.getString("url"),
-                    databaseConfig.getString("username"),
-                    databaseConfig.getString("password")
-            );
+            sqlManager = new SQLManager(this);
         } catch (SQLException e) {
             this.log("Plugin starting stopped. Database connection failed.");
-            e.printStackTrace();
             return;
         }
         this.log("Database connection established.");
