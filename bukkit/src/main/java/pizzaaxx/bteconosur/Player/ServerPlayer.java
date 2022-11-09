@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Player;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -15,6 +16,7 @@ public class ServerPlayer {
     private final BTEConoSur plugin;
     private final UUID uuid;
     private final String name;
+    private ChatManager chatManager;
 
     public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException {
 
@@ -41,6 +43,17 @@ public class ServerPlayer {
             throw new SQLException();
         }
 
+    }
+
+    public void loadManagers() {
+        chatManager = new ChatManager(this, plugin);
+    }
+
+    public @NotNull ChatManager getChatManager() {
+        if (chatManager == null) {
+            chatManager = new ChatManager(this, plugin);
+        }
+        return chatManager;
     }
 
     public BTEConoSur getPlugin() {
