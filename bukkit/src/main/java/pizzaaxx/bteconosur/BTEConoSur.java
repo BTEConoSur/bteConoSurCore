@@ -2,16 +2,10 @@ package pizzaaxx.bteconosur;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.SQL.SQLManager;
-import pizzaaxx.bteconosur.SQL.SQLParser;
 
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
 
 public class BTEConoSur extends JavaPlugin {
 
@@ -46,7 +40,7 @@ public class BTEConoSur extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(CONSOLE_PREFIX + message);
     }
 
-    public void alert(String message) {
+    public void warn(String message) {
         Bukkit.getConsoleSender().sendMessage(CONSOLE_PREFIX + "§e" + message);
     }
 
