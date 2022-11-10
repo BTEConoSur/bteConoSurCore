@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +18,7 @@ import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -37,6 +39,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return playerRegistry;
     }
 
+    private final World mainWorld = Bukkit.getWorld("BTECS");
+
+    public World getWorld() {
+        return mainWorld;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -55,13 +63,16 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.log("Starting player registry...");
         this.playerRegistry = new PlayerRegistry(this);
 
+        this.log("Registering events...");
         this.registerListeners(
                 this,
                 new PreLoginEvent(this),
                 new JoinEvent(this),
-                new ChatEventsListener(this)
+                new ChatEventsListener(this),
+                new Shortcuts(this)
         );
 
+        this.log("Starting chats...");
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.add(player.getUniqueId());
         }

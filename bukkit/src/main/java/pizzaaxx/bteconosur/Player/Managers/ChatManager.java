@@ -8,12 +8,14 @@ import pizzaaxx.bteconosur.Chat.Components.ChatMessageComponent;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
+import java.sql.ResultSet;
+
 public class ChatManager {
 
     private final BTEConoSur plugin;
     private final ServerPlayer serverPlayer;
 
-    public ChatManager(ServerPlayer serverPlayer, BTEConoSur plugin) {
+    public ChatManager(ServerPlayer serverPlayer, BTEConoSur plugin, ResultSet set) {
         this.plugin = plugin;
         this.serverPlayer = serverPlayer;
     }

@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
+import pizzaaxx.bteconosur.Player.Managers.MiscManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -16,7 +17,8 @@ public class ServerPlayer {
     private final BTEConoSur plugin;
     private final UUID uuid;
     private final String name;
-    private ChatManager chatManager;
+    private final ChatManager chatManager;
+    private final MiscManager miscManager;
 
     public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException {
 
@@ -38,6 +40,9 @@ public class ServerPlayer {
             this.uuid = uuid;
             this.name = set.getString("name");
 
+            this.chatManager = new ChatManager(this, plugin, set);
+            this.miscManager = new MiscManager(plugin, this, set);
+
         } else {
             plugin.error("Missing player data: " + uuid);
             throw new SQLException();
@@ -45,15 +50,12 @@ public class ServerPlayer {
 
     }
 
-    public void loadManagers() {
-        chatManager = new ChatManager(this, plugin);
+    public ChatManager getChatManager() {
+        return chatManager;
     }
 
-    public @NotNull ChatManager getChatManager() {
-        if (chatManager == null) {
-            chatManager = new ChatManager(this, plugin);
-        }
-        return chatManager;
+    public MiscManager getMiscManager() {
+        return miscManager;
     }
 
     public BTEConoSur getPlugin() {
