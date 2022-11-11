@@ -1,8 +1,6 @@
 package pizzaaxx.bteconosur.SQL.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLCondition;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 

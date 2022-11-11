@@ -29,6 +29,7 @@ dependencies {
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
     implementation("fr.minuskube:netherboard-bukkit:1.2.2")
     implementation("com.mysql:mysql-connector-j:8.0.31")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.8")
 }
 
 tasks.withType<JavaCompile> {

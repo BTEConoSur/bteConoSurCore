@@ -45,7 +45,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         }
     }
 
-    private void load(UUID uuid) {
+    public void load(UUID uuid) {
         if (!cache.containsKey(uuid)) {
             try {
                 cache.put(uuid, new ServerPlayer(plugin, uuid));

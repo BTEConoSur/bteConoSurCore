@@ -17,5 +17,6 @@ public class JoinEvent implements Listener {
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
         plugin.add(event.getPlayer().getUniqueId());
+        plugin.getPlayerRegistry().load(event.getPlayer().getUniqueId());
     }
 }

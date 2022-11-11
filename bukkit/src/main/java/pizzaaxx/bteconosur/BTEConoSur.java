@@ -1,6 +1,13 @@
 package pizzaaxx.bteconosur;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -14,18 +21,29 @@ import pizzaaxx.bteconosur.Chat.Components.ChatMessageComponent;
 import pizzaaxx.bteconosur.Chat.Components.HoverAction;
 import pizzaaxx.bteconosur.Chat.Events.ChatEventsListener;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Configuration.Configuration;
+import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 
+import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public ObjectMapper getJSONMapper() {
+        return mapper;
+    }
 
     private SQLManager sqlManager;
 
@@ -45,6 +63,18 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return mainWorld;
     }
 
+    private JDA bot;
+
+    public JDA getBot() {
+        return bot;
+    }
+
+    private final CountryManager countryManager = new CountryManager(this);
+
+    public CountryManager getCountryManager() {
+        return countryManager;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -56,7 +86,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         try {
             sqlManager = new SQLManager(this);
         } catch (SQLException e) {
-            this.log("Plugin starting stopped. Database connection failed.");
+            this.error("Plugin starting stopped. Database connection failed.");
             return;
         }
         this.log("Database connection established.");
@@ -76,6 +106,47 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.add(player.getUniqueId());
         }
+
+        // --- COUNTRIES ---
+        this.log("Starting country manager...");
+        try {
+            countryManager.init();
+        } catch (SQLException | JsonProcessingException e) {
+            this.error("Plugin starting stopped. Country manager startup failed.");
+            return;
+        }
+
+        // --- DISCORD ---
+        Configuration discordConfig = new Configuration(this, "discord/token");
+        String token = discordConfig.getString("token");
+
+        JDABuilder jdaBuilder = JDABuilder.createDefault(token);
+        jdaBuilder.addEventListeners(
+
+        );
+        jdaBuilder.setStatus(OnlineStatus.ONLINE);
+        jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
+
+        try  {
+            bot = jdaBuilder.build().awaitReady();
+        } catch (LoginException | InterruptedException e) {
+            this.error("Plugin starting stopped. Bot startup failed.");
+            return;
+        }
+
+        EmbedBuilder startEmbed = new EmbedBuilder();
+        startEmbed.setColor(Color.GREEN);
+        startEmbed.setTitle("¡El servidor está online!");
+        startEmbed.setDescription(":link: **IP:** bteconosur.com");
+        MessageEmbed embed = startEmbed.build();
+        for (Country country : countryManager.getAllCountries()) {
+            country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        bot.shutdown();
     }
 
     public void log(String message) {

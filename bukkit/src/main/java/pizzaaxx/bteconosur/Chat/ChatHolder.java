@@ -1,7 +1,5 @@
 package pizzaaxx.bteconosur.Chat;
 
-import pizzaaxx.bteconosur.Player.ServerPlayer;
-
 import java.util.UUID;
 
 public interface ChatHolder {

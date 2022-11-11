@@ -32,8 +32,10 @@ public class SelectAction {
 
     public ResultSet retrieve() throws SQLException {
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(columns.getString()).append(" FROM ").append(tableName).append(" WHERE ");
-        query.append(conditions.getString());
+        query.append(columns.getString()).append(" FROM ").append(tableName);
+        if (!conditions.isEmpty()) {
+            query.append(" WHERE ").append(conditions.getString());
+        }
         try {
             return plugin.getSqlManager().getConnection().createStatement().executeQuery(query.toString());
         } catch (SQLException e) {
