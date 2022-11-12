@@ -1,6 +1,8 @@
 package pizzaaxx.bteconosur.Countries;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -50,6 +52,26 @@ public class CountryManager {
         } else {
             return countries.get(nameOrAbbreviation);
         }
+    }
+
+    public boolean isInsideCountry(Location loc) {
+        for (ProtectedRegion region : plugin.getRegionManager().getApplicableRegions(loc)) {
+            if (region.getId().startsWith("country")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Country getCountryAt(Location loc) {
+        for (ProtectedRegion region : plugin.getRegionManager().getApplicableRegions(loc)) {
+            if (region.getId().startsWith("country")) {
+                // country_chile_1
+                String name = region.getId().split("_")[1];
+                return this.get(name);
+            }
+        }
+        return null;
     }
 
     public Collection<Country> getAllCountries() {

@@ -2,6 +2,8 @@ package pizzaaxx.bteconosur;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -73,6 +75,18 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public CountryManager getCountryManager() {
         return countryManager;
+    }
+
+    private final WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
+
+    public WorldGuardPlugin getWorldGuard() {
+        return worldGuard;
+    }
+
+    private final RegionManager regionManager = worldGuard.getRegionManager(mainWorld);
+
+    public RegionManager getRegionManager() {
+        return regionManager;
     }
 
     @Override

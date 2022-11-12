@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.Countries;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,8 @@ public class Country {
     private final String showcaseID;
     private final String globalChatID;
     private final String countryChatID;
+    private final String logsID;
+    private final String requestsID;
     private final String iconURL;
     private final Location spawnPoint;
     private final Set<String> cities;
@@ -35,6 +38,8 @@ public class Country {
         this.showcaseID = set.getString("showcase_id");
         this.globalChatID = set.getString("global_chat_id");
         this.countryChatID = set.getString("country_chat_id");
+        this.logsID = set.getString("logs_id");
+        this.requestsID = set.getString("requests_id");
         this.iconURL = set.getString("icon_url");
         Map<String, Integer> spawnJSON = plugin.getJSONMapper().readValue(set.getString("spawn_point"), Map.class);
         this.spawnPoint = new Location(plugin.getWorld(), spawnJSON.get("x"), spawnJSON.get("y"), spawnJSON.get("z"));
@@ -53,8 +58,35 @@ public class Country {
         return displayName;
     }
 
+    public Guild getGuild() {
+        return plugin.getBot().getGuildById(guildID);
+    }
+
+    public TextChannel getShowcaseChannel() {
+        return plugin.getBot().getTextChannelById(showcaseID);
+    }
+
     public TextChannel getGlobalChatChannel() {
         return plugin.getBot().getTextChannelById(globalChatID);
     }
 
+    public TextChannel getCountryChatChannel() {
+        return plugin.getBot().getTextChannelById(countryChatID);
+    }
+
+    public TextChannel getLogsChannel() {
+        return plugin.getBot().getTextChannelById(logsID);
+    }
+
+    public TextChannel getRequestsChannel() {
+        return plugin.getBot().getTextChannelById(requestsID);
+    }
+
+    public String getIconURL() {
+        return iconURL;
+    }
+
+    public Location getSpawnPoint() {
+        return spawnPoint;
+    }
 }
