@@ -31,6 +31,7 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
+import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
@@ -139,6 +140,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 regionListenersHandler,
                 new PreLoginEvent(this),
                 new JoinEvent(this),
+                new QuitEvent(this),
                 new ChatEventsListener(this),
                 new Shortcuts(this)
         );
