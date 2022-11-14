@@ -35,6 +35,7 @@ public class CountryManager {
 
         while (set.next()) {
             countries.put(set.getString("name"), new Country(plugin, set));
+            abbreviations.put(set.getString("abbreviation"), set.getString("name"));
         }
     }
 

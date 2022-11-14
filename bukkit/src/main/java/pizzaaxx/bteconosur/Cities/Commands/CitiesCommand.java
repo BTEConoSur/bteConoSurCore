@@ -29,11 +29,11 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, @NotNull String[] args) {
 
-        // /city create cl puertoVaras Puerto Varas
-        // /city setDisplay puertoVaras Puerto Varas
-        // /city setUrban puertoVaras
-        // /city deleteUrban puertoVaras
-        // /city redefine puertoVaras
+        // /city create cl puertoVaras Puerto Varas ✔️
+        // /city setDisplay puertoVaras Puerto Varas ✔️
+        // /city setUrban puertoVaras ✔️
+        // /city deleteUrban puertoVaras ✔️
+        // /city redefine puertoVaras ✔️
         // /city delete puertoVaras
 
         if (!(sender instanceof Player)) {
@@ -57,7 +57,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 String countryAbbreviation = args[1];
                 if (!plugin.getCountryManager().exists(countryAbbreviation)) {
-                    p.sendMessage(this.getPrefix() + "El pais introducido noe existe.");
+                    p.sendMessage(this.getPrefix() + "El pais introducido no existe.");
                     return true;
                 }
 
@@ -143,7 +143,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                     return true;
                 }
 
-                String displayName = args[2];
+                String displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
                 try {
                     city.setDisplayName(displayName).execute();

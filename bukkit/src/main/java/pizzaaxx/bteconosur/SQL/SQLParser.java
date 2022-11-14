@@ -18,12 +18,12 @@ public class SQLParser {
             if (insideJSON) {
                 return "\"" + uuid + "\"";
             }
-            return "unhex(replace(\"" + uuid + "\",'-',''))";
+            return "unhex(replace('" + uuid + "','-',''))";
         } else if (object instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) object;
             int size = collection.size();
 
-            StringBuilder builder = new StringBuilder((insideJSON?"":"\"") + "[");
+            StringBuilder builder = new StringBuilder((insideJSON?"":"'") + "[");
 
             int counter = 1;
             for (Object obj : collection) {
@@ -34,13 +34,13 @@ public class SQLParser {
                 counter++;
             }
 
-            builder.append("]").append(insideJSON ? "" : "\"");
+            builder.append("]").append(insideJSON ? "" : "'");
             return builder.toString();
         } else if (object instanceof Map<?,?>) {
             Map<?, ?> map = (Map<?, ?>) object;
             int size = map.size();
 
-            StringBuilder builder = new StringBuilder((insideJSON?"":"\"") + "{");
+            StringBuilder builder = new StringBuilder((insideJSON?"":"'") + "{");
 
             int counter = 1;
             for (Map.Entry<?,?> entry : map.entrySet()) {
@@ -51,10 +51,10 @@ public class SQLParser {
                 counter++;
             }
 
-            builder.append("}").append(insideJSON ? "" : "\"");
+            builder.append("}").append(insideJSON ? "" : "'");
             return builder.toString();
         } else if (object instanceof String) {
-            return "\"" + object + "\"";
+            return (insideJSON?"\"":"'") + object + (insideJSON?"\"":"'");
         }
         return object.toString();
     }

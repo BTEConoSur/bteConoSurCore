@@ -24,7 +24,7 @@ public class JoinEvent implements Listener {
         plugin.getPlayerRegistry().load(event.getPlayer().getUniqueId());
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.GREEN);
-        embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha entrado al servidor.",
+        embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha entrado al servidor.", null,
                 "https://cravatar.eu/helmavatar/" + event.getPlayer().getUniqueId() + "/190.png");
         MessageEmbed embed = embedBuilder.build();
         for (Country country : plugin.getCountryManager().getAllCountries()) {

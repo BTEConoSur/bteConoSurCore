@@ -24,6 +24,7 @@ import pizzaaxx.bteconosur.Chat.Components.HoverAction;
 import pizzaaxx.bteconosur.Chat.Events.ChatEventsListener;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
+import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
@@ -33,7 +34,6 @@ import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
-import pizzaaxx.bteconosur.Utils.StringMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -45,6 +45,11 @@ import java.util.UUID;
 
 public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
+    private World mainWorld;
+
+    public World getWorld() {
+        return mainWorld;
+    }
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ObjectMapper getJSONMapper() {
@@ -63,12 +68,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return playerRegistry;
     }
 
-    private final World mainWorld = Bukkit.getWorld("BTECS");
-
-    public World getWorld() {
-        return mainWorld;
-    }
-
     private JDA bot;
 
     public JDA getBot() {
@@ -81,10 +80,16 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return countryManager;
     }
 
-    private final WorldGuardPlugin worldGuard = WorldGuardPlugin.inst();
+    private WorldGuardPlugin worldGuard;
 
     public WorldGuardPlugin getWorldGuard() {
         return worldGuard;
+    }
+
+    private RegionManager regionManager;
+
+    public RegionManager getRegionManager() {
+        return regionManager;
     }
 
     private final CityManager cityManager = new CityManager(this);
@@ -97,12 +102,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public WorldEditHandler getWorldEdit() {
         return worldEditHandler;
-    }
-
-    private final RegionManager regionManager = worldGuard.getRegionManager(mainWorld);
-
-    public RegionManager getRegionManager() {
-        return regionManager;
     }
 
     @Override
@@ -123,6 +122,10 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.log("Starting player registry...");
         this.playerRegistry = new PlayerRegistry(this);
 
+        mainWorld = Bukkit.getWorld("BTECS");
+        worldGuard = WorldGuardPlugin.inst();
+        regionManager = WorldGuardPlugin.inst().getRegionManager(mainWorld);
+
         this.log("Registering events...");
 
         RegionListenersHandler regionListenersHandler = new RegionListenersHandler(this);
@@ -140,6 +143,9 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new Shortcuts(this)
         );
 
+        this.log("Registering commands...");
+        getCommand("city").setExecutor(new CitiesCommand(this));
+
         this.log("Starting chats...");
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.addToChat(player.getUniqueId(), true);
@@ -155,7 +161,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         }
 
         // --- CITIES ---
-        this.log("Starting country manager...");
+        this.log("Starting city manager...");
         try {
             cityManager.init();
         } catch (SQLException e) {
@@ -188,19 +194,23 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         MessageEmbed embed = startEmbed.build();
         for (Country country : countryManager.getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
+            country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
+
         }
     }
 
     @Override
     public void onDisable() {
-        bot.shutdown();
         EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setColor(Color.RED);
         embedBuilder.setTitle("El servidor se ha apagado.");
         embedBuilder.setDescription("Te esperamos cuando vuelva a estar disponible.");
         MessageEmbed embed = embedBuilder.build();
         for (Country country : countryManager.getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
+            country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
         }
+        bot.shutdown();
     }
 
     public void log(String message) {

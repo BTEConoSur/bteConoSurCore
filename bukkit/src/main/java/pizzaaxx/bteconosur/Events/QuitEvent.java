@@ -23,7 +23,7 @@ public class QuitEvent implements Listener {
     public void onQuit(@NotNull PlayerQuitEvent event) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.RED);
-        embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha salido del servidor.",
+        embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha salido del servidor.", null,
                 "https://cravatar.eu/helmavatar/" + event.getPlayer().getUniqueId() + "/190.png");
         MessageEmbed embed = embedBuilder.build();
         for (Country country : plugin.getCountryManager().getAllCountries()) {

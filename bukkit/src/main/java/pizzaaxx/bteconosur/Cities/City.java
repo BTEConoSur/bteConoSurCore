@@ -29,7 +29,7 @@ public class City {
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
 
-    public City(@NotNull BTEConoSur plugin, String id) throws SQLException, JsonProcessingException {
+    public City(@NotNull BTEConoSur plugin, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
         ResultSet set = plugin.getSqlManager().select(
                 "cities",
@@ -38,7 +38,7 @@ public class City {
                 ),
                 new SQLConditionSet(
                         new SQLOperatorCondition(
-                                "id", "=", id
+                                "name", "=", name
                         )
                 )
         ).retrieve();
