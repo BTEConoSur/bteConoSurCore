@@ -62,7 +62,7 @@ public class ServerPlayer {
         return plugin;
     }
 
-    public UUID getUuid() {
+    public UUID getUUID() {
         return uuid;
     }
 

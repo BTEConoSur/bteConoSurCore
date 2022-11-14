@@ -2,9 +2,11 @@ package pizzaaxx.bteconosur.Regions;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Utils.StringMatcher;
@@ -57,15 +59,23 @@ public class RegionListenersHandler implements Listener {
 
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
+        this.checkListeners(event.getFrom(), event.getTo(), event.getPlayer());
+    }
 
-        for (ProtectedRegion region : this.getLeaveRegions(event.getFrom(), event.getTo())) {
+    @EventHandler
+    public void onTeleport(@NotNull PlayerTeleportEvent event) {
+        this.checkListeners(event.getFrom(), event.getTo(), event.getPlayer());
+    }
+
+    private void checkListeners(Location from, Location to, Player player) {
+        for (ProtectedRegion region : this.getLeaveRegions(from, to)) {
             for (Map.Entry<StringMatcher, RegionListener> entry : leaveListeners.entrySet()) {
                 if (entry.getKey().matches(region.getId())) {
                     RegionLeaveEvent leaveEvent = new RegionLeaveEvent(
                             plugin,
-                            event.getPlayer(),
-                            event.getFrom(),
-                            event.getTo(),
+                            player,
+                            from,
+                            to,
                             region.getId(),
                             region
                     );
@@ -74,14 +84,14 @@ public class RegionListenersHandler implements Listener {
             }
         }
 
-        for (ProtectedRegion region : this.getEnterRegions(event.getFrom(), event.getTo())) {
+        for (ProtectedRegion region : this.getEnterRegions(from, to)) {
             for (Map.Entry<StringMatcher, RegionListener> entry : enterListeners.entrySet()) {
                 if (entry.getKey().matches(region.getId())) {
                     RegionEnterEvent enterEvent = new RegionEnterEvent(
                             plugin,
-                            event.getPlayer(),
-                            event.getFrom(),
-                            event.getTo(),
+                            player,
+                            from,
+                            to,
                             region.getId(),
                             region
                     );
@@ -109,8 +119,8 @@ public class RegionListenersHandler implements Listener {
         Set<ProtectedRegion> toRegions = plugin.getRegionManager().getApplicableRegions(to).getRegions();
 
         Set<ProtectedRegion> result = new HashSet<>();
-        for (ProtectedRegion region : fromRegions) {
-            if (toRegions.contains(region)) {
+        for (ProtectedRegion region : toRegions) {
+            if (!fromRegions.contains(region)) {
                 result.add(region);
             }
         }

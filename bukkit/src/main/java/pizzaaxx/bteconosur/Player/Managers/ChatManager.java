@@ -25,11 +25,11 @@ public class ChatManager {
         for (ChatMessageComponent component : message.getChatComponents()) {
             newMessage.append(component);
         }
-        Bukkit.getPlayer(serverPlayer.getUuid()).sendMessage(newMessage.getBaseComponents());
+        Bukkit.getPlayer(serverPlayer.getUUID()).sendMessage(newMessage.getBaseComponents());
     }
 
     public void sendMessage(@NotNull ChatMessage message) {
-        Bukkit.getPlayer(serverPlayer.getUuid()).sendMessage(message.getBaseComponents());
+        Bukkit.getPlayer(serverPlayer.getUUID()).sendMessage(message.getBaseComponents());
     }
 
 }

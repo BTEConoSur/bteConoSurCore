@@ -23,16 +23,20 @@ import pizzaaxx.bteconosur.Chat.Components.ChatMessageComponent;
 import pizzaaxx.bteconosur.Chat.Components.HoverAction;
 import pizzaaxx.bteconosur.Chat.Events.ChatEventsListener;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Cities.CityManager;
+import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.Utils.StringMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
+import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
-import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -83,6 +87,18 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return worldGuard;
     }
 
+    private final CityManager cityManager = new CityManager(this);
+
+    public CityManager getCityManager() {
+        return cityManager;
+    }
+
+    private final WorldEditHandler worldEditHandler = new WorldEditHandler(this);
+
+    public WorldEditHandler getWorldEdit() {
+        return worldEditHandler;
+    }
+
     private final RegionManager regionManager = worldGuard.getRegionManager(mainWorld);
 
     public RegionManager getRegionManager() {
@@ -108,8 +124,16 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.playerRegistry = new PlayerRegistry(this);
 
         this.log("Registering events...");
+
+        RegionListenersHandler regionListenersHandler = new RegionListenersHandler(this);
+        regionListenersHandler.registerEnter(
+                input -> input.startsWith("city_") && !input.endsWith("_urban"),
+                new CityEnterEvent(this)
+        );
+
         this.registerListeners(
                 this,
+                regionListenersHandler,
                 new PreLoginEvent(this),
                 new JoinEvent(this),
                 new ChatEventsListener(this),
@@ -118,7 +142,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
         this.log("Starting chats...");
         for (Player player : Bukkit.getOnlinePlayers()) {
-            this.add(player.getUniqueId());
+            this.addToChat(player.getUniqueId(), true);
         }
 
         // --- COUNTRIES ---
@@ -127,6 +151,15 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             countryManager.init();
         } catch (SQLException | JsonProcessingException e) {
             this.error("Plugin starting stopped. Country manager startup failed.");
+            return;
+        }
+
+        // --- CITIES ---
+        this.log("Starting country manager...");
+        try {
+            cityManager.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. City manager startup failed.");
             return;
         }
 
@@ -143,7 +176,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
         try  {
             bot = jdaBuilder.build().awaitReady();
-        } catch (LoginException | InterruptedException e) {
+        } catch (InterruptedException e) {
             this.error("Plugin starting stopped. Bot startup failed.");
             return;
         }
@@ -161,6 +194,13 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
     @Override
     public void onDisable() {
         bot.shutdown();
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setTitle("El servidor se ha apagado.");
+        embedBuilder.setDescription("Te esperamos cuando vuelva a estar disponible.");
+        MessageEmbed embed = embedBuilder.build();
+        for (Country country : countryManager.getAllCountries()) {
+            country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
+        }
     }
 
     public void log(String message) {
@@ -175,7 +215,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         Bukkit.getConsoleSender().sendMessage(this.getPrefix() + "§c" + message);
     }
 
-    private void registerListeners(BTEConoSur plugin, Listener @NotNull ... listeners) {
+    private void registerListeners(BTEConoSur plugin, @NotNull Listener ... listeners) {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager().registerEvents(listener, plugin);
         }
@@ -201,13 +241,13 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
     }
 
     @Override
-    public void move(UUID uuid, @NotNull ChatHolder newHolder) {
-        this.remove(uuid);
-        newHolder.add(uuid);
+    public void moveToChat(UUID uuid, @NotNull ChatHolder newHolder) {
+        this.removeFromChat(uuid, false);
+        newHolder.addToChat(uuid, false);
     }
 
     @Override
-    public void remove(UUID uuid) {
+    public void removeFromChat(UUID uuid, boolean disableDiscord) {
         players.remove(uuid);
         String name = Bukkit.getPlayer(uuid).getName();
         for (UUID player : players) {
@@ -228,10 +268,15 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                     )
             );
         }
+        if (!disableDiscord) {
+            for (Country country : countryManager.getAllCountries()) {
+                country.getGlobalChatChannel().sendMessage(":heavy_minus_sign: **" + name + "** ha salido del chat.").queue();
+            }
+        }
     }
 
     @Override
-    public void add(UUID uuid) {
+    public void addToChat(UUID uuid, boolean disableDiscord) {
         String name = Bukkit.getPlayer(uuid).getName();
         ChatMessage message = new ChatMessage(
                 new ChatMessageComponent(
@@ -253,6 +298,11 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             );
         }
         players.add(uuid);
+        if (!disableDiscord) {
+            for (Country country : countryManager.getAllCountries()) {
+                country.getGlobalChatChannel().sendMessage(":heavy_plus_sign: **" + name + "** ha entrado al chat.").queue();
+            }
+        }
     }
 
     @Override

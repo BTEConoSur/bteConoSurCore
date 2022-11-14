@@ -20,7 +20,7 @@ public class ChatMessage {
         );
     }
 
-    public ChatMessage(ChatMessageComponent @NotNull ... components) {
+    public ChatMessage(@NotNull ChatMessageComponent ... components) {
         for (ChatMessageComponent component : components) {
             this.append(
                     component

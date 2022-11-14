@@ -1,9 +1,9 @@
 package pizzaaxx.bteconosur.Regions;
 
-public interface RegionListener {
+public abstract class RegionListener {
 
-    void onRegionEnter(RegionEnterEvent event);
+    public void onRegionEnter(RegionEnterEvent event) {}
 
-    void onRegionLeave(RegionLeaveEvent event);
+    public void onRegionLeave(RegionLeaveEvent event) {}
 
 }

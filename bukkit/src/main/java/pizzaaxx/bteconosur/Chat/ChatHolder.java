@@ -10,11 +10,24 @@ public interface ChatHolder {
 
     String getChatDisplayName();
 
-    void move(UUID uuid, ChatHolder newHolder);
+    /**
+     * Move a player to a new chat.
+     * @param uuid The UUID of the player.
+     * @param newHolder The new chat.
+     */
+    void moveToChat(UUID uuid, ChatHolder newHolder);
 
-    void remove(UUID uuid);
+    /**
+     * Remove a player from this chat.
+     * @param uuid The UUID of the player.
+     */
+    void removeFromChat(UUID uuid, boolean disableDiscord);
 
-    void add(UUID uuid);
+    /**
+     * Add a player to this chat.
+     * @param uuid The UUID of the player.
+     */
+    void addToChat(UUID uuid, boolean disableDiscord);
 
     void sendMessage(UUID uuid, ChatMessage message);
 

@@ -40,7 +40,7 @@ public class CountryManager {
 
     public boolean exists(@NotNull String nameOrAbbreviation) {
         if (nameOrAbbreviation.length() == 2) {
-            return countries.containsKey(abbreviations.get(nameOrAbbreviation));
+            return abbreviations.containsKey(nameOrAbbreviation);
         } else {
             return countries.containsKey(nameOrAbbreviation);
         }
@@ -48,7 +48,10 @@ public class CountryManager {
 
     public Country get(@NotNull String nameOrAbbreviation) {
         if (nameOrAbbreviation.length() == 2) {
-            return countries.get(abbreviations.get(nameOrAbbreviation));
+            if (abbreviations.containsKey(nameOrAbbreviation)) {
+                return countries.get(abbreviations.get(nameOrAbbreviation));
+            }
+            return null;
         } else {
             return countries.get(nameOrAbbreviation);
         }

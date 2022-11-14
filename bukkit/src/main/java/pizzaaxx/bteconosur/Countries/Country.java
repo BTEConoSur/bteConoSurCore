@@ -2,10 +2,11 @@ package pizzaaxx.bteconosur.Countries;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Countries.Actions.AddCityProjectAction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ public class Country {
     private final String requestsID;
     private final String iconURL;
     private final Location spawnPoint;
-    private final Set<String> cities;
+    public final Set<String> cities;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -88,5 +89,17 @@ public class Country {
 
     public Location getSpawnPoint() {
         return spawnPoint;
+    }
+
+    public Set<String> getCities() {
+        return cities;
+    }
+
+    public AddCityProjectAction addCity(String name) {
+        return new AddCityProjectAction(
+                plugin,
+                this,
+                name
+        );
     }
 }
