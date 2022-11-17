@@ -36,6 +36,7 @@ import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -152,9 +153,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new Shortcuts(this)
         );
 
-        this.log("Registering commands...");
-        getCommand("city").setExecutor(new CitiesCommand(this));
-
         this.log("Starting chats...");
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.addToChat(player.getUniqueId(), true);
@@ -204,6 +202,11 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             this.error("Plugin starting stopped. Bot startup failed.");
             return;
         }
+
+        // --- COMMANDS ---
+        this.log("Registering commands...");
+        getCommand("city").setExecutor(new CitiesCommand(this));
+        getCommand("increment").setExecutor(new IncrementCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

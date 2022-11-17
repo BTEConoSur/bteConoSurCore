@@ -10,3 +10,9 @@ commands:
   city:
     description: Manage cities.
     permission: bteconosur.city.admin
+  increment:
+    description: Cambia el incremento al usar los atajos de WorldEdit.
+    aliases:
+      - incremento
+      - /increment
+      - /incremento
