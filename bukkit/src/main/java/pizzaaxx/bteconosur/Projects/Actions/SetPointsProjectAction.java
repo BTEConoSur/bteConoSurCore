@@ -10,17 +10,17 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class SetDisplayNameProjectAction {
+public class SetPointsProjectAction {
 
     private final BTEConoSur plugin;
 
     private final Project project;
-    private final String name;
+    private final int points;
 
-    public SetDisplayNameProjectAction(BTEConoSur plugin, Project project, String name) {
+    public SetPointsProjectAction(BTEConoSur plugin, Project project, int points) {
         this.plugin = plugin;
         this.project = project;
-        this.name = name;
+        this.points = points;
     }
 
     public void execute() throws SQLException, IOException {
@@ -29,7 +29,7 @@ public class SetDisplayNameProjectAction {
                 "projects",
                 new SQLValuesSet(
                         new SQLValue(
-                                "name", name
+                                "points", points
                         )
                 ),
                 new SQLConditionSet(
@@ -41,4 +41,5 @@ public class SetDisplayNameProjectAction {
 
         project.update();
     }
+
 }

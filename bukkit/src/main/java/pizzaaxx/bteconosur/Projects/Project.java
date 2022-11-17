@@ -112,6 +112,12 @@ public class Project {
         return members;
     }
 
+    public Set<UUID> getAllMembers() {
+        Set<UUID> result = new HashSet<>(members);
+        result.add(owner);
+        return result;
+    }
+
     public UUID getOwner() {
         return owner;
     }
@@ -120,7 +126,7 @@ public class Project {
         return tag;
     }
 
-    public void reload() throws SQLException, IOException {
+    public void update() throws SQLException, IOException {
         ResultSet set = plugin.getSqlManager().select(
                 "projects",
                 new SQLColumnSet(

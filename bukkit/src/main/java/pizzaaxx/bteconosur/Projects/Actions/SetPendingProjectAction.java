@@ -7,20 +7,21 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
+import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class SetDisplayNameProjectAction {
+public class SetPendingProjectAction {
 
     private final BTEConoSur plugin;
 
     private final Project project;
-    private final String name;
+    private final boolean pending;
 
-    public SetDisplayNameProjectAction(BTEConoSur plugin, Project project, String name) {
+    public SetPendingProjectAction(BTEConoSur plugin, Project project, boolean pending) {
         this.plugin = plugin;
         this.project = project;
-        this.name = name;
+        this.pending = pending;
     }
 
     public void execute() throws SQLException, IOException {
@@ -29,7 +30,7 @@ public class SetDisplayNameProjectAction {
                 "projects",
                 new SQLValuesSet(
                         new SQLValue(
-                                "name", name
+                                "pending", pending
                         )
                 ),
                 new SQLConditionSet(
@@ -40,5 +41,10 @@ public class SetDisplayNameProjectAction {
         ).execute();
 
         project.update();
+
+        if (pending) {
+            project.getCountry().getLogsChannel().sendMessage(":lock: El proyecto `" + project.getId() + "` ha sido marcado como terminado.").queue();
+        }
     }
+
 }

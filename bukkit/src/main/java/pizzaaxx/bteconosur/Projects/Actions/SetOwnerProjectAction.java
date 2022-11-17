@@ -7,29 +7,27 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
-import java.io.IOException;
 import java.sql.SQLException;
+import java.util.UUID;
 
-public class SetDisplayNameProjectAction {
+public class SetOwnerProjectAction {
 
     private final BTEConoSur plugin;
-
     private final Project project;
-    private final String name;
+    private final UUID owner;
 
-    public SetDisplayNameProjectAction(BTEConoSur plugin, Project project, String name) {
+    public SetOwnerProjectAction(BTEConoSur plugin, Project project, UUID owner) {
         this.plugin = plugin;
         this.project = project;
-        this.name = name;
+        this.owner = owner;
     }
 
-    public void execute() throws SQLException, IOException {
-
+    public void execute() throws SQLException {
         plugin.getSqlManager().update(
-                "projects",
+                "project",
                 new SQLValuesSet(
                         new SQLValue(
-                                "name", name
+                                "owner", owner
                         )
                 ),
                 new SQLConditionSet(
@@ -38,7 +36,5 @@ public class SetDisplayNameProjectAction {
                         )
                 )
         ).execute();
-
-        project.update();
     }
 }
