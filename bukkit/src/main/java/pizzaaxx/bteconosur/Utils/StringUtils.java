@@ -6,15 +6,15 @@ import java.util.*;
 
 public class StringUtils {
 
-    public static List<String> UPPER_CASE = Arrays.asList("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
-    public static List<String> LOWER_CASE = Arrays.asList("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z");
-    public static List<String> DIGITS = Arrays.asList("1","2","3","4","5","6","7","8","9","0");
+    public static String[] UPPER_CASE = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
+    public static String[] LOWER_CASE = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+    public static String[] DIGITS = {"1","2","3","4","5","6","7","8","9","0"};
 
     @NotNull
-    public static String generateCode(int length, Collection<String> notIn, @NotNull List<String>... characters) {
+    public static String generateCode(int length, Collection<String> notIn, @NotNull String[]... characters) {
         List<String> chars = new ArrayList<>();
-        for (List<String> charactersList : characters) {
-            chars.addAll(charactersList);
+        for (String[] charactersList : characters) {
+            chars.addAll(Arrays.asList(charactersList));
         }
 
         Random random = new Random();

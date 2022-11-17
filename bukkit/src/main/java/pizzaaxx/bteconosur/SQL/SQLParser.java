@@ -10,7 +10,7 @@ import java.util.UUID;
 public class SQLParser {
 
     @Contract(pure = true)
-    private static @NotNull String getString(@NotNull Object object, boolean insideJSON) {
+    private static @NotNull String getString(Object object, boolean insideJSON) {
 
         if (object instanceof UUID) {
             // binary(16)
@@ -55,6 +55,8 @@ public class SQLParser {
             return builder.toString();
         } else if (object instanceof String) {
             return (insideJSON?"\"":"'") + object + (insideJSON?"\"":"'");
+        } else if (object == null) {
+            return (insideJSON?"{}":"NULL");
         }
         return object.toString();
     }

@@ -7,9 +7,14 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Actions.AddCityProjectAction;
+import pizzaaxx.bteconosur.Projects.ProjectType;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +34,7 @@ public class Country {
     private final String iconURL;
     private final Location spawnPoint;
     public final Set<String> cities;
+    public final Map<String, ProjectType> projectTypes;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -44,7 +50,12 @@ public class Country {
         this.iconURL = set.getString("icon_url");
         Map<String, Integer> spawnJSON = plugin.getJSONMapper().readValue(set.getString("spawn_point"), Map.class);
         this.spawnPoint = new Location(plugin.getWorld(), spawnJSON.get("x"), spawnJSON.get("y"), spawnJSON.get("z"));
-        cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
+        this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
+        this.projectTypes = new HashMap<>();
+        Set<String> projectTypeIDs = plugin.getJSONMapper().readValue(set.getString("project_types"), HashSet.class);
+        for (String projectTypeID : projectTypeIDs) {
+            this.projectTypes.put(projectTypeID, new ProjectType(plugin, this, projectTypeID));
+        }
     }
 
     public BTEConoSur getPlugin() {
@@ -101,5 +112,38 @@ public class Country {
                 this,
                 name
         );
+    }
+
+    public boolean isType(String type) {
+        return projectTypes.containsKey(type);
+    }
+
+    public ProjectType getType(String type) {
+        return projectTypes.get(type);
+    }
+
+    public Set<String> getPendingProjectsIDs() {
+        Set<String> result = new HashSet<>();
+        try {
+            ResultSet set = plugin.getSqlManager().select(
+                    "projects",
+                    new SQLColumnSet(
+                            "id"
+                    ),
+                    new SQLConditionSet(
+                            new SQLOperatorCondition(
+                                    "pending", "=", true
+                            ),
+                            new SQLOperatorCondition(
+                                    "country", "=", this.name
+                            )
+                    )
+            ).retrieve();
+
+            while (set.next()) {
+                result.add(set.getString("id"));
+            }
+        } catch (SQLException ignored) {}
+        return result;
     }
 }

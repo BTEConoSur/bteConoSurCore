@@ -134,6 +134,22 @@ public class City {
         );
     }
 
+    public AddProjectCityAction addProject(String id) {
+        return new AddProjectCityAction(
+                plugin,
+                name,
+                id
+        );
+    }
+
+    public RemoveProjectCityAction removeProject(String id) {
+        return new RemoveProjectCityAction(
+                plugin,
+                name,
+                id
+        );
+    }
+
     public RedefineRegionCityAction redefine(List<BlockVector2D> points) {
         return new RedefineRegionCityAction(
                 plugin,

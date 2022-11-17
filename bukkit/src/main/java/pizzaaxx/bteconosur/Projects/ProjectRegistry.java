@@ -5,6 +5,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,6 +18,10 @@ public class ProjectRegistry {
     private final Map<String, Project> projectsCache = new HashMap<>();
     private final Map<String, Long> deletionCache = new HashMap<>();
     private final Set<String> ids = new HashSet<>();
+
+    public Set<String> getIds() {
+        return ids;
+    }
 
     private final BTEConoSur plugin;
 
@@ -42,9 +47,9 @@ public class ProjectRegistry {
         return ids.contains(id);
     }
 
-    public void load(String id) {
+    public void load(String id) throws SQLException, IOException {
         if (this.exists(id)) {
-            projectsCache.put(id, new Project());
+            projectsCache.put(id, new Project(plugin, id));
         }
     }
 
@@ -55,9 +60,21 @@ public class ProjectRegistry {
         }
     }
 
+    public void registerID(String id){
+        ids.add(id);
+    }
+
+    public void unregisterID(String id){
+        ids.remove(id);
+    }
+
     public Project get(String id) {
         if (!this.isLoaded(id)) {
-            load(id);
+            try {
+                load(id);
+            } catch (SQLException | IOException e) {
+                plugin.error("Error with project " + id + ".");
+            }
         }
         this.scheduleDeletion(id);
         return projectsCache.get(id);

@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.Projects;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -22,14 +21,15 @@ public class Project {
     private final BTEConoSur plugin;
 
     private final String id;
-    private final String name;
+    private String displayName;
     private final Country country;
-    private final City city;
-    private final boolean pending;
+    private final String city;
+    private boolean pending;
     private final ProjectType type;
-    private final Set<UUID> members;
-    private final UUID owner;
-    private final ProjectTag tag;
+    private int points;
+    private Set<UUID> members;
+    private UUID owner;
+    private ProjectTag tag;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -49,15 +49,17 @@ public class Project {
 
         if (set.next()) {
 
-            this.name = set.getString("name");
+            this.displayName = set.getString("name");
 
             this.country = plugin.getCountryManager().get(set.getString("country"));
 
-            this.city = plugin.getCityManager().get(set.getString("city"));
+            this.city = set.getString("city");
 
             this.pending = set.getBoolean("pending");
 
+            this.type = country.getType(set.getString("type"));
 
+            this.points = set.getInt("points");
 
             this.members = new HashSet<>();
             Set<String> uuids = plugin.getJSONMapper().readValue(set.getString("members"), HashSet.class);
@@ -71,7 +73,86 @@ public class Project {
 
         } else {
             throw new IllegalArgumentException();
-        };
+        }
     }
 
+    public BTEConoSur getPlugin() {
+        return plugin;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public City getCity() {
+        return plugin.getCityManager().get(city);
+    }
+
+    public boolean isPending() {
+        return pending;
+    }
+
+    public ProjectType getType() {
+        return type;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public Set<UUID> getMembers() {
+        return members;
+    }
+
+    public UUID getOwner() {
+        return owner;
+    }
+
+    public ProjectTag getTag() {
+        return tag;
+    }
+
+    public void reload() throws SQLException, IOException {
+        ResultSet set = plugin.getSqlManager().select(
+                "projects",
+                new SQLColumnSet(
+                        "name",
+                        "pending",
+                        "points",
+                        "owner",
+                        "tag",
+                        "members"
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", id
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+
+            this.displayName = set.getString("name");
+            this.pending = set.getBoolean("pending");
+            this.points = set.getInt("points");
+            this.owner = UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream("string")));
+            this.tag = ProjectTag.valueOf(set.getString("tag").toUpperCase());
+            this.members = new HashSet<>();
+            Set<String> uuids = plugin.getJSONMapper().readValue(set.getString("members"), HashSet.class);
+            for (String uuid : uuids) {
+                members.add(UUID.fromString(uuid));
+            }
+
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
 }

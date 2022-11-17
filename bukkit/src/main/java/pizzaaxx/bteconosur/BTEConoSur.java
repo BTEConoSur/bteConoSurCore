@@ -33,6 +33,7 @@ import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
@@ -97,6 +98,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public CityManager getCityManager() {
         return cityManager;
+    }
+
+    private final ProjectRegistry projectRegistry = new ProjectRegistry(this);
+
+    public ProjectRegistry getProjectRegistry() {
+        return projectRegistry;
     }
 
     private final WorldEditHandler worldEditHandler = new WorldEditHandler(this);
@@ -168,6 +175,15 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             cityManager.init();
         } catch (SQLException e) {
             this.error("Plugin starting stopped. City manager startup failed.");
+            return;
+        }
+
+        // --- PROJECTS ---
+        this.log("Starting project registry...");
+        try {
+            projectRegistry.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. Project registry startup failed.");
             return;
         }
 
