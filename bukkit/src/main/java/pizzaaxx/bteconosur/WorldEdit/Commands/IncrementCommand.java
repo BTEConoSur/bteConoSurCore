@@ -34,7 +34,7 @@ public class IncrementCommand implements CommandExecutor {
         try {
             int amount = Integer.parseInt(args[0]);
             try {
-                plugin.getPlayerRegistry().get(p.getUniqueId()).getMiscManager().setIncrement(amount);
+                plugin.getPlayerRegistry().get(p.getUniqueId()).getWorldEditManager().setIncrement(amount);
                 p.sendMessage(plugin.getWorldEdit().getPrefix() + "Incremento establecido en §a" + amount + "§f.");
             } catch (SQLException e) {
                 p.sendMessage(plugin.getWorldEdit().getPrefix() + "§cHa ocurrido un error.");

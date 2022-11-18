@@ -1,9 +1,10 @@
 package pizzaaxx.bteconosur.Player;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
-import pizzaaxx.bteconosur.Player.Managers.MiscManager;
+import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -18,9 +19,9 @@ public class ServerPlayer {
     private final UUID uuid;
     private final String name;
     private final ChatManager chatManager;
-    private final MiscManager miscManager;
+    private final WorldEditManager worldEditManager;
 
-    public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException {
+    public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException, JsonProcessingException {
 
         ResultSet set = plugin.getSqlManager().select(
                 "players",
@@ -41,7 +42,7 @@ public class ServerPlayer {
             this.name = set.getString("name");
 
             this.chatManager = new ChatManager(this, plugin, set);
-            this.miscManager = new MiscManager(plugin, this, set);
+            this.worldEditManager = new WorldEditManager(plugin, this);
 
         } else {
             plugin.error("Missing player data: " + uuid);
@@ -54,8 +55,8 @@ public class ServerPlayer {
         return chatManager;
     }
 
-    public MiscManager getMiscManager() {
-        return miscManager;
+    public WorldEditManager getWorldEditManager() {
+        return worldEditManager;
     }
 
     public BTEConoSur getPlugin() {

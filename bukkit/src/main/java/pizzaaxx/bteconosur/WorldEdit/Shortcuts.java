@@ -19,7 +19,7 @@ public class Shortcuts implements Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         Player p = event.getPlayer();
-        int increment = plugin.getPlayerRegistry().get(p.getUniqueId()).getMiscManager().getIncrement();
+        int increment = plugin.getPlayerRegistry().get(p.getUniqueId()).getWorldEditManager().getIncrement();
         if (event.getItem() != null && event.getItem().getType() == Material.WOOD_AXE) {
             switch (event.getAction()) {
                 case LEFT_CLICK_AIR:

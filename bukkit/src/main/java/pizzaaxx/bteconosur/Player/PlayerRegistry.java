@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Player;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -49,7 +50,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         if (!cache.containsKey(uuid)) {
             try {
                 cache.put(uuid, new ServerPlayer(plugin, uuid));
-            } catch (SQLException e) {
+            } catch (SQLException | JsonProcessingException e) {
                 plugin.error("SQL error loading player data: " + uuid);
             }
         }
