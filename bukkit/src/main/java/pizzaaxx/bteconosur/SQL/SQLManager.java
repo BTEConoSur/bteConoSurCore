@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.SQL;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Configuration.Configuration;
+import pizzaaxx.bteconosur.SQL.Actions.DeleteAction;
 import pizzaaxx.bteconosur.SQL.Actions.InsertAction;
 import pizzaaxx.bteconosur.SQL.Actions.SelectAction;
 import pizzaaxx.bteconosur.SQL.Actions.UpdateAction;
@@ -43,6 +44,10 @@ public class SQLManager {
 
     public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
         return new SelectAction(plugin, tableName, columns, conditions);
+    }
+
+    public DeleteAction delete(String tableName, SQLConditionSet conditions) {
+        return new DeleteAction(plugin, tableName, conditions);
     }
 
 }
