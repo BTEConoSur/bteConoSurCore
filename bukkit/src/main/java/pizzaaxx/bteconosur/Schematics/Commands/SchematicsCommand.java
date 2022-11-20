@@ -21,14 +21,6 @@ public class SchematicsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        // /schem create [nombre]
-        // /schem edit [id] [nuevoNombre]
-        // /schem delete [id]
-        // /schem search [texto]
-        // /schem addfav [id]
-        // /schem removefav [id]
-        // /schem fav
-
         if (!(sender instanceof Player)) {
             sender.sendMessage("Solo jugadores.");
             return true;

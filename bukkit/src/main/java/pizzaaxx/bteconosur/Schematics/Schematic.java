@@ -11,6 +11,7 @@ public class Schematic {
     private final String id;
     private final String name;
     private final UUID creator;
+    private final boolean autoRotate;
     private final int xSize;
     private final int zSize;
     private final int ySize;
