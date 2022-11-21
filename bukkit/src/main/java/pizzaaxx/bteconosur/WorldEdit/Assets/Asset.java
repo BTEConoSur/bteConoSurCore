@@ -1,10 +1,10 @@
-package pizzaaxx.bteconosur.Schematics;
+package pizzaaxx.bteconosur.WorldEdit.Assets;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 
 import java.util.UUID;
 
-public class Schematic {
+public class Asset {
 
     private final BTEConoSur plugin;
 
@@ -18,5 +18,9 @@ public class Schematic {
     private final int xOffset;
     private final int zOffset;
     private final int yOffset;
+
+    public Asset(BTEConoSur plugin, String id) {
+
+    }
 
 }

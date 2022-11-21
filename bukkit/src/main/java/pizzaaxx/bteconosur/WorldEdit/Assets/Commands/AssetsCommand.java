@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.Schematics.Commands;
+package pizzaaxx.bteconosur.WorldEdit.Assets.Commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,12 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
-public class SchematicsCommand implements CommandExecutor {
+public class AssetsCommand implements CommandExecutor {
 
     private final BTEConoSur plugin;
     private final String prefix;
 
-    public SchematicsCommand(@NotNull BTEConoSur plugin) {
+    public AssetsCommand(@NotNull BTEConoSur plugin) {
         this.plugin = plugin;
         this.prefix = plugin.getWorldEdit().getPrefix();
     }
