@@ -36,12 +36,17 @@ import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
 import java.awt.*;
+import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -136,6 +141,27 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             return;
         }
         this.log("Database connection established.");
+
+        try {
+            ResultSet set = this.getSqlManager().select(
+                    "players",
+                    new SQLColumnSet(
+                            "*"
+                    ),
+                    new SQLConditionSet(
+                            new SQLOperatorCondition(
+                                    "name", "=", "PIZZAAXX"
+                            )
+                    )
+            ).retrieve();
+
+            while (set.next()) {
+                this.log(this.getSqlManager().getUUID(set, "uuid").toString());
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
         this.log("Starting player registry...");
         this.playerRegistry = new PlayerRegistry(this);
 
