@@ -11,6 +11,8 @@ import pizzaaxx.bteconosur.SQL.Actions.UpdateAction;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.StringUtils;
+import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -55,7 +57,7 @@ public class SQLManager {
     }
 
     public UUID getUUID(@NotNull ResultSet set, String column) throws SQLException, IOException {
-        return UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream(column)));
+        return UUIDUtils.getFromInputStream(set.getBinaryStream(column));
     }
 
 }

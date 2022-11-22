@@ -34,4 +34,19 @@ public class StringUtils {
         return builder.toString();
     }
 
+    @NotNull
+    public static String insert(@NotNull String originalString, String insertedString, Integer... indexes) {
+
+        Set<Integer> index = new HashSet<>(Arrays.asList(indexes));
+        StringBuilder result = new StringBuilder(new String());
+
+        for (int i = 0; i < originalString.length(); i++) {
+            result.append(originalString.charAt(i));
+            if (index.contains(i)) {
+                result.append(insertedString);
+            }
+        }
+
+        return result.toString();
+    }
 }

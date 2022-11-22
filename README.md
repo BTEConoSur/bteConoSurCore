@@ -6,6 +6,9 @@
 `<>` - Campo obligatorio  
 `[]` - Campo opcional  
 `a|b` - Expresión A o B
+## Discord
+* ✔️`/link` (MC y Discord)
+* ✔️`/unlink` (MC y Discord)
 ## Utilidades
 * 🕙 `/height`
 * 🕙 `/googlemaps`

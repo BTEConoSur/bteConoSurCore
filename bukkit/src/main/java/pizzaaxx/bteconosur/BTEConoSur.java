@@ -30,6 +30,7 @@ import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
+import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
@@ -142,26 +143,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         }
         this.log("Database connection established.");
 
-        try {
-            ResultSet set = this.getSqlManager().select(
-                    "players",
-                    new SQLColumnSet(
-                            "*"
-                    ),
-                    new SQLConditionSet(
-                            new SQLOperatorCondition(
-                                    "name", "=", "PIZZAAXX"
-                            )
-                    )
-            ).retrieve();
-
-            while (set.next()) {
-                this.log(this.getSqlManager().getUUID(set, "uuid").toString());
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
         this.log("Starting player registry...");
         this.playerRegistry = new PlayerRegistry(this);
 
@@ -220,13 +201,15 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             return;
         }
 
+        LinkCommand linkCommand = new LinkCommand(this);
+
         // --- DISCORD ---
         Configuration discordConfig = new Configuration(this, "discord/token");
         String token = discordConfig.getString("token");
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
         jdaBuilder.addEventListeners(
-
+            linkCommand
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
@@ -242,6 +225,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.log("Registering commands...");
         getCommand("city").setExecutor(new CitiesCommand(this));
         getCommand("increment").setExecutor(new IncrementCommand(this));
+        getCommand("link").setExecutor(linkCommand);
+        getCommand("unlink").setExecutor(linkCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

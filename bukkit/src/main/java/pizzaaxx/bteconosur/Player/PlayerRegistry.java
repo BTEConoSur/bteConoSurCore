@@ -8,6 +8,8 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
+import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,25 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         this.plugin = plugin;
     }
 
-    public boolean hasPlayedBefore(UUID uuid) {
+    public boolean hasPlayedBefore(String name){
+        try {
+            return plugin.getSqlManager().select(
+                    "players",
+                    new SQLColumnSet(
+                            "name"
+                    ),
+                    new SQLConditionSet(
+                            new SQLOperatorCondition(
+                                    "name", "=", name
+                            )
+                    )
+            ).retrieve().next();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public boolean hasPlayedBefore(UUID uuid){
         if (cache.containsKey(uuid)) {
             return true;
         }
@@ -41,7 +61,6 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
                     )
             ).retrieve().next();
         } catch (SQLException e) {
-            plugin.warn("SQL error. Query: " + e.getMessage());
             return false;
         }
     }
@@ -60,7 +79,28 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         return cache.containsKey(uuid);
     }
 
-    public ServerPlayer get(UUID uuid) {
+    public ServerPlayer get(String name) throws SQLException, IOException {
+        ResultSet set = plugin.getSqlManager().select(
+                "players",
+                new SQLColumnSet(
+                        "uuid"
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "name", "=", name
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            UUID uuid = plugin.getSqlManager().getUUID(set, "uuid");
+            return this.get(uuid);
+        } else {
+            return null;
+        }
+    }
+
+    public ServerPlayer get(UUID uuid){
         if (this.hasPlayedBefore(uuid)) {
             if (!this.isLoaded(uuid)) {
                 this.load(uuid);
@@ -74,11 +114,8 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
     }
 
     private void unload(UUID uuid) {
-        if (this.isLoaded(uuid)) {
-            this.get(uuid).save();
-            cache.remove(uuid);
-            deletionCache.remove(uuid);
-        }
+        cache.remove(uuid);
+        deletionCache.remove(uuid);
     }
 
     public void scheduleUnload(UUID uuid) {

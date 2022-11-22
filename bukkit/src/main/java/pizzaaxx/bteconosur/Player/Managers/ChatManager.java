@@ -15,7 +15,7 @@ public class ChatManager {
     private final BTEConoSur plugin;
     private final ServerPlayer serverPlayer;
 
-    public ChatManager(ServerPlayer serverPlayer, BTEConoSur plugin, ResultSet set) {
+    public ChatManager(ServerPlayer serverPlayer, BTEConoSur plugin) {
         this.plugin = plugin;
         this.serverPlayer = serverPlayer;
     }

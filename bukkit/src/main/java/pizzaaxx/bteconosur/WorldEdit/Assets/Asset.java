@@ -1,8 +1,15 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.world.registry.WorldData;
+import org.bukkit.Rotation;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -25,7 +32,7 @@ public class Asset {
     private final String id;
     private String name;
     private final UUID creator;
-    private final boolean autoRotate;
+    private boolean autoRotate;
     private final Clipboard clipboard;
     private final int xOffset;
     private final int zOffset;
@@ -84,7 +91,7 @@ public class Asset {
 
     // --- SETTER ---
 
-    public void setName(String nuevoNombre) {
+    public void setName(@NotNull String nuevoNombre) {
         try {
             plugin.getSqlManager().update(
                     "assets",
@@ -105,5 +112,39 @@ public class Asset {
         }
     }
 
+    public void setAutoRotate(boolean autoRotate) {
+        try {
+            plugin.getSqlManager().update(
+                    "assets",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "auto_rotate", autoRotate
+                            )
+                    ),
+                    new SQLConditionSet(
+                            new SQLOperatorCondition(
+                                    "id", "=", this.id
+                            )
+                    )
+            ).execute();
+            this.autoRotate = autoRotate;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public void paste(Player player, Vector vector) throws WorldEditException {
+        LocalSession localSession = plugin.getWorldEdit().getLocalSession(player);
+        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
+
+        WorldData worldData = plugin.getWorldEditWorld().getWorldData();
+        Operation operation = new ClipboardHolder(this.clipboard, worldData)
+                .createPaste(editSession, worldData)
+                .to(vector)
+                .ignoreAirBlocks(true)
+                .build();
+        Operations.complete(operation);
+
+        localSession.remember(editSession);
+    }
 }

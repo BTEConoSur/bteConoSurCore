@@ -35,6 +35,13 @@ public class WorldEditHandler implements Prefixable {
         return "§f[§bWorldEdit§f] §7>> §f";
     }
 
+    public LocalSession getLocalSession(Player player) {
+        com.sk89q.worldedit.entity.Player actor = this.getWEPlayer(player);
+
+        SessionManager manager = worldEdit.getSessionManager();
+        return manager.get(actor);
+    }
+
     public com.sk89q.worldedit.entity.Player getWEPlayer(Player player) {
         return new BukkitPlayer(worldEditPlugin, worldEditPlugin.getServerInterface(), player);
     }

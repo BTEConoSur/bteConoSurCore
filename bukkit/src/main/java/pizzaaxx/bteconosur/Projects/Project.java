@@ -67,7 +67,7 @@ public class Project {
                 members.add(UUID.fromString(uuid));
             }
 
-            this.owner = UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream("string")));
+            this.owner = plugin.getSqlManager().getUUID(set, "uuid");
 
             this.tag = ProjectTag.valueOf(set.getString("tag").toUpperCase());
 
@@ -149,7 +149,7 @@ public class Project {
             this.displayName = set.getString("name");
             this.pending = set.getBoolean("pending");
             this.points = set.getInt("points");
-            this.owner = UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream("string")));
+            this.owner = plugin.getSqlManager().getUUID(set, "owner");
             this.tag = ProjectTag.valueOf(set.getString("tag").toUpperCase());
             this.members = new HashSet<>();
             Set<String> uuids = plugin.getJSONMapper().readValue(set.getString("members"), HashSet.class);

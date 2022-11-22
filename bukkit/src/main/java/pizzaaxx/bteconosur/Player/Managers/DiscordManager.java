@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.Player.Managers;
 
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -51,7 +50,7 @@ public class DiscordManager {
         ).retrieve();
 
         if (set.next()) {
-            return UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream("uuid")));
+            return plugin.getSqlManager().getUUID(set, "uuid");
         }
         return null;
     }
@@ -105,11 +104,11 @@ public class DiscordManager {
         return discriminator;
     }
 
-    private boolean isLinked() {
+    public boolean isLinked() {
         return id != null;
     }
 
-    private void link(String id) {
+    public void link(String id) {
         plugin.getBot().retrieveUserById(id).queue(
                 user -> {
                     this.id = id;
@@ -124,7 +123,7 @@ public class DiscordManager {
                                     "name", this.name
                             ),
                             new SQLValue(
-                                    "discriminator", discriminator
+                                    "discriminator", this.discriminator
                             )
                     );
 
@@ -140,6 +139,11 @@ public class DiscordManager {
                                     )
                             ).execute();
                         } else {
+                            valuesSet.addValue(
+                                    new SQLValue(
+                                            "uuid", serverPlayer.getUUID()
+                                    )
+                            );
                             plugin.getSqlManager().insert(
                                     "discord_managers",
                                     valuesSet
@@ -155,22 +159,21 @@ public class DiscordManager {
         );
     }
 
-    public void unlink() {
+    public void unlink() throws SQLException {
         if (this.isLinked()) {
-            try {
-                plugin.getSqlManager().delete(
-                        "discord_managers",
-                        new SQLConditionSet(
-                                new SQLOperatorCondition(
-                                        "uuid", "=", serverPlayer.getUUID()
-                                )
-                        )
-                ).execute();
+            plugin.getSqlManager().delete(
+                    "discord_managers",
+                    new SQLConditionSet(
+                            new SQLOperatorCondition(
+                                    "uuid", "=", serverPlayer.getUUID()
+                            )
+                    )
+            ).execute();
 
-                this.id = null;
-                this.name = null;
-                this.discriminator = null;
-            } catch (SQLException ignored) {}
+            this.id = null;
+            this.name = null;
+            this.discriminator = null;
+            this.hasSQLRow = false;
         }
     }
 }
