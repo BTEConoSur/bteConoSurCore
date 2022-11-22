@@ -27,7 +27,7 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     public void init() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
-                "schematics",
+                "assets",
                 new SQLColumnSet(
                         "id"
                 ),
@@ -66,11 +66,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     @Override
     public Set<String> getIds() {
-        return null;
+        return idsAndNames.keySet();
     }
 
     public Set<String> getNames() {
-        return null;
+        return new HashSet<>(idsAndNames.values());
     }
 
     @Override

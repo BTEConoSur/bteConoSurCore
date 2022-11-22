@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.SQL;
 
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Configuration.Configuration;
@@ -11,9 +12,12 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class SQLManager {
 
@@ -48,6 +52,10 @@ public class SQLManager {
 
     public DeleteAction delete(String tableName, SQLConditionSet conditions) {
         return new DeleteAction(plugin, tableName, conditions);
+    }
+
+    public UUID getUUID(@NotNull ResultSet set, String column) throws SQLException, IOException {
+        return UUID.nameUUIDFromBytes(IOUtils.toByteArray(set.getBinaryStream(column)));
     }
 
 }

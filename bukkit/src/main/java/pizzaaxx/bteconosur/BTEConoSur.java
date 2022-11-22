@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,6 +54,13 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
     public World getWorld() {
         return mainWorld;
     }
+
+    private com.sk89q.worldedit.world.World worldEditWorld;
+
+    public com.sk89q.worldedit.world.World getWorldEditWorld() {
+        return this.worldEditWorld;
+    }
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ObjectMapper getJSONMapper() {
@@ -132,6 +140,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.playerRegistry = new PlayerRegistry(this);
 
         mainWorld = Bukkit.getWorld("BTECS");
+        worldEditWorld = new BukkitWorld(mainWorld);
         worldGuard = WorldGuardPlugin.inst();
         regionManager = WorldGuardPlugin.inst().getRegionManager(mainWorld);
 

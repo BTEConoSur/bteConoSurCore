@@ -26,19 +26,19 @@
 * 🕙 `/presets delete <nombre>`
 * 🕙 `/presets list`
 ### Schematics
-* 🕙 `/schem create <nombre> [-ar]`
-* 🕙 `/schem edit <id> <nuevoNombre>`
-* 🕙 `/schem edit <id> -ar`
-* 🕙 `/schem delete <id>`
-* 🕙 `/schem search [texto]`
-* 🕙 `/schem addfav <id>`
-* 🕙 `/schem removefav <id>`
-* 🕙 `/schemgroup create <nombre>`
-* 🕙 `/schem fav`
-* 🕙 `/schemgroup delete <nombre>`
-* 🕙 `/schemgroup add <nombre> <id>`
-* 🕙 `/schemgroup remove <nombre> <id>`
-* 🕙 `/schemgroup list [nombre]`
+* 🕙 `/asset create <nombre> [-ar]`
+* 🕙 `/asset edit <id> <nuevoNombre>`
+* 🕙 `/asset edit <id> -ar`
+* 🕙 `/asset delete <id>`
+* 🕙 `/asset search [texto]`
+* 🕙 `/asset addfav <id>`
+* 🕙 `/asset removefav <id>`
+* 🕙 `/asset fav`
+* 🕙 `/assetgroup create <nombre>`
+* 🕙 `/assetgroup delete <nombre>`
+* 🕙 `/assetgroup add <nombre> <id>`
+* 🕙 `/assetgroup remove <nombre> <id>`
+* 🕙 `/assetgroup list [nombre]`
 ## Administración
 * 🕙 `/donador <nombre>`
 * 🕙 `/streamer <nombre>`
