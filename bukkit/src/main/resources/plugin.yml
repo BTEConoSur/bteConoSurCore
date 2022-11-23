@@ -20,3 +20,5 @@ commands:
     description: Conecta tu cuenta de Minecraft a tu cuenta de Discord.
   unlink:
     description: Desconecta tu cuenta de Minecraft de tu cuenta de Discord.
+  tpdir:
+    description: Teletransp´órtate a un lugar por su nombre.

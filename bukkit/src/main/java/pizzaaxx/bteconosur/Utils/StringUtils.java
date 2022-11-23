@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Utils;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -48,5 +49,11 @@ public class StringUtils {
         }
 
         return result.toString();
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    public static String getGenericPrefix(String color, String name) {
+        return "§f[§" + color + name + "§f] §7>> §f";
     }
 }

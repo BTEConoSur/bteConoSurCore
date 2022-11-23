@@ -27,6 +27,7 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
+import pizzaaxx.bteconosur.Commands.TpdirCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
@@ -34,6 +35,7 @@ import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
+import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
@@ -127,6 +129,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return worldEditHandler;
     }
 
+    private final InventoryHandler inventoryHandler = new InventoryHandler(this);
+
+    public InventoryHandler getInventoryHandler() {
+        return inventoryHandler;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -166,7 +174,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new JoinEvent(this),
                 new QuitEvent(this),
                 new ChatEventsListener(this),
-                new Shortcuts(this)
+                new Shortcuts(this),
+                this.inventoryHandler
         );
 
         this.log("Starting chats...");
@@ -227,6 +236,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("increment").setExecutor(new IncrementCommand(this));
         getCommand("link").setExecutor(linkCommand);
         getCommand("unlink").setExecutor(linkCommand);
+        getCommand("tpdir").setExecutor(new TpdirCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

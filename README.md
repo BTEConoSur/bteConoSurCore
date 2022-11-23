@@ -1,5 +1,5 @@
-# PROGRESO
-✔️ - Completado  
+# PROGRESO V2
+- Completado  
 ⏳ - En proceso  
 🕙 - Pendiente  
   
@@ -7,12 +7,14 @@
 `[]` - Campo opcional  
 `a|b` - Expresión A o B
 ## Discord
-* ✔️`/link` (MC y Discord)
-* ✔️`/unlink` (MC y Discord)
+* ✔️ `/link` (MC y Discord)
+* ✔️ `/unlink` (MC y Discord)
 ## Utilidades
 * 🕙 `/height`
 * 🕙 `/googlemaps`
-* 🕙 `/tpdir`
+* ✔️ `/tpdir` 
+  * Mejoras:
+    * Menú de selección si se encuentran múltiples opciones.
 * 🕙 `/pwarp`
 * 🕙 `/banners`
 ## WorldEdit
