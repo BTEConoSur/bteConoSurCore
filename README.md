@@ -12,9 +12,9 @@
 ## Utilidades
 * 🕙 `/height`
 * 🕙 `/googlemaps`
-* ✔️ `/tpdir` 
-  * Mejoras:
-    * Menú de selección si se encuentran múltiples opciones.
+* ✔️ `/tpdir`  
+**Mejoras:**
+  * Menú de selección si se encuentran múltiples opciones.
 * 🕙 `/pwarp`
 * 🕙 `/banners`
 ## WorldEdit
@@ -47,6 +47,9 @@
 ## Administración
 * 🕙 `/donador <nombre>`
 * 🕙 `/streamer <nombre>`
+* ✔️ `/deletePlayerData <uuid>`  
+**Nuevo:**
+  * Elimina el archivo de `playerdata` de un jugador. Solo ejecutable en la consola.
 ### Ciudades
 * ✔️ `/city create <país> <nombre> <nombreDisplay>`
 * ✔️ `/city setDisplay <nombre> <nuevoNombreDisplay>`
