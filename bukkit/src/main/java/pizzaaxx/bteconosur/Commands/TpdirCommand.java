@@ -2,6 +2,8 @@ package pizzaaxx.bteconosur.Commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.sk89q.worldedit.Vector;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -91,7 +93,17 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                         gui.setAction(
                                 event -> {
                                     event.getPlayer().closeInventory();
-                                    event.getPlayer().teleport(coordOptions.get(finalI).toHighestLocation());
+                                    Coords2D coord = coordOptions.get(finalI);
+                                    plugin.getWorldEditWorld().checkLoadedChunk(new Vector(
+                                            coord.getX(),
+                                            0,
+                                            coord.getZ()
+                                    ));
+                                    Location loc = coord.toHighestLocation();
+                                    if (loc.getY() == 0) {
+                                        loc.add(0, 100, 0);
+                                    }
+                                    event.getPlayer().teleport(loc);
                                     event.getPlayer().sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(finalI).split(",")[0] + "§f.");
                                 },
                                 realSlot
@@ -102,7 +114,17 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                 }
                 plugin.getInventoryHandler().open(p, gui);
             } else if (optionsSize == 1) {
-                p.teleport(coordOptions.get(0).toHighestLocation());
+                Coords2D coord = coordOptions.get(0);
+                Location loc = coord.toHighestLocation();
+                plugin.getWorldEditWorld().checkLoadedChunk(new Vector(
+                        coord.getX(),
+                        0,
+                        coord.getZ()
+                ));
+                if (loc.getY() == 0) {
+                    loc.add(0, 100, 0);
+                }
+                p.teleport(loc);
                 p.sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(0).split(",")[0] + "§f.");
             } else {
                 p.sendMessage(this.getPrefix() + "No se han encontrado lugares dentro del Cono Sur con ese nombre.");
