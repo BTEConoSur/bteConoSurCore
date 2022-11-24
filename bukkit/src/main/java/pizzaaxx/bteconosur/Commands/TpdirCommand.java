@@ -82,8 +82,8 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                     if (i < optionsSize) {
                         gui.setItem(
                                 new ItemBuilder(Material.MAP, 1, 1)
-                                        .name("§a" + nameOptions.get(i))
-                                        .lore("§7Haz click para teletransportarte.")
+                                        .name("§a§n" + nameOptions.get(i))
+                                        .lore("Haz click para teletransportarte.")
                                         .build(),
                                 realSlot
                         );
@@ -92,7 +92,7 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                                 event -> {
                                     event.getPlayer().closeInventory();
                                     event.getPlayer().teleport(coordOptions.get(finalI).toHighestLocation());
-                                    event.getPlayer().sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(finalI).split(",")[0]);
+                                    event.getPlayer().sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(finalI).split(",")[0] + "§f.");
                                 },
                                 realSlot
                         );
@@ -103,7 +103,7 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                 plugin.getInventoryHandler().open(p, gui);
             } else if (optionsSize == 1) {
                 p.teleport(coordOptions.get(0).toHighestLocation());
-                p.sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(0).split(",")[0]);
+                p.sendMessage(this.getPrefix() + "Teletransportándote a §a" + nameOptions.get(0).split(",")[0] + "§f.");
             } else {
                 p.sendMessage(this.getPrefix() + "No se han encontrado lugares dentro del Cono Sur con ese nombre.");
             }

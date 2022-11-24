@@ -35,6 +35,7 @@ import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
+import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
@@ -175,7 +176,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new QuitEvent(this),
                 new ChatEventsListener(this),
                 new Shortcuts(this),
-                this.inventoryHandler
+                this.inventoryHandler,
+                new TeleportEvent()
         );
 
         this.log("Starting chats...");

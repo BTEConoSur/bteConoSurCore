@@ -63,6 +63,7 @@ public class PreLoginEvent implements Listener {
                 plugin.log("Created database registry for player with UUID §f" + uuid);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             event.disallow(PlayerPreLoginEvent.Result.KICK_OTHER, "Ha ocurrido un error con la base de datos.");
         }
 
