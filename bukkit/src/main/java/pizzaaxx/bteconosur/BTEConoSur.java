@@ -27,6 +27,7 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
+import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
 import pizzaaxx.bteconosur.Commands.TpdirCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
@@ -239,6 +240,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("link").setExecutor(linkCommand);
         getCommand("unlink").setExecutor(linkCommand);
         getCommand("tpdir").setExecutor(new TpdirCommand(this));
+        getCommand("deleteplayerdata").setExecutor(new DeletePlayerDataCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

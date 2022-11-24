@@ -22,3 +22,6 @@ commands:
     description: Desconecta tu cuenta de Minecraft de tu cuenta de Discord.
   tpdir:
     description: Teletransp´órtate a un lugar por su nombre.
+  deletePlayerData:
+    description: Delete a player's data file based on its UUID.
+    permission: op
