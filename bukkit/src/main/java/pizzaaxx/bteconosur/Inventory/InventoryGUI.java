@@ -10,12 +10,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class InventoryGUI {
     private int rows;
     private String title;
     private final Map<Integer, ItemStack> items;
+    private final Set<Integer> draggableSlots = new HashSet<>();
     private ItemStack background;
     private final Map<Integer, InventoryAction> actions;
 
@@ -72,6 +75,10 @@ public class InventoryGUI {
         }
     }
 
+    public void setDraggable(int slot) {
+        this.draggableSlots.add(slot);
+    }
+
     public void setItem(ItemStack item, int slot) {
         items.put(slot, item);
     }
@@ -118,6 +125,10 @@ public class InventoryGUI {
     @Nullable
     public InventoryAction getAction(int slot) {
         return actions.get(slot);
+    }
+
+    public boolean isDraggable(int slot) {
+        return this.draggableSlots.contains(slot);
     }
 
     @NotNull

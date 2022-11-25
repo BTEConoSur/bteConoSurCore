@@ -31,7 +31,10 @@ public class InventoryHandler implements Listener {
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
         if (openedInventories.containsKey(event.getWhoClicked().getUniqueId())) {
             InventoryGUI gui = openedInventories.get(event.getWhoClicked().getUniqueId());
-            if (event.getInventory().getName().equals(gui.getTitle())) {
+            if (event.getClickedInventory().getName().equals(gui.getTitle())) {
+                if (!gui.isDraggable(event.getSlot())) {
+                    event.setCancelled(true);
+                }
                 InventoryAction action = gui.getAction(event.getSlot());
                 if (action != null) {
                     InventoryGUIClickEvent clickEvent = new InventoryGUIClickEvent(
