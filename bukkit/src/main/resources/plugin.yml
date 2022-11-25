@@ -23,5 +23,9 @@ commands:
   tpdir:
     description: Teletransp´órtate a un lugar por su nombre.
   deletePlayerData:
-    description: Delete a player's data file based on its UUID.
+    description: Elimina el archivo de playerdata de un jugador con su UUID.
     permission: op
+  height:
+    description: Obtén tu altitud actual. Útil en Bedrock.
+    aliases:
+      - h
