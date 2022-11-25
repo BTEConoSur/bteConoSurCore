@@ -34,3 +34,7 @@ commands:
     aliases:
       - gmaps
       - gm
+  banners:
+    description: Obtén estandartes de letras basados en un texto.
+    aliases:
+      - banner

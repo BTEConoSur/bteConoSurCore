@@ -12,7 +12,7 @@
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
-* 🕙 `/banners <colorLetra> <colorFondo> <texto>`
+* ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * 🕙 `/get`
 * 🕙 `/help`
 * 🕙 `/scoreboard`
