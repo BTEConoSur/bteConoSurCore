@@ -10,13 +10,24 @@
 * ✔️ `/link` (MC y Discord)
 * ✔️ `/unlink` (MC y Discord)
 ## Utilidades
-* 🕙 `/height`
-* 🕙 `/googlemaps`
-* ✔️ `/tpdir`  
-**Mejoras:**
-  * Menú de selección si se encuentran múltiples opciones.
-* 🕙 `/pwarp`
-* 🕙 `/banners`
+* ✔️ `/height`
+* ✔️ `/googlemaps`
+* 🕙 `/banners <colorLetra> <colorFondo> <texto>`
+* 🕙 `/get`
+* 🕙 `/help`
+* 🕙 `/scoreboard`
+* 🕙 `/streaming`
+* 🕙 `/prefix`
+* 🕙 `/nightvision`
+* 🕙 `/lobby`
+* ✔️ `/tpdir <nombre>`  
+  **Mejoras:**
+  * Menú de selección si se encuentran múltiples opciones. 
+### PWarps
+* 🕙 `/pwarp set <nombre>`
+* 🕙 `/pwarp delete <nombre>`
+* 🕙 `/pwarp list`
+* 🕙 `/pwarp <nombre>`
 ## WorldEdit
 * ✔️ Atajos
 * 🕙 `//polywalls`
@@ -63,4 +74,4 @@
 * 🕙 `/chat default [(global|<país>|<idProyecto>)]`
 * 🕙 `/chat invite <nombre>`
 * 🕙 `/chat <código>`
-
+* 🕙 `/nickname <nickname>`
