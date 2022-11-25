@@ -29,3 +29,8 @@ commands:
     description: Obtén tu altitud actual. Útil en Bedrock.
     aliases:
       - h
+  googleMaps:
+    description: Obtén un link a GoogleMaps de tu posición actual.
+    aliases:
+      - gmaps
+      - gm

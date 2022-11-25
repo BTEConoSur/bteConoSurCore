@@ -20,7 +20,7 @@ public class HoverAction {
     }
 
     public String getString() {
-        return color.toString() + message;
+        return (color == null ? ChatColor.WHITE.toString() : color.toString()) + message;
     }
 
 }
