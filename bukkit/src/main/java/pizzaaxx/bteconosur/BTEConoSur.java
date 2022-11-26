@@ -27,11 +27,8 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
-import pizzaaxx.bteconosur.Commands.BannersCommand;
-import pizzaaxx.bteconosur.Commands.GoogleMapsCommand;
-import pizzaaxx.bteconosur.Commands.HeightCommand;
+import pizzaaxx.bteconosur.Commands.*;
 import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
-import pizzaaxx.bteconosur.Commands.TpdirCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
@@ -172,6 +169,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new CityEnterEvent(this)
         );
 
+        GetCommand getCommand = new GetCommand(this);
+
         this.registerListeners(
                 this,
                 regionListenersHandler,
@@ -181,7 +180,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new ChatEventsListener(this),
                 new Shortcuts(this),
                 this.inventoryHandler,
-                new TeleportEvent()
+                new TeleportEvent(),
+                getCommand
         );
 
         this.log("Starting chats...");
@@ -247,6 +247,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("height").setExecutor(new HeightCommand(this));
         getCommand("googleMaps").setExecutor(new GoogleMapsCommand(this));
         getCommand("banners").setExecutor(new BannersCommand());
+        getCommand("get").setExecutor(getCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

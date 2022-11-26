@@ -13,7 +13,7 @@
 * ✔️ `/height`
 * ✔️ `/googlemaps`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
-* 🕙 `/get`
+* ⏳ `/get`
 * 🕙 `/help`
 * 🕙 `/scoreboard`
 * 🕙 `/streaming`

@@ -75,6 +75,12 @@ public class InventoryGUI {
         }
     }
 
+    public void setDraggable(@NotNull int... slots) {
+        for (int slot : slots) {
+            this.setDraggable(slot);
+        }
+    }
+
     public void setDraggable(int slot) {
         this.draggableSlots.add(slot);
     }

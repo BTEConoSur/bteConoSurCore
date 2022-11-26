@@ -38,3 +38,5 @@ commands:
     description: Obtén estandartes de letras basados en un texto.
     aliases:
       - banner
+  get:
+    description: Obtén acceso a bloques especiales.
