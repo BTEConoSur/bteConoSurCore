@@ -46,6 +46,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
+import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -248,6 +249,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("googleMaps").setExecutor(new GoogleMapsCommand(this));
         getCommand("banners").setExecutor(new BannersCommand());
         getCommand("get").setExecutor(getCommand);
+        getCommand("/polywalls").setExecutor(new PolywallsCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

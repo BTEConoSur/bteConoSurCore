@@ -40,3 +40,5 @@ commands:
       - banner
   get:
     description: Obtén acceso a bloques especiales.
+  /polywalls:
+    description: Crea paredes de selecciones poligonales.

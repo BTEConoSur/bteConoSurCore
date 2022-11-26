@@ -7,16 +7,16 @@
 `[]` - Campo opcional  
 `a|b` - Expresión A o B
 ## Discord
-* ✔️ `/link` (MC y Discord)
+* ✔️ `/link [código]` (MC y Discord)
 * ✔️ `/unlink` (MC y Discord)
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * ⏳ `/get`
-* 🕙 `/help`
-* 🕙 `/scoreboard`
-* 🕙 `/streaming`
+* 🕙 `/help [comando]`
+* 🕙 `/scoreboard [<tipo>|auto]`
+* 🕙 `/streaming <link>`
 * 🕙 `/prefix`
 * 🕙 `/nightvision`
 * 🕙 `/lobby`
@@ -30,12 +30,12 @@
 * 🕙 `/pwarp <nombre>`
 ## WorldEdit
 * ✔️ Atajos
-* 🕙 `//polywalls`
-* 🕙 `//terraform`
+* ✔️ `//polywalls <patrón>`
+* 🕙 `//terraform (<patrón>|border|inner)`
 * 🕙 `//selundo`
 * 🕙 `//selredo`
-* 🕙 `//divide`
-* ✔️ `/incremento` 
+* 🕙 `//divide <cantidad>`
+* ✔️ `/incremento <cantidad>` 
 ### Presets
 * 🕙 Presets 
 * 🕙 `/presets set <nombre> <texto>`

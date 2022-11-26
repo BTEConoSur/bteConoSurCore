@@ -1,0 +1,85 @@
+package pizzaaxx.bteconosur.WorldEdit.Commands;
+
+import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.extension.input.InputParseException;
+import com.sk89q.worldedit.extension.input.ParserContext;
+import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.pattern.Pattern;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BTEConoSur;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PolywallsCommand implements CommandExecutor {
+
+    private final BTEConoSur plugin;
+
+    public PolywallsCommand(BTEConoSur plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Solo jugadores.");
+            return true;
+        }
+
+        Player p = (Player) sender;
+
+        try {
+            List<BlockVector2D> points = plugin.getWorldEdit().getSelectionPoints(p);
+            int minY = plugin.getWorldEdit().getSelection(p).getMinimumPoint().getBlockY();
+            int maxY = plugin.getWorldEdit().getSelection(p).getMaximumPoint().getBlockY();
+
+            List<BlockVector2D> finalPoints = new ArrayList<>(points);
+            finalPoints.add(points.get(0));
+
+            if (args.length < 1) {
+                p.sendMessage(plugin.getWorldEdit().getPrefix() + "Introduce un patrón de bloques.");
+                return true;
+            }
+
+            LocalSession localSession = plugin.getWorldEdit().getLocalSession(p);
+            Mask mask = localSession.getMask();
+
+            Pattern pattern = plugin.getWorldEdit().getPattern(p, args[0]);
+
+            EditSession editSession = plugin.getWorldEdit().getWorldEdit().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
+
+            for (int i = minY; i <= maxY; i++) {
+                for (int j = 0; j < points.size(); j++) {
+                    BlockVector2D pos1 = finalPoints.get(j);
+                    BlockVector2D pos2 = finalPoints.get(j + 1);
+
+                    editSession = plugin.getWorldEdit().setBlocksInLine(
+                            p,
+                            editSession,
+                            pattern,
+                            mask,
+                            pos1.toVector(i),
+                            pos2.toVector(i)
+                    );
+                }
+            }
+
+            localSession.remember(editSession);
+
+            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Paredes creadas.");
+
+        } catch (IncompleteRegionException e) {
+            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Este comando solo se puede usar con selecciones cúbicas o poligonales.");
+        } catch (InputParseException e) {
+            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Introduce un patrón de bloques válido.");
+        } catch (MaxChangedBlocksException e) {
+            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Límite de cambio de bloques alcanzado.");
+        }
+
+        return true;
+    }
+}
