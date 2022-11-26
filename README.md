@@ -1,5 +1,5 @@
 # PROGRESO V2
-- Completado  
+✔️ - Completado  
 ⏳ - En proceso  
 🕙 - Pendiente  
   
