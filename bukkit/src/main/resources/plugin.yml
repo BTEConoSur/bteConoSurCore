@@ -42,3 +42,5 @@ commands:
     description: Obtén acceso a bloques especiales.
   /polywalls:
     description: Crea paredes de selecciones poligonales.
+  pwarp:
+    description: Maneja tus warps personales.
