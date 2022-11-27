@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.SQL;
 
+import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +20,16 @@ public class SQLParser {
                 return "\"" + uuid + "\"";
             }
             return "unhex(replace('" + uuid + "','-',''))";
+        } else if (object instanceof Location) {
+
+            Location loc = (Location) object;
+
+            return (insideJSON ? "" : "'") + "{" +
+                    "\"x\":" + loc.getX() +
+                    "\"y\":" + loc.getY() +
+                    "\"z\":" + loc.getZ() +
+                    "}" + (insideJSON ? "" : "'");
+
         } else if (object instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) object;
             int size = collection.size();
