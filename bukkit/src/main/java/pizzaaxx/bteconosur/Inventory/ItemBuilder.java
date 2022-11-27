@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class ItemBuilder {
 
     private final ItemStack itemStack;
-    private final ItemMeta itemMeta;
+    private ItemMeta itemMeta;
 
     public ItemBuilder(Material material, int amount, int data) {
         itemStack = new ItemStack(material, amount, (short) data);
@@ -50,14 +51,12 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder headValue(String texture) {
+    public ItemBuilder headValue(String value) {
         if (itemMeta instanceof SkullMeta) {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
             GameProfile gameProfile = new GameProfile(UUID.randomUUID(), null);
-            PropertyMap propertyMap = gameProfile.getProperties();
-
-            propertyMap.put("texture", new Property("texture", texture));
+            gameProfile.getProperties().put("textures", new Property("textures", value));
 
             try {
                 Field field = skullMeta
@@ -70,6 +69,9 @@ public class ItemBuilder {
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
+
+            itemStack.setItemMeta(skullMeta);
+            itemMeta = itemStack.getItemMeta();
 
         }
 
@@ -100,9 +102,32 @@ public class ItemBuilder {
     }
 
     @NotNull
-    @Contract(" -> new")
-    public static ItemBuilder head(String value) {
-        return new ItemBuilder(Material.SKULL_ITEM, 1, 3).headValue(value);
+    public static ItemStack head(String value, String name, List<String> lore) {
+        ItemStack head = new ItemStack(Material.SKULL_ITEM,1,(byte) SkullType.PLAYER.ordinal());
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+
+        if (name != null) {
+            headMeta.setDisplayName(name);
+        }
+
+        if (lore != null) {
+            headMeta.setLore(lore);
+        }
+
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        profile.getProperties().put("textures", new Property("textures", value));
+        Field field;
+        try {
+            field = headMeta.getClass().getDeclaredField("profile");
+            field.setAccessible(true);
+            field.set(headMeta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException x) {
+            x.printStackTrace();
+        }
+
+        head.setItemMeta(headMeta);
+
+        return head;
     }
 
 }
