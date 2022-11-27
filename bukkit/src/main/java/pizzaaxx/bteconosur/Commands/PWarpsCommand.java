@@ -10,6 +10,7 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Player.Managers.MiscManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class PWarpsCommand implements CommandExecutor{
@@ -40,7 +41,24 @@ public class PWarpsCommand implements CommandExecutor{
 
         if (args[0].equals("set")) {
 
+            if (args.length < 2) {
+                p.sendMessage(plugin.getPrefix() + "Introduce un nombre.");
+                return true;
+            }
 
+            if (!args[1].matches("\b(?!set)\b\b(?!delete)\b\b(?!list)\b[a-zA-Z1-9_ñÑ]{1,32}")) {
+                p.sendMessage(plugin.getPrefix() + "Introduce un nombre válido.");
+                return true;
+            }
+
+            try {
+                Location loc = p.getLocation();
+                miscManager.setPWarp(args[1], loc);
+                p.sendMessage(plugin.getPrefix() + "Warp personal §a" + args[1] + "§f establecido en §a" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "§f.");
+            } catch (SQLException e) {
+                p.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
+                return true;
+            }
 
         } else if (args[0].equals("delete")) {
 
