@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
+import pizzaaxx.bteconosur.Player.Managers.MiscManager;
 import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
@@ -22,6 +23,7 @@ public class ServerPlayer {
     private final ChatManager chatManager;
     private final WorldEditManager worldEditManager;
     private final DiscordManager discordManager;
+    private final MiscManager miscManager;
 
     public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException, JsonProcessingException {
 
@@ -46,6 +48,7 @@ public class ServerPlayer {
             this.chatManager = new ChatManager(this, plugin);
             this.worldEditManager = new WorldEditManager(plugin, this);
             this.discordManager = new DiscordManager(plugin, this);
+            this.miscManager = new MiscManager(plugin, this, set);
 
         } else {
             plugin.error("Missing player data: " + uuid);
@@ -64,6 +67,10 @@ public class ServerPlayer {
 
     public DiscordManager getDiscordManager() {
         return discordManager;
+    }
+
+    public MiscManager getMiscManager() {
+        return miscManager;
     }
 
     public BTEConoSur getPlugin() {
