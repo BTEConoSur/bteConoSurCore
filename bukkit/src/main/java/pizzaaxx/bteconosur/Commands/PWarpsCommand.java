@@ -46,7 +46,7 @@ public class PWarpsCommand implements CommandExecutor{
                 return true;
             }
 
-            if (!args[1].matches("\b(?!set)\b\b(?!delete)\b\b(?!list)\b[a-zA-Z1-9_ñÑ]{1,32}")) {
+            if (!args[1].matches("\\b(?!set)\\b\\b(?!delete)\\b\\b(?!list)\\b[a-zA-Z1-9_ñÑ]{1,32}")) {
                 p.sendMessage(plugin.getPrefix() + "Introduce un nombre válido.");
                 return true;
             }
@@ -62,15 +62,37 @@ public class PWarpsCommand implements CommandExecutor{
 
         } else if (args[0].equals("delete")) {
 
+            if (args.length < 2) {
+                p.sendMessage(plugin.getPrefix() + "Introduce un nombre.");
+                return true;
+            }
 
+            if (!args[1].matches("\\b(?!set)\\b\\b(?!delete)\\b\\b(?!list)\\b[a-zA-Z1-9_ñÑ]{1,32}")) {
+                p.sendMessage(plugin.getPrefix() + "Introduce un nombre válido.");
+                return true;
+            }
+
+            if (!miscManager.existsPWarp(args[1])) {
+                p.sendMessage(plugin.getPrefix() + "No tienes un warp personal con ese nombre.");
+                return true;
+            }
+
+            try {
+                miscManager.deletePwarp(args[1]);
+                p.sendMessage(plugin.getPrefix() + "Warp personal §a" + args[1] + "§f eliminado correctamente.");
+            } catch (SQLException e) {
+                p.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
+            }
 
         } else if (args[0].equals("list")) {
 
+            p.sendMessage(" ");
             p.sendMessage("§8>-------[ §7PWARPS §8]-------<");
             for (Map.Entry<String, Location> pwarp : miscManager.getPWarps().entrySet()) {
-                p.sendMessage("§8• §a" + pwarp.getKey() + "§7 - §a" + pwarp.getValue().getBlockX() + " " + pwarp.getValue().getBlockY() + " " + pwarp.getValue().getBlockZ());
+                p.sendMessage("§7• §a" + pwarp.getKey() + "§7 - §e" + pwarp.getValue().getBlockX() + " " + pwarp.getValue().getBlockY() + " " + pwarp.getValue().getBlockZ());
             }
             p.sendMessage("§8>-----------------------<");
+            p.sendMessage(" ");
 
         } else if (miscManager.existsPWarp(args[0])) {
 

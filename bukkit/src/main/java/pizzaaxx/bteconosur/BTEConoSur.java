@@ -250,6 +250,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("banners").setExecutor(new BannersCommand());
         getCommand("get").setExecutor(getCommand);
         getCommand("/polywalls").setExecutor(new PolywallsCommand(this));
+        getCommand("pwarp").setExecutor(new PWarpsCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

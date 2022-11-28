@@ -27,7 +27,7 @@ public class MiscManager {
 
         Map<String, Object> pwarpsRaw = plugin.getJSONMapper().readValue(set.getString("pwarps"), HashMap.class);
         for (Map.Entry<String, Object> entry : pwarpsRaw.entrySet()) {
-            Map<String, Integer> coords = (Map<String, Integer>) entry.getValue();
+            Map<String, Double> coords = (Map<String, Double>) entry.getValue();
             pwarps.put(entry.getKey(), new Location(plugin.getWorld(), coords.get("x"), coords.get("y"), coords.get("z")));
         }
     }

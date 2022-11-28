@@ -24,10 +24,10 @@
   **Mejoras:**
   * Menú de selección si se encuentran múltiples opciones. 
 ### PWarps
-* 🕙 `/pwarp set <nombre>`
-* 🕙 `/pwarp delete <nombre>`
-* 🕙 `/pwarp list`
-* 🕙 `/pwarp <nombre>`
+* ✔️ `/pwarp set <nombre>`
+* ✔️ `/pwarp delete <nombre>`
+* ✔️ `/pwarp list`
+* ✔️ `/pwarp <nombre>`
 ## WorldEdit
 * ✔️ Atajos
 * ✔️ `//polywalls <patrón>`

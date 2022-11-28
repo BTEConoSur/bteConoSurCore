@@ -25,8 +25,8 @@ public class SQLParser {
             Location loc = (Location) object;
 
             return (insideJSON ? "" : "'") + "{" +
-                    "\"x\":" + loc.getX() +
-                    "\"y\":" + loc.getY() +
+                    "\"x\":" + loc.getX() + ", " +
+                    "\"y\":" + loc.getY() + ", " +
                     "\"z\":" + loc.getZ() +
                     "}" + (insideJSON ? "" : "'");
 
