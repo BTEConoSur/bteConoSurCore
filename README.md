@@ -41,10 +41,11 @@
 * 🕙 `/presets set <nombre> <texto>`
 * 🕙 `/presets delete <nombre>`
 * 🕙 `/presets list`
-### Schematics
+### Assets
 * 🕙 `/asset create <nombre> [-ar]`
-* 🕙 `/asset edit <id> <nuevoNombre>`
-* 🕙 `/asset edit <id> -ar`
+* 🕙 `/asset setOrigin`
+* 🕙 `/asset editName <id> <nuevoNombre>`
+* 🕙 `/asset editAutoRotate <id> <(true|false)>`
 * 🕙 `/asset delete <id>`
 * 🕙 `/asset search [texto]`
 * 🕙 `/asset addfav <id>`
