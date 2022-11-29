@@ -44,3 +44,5 @@ commands:
     description: Crea paredes de selecciones poligonales.
   pwarp:
     description: Maneja tus warps personales.
+  asset:
+    description: Maneja los assets.

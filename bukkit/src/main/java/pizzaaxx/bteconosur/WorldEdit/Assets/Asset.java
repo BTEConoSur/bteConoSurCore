@@ -34,9 +34,6 @@ public class Asset {
     private final UUID creator;
     private boolean autoRotate;
     private final Clipboard clipboard;
-    private final int xOffset;
-    private final int zOffset;
-    private final int yOffset;
 
     public Asset(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -57,9 +54,6 @@ public class Asset {
         if (set.next()) {
             this.name = set.getString("name");
             this.creator = plugin.getSqlManager().getUUID(set, "creator");
-            this.xOffset = set.getInt("x_offset");
-            this.yOffset = set.getInt("y_offset");
-            this.zOffset = set.getInt("z_offset");
             this.autoRotate = set.getBoolean("auto_rotate");
         } else {
             throw new IllegalArgumentException();
@@ -91,46 +85,38 @@ public class Asset {
 
     // --- SETTER ---
 
-    public void setName(@NotNull String nuevoNombre) {
-        try {
-            plugin.getSqlManager().update(
-                    "assets",
-                    new SQLValuesSet(
-                            new SQLValue(
-                                    "name", nuevoNombre
-                            )
-                    ),
-                    new SQLConditionSet(
-                            new SQLOperatorCondition(
-                                    "id", "=", this.id
-                            )
-                    )
-            ).execute();
-            this.name = nuevoNombre;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void setName(@NotNull String nuevoNombre) throws SQLException {
+        plugin.getSqlManager().update(
+                "assets",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "name", nuevoNombre
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", this.id
+                        )
+                )
+        ).execute();
+        this.name = nuevoNombre;
     }
 
-    public void setAutoRotate(boolean autoRotate) {
-        try {
-            plugin.getSqlManager().update(
-                    "assets",
-                    new SQLValuesSet(
-                            new SQLValue(
-                                    "auto_rotate", autoRotate
-                            )
-                    ),
-                    new SQLConditionSet(
-                            new SQLOperatorCondition(
-                                    "id", "=", this.id
-                            )
-                    )
-            ).execute();
-            this.autoRotate = autoRotate;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void setAutoRotate(boolean autoRotate) throws SQLException {
+        plugin.getSqlManager().update(
+                "assets",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "auto_rotate", autoRotate
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", this.id
+                        )
+                )
+        ).execute();
+        this.autoRotate = autoRotate;
     }
 
     public void paste(Player player, Vector vector) throws WorldEditException {

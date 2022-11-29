@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DualMap<K, V> {
 
@@ -29,5 +30,21 @@ public class DualMap<K, V> {
 
     public V getV(K k) {
         return KtoV.get(k);
+    }
+
+    public Set<K> getKs() {
+        return KtoV.keySet();
+    }
+
+    public Set<V> getVs() {
+        return VtoK.keySet();
+    }
+
+    public boolean containsK(K k) {
+        return KtoV.containsKey(k);
+    }
+
+    public boolean containsV(V v) {
+        return VtoK.containsKey(v);
     }
 }

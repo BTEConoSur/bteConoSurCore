@@ -41,18 +41,15 @@ import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
-import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
 import java.awt.*;
-import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -88,6 +85,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public PlayerRegistry getPlayerRegistry() {
         return playerRegistry;
+    }
+
+    private AssetsRegistry assetsRegistry = new AssetsRegistry(this);
+
+    public AssetsRegistry getAssetsRegistry() {
+        return assetsRegistry;
     }
 
     private JDA bot;
@@ -208,6 +211,15 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             return;
         }
 
+        // --- ASSETS ---
+        this.log("Starting assets registry...");
+        try {
+            assetsRegistry.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. Assets registry startup failed.");
+            return;
+        }
+
         // --- PROJECTS ---
         this.log("Starting project registry...");
         try {
@@ -251,6 +263,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("get").setExecutor(getCommand);
         getCommand("/polywalls").setExecutor(new PolywallsCommand(this));
         getCommand("pwarp").setExecutor(new PWarpsCommand(this));
+        getCommand("asset").setExecutor(new AssetsCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

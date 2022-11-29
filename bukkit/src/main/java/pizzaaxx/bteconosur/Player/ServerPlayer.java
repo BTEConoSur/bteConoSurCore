@@ -11,6 +11,7 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
+import javax.persistence.Temporal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -83,6 +84,10 @@ public class ServerPlayer {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isBuilder() {
+        return true;
     }
 
 }
