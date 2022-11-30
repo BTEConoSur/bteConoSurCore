@@ -42,6 +42,7 @@ import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
@@ -67,6 +68,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public com.sk89q.worldedit.world.World getWorldEditWorld() {
         return this.worldEditWorld;
+    }
+
+    private final FuzzyMatcher fuzzyMatcher = new FuzzyMatcher(this);
+
+    public FuzzyMatcher getFuzzyMatcher() {
+        return fuzzyMatcher;
     }
 
     private final ObjectMapper mapper = new ObjectMapper();

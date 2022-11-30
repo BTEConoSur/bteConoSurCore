@@ -107,6 +107,11 @@ public class AssetsCommand implements CommandExecutor {
                     return true;
                 }
 
+                if (plugin.getAssetsRegistry().getNames().contains(name)) {
+                    p.sendMessage(prefix + "Ya existe un §oasset§r con ese nombre.");
+                    return true;
+                }
+
                 try {
                     Region region = plugin.getWorldEdit().getSelection(p);
                     if (!(region instanceof CuboidRegion)) {
@@ -177,6 +182,11 @@ public class AssetsCommand implements CommandExecutor {
 
                 if (!name.matches("[a-zA-Z0-9_ñÑ]{1,32}")) {
                     p.sendMessage(prefix + "Introduce un nuevo nombre válido.");
+                    return true;
+                }
+
+                if (plugin.getAssetsRegistry().getNames().contains(name)) {
+                    p.sendMessage(prefix + "Ya existe un §oasset§r con ese nombre.");
                     return true;
                 }
 

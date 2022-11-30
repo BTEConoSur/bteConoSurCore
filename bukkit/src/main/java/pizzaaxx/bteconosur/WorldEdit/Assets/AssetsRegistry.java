@@ -6,6 +6,7 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Registry.Registry;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -13,6 +14,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DualMap;
+import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.io.File;
@@ -115,6 +117,10 @@ public class AssetsRegistry implements Registry<String, Asset> {
         }
     }
 
+    public String getName(String id) {
+        return idsAndNames.getV(id);
+    }
+
     public String create(String name, @NotNull Clipboard clipboard, Vector origin, UUID creator) throws IOException, SQLException {
         String id = StringUtils.generateCode(8, this.getIds(), LOWER_CASE);
         File output = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
@@ -144,5 +150,46 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     public void delete(String id) {
 
+    }
+
+    public List<Asset> getSearch(int page, @Nullable String input) {
+        // PAGE SIZE = 45
+        List<Asset> result = new ArrayList<>();
+        if (input == null) {
+            List<String> names = new ArrayList<>(this.getNames());
+            Collections.sort(names);
+            for (int i = 0; i < 45; i++) {
+                String id = idsAndNames.getK(names.get(i + ((page - 1) * 45)));
+                result.add(this.get(id));
+            }
+        } else {
+            Map<String, Double> finalValues = new HashMap<>();
+            for (String id : this.getIds()) {
+                String name = this.getName(id);
+
+                FuzzyMatcher matcher = plugin.getFuzzyMatcher();
+
+                int wholeWordDiff = matcher.getDistance(name, input) + 1;
+                double numerator = 0;
+                double count = 0;
+                for (String word : input.split(" ")) {
+                    numerator += matcher.getMinimumDistance(name, word);
+                    count++;
+                }
+                double wordAverage = (numerator / count) + 1;
+                double finalMatch = wordAverage * wholeWordDiff;
+                if (finalMatch < 500) {
+                    finalValues.put(id, finalMatch);
+                }
+            }
+
+            List<Map.Entry<String, Double>> entries = new ArrayList<>(finalValues.entrySet());
+            entries.sort(Map.Entry.comparingByValue());
+
+            for (int i = 0; i < 45; i++) {
+                result.add(this.get(entries.get(i + ((page - 1) * 45)).getKey()));
+            }
+        }
+        return result;
     }
 }

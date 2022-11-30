@@ -33,7 +33,7 @@ public class Asset {
     private String name;
     private final UUID creator;
     private boolean autoRotate;
-    private final Clipboard clipboard;
+    private Clipboard clipboard;
 
     public Asset(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -58,11 +58,13 @@ public class Asset {
         } else {
             throw new IllegalArgumentException();
         }
+    }
 
+    public void loadSchematic() throws IOException {
         File file = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
         ClipboardFormat format = ClipboardFormat.findByFile(file);
         ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
-        this. clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
+        this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
     }
 
     // --- GETTER ---

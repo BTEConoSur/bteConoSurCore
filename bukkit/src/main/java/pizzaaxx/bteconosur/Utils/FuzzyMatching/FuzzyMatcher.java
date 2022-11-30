@@ -32,10 +32,11 @@ public class FuzzyMatcher {
         int inputLength = input.length();
         int min = base.length() * 2;
         for (int i = 0; i <= base.length() - inputLength; i++) {
-            if (this.getDistance(input, base.substring(i, i + inputLength)) < min) {
-
+            int distance = this.getDistance(input, base.substring(i, i + inputLength));
+            if (distance < min) {
+                min = distance;
             }
         }
+        return min;
     }
-
 }
