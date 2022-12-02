@@ -152,16 +152,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     }
 
-    public List<Asset> getSearch(int page, @Nullable String input) {
-        // PAGE SIZE = 45
-        List<Asset> result = new ArrayList<>();
+    public List<String> getSearch(@Nullable String input) {
         if (input == null) {
             List<String> names = new ArrayList<>(this.getNames());
             Collections.sort(names);
-            for (int i = 0; i < 45; i++) {
-                String id = idsAndNames.getK(names.get(i + ((page - 1) * 45)));
-                result.add(this.get(id));
-            }
+            return names;
         } else {
             Map<String, Double> finalValues = new HashMap<>();
             for (String id : this.getIds()) {
@@ -186,10 +181,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
             List<Map.Entry<String, Double>> entries = new ArrayList<>(finalValues.entrySet());
             entries.sort(Map.Entry.comparingByValue());
 
-            for (int i = 0; i < 45; i++) {
-                result.add(this.get(entries.get(i + ((page - 1) * 45)).getKey()));
+            List<String> result = new ArrayList<>();
+            for (Map.Entry<String, Double> entry : entries) {
+                result.add(entry.getKey());
             }
+            return result;
         }
-        return result;
     }
 }

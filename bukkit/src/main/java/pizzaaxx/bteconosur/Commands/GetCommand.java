@@ -88,8 +88,8 @@ public class GetCommand implements CommandExecutor, Listener {
         gui.setItem(ItemBuilder.head(
             "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmI3ZDJlODRhZTEwYzk3MWQ5MmNiMDViNmFiNDExNmY3NjUwM2E4N2QzMTc0MjQ5Y2QxZjQ5OTJiYTE4MWRiNCJ9fX0="
         , "§a[167:7] §fTrampilla de Hierro Oeste", new ArrayList<>()), 31);
-        gui.setItem(ItemBuilder.of(Material.BARRIER).name("§a[166] §fBarrera").build(), 32);
-        gui.setItem(ItemBuilder.of(Material.STRUCTURE_VOID).name("§a[217] §fVacío").build(), 33);
+        gui.setItem(new ItemBuilder(Material.BARRIER).name( "§a[166] §fBarrera").build(), 32);
+        gui.setItem(new ItemBuilder(Material.STRUCTURE_VOID).name("§a[217] §fVacío").build(), 33);
 
         gui.setDraggable(10,11,12,13,14,15,16,19,20,21,22,23,24,25,29,30,31,32,33);
 

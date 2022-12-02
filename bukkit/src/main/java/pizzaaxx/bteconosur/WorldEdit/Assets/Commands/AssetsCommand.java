@@ -16,15 +16,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Inventory.InventoryGUI;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AssetsCommand implements CommandExecutor {
 
@@ -264,17 +262,31 @@ public class AssetsCommand implements CommandExecutor {
             }
             case "search": {
 
+                String input;
                 if (args.length < 2) {
-
-
-
+                    input = null;
                 } else {
-                    String input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                    input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                 }
 
+                List<String> ids = plugin.getAssetsRegistry().getSearch(input);
+
+                int page = 1;
+                int length = ids.size();
+                InventoryGUI gui = new InventoryGUI(
+                        6,
+                        "Assets",
+                        null
+                );
+                while (length > 45 * page) {
+                    for (int i = 0; i < Math.min(45, length - (45 * (page - 1))); i++) {
+                        int listIndex = i + (45 * (page - 1));
+                        int inventoryIndex = i + 9;
+                    }
+                    page++;
+                }
             }
         }
-
         return true;
     }
 }

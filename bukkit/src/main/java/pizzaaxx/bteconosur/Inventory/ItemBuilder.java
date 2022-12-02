@@ -27,6 +27,16 @@ public class ItemBuilder {
         itemMeta = itemStack.getItemMeta();
     }
 
+    public ItemBuilder(Material material, int amount) {
+        itemStack = new ItemStack(material, amount);
+        itemMeta = itemStack.getItemMeta();
+    }
+
+    public ItemBuilder(Material material) {
+        itemStack = new ItemStack(material);
+        itemMeta = itemStack.getItemMeta();
+    }
+
     public ItemBuilder name(String name) {
         itemMeta.setDisplayName(name);
         return this;
@@ -103,31 +113,30 @@ public class ItemBuilder {
 
     @NotNull
     public static ItemStack head(String value, String name, List<String> lore) {
-        ItemStack head = new ItemStack(Material.SKULL_ITEM,1,(byte) SkullType.PLAYER.ordinal());
-        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM,1, (short) 3);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 
         if (name != null) {
-            headMeta.setDisplayName(name);
+            skullMeta.setDisplayName(name);
         }
 
         if (lore != null) {
-            headMeta.setLore(lore);
+            skullMeta.setLore(lore);
         }
 
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        profile.getProperties().put("textures", new Property("textures", value));
+        profile.getProperties().put("textures", new Property("textures", value, null));
         Field field;
         try {
-            field = headMeta.getClass().getDeclaredField("profile");
+            field = skullMeta.getClass().getDeclaredField("profile");
             field.setAccessible(true);
-            field.set(headMeta, profile);
+            field.set(skullMeta, profile);
         } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException x) {
             x.printStackTrace();
         }
+        skull.setItemMeta(skullMeta);
 
-        head.setItemMeta(headMeta);
-
-        return head;
+        return skull;
     }
 
 }
