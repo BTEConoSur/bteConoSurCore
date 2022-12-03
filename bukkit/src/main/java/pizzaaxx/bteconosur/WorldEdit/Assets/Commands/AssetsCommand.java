@@ -10,13 +10,16 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 
@@ -94,13 +97,13 @@ public class AssetsCommand implements CommandExecutor {
 
 
                 if (args.length < 2) {
-                    p.sendMessage(prefix + "Introduce un nombre para el §oassets§r.");
+                    p.sendMessage(prefix + "Introduce un nombre para el §oasset§r.");
                     return true;
                 }
 
                 String name = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-                if (!name.matches("[a-zA-Z0-9_ñÑ]{1,32}")) {
+                if (!name.matches("[a-zA-Z0-9_ñÑ\\s]{1,32}")) {
                     p.sendMessage(prefix + "Introduce un nombre válido.");
                     return true;
                 }
@@ -178,7 +181,7 @@ public class AssetsCommand implements CommandExecutor {
 
                 String name = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
-                if (!name.matches("[a-zA-Z0-9_ñÑ]{1,32}")) {
+                if (!name.matches("[a-zA-Z0-9_ñÑ\\s]{1,32}")) {
                     p.sendMessage(prefix + "Introduce un nuevo nombre válido.");
                     return true;
                 }
@@ -270,21 +273,49 @@ public class AssetsCommand implements CommandExecutor {
                 }
 
                 List<String> ids = plugin.getAssetsRegistry().getSearch(input);
+                plugin.log(ids.toString());
 
                 int page = 1;
                 int length = ids.size();
+                int totalPages = Math.floorDiv(length, 45) + 1;
                 InventoryGUI gui = new InventoryGUI(
                         6,
                         "Assets",
                         null
                 );
+                gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
+                if (totalPages > 1) {
+                    gui.setItem(
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
+                                    "§aSiguiente §7(1/" + totalPages + ")",
+                                    null
+                            ),
+                            8
+                    );
+                }
                 while (length > 45 * page) {
                     for (int i = 0; i < Math.min(45, length - (45 * (page - 1))); i++) {
                         int listIndex = i + (45 * (page - 1));
                         int inventoryIndex = i + 9;
+                        plugin.log(ids.get(listIndex));
+                        Asset asset = plugin.getAssetsRegistry().get(ids.get(listIndex));
+                        ItemStack head = ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
+                                "§a" + asset.getName(),
+                                new ArrayList<>(
+                                        Arrays.asList(
+                                                "ID: §7" + asset.getId(),
+                                                "Creador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                "Rotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual")
+                                        )
+                                )
+                        );
+                        gui.setItem(head, inventoryIndex);
                     }
                     page++;
                 }
+                plugin.getInventoryHandler().open(p, gui);
             }
         }
         return true;

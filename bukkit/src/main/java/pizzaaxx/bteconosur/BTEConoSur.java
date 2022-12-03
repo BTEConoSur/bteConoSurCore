@@ -223,6 +223,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         try {
             assetsRegistry.init();
         } catch (SQLException e) {
+            e.printStackTrace();
             this.error("Plugin starting stopped. Assets registry startup failed.");
             return;
         }

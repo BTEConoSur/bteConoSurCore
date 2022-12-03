@@ -45,13 +45,13 @@ public class AssetsRegistry implements Registry<String, Asset> {
         ResultSet set = plugin.getSqlManager().select(
                 "assets",
                 new SQLColumnSet(
-                        "id"
+                        "id", "name"
                 ),
                 new SQLConditionSet()
         ).retrieve();
 
         while (set.next()) {
-            idsAndNames.put(set.getString("id"), set.getString("names"));
+            idsAndNames.put(set.getString("id"), set.getString("name"));
         }
     }
 
@@ -156,7 +156,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
         if (input == null) {
             List<String> names = new ArrayList<>(this.getNames());
             Collections.sort(names);
-            return names;
+            List<String> ids = new ArrayList<>();
+            for (String name : names) {
+                ids.add(idsAndNames.getK(name));
+            }
+            return ids;
         } else {
             Map<String, Double> finalValues = new HashMap<>();
             for (String id : this.getIds()) {
@@ -174,6 +178,7 @@ public class AssetsRegistry implements Registry<String, Asset> {
                 double wordAverage = (numerator / count) + 1;
                 double finalMatch = wordAverage * wholeWordDiff;
                 if (finalMatch < 500) {
+                    plugin.log(name + " " + finalMatch); // DEBUG
                     finalValues.put(id, finalMatch);
                 }
             }
