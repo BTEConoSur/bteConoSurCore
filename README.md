@@ -69,6 +69,23 @@
 * ✔️ `/city deleteUrban <nombre>`
 * ✔️ `/city redefine <nombre>`
 * 🕙 `/city delete <nombre>`
+## Proyectos
+* ✔️ *Action Bar*
+* 🕙 `/project create [tipo] [puntos]`
+* 🕙 `/project add [jugador]`
+* 🕙 `/project remove [jugador]`
+* 🕙 `/project transfer [miembro]`
+* 🕙 `/project name [nombre]`
+* 🕙 `/project borders`
+* 🕙 `/project manage`
+* 🕙 `/project tag <etiqueta>|delete`
+* 🕙 `/project claim`
+* 🕙 `/project find`
+* 🕙 `/project finish`
+* 🕙 `/project review <(accept|continue|deny)>`
+* 🕙 `/project leave`
+* 🕙 `/project request`
+* 🕙 `/project tutorial`
 ## Chat
 * 🕙 `/chat [nombre]`
 * 🕙 `/chat <(global|<país>|<idProyecto>)>`
