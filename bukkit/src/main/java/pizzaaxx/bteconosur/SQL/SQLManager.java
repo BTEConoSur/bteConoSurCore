@@ -14,6 +14,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
+import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;

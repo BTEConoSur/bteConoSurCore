@@ -71,7 +71,7 @@
 * 🕙 `/city delete <nombre>`
 ## Proyectos
 * ✔️ *Action Bar*
-* 🕙 `/project create [tipo] [puntos]`
+* 🕙 `/project create [<tipo> <puntos>]`
 * 🕙 `/project add [jugador]`
 * 🕙 `/project remove [jugador]`
 * 🕙 `/project transfer [miembro]`
