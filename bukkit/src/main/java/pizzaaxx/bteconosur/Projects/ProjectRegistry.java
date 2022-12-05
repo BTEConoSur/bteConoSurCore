@@ -1,17 +1,18 @@
 package pizzaaxx.bteconosur.Projects;
 
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.ProjectRegionSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ProjectRegistry {
 
@@ -97,5 +98,27 @@ public class ProjectRegistry {
             };
             runnable.runTaskLaterAsynchronously(plugin, 12000);
         }
+    }
+
+    public List<String> getProjectsAt(Location loc, ProjectRegionSelector... selectors) {
+        ApplicableRegionSet set = plugin.getRegionManager().getApplicableRegions(loc);
+        List<String> ids = new ArrayList<>();
+        for (ProtectedRegion region : set) {
+            if (region.getId().startsWith("project_")) {
+                String id = region.getId().replace("project_", "");
+                Project project = plugin.getProjectRegistry().get(id);
+                boolean applies = true;
+                for (ProjectRegionSelector selector : selectors) {
+                    if (!selector.applies(project)) {
+                        applies = false;
+                        break;
+                    }
+                }
+                if (applies) {
+                    ids.add(region.getId().replace("project_", ""));
+                }
+            }
+        }
+        return ids;
     }
 }

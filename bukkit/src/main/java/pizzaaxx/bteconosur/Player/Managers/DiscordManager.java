@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Player.Managers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.Notifications.Notification;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
@@ -150,6 +151,18 @@ public class DiscordManager {
                             ).execute();
                             this.hasSQLRow = true;
                         }
+
+                        user.openPrivateChannel().queue(
+                                channel -> {
+                                    try {
+                                        for (Notification notification : plugin.getNotificationsService().getNotifications(serverPlayer.getUUID())) {
+                                            channel.sendMessage(notification.getDiscordMessage()).queue();
+                                        }
+                                        plugin.getNotificationsService().deleteNotifications(serverPlayer.getUUID());
+                                    } catch (SQLException ignored) {}
+                                }
+                        );
+
                     } catch (SQLException e) {
                         this.id = null;
                         this.name = null;

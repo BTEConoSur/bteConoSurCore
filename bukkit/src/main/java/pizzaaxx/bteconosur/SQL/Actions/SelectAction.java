@@ -14,12 +14,14 @@ public class SelectAction {
     private final String tableName;
     private final SQLColumnSet columns;
     private final SQLConditionSet conditions;
+    private final StringBuilder additionalText;
 
     public SelectAction(BTEConoSur plugin, String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.columns = columns;
         this.conditions = conditions;
+        this.additionalText = new StringBuilder();
     }
 
     public void addCondition(SQLCondition condition) {
@@ -30,12 +32,17 @@ public class SelectAction {
         this.columns.addColumn(column);
     }
 
+    public void addText(String text) {
+        additionalText.append(text);
+    }
+
     public ResultSet retrieve() throws SQLException {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(columns.getString()).append(" FROM ").append(tableName);
         if (!conditions.isEmpty()) {
             query.append(" WHERE ").append(conditions.getString());
         }
+        query.append(additionalText);
         try {
             return plugin.getSqlManager().getConnection().createStatement().executeQuery(query.toString());
         } catch (SQLException e) {

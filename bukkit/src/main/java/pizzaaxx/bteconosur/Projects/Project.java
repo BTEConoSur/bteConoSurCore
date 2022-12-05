@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -85,6 +86,9 @@ public class Project {
     }
 
     public String getDisplayName() {
+        if (displayName ==  null) {
+            return id.toUpperCase();
+        }
         return displayName;
     }
 
@@ -160,5 +164,29 @@ public class Project {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public AddMemberProjectAction addMember(UUID uuid) {
+        return new AddMemberProjectAction(plugin, this, uuid);
+    }
+
+    public ClaimProjectAction claim(UUID owner) {
+        return new ClaimProjectAction(plugin, this, owner);
+    }
+
+    public RemoveMemberProjectAction removeMember(UUID uuid) {
+        return new RemoveMemberProjectAction(plugin, this, uuid);
+    }
+
+    public SetDisplayNameProjectAction setDisplayName(String name) {
+        return new SetDisplayNameProjectAction(plugin, this, name);
+    }
+
+    public SetPendingProjectAction setPending(boolean pending) {
+        return new SetPendingProjectAction(plugin, this, pending);
+    }
+
+    public TransferProjectAction transfer(UUID uuid) {
+        return new TransferProjectAction(plugin, this, uuid);
     }
 }

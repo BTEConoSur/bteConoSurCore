@@ -21,6 +21,8 @@ public class InventoryGUI {
     private final Set<Integer> draggableSlots = new HashSet<>();
     private ItemStack background;
     private final Map<Integer, InventoryAction> actions;
+    private final Map<Integer, InventoryDataSet> data;
+
 
     /**
      * Creates a new InventoryGUI with a non-default background.
@@ -33,6 +35,7 @@ public class InventoryGUI {
         this.title = title;
         this.items = new HashMap<>();
         this.actions = new HashMap<>();
+        this.data = new HashMap<>();
         this.background = background;
     }
 
@@ -46,6 +49,7 @@ public class InventoryGUI {
         this.title = title;
         this.items = new HashMap<>();
         this.actions = new HashMap<>();
+        this.data = new HashMap<>();
         ItemStack background = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
         ItemMeta meta = background.getItemMeta();
         meta.setDisplayName(" ");
@@ -69,7 +73,7 @@ public class InventoryGUI {
         items.put(slot, null);
     }
 
-    public void setEmptySlot(@NotNull int... slots) {
+    public void setEmptySlots(@NotNull int... slots) {
         for (int slot : slots) {
             this.setEmptySlot(slot);
         }
@@ -107,6 +111,28 @@ public class InventoryGUI {
 
     public void setAction(InventoryAction action, int slot) {
         actions.put(slot, action);
+    }
+
+    public void setData(String key, Object value, int slot) {
+        this.data.put(
+                slot,
+                new InventoryDataSet(
+                        key, value
+                )
+        );
+    }
+
+    public void setData(Map<String, Object> data, int slot) {
+        this.data.put(
+                slot,
+                new InventoryDataSet(
+                        data
+                )
+        );
+    }
+
+    public InventoryDataSet getData(int slot) {
+        return data.get(slot);
     }
 
     public void setCommand(@NotNull String command, int slot) {

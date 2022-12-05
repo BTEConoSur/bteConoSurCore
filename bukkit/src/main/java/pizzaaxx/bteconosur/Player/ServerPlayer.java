@@ -90,4 +90,11 @@ public class ServerPlayer {
         return true;
     }
 
+    public void sendNotification(
+            String minecraftMessage,
+            String discordMessage
+    ) {
+        plugin.getNotificationsService().sendNotification(this.uuid, minecraftMessage, discordMessage);
+    }
+
 }

@@ -38,6 +38,7 @@ import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
+import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
@@ -146,6 +147,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public InventoryHandler getInventoryHandler() {
         return inventoryHandler;
+    }
+
+    private final NotificationsService notificationsService = new NotificationsService(this);
+
+    public NotificationsService getNotificationsService() {
+        return notificationsService;
     }
 
     @Override

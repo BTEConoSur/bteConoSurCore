@@ -3,6 +3,8 @@ package pizzaaxx.bteconosur.SQL;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Projects.Project;
 
 import java.util.Collection;
 import java.util.Map;
@@ -55,7 +57,7 @@ public class SQLParser {
 
             int counter = 1;
             for (Map.Entry<?,?> entry : map.entrySet()) {
-                builder.append("\"").append(entry.getKey().toString()).append("\": ").append(SQLParser.getString(entry.getValue(), true));
+                builder.append("\"").append(SQLParser.getString(entry.getKey())).append("\": ").append(SQLParser.getString(entry.getValue(), true));
                 if (counter < size) {
                     builder.append(", ");
                 }
@@ -66,6 +68,12 @@ public class SQLParser {
             return builder.toString();
         } else if (object instanceof String) {
             return (insideJSON?"\"":"'") + object + (insideJSON?"\"":"'");
+        } else if (object instanceof Country) {
+            Country country = (Country) object;
+            return (insideJSON?"\"":"'") + country.getName() + (insideJSON?"\"":"'");
+        } else if (object instanceof Project) {
+            Project project = (Project) object;
+            return (insideJSON?"\"":"'") + project.getId() + (insideJSON?"\"":"'");
         } else if (object == null) {
             return (insideJSON?"{}":"NULL");
         }
