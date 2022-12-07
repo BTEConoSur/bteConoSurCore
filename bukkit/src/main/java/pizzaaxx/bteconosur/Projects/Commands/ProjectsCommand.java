@@ -10,17 +10,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
-import pizzaaxx.bteconosur.Inventory.InventoryAction;
-import pizzaaxx.bteconosur.Inventory.InventoryDataSet;
-import pizzaaxx.bteconosur.Inventory.InventoryGUI;
-import pizzaaxx.bteconosur.Inventory.InventoryGUIClickEvent;
+import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -50,33 +48,27 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
             case "create": {
 
 
-
                 break;
             }
-            case "add": {
-                if (args.length < 2) {
-                    p.sendMessage(this.getPrefix() + "Introduce un jugador para agregar.");
-                    return true;
-                }
-
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                if (!offlinePlayer.isOnline()) {
-                    p.sendMessage(this.getPrefix() + "El jugador introducido no está en línea.");
-                    return true;
-                }
-                Player target = Bukkit.getPlayer(args[1]);
-
-                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(
+            case "manage": {
+                List<String> projectOptions = plugin.getProjectRegistry().getProjectsAt(
                         p.getLocation(),
                         new OwnerProjectSelector(
                                 p.getUniqueId()
                         )
                 );
 
-                if (projectIDs.size() > 1) {
+                if (projectOptions.isEmpty()) {
+                    p.sendMessage(this.getPrefix() + "No hay proyectos de los que seas líder donde estás actualmente.");
+                    return true;
+                }
+
+                if (projectOptions.size() == 1) {
+                    this.openManageInventory(p, projectOptions.get(0));
+                } else {
                     InventoryGUI gui = new InventoryGUI(
                             6,
-                            "Selecciona un proyecto para agregar a §a" + target.getName()
+                            "Selecciona un proyecto para manejar"
                     );
                     int[] emptySlots = {
                             10, 11, 12, 13, 14, 15, 16,
@@ -84,154 +76,221 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             28, 29, 30, 31, 32, 33, 34,
                             37, 38, 39, 40, 41, 42, 43
                     };
-                    gui.setEmptySlots(
-                            emptySlots
-                    );
+                    gui.setEmptySlots(emptySlots);
                     int i = 0;
-                    for (String id : projectIDs) {
-                        gui.setItem(Material.STONE, emptySlots[i]);
-                        gui.setData(
-                                "projectID", id,
+                    for (String id : projectOptions) {
+                        Project project = plugin.getProjectRegistry().get(id);
+                        gui.setItem(
+                                new ItemBuilder(Material.STONE)
+                                        .name("Proyecto §a" + project.getDisplayName())
+                                        .lore(
+                                                "§fID: " + project.getId(),
+                                                "§fTipo: " + project.getType().getDisplayName(),
+                                                "§Miembros: " + project.getMembers().size()
+                                        )
+                                        .build(),
                                 emptySlots[i]
                         );
                         gui.setAction(
                                 event -> {
-                                    event.closeGUI();
-                                    Project project = plugin.getProjectRegistry().get(id);
-
-                                    if (project.getMembers().contains(target.getUniqueId())) {
-                                        p.sendMessage(this.getPrefix() + "El jugador introducido ya es parte de este proyecto.");
-                                        return;
-                                    }
-
-                                    try {
-                                        project.addMember(target.getUniqueId()).execute();
-                                        p.sendMessage(this.getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                                        target.sendMessage(this.getPrefix() + "Has sido agregado al proyecto §a" + project.getDisplayName() + "§f.");
-                                    } catch (SQLException e) {
-                                        p.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                    }
+                                    this.openManageInventory(p, id);
                                 },
                                 emptySlots[i]
                         );
                         i++;
                     }
-
-                } else {
-                    String id = projectIDs.get(0);
-                    Project project = plugin.getProjectRegistry().get(id);
-
-                    if (project.getMembers().contains(target.getUniqueId())) {
-                        p.sendMessage(this.getPrefix() + "El jugador introducido ya es parte de este proyecto.");
-                        return true;
-                    }
-
-                    try {
-                        project.addMember(target.getUniqueId()).execute();
-                        p.sendMessage(this.getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                        target.sendMessage(this.getPrefix() + "Has sido agregado al proyecto §a" + project.getDisplayName() + "§f.");
-                    } catch (SQLException e) {
-                        p.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
-                    }
                 }
-
-                break;
             }
-            case "remove": {
-                if (args.length < 2) {
-                    p.sendMessage(this.getPrefix() + "Introduce un miembro para quitar.");
-                    return true;
-                }
+        }
+        return true;
+    }
 
-                ServerPlayer target;
-                try {
-                    target = plugin.getPlayerRegistry().get(args[1]);
-                } catch (SQLException | IOException e) {
-                    p.sendMessage(this.getPrefix() + "El jugador introducido no existe.");
-                    return true;
-                }
+    private void openManageInventory(Player player, String projectID) {
+        Project project = plugin.getProjectRegistry().get(projectID);
+        InventoryGUI manageGUI = new InventoryGUI(
+                6,
+                "Proyecto " + project.getId()
+        );
+        // Finalizar
+        // Miembros -> Quitar / Agregar
+        // Abandonar
 
-                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(
-                        p.getLocation(),
-                        new OwnerProjectSelector(
-                                p.getUniqueId()
+        int[] memberSlots = {
+                3, 4, 5, 6, 7, 8,
+                12, 13, 14, 15, 16, 17,
+                21, 22, 23, 24, 25, 26,
+                30, 31, 32, 33, 34, 35,
+                39, 40, 41, 42, 43, 44,
+                48, 49, 50, 51, 52, 53
+        };
+
+        // Transferir
+        manageGUI.setItem(
+                ItemBuilder.head(
+                        project.getOwner(),
+                        "§aTransferir proyecto",
+                        new ArrayList<>(
+                                (project.isPending() ?
+                                        Arrays.asList(
+                                                "§7Haz click para transferir el proyecto a otro miembro.",
+                                                "§8Solo puede transferir el proyecto a miembros actuales del proyecto que se encuentren en línea."
+                                        ) :
+                                        Collections.singletonList(
+                                                "§cNo puedes transferir el proyecto mientras está pendiente."
+                                        )
+                                )
                         )
-                );
-
-                if (projectIDs.size() > 1) {
-                    InventoryGUI gui = new InventoryGUI(
-                            6,
-                            "Selecciona un proyecto para remover a §a" + target.getName()
-                    );
-                    int[] emptySlots = {
-                            10, 11, 12, 13, 14, 15, 16,
-                            19, 20, 21, 22, 23, 24, 25,
-                            28, 29, 30, 31, 32, 33, 34,
-                            37, 38, 39, 40, 41, 42, 43
-                    };
-                    gui.setEmptySlots(
-                            emptySlots
-                    );
-                    int i = 0;
-                    for (String id : projectIDs) {
-                        gui.setItem(Material.STONE, emptySlots[i]);
-                        gui.setData(
-                                "projectID", id,
-                                emptySlots[i]
+                ),
+                10);
+        if (!project.isPending()) {
+            manageGUI.setAction( // TRANSFERIR
+                    event -> {
+                        int [] transferMemberSlots = InventoryGUI.getIntInRange(9, 53);
+                        InventoryGUI transferGUI = new InventoryGUI(
+                                6,
+                                "Selecciona un jugador para transferir el proyecto"
                         );
-                        gui.setAction(
-                                event -> {
-                                    event.closeGUI();
-                                    Project project = plugin.getProjectRegistry().get(id);
-
-                                    if (!project.getMembers().contains(target.getUUID())) {
-                                        p.sendMessage(this.getPrefix() + "El jugador introducido no es parte de este proyecto.");
-                                        return;
-                                    }
-
-                                    try {
-                                        project.removeMember(target.getUUID()).execute();
-                                        p.sendMessage(this.getPrefix() + "Has removido a §a" + target.getName() + "§f del proyecto §a" + project.getDisplayName() + "§f.");
-                                        target.sendNotification(
-                                                this.getPrefix() + "Has sido removido del proyecto §a" + project.getDisplayName() + "§f.",
-                                                 "**[PROYECTOS]** » Has sido removido del proyecto **" + project.getDisplayName() + "**."
-                                        );
-                                    } catch (SQLException e) {
-                                        p.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                    }
-                                },
-                                emptySlots[i]
+                        transferGUI.setEmptySlots(
+                                transferMemberSlots
                         );
-                        i++;
-                    }
-
-                } else {
-                    String id = projectIDs.get(0);
-                    Project project = plugin.getProjectRegistry().get(id);
-
-                    if (!project.getMembers().contains(target.getUUID())) {
-                        p.sendMessage(this.getPrefix() + "El jugador introducido no es parte de este proyecto.");
-                        return true;
-                    }
-
-                    try {
-                        project.removeMember(target.getUUID()).execute();
-                        p.sendMessage(this.getPrefix() + "Has removido a §a" + target.getName() + "§f del proyecto §a" + project.getDisplayName() + "§f.");
-                        target.sendNotification(
-                                this.getPrefix() + "Has sido removido del proyecto §a" + project.getDisplayName() + "§f.",
-                                "**[PROYECTOS]** » Has sido removido del proyecto **" + project.getDisplayName() + "**."
+                        transferGUI.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTlkODU5ZDZiYWYzM2VjY2RlOTk3NTAxYTc2ZThiODNjNDFhYTY4NTliOGU0ZmUxYmUyYWMwOGNjMDQ4NDMifX19",
+                                        "§9Información",
+                                        new ArrayList<>(
+                                                Collections.singletonList(
+                                                        "Solo puedes transferir proyectos a miembros de este que se encuentren en línea."
+                                                )
+                                        )
+                                ),
+                                4
                         );
-                    } catch (SQLException e) {
-                        p.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
-                    }
-                }
-
-                break;
-            }
-
+                        int i = 0;
+                        for (UUID member : project.getMembers()) {
+                            if (Bukkit.getOfflinePlayer(member).isOnline()) {
+                                ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(member);
+                                transferGUI.setItem(
+                                        ItemBuilder.head(
+                                                member,
+                                                "§a" + serverPlayer.getName(),
+                                                null
+                                        ),
+                                        transferMemberSlots[i]
+                                );
+                                transferGUI.setAction(
+                                        event1 -> {
+                                            InventoryGUI confirmTransferGUI = new InventoryGUI(
+                                                    1,
+                                                    "¿Confirmas la transferencia?"
+                                            );
+                                            confirmTransferGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
+                                                            "§aConfirmar",
+                                                            null
+                                                    ),
+                                                    3
+                                            );
+                                            confirmTransferGUI.setAction(
+                                                    event2 -> {
+                                                        event2.closeGUI();
+                                                        try {
+                                                            project.transfer(member).execute();
+                                                            player.sendMessage(this.getPrefix() + "Has transferido el proyecto §a" + project.getDisplayName() + "§f a §a" + plugin.getPlayerRegistry().get(member).getName());
+                                                            Bukkit.getPlayer(member).sendMessage(this.getPrefix() + "§a" + player.getName() + "§f te ha transferido el proyecto §a" + project.getDisplayName() + "§f.");
+                                                        } catch (SQLException e) {
+                                                            player.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                        }
+                                                    },
+                                                    3
+                                            );
+                                            confirmTransferGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjc1NDgzNjJhMjRjMGZhODQ1M2U0ZDkzZTY4YzU5NjlkZGJkZTU3YmY2NjY2YzAzMTljMWVkMWU4NGQ4OTA2NSJ9fX0=",
+                                                            "§cCancelar",
+                                                            null
+                                                    ),
+                                                    5
+                                            );
+                                            confirmTransferGUI.setAction(
+                                                    event2 -> plugin.getInventoryHandler().open(player, transferGUI),
+                                                    5
+                                            );
+                                        },
+                                        transferMemberSlots[i]
+                                );
+                                i++;
+                            }
+                        }
+                    },
+                    10
+            );
+        }
+        if (project.isPending()) {
+            manageGUI.setItem(
+                    ItemBuilder.head(
+                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmVjYjYyYzYzYjI1NzVlYzhkYjc3MWM1N2M4YjU2MDUxNWJiNTA0MTkwMjM4YTk2MWU2ZTI0M2VmNTYwMmVkNCJ9fX0=",
+                            "§cProyecto finalizado",
+                            new ArrayList<>(
+                                    Collections.singletonList(
+                                            "§7El proyecto ya está marcado como finalizado."
+                                    )
+                            )
+                    ),
+                    28
+            );
+        } else {
+            manageGUI.setItem(
+                    ItemBuilder.head(
+                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTRkNjFlYmMyOWM2MDk3MjQwNTNlNDJmNjE1YmM3NDJhMTZlZjY4Njk2MTgyOWE2ZDAxMjcwNDUyOWIxMzA4NSJ9fX0=",
+                            "§aFinalizar proyecto",
+                            new ArrayList<>(
+                                    Collections.singletonList(
+                                            "§7No podrás construir ni editar el proyecto mientras esté pendiente."
+                                    )
+                            )
+                    ),
+                    28
+            );
+            manageGUI.setAction(
+                    new InventoryAction() {
+                        @Override
+                        public void exec(InventoryGUIClickEvent event) {
+                            InventoryGUI confirmFinishGUI = new InventoryGUI(
+                                    1,
+                                    "¿Confirmas que quieres finalizar el proyecto?"
+                            );
+                            confirmFinishGUI.setItem(
+                                    ItemBuilder.head(
+                                            ItemBuilder.confirmHead(),
+                                            "§aConfirmar",
+                                            null
+                                    ),
+                                    3
+                            );
+                            confirmFinishGUI.setItem(
+                                    ItemBuilder.head(
+                                            ItemBuilder.cancelHead(),
+                                            "§cCancelar",
+                                            null
+                                    ),
+                                    5
+                            );
+                            confirmFinishGUI.setAction(
+                                    new InventoryAction() {
+                                        @Override
+                                        public void exec(InventoryGUIClickEvent event) {
+                                            plugin.getInventoryHandler().open(player, manageGUI);
+                                        }
+                                    },
+                                    5
+                            );
+                        }
+                    },
+                    28
+            );
         }
 
-        return true;
     }
 
     @Override

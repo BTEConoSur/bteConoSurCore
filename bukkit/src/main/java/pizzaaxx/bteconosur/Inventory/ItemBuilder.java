@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Inventory;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemFlag;
@@ -112,6 +113,25 @@ public class ItemBuilder {
     }
 
     @NotNull
+    public static ItemStack head(UUID owner, String name, List<String> lore) {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+
+        if (name != null) {
+            skullMeta.setDisplayName(name);
+        }
+
+        if (lore != null) {
+            skullMeta.setLore(lore);
+        }
+
+        skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+        skull.setItemMeta(skullMeta);
+
+        return skull;
+    }
+
+    @NotNull
     public static ItemStack head(String value, String name, List<String> lore) {
         ItemStack skull = new ItemStack(Material.SKULL_ITEM,1, (short) 3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
@@ -137,6 +157,18 @@ public class ItemBuilder {
         skull.setItemMeta(skullMeta);
 
         return skull;
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    public static String confirmHead() {
+        return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=";
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    public static String cancelHead() {
+        return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjc1NDgzNjJhMjRjMGZhODQ1M2U0ZDkzZTY4YzU5NjlkZGJkZTU3YmY2NjY2YzAzMTljMWVkMWU4NGQ4OTA2NSJ9fX0=";
     }
 
 }

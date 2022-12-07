@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public class InventoryGUI {
     private int rows;
@@ -113,6 +115,10 @@ public class InventoryGUI {
         actions.put(slot, action);
     }
 
+    public void deleteAction(int slot) {
+        actions.remove(slot);
+    }
+
     public void setData(String key, Object value, int slot) {
         this.data.put(
                 slot,
@@ -184,5 +190,9 @@ public class InventoryGUI {
         }
 
         return inventory;
+    }
+
+    public static int[] getIntInRange(int from, int to) {
+        return IntStream.rangeClosed(from, to).toArray();
     }
 }
