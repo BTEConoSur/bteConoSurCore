@@ -42,12 +42,15 @@
 * 🕙 `/presets delete <nombre>`
 * 🕙 `/presets list`
 ### Assets
-* 🕙 `/asset create <nombre> [-ar]`
-* 🕙 `/asset setOrigin`
-* 🕙 `/asset editName <id> <nuevoNombre>`
-* 🕙 `/asset editAutoRotate <id> <(true|false)>`
+* ✔️ Pegado
+* ✔️ Rotación
+* ✔️ `/asset create <nombre> [-ar]`
+* ✔️ `/asset setOrigin`
+* ✔️ `/asset editName <id> <nuevoNombre>`
+* ✔️ `/asset editAutoRotate <id> <(true|false)>`
+* ✔️ `/asset settags <id> [etiquetas]`
 * 🕙 `/asset delete <id>`
-* 🕙 `/asset search [texto]`
+* ✔️ `/asset search [texto]`
 * 🕙 `/asset addfav <id>`
 * 🕙 `/asset removefav <id>`
 * 🕙 `/asset fav`

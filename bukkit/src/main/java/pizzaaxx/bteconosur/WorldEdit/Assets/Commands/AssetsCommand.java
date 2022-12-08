@@ -140,7 +140,7 @@ public class AssetsCommand implements CommandExecutor {
                     BlockArrayClipboard clipboard = new BlockArrayClipboard(cuboidRegion);
 
                     ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-                            plugin.getWorldEditWorld(), cuboidRegion, clipboard, region.getMaximumPoint()
+                            plugin.getWorldEditWorld(), cuboidRegion, clipboard, region.getMinimumPoint()
                     );
                     Operations.complete(forwardExtentCopy);
 
@@ -160,7 +160,7 @@ public class AssetsCommand implements CommandExecutor {
 
                 break;
             }
-            case "editname": {
+            case "setname": {
 
                 if (!s.isBuilder()) {
                     p.sendMessage(prefix + "Deber haber terminado un proyecto para poder crear §oassets§r.");
@@ -213,7 +213,7 @@ public class AssetsCommand implements CommandExecutor {
 
                 break;
             }
-            case "editautorotate": {
+            case "setautorotate": {
 
                 if (!s.isBuilder()) {
                     p.sendMessage(prefix + "Deber haber terminado un proyecto para poder crear §oassets§r.");
@@ -350,7 +350,7 @@ public class AssetsCommand implements CommandExecutor {
                                                 "§fID: §7" + asset.getId(),
                                                 "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
                                                 "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                "§7#" + String.join(" #", asset.getTags())
+                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):"")
                                         )
                                 )
                         );

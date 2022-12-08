@@ -6,6 +6,8 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.transform.AffineTransform;
+import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.WorldData;
 import org.bukkit.Rotation;
@@ -147,12 +149,15 @@ public class Asset {
         this.tags = tags;
     }
 
-    public void paste(Player player, Vector vector) throws WorldEditException {
+    public void paste(Player player, Vector vector, double rotation) throws WorldEditException {
         LocalSession localSession = plugin.getWorldEdit().getLocalSession(player);
         EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
 
         WorldData worldData = plugin.getWorldEditWorld().getWorldData();
-        Operation operation = new ClipboardHolder(this.clipboard, worldData)
+        ClipboardHolder holder = new ClipboardHolder(this.clipboard, worldData);
+        Transform transform = new AffineTransform().rotateY(rotation);
+        holder.setTransform(transform);
+        Operation operation = holder
                 .createPaste(editSession, worldData)
                 .to(vector)
                 .ignoreAirBlocks(true)

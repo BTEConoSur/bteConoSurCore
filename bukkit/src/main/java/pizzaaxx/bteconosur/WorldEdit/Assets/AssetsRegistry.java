@@ -128,9 +128,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
     public String create(String name, @NotNull Clipboard clipboard, Vector origin, UUID creator) throws IOException, SQLException {
         String id = StringUtils.generateCode(6, this.getIds(), LOWER_CASE);
         File output = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
+        output.createNewFile();
         clipboard.setOrigin(origin);
         ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(Files.newOutputStream(output.toPath()));
         writer.write(clipboard, plugin.getWorldEditWorld().getWorldData());
+        writer.close();
         plugin.getSqlManager().insert(
                 "assets",
                 new SQLValuesSet(
