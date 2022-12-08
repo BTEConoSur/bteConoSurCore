@@ -46,6 +46,7 @@ import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
@@ -199,7 +200,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new Shortcuts(this),
                 this.inventoryHandler,
                 new TeleportEvent(),
-                getCommand
+                getCommand,
+                new AssetListener(this)
         );
 
         this.log("Starting chats...");
@@ -229,7 +231,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         this.log("Starting assets registry...");
         try {
             assetsRegistry.init();
-        } catch (SQLException e) {
+        } catch (SQLException | JsonProcessingException e) {
             e.printStackTrace();
             this.error("Plugin starting stopped. Assets registry startup failed.");
             return;

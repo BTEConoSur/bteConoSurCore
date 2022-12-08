@@ -199,7 +199,7 @@ public class AssetsCommand implements CommandExecutor {
                 Asset asset = plugin.getAssetsRegistry().get(id);
                 String oldName = asset.getName();
 
-                if (asset.getCreator() != p.getUniqueId()) {
+                if (!asset.getCreator().equals(p.getUniqueId())) {
                     p.sendMessage(prefix + "No eres el creador de este §oasset§r por lo que no puedes editarlo.");
                     return true;
                 }
@@ -246,7 +246,7 @@ public class AssetsCommand implements CommandExecutor {
 
                 Asset asset = plugin.getAssetsRegistry().get(id);
 
-                if (asset.getCreator() != p.getUniqueId()) {
+                if (!asset.getCreator().equals(p.getUniqueId())) {
                     p.sendMessage(prefix + "No eres el creador de este §oasset§r por lo que no puedes editarlo.");
                     return true;
                 }
@@ -254,6 +254,50 @@ public class AssetsCommand implements CommandExecutor {
                 try {
                     asset.setAutoRotate(autoRotate);
                     p.sendMessage(prefix + "Rotación automática del §oasset§r establecida en " + (autoRotate ? "§averdadero" : "§cfalso") + "§f.");
+                } catch (SQLException e) {
+                    p.sendMessage(prefix + "Ha ocurrido un error en la base de datos.");
+                }
+
+                break;
+            }
+            case "settags": {
+                if (!s.isBuilder()) {
+                    p.sendMessage(prefix + "Deber haber terminado un proyecto para poder crear §oassets§r.");
+                    return true;
+                }
+
+                if (args.length < 2) {
+                    p.sendMessage(prefix + "Introduce una ID.");
+                    return true;
+                }
+
+                String id = args[1];
+
+                Set<String> tags = new HashSet<>(
+                        Arrays.asList(
+                                Arrays.copyOfRange(args, 2, args.length)
+                        )
+                );
+
+                if (!plugin.getAssetsRegistry().exists(id)) {
+                    p.sendMessage(prefix + "No existe un §oasset§r con esa ID.");
+                    return true;
+                }
+
+                Asset asset = plugin.getAssetsRegistry().get(id);
+
+                if (!asset.getCreator().equals(p.getUniqueId())) {
+                    p.sendMessage(prefix + "No eres el creador de este §oasset§r por lo que no puedes editarlo.");
+                    return true;
+                }
+
+                try {
+                    asset.setTags(tags);
+                    if (tags.isEmpty()) {
+                        p.sendMessage(prefix + "Has eliminado las etiquetas del §oasset§r han sido eliminadas.");
+                    } else {
+                        p.sendMessage(prefix + "Has establecido las etiquetas del §oasset§r en §a#" + String.join("§f, §a#", tags) + "§f.");
+                    }
                 } catch (SQLException e) {
                     p.sendMessage(prefix + "Ha ocurrido un error en la base de datos.");
                 }
@@ -273,7 +317,6 @@ public class AssetsCommand implements CommandExecutor {
                 }
 
                 List<String> ids = plugin.getAssetsRegistry().getSearch(input);
-                plugin.log(ids.toString());
 
                 int page = 1;
                 int length = ids.size();
@@ -294,24 +337,25 @@ public class AssetsCommand implements CommandExecutor {
                             8
                     );
                 }
-                while (length > 45 * page) {
+                while (length > 45 * (page - 1)) {
                     for (int i = 0; i < Math.min(45, length - (45 * (page - 1))); i++) {
                         int listIndex = i + (45 * (page - 1));
                         int inventoryIndex = i + 9;
-                        plugin.log(ids.get(listIndex));
                         Asset asset = plugin.getAssetsRegistry().get(ids.get(listIndex));
                         ItemStack head = ItemBuilder.head(
                                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
                                 "§a" + asset.getName(),
                                 new ArrayList<>(
                                         Arrays.asList(
-                                                "ID: §7" + asset.getId(),
-                                                "Creador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                "Rotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual")
+                                                "§fID: §7" + asset.getId(),
+                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                "§7#" + String.join(" #", asset.getTags())
                                         )
                                 )
                         );
                         gui.setItem(head, inventoryIndex);
+                        gui.setDraggable(inventoryIndex);
                     }
                     page++;
                 }

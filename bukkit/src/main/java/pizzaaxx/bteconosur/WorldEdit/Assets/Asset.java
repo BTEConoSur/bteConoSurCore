@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Asset {
@@ -33,6 +36,7 @@ public class Asset {
     private String name;
     private final UUID creator;
     private boolean autoRotate;
+    private Set<String> tags;
     private Clipboard clipboard;
 
     public Asset(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
@@ -55,6 +59,7 @@ public class Asset {
             this.name = set.getString("name");
             this.creator = plugin.getSqlManager().getUUID(set, "creator");
             this.autoRotate = set.getBoolean("auto_rotate");
+            this.tags = plugin.getJSONMapper().readValue(set.getString("tags"), HashSet.class);
         } else {
             throw new IllegalArgumentException();
         }
@@ -62,7 +67,7 @@ public class Asset {
 
     public void loadSchematic() throws IOException {
         File file = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
-        ClipboardFormat format = ClipboardFormat.findByFile(file);
+        ClipboardFormat format = ClipboardFormat.SCHEMATIC;
         ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
         this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
     }
@@ -83,6 +88,10 @@ public class Asset {
 
     public UUID getCreator() {
         return creator;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 
     // --- SETTER ---
@@ -119,6 +128,23 @@ public class Asset {
                 )
         ).execute();
         this.autoRotate = autoRotate;
+    }
+
+    public void setTags(Set<String> tags) throws SQLException {
+        plugin.getSqlManager().update(
+                "assets",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "tags", tags
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", this.id
+                        )
+                )
+        ).execute();
+        this.tags = tags;
     }
 
     public void paste(Player player, Vector vector) throws WorldEditException {

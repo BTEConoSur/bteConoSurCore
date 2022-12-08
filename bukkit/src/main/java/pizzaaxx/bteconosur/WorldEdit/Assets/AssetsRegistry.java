@@ -1,9 +1,11 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,8 +20,6 @@ import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.ResultSet;
@@ -31,27 +31,31 @@ import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 public class AssetsRegistry implements Registry<String, Asset> {
 
     private final BTEConoSur plugin;
+    private final FuzzyMatcher matcher;
 
     private final Map<String, Asset> assetsCache = new HashMap<>();
     private final Map<String, Long> deletionCache = new HashMap<>();
 
-    private final DualMap<String, String> idsAndNames = new DualMap<>();
+    private final Map<String, String> names = new HashMap<>();
+    private final Map<String, Set<String>> tags = new HashMap<>();
 
     public AssetsRegistry(BTEConoSur plugin) {
         this.plugin = plugin;
+        this.matcher = new FuzzyMatcher(plugin);
     }
 
-    public void init() throws SQLException {
+    public void init() throws SQLException, JsonProcessingException {
         ResultSet set = plugin.getSqlManager().select(
                 "assets",
                 new SQLColumnSet(
-                        "id", "name"
+                        "id", "name", "tags"
                 ),
                 new SQLConditionSet()
         ).retrieve();
 
         while (set.next()) {
-            idsAndNames.put(set.getString("id"), set.getString("name"));
+            names.put(set.getString("id"), set.getString("name"));
+            tags.put(set.getString("id"), plugin.getJSONMapper().readValue(set.getString("tags"), HashSet.class));
         }
     }
 
@@ -79,7 +83,7 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     @Override
     public boolean exists(String id) {
-        return idsAndNames.containsK(id);
+        return names.containsKey(id);
     }
 
     @Override
@@ -94,11 +98,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     @Override
     public Set<String> getIds() {
-        return idsAndNames.getKs();
+        return names.keySet();
     }
 
     public Set<String> getNames() {
-        return idsAndNames.getVs();
+        return new HashSet<>(names.values());
     }
 
     @Override
@@ -118,11 +122,11 @@ public class AssetsRegistry implements Registry<String, Asset> {
     }
 
     public String getName(String id) {
-        return idsAndNames.getV(id);
+        return names.get(id);
     }
 
     public String create(String name, @NotNull Clipboard clipboard, Vector origin, UUID creator) throws IOException, SQLException {
-        String id = StringUtils.generateCode(8, this.getIds(), LOWER_CASE);
+        String id = StringUtils.generateCode(6, this.getIds(), LOWER_CASE);
         File output = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
         clipboard.setOrigin(origin);
         ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(Files.newOutputStream(output.toPath()));
@@ -144,7 +148,8 @@ public class AssetsRegistry implements Registry<String, Asset> {
                         )
                 )
         ).execute();
-        idsAndNames.put(id, name);
+        names.put(id, name);
+        tags.put(id, new HashSet<>());
         return id;
     }
 
@@ -154,43 +159,65 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     public List<String> getSearch(@Nullable String input) {
         if (input == null) {
-            List<String> names = new ArrayList<>(this.getNames());
-            Collections.sort(names);
+            List<Map.Entry<String, String>> entries = new ArrayList<>(names.entrySet());
+            entries.sort(Map.Entry.comparingByValue());
             List<String> ids = new ArrayList<>();
-            for (String name : names) {
-                ids.add(idsAndNames.getK(name));
+            for (Map.Entry<String, String> entry : entries) {
+                ids.add(entry.getKey());
             }
             return ids;
         } else {
-            Map<String, Double> finalValues = new HashMap<>();
-            for (String id : this.getIds()) {
-                String name = this.getName(id);
-
-                FuzzyMatcher matcher = plugin.getFuzzyMatcher();
-
-                int wholeWordDiff = matcher.getDistance(name, input) + 1;
-                double numerator = 0;
-                double count = 0;
-                for (String word : input.split(" ")) {
-                    numerator += matcher.getMinimumDistance(name, word);
-                    count++;
-                }
-                double wordAverage = (numerator / count) + 1;
-                double finalMatch = wordAverage * wholeWordDiff;
-                if (finalMatch < 500) {
-                    plugin.log(name + " " + finalMatch); // DEBUG
-                    finalValues.put(id, finalMatch);
-                }
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>();
+            for (Map.Entry<String, String> entry : names.entrySet()) {
+                entries.add(
+                        new AbstractMap.SimpleEntry<>(
+                                entry.getKey(), this.getMatchDistance(entry.getValue(), tags.get(entry.getKey()), input)
+                        )
+                );
             }
-
-            List<Map.Entry<String, Double>> entries = new ArrayList<>(finalValues.entrySet());
             entries.sort(Map.Entry.comparingByValue());
-
-            List<String> result = new ArrayList<>();
-            for (Map.Entry<String, Double> entry : entries) {
-                result.add(entry.getKey());
+            List<String> ids = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : entries) {
+                ids.add(entry.getKey());
             }
-            return result;
+            return ids;
         }
+    }
+
+
+    private int getMatchDistance(String nameWithAccents, Set<String> tags, String inputWithAccents) {
+        // palo de luz piedra
+
+        // Poste de Luz
+        // #piedra #luz #yunque
+
+        // input~name * (sum(min(inputWord~name)) / tagsMatched
+
+        String name = this.removeAccents(nameWithAccents).toLowerCase();
+        String input = this.removeAccents(inputWithAccents).toLowerCase();
+
+        int wholeWordDistance = matcher.getDistance(name, input);
+
+        int wordByWordSum = 0;
+        int tagsMatched = 1;
+        for (String word : input.split(" ")) {
+            wordByWordSum += matcher.getMinimumDistance(name, word);
+            for (String tag : tags) {
+                if (matcher.getDistance(tag, word) < 2) {
+                    tagsMatched++;
+                }
+            }
+        }
+
+        return wholeWordDistance * wordByWordSum / tagsMatched;
+    }
+
+    private String removeAccents(String input) {
+        String[] accents = {"Á", "É", "Í", "Ó", "Ú", "á", "é", "í", "ó", "ú"};
+        String result = input;
+        for (String accent : accents) {
+            result = input.replace(accent, "");
+        }
+        return result;
     }
 }
