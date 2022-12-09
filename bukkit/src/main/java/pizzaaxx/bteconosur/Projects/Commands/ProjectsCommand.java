@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur.Projects.Commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,10 +14,8 @@ import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -91,7 +88,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                         .build(),
                                 emptySlots[i]
                         );
-                        gui.setAction(
+                        gui.setLCAction(
                                 event -> {
                                     this.openManageInventory(p, id);
                                 },
@@ -143,7 +140,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                 ),
                 10);
         if (!project.isPending()) {
-            manageGUI.setAction( // TRANSFERIR
+            manageGUI.setLCAction( // TRANSFERIR
                     event -> {
                         int [] transferMemberSlots = InventoryGUI.getIntInRange(9, 53);
                         InventoryGUI transferGUI = new InventoryGUI(
@@ -177,7 +174,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                         ),
                                         transferMemberSlots[i]
                                 );
-                                transferGUI.setAction(
+                                transferGUI.setLCAction(
                                         event1 -> {
                                             InventoryGUI confirmTransferGUI = new InventoryGUI(
                                                     1,
@@ -191,7 +188,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                     ),
                                                     3
                                             );
-                                            confirmTransferGUI.setAction(
+                                            confirmTransferGUI.setLCAction(
                                                     event2 -> {
                                                         event2.closeGUI();
                                                         try {
@@ -212,7 +209,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                     ),
                                                     5
                                             );
-                                            confirmTransferGUI.setAction(
+                                            confirmTransferGUI.setLCAction(
                                                     event2 -> plugin.getInventoryHandler().open(player, transferGUI),
                                                     5
                                             );
@@ -252,7 +249,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     ),
                     28
             );
-            manageGUI.setAction(
+            manageGUI.setLCAction(
                     new InventoryAction() {
                         @Override
                         public void exec(InventoryGUIClickEvent event) {
@@ -276,7 +273,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     ),
                                     5
                             );
-                            confirmFinishGUI.setAction(
+                            confirmFinishGUI.setLCAction(
                                     new InventoryAction() {
                                         @Override
                                         public void exec(InventoryGUIClickEvent event) {

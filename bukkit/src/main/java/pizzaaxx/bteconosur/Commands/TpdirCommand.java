@@ -1,7 +1,5 @@
 package pizzaaxx.bteconosur.Commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sk89q.worldedit.Vector;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,7 +7,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Geo.Coords2D;
@@ -18,10 +15,8 @@ import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +85,7 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                                 realSlot
                         );
                         int finalI = i;
-                        gui.setAction(
+                        gui.setLCAction(
                                 event -> {
                                     event.getPlayer().closeInventory();
                                     Coords2D coord = coordOptions.get(finalI);

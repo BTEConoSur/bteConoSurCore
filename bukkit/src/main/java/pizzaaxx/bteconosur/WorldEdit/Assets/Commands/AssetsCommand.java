@@ -18,8 +18,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Inventory.InventoryAction;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
+import pizzaaxx.bteconosur.Inventory.InventoryGUIClickEvent;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 
@@ -342,20 +345,63 @@ public class AssetsCommand implements CommandExecutor {
                         int listIndex = i + (45 * (page - 1));
                         int inventoryIndex = i + 9;
                         Asset asset = plugin.getAssetsRegistry().get(ids.get(listIndex));
+                        WorldEditManager manager = s.getWorldEditManager();
                         ItemStack head = ItemBuilder.head(
                                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
-                                "§a" + asset.getName(),
+                                (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
                                 new ArrayList<>(
                                         Arrays.asList(
                                                 "§fID: §7" + asset.getId(),
                                                 "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
                                                 "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):"")
+                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                "",
+                                                "§7Haz click derecho para " + (manager.isFavourite(asset.getId()) ? "§celiminar§7 de" : "§aagregar§f a") + " favoritos."
                                         )
                                 )
                         );
                         gui.setItem(head, inventoryIndex);
                         gui.setDraggable(inventoryIndex);
+                        gui.setRCAction(
+                                event -> {
+                                    try {
+                                        if (manager.isFavourite(asset.getId())) {
+                                            manager.removeFavAsset(asset.getId());
+                                            event.updateSlot("§a" + asset.getName());
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§7Haz click derecho para §aagregar§7 a favoritos."
+                                                            )
+                                                    )
+                                            );
+                                        } else {
+                                            manager.addFavAsset(asset.getId());
+                                            event.updateSlot("§6" + asset.getName() + " ⭐");
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§7Haz click derecho para §celiminar§7 de favoritos."
+                                                            )
+                                                    )
+                                            );
+                                        }
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                },
+                                inventoryIndex
+                        );
                     }
                     page++;
                 }

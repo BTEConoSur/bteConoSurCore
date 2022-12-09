@@ -13,7 +13,9 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class WorldEditManager {
 
@@ -21,6 +23,7 @@ public class WorldEditManager {
     private final ServerPlayer serverPlayer;
     private int increment;
     private final Map<String, String> presets;
+    private final Set<String> favAssets;
 
     // --- CONSTRUCTOR ---
 
@@ -33,7 +36,8 @@ public class WorldEditManager {
                 "world_edit_managers",
                 new SQLColumnSet(
                         "increment",
-                        "presets"
+                        "presets",
+                        "fav_assets"
                 ),
                 new SQLConditionSet(
                         new SQLOperatorCondition(
@@ -46,6 +50,7 @@ public class WorldEditManager {
 
             this.increment = set.getInt("increment");
             this.presets = plugin.getJSONMapper().readValue(set.getString("presets"), HashMap.class);
+            this.favAssets = plugin.getJSONMapper().readValue(set.getString("fav_assets"), HashSet.class);
 
         } else {
             plugin.getSqlManager().insert(
@@ -58,6 +63,7 @@ public class WorldEditManager {
             ).execute();
             this.increment = 1;
             this.presets = new HashMap<>();
+            this.favAssets = new HashSet<>();
         }
     }
 
@@ -130,5 +136,47 @@ public class WorldEditManager {
                         )
                 )
         ).execute();
+    }
+
+    public Set<String> getFavAssets() {
+        return favAssets;
+    }
+
+    public void addFavAsset(String id) throws SQLException {
+        this.favAssets.add(id);
+        plugin.getSqlManager().update(
+                "world_edit_managers",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "fav_assets", this.favAssets
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).execute();
+    }
+
+    public void removeFavAsset(String id) throws SQLException {
+        this.favAssets.remove(id);
+        plugin.getSqlManager().update(
+                "world_edit_managers",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "fav_assets", this.favAssets
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).execute();
+    }
+
+    public boolean isFavourite(String id) {
+        return favAssets.contains(id);
     }
 }

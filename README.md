@@ -44,6 +44,7 @@
 ### Assets
 * ✔️ Pegado
 * ✔️ Rotación
+* ✔️ Marcado de favoritos
 * ✔️ `/asset create <nombre> [-ar]`
 * ✔️ `/asset setOrigin`
 * ✔️ `/asset editName <id> <nuevoNombre>`
@@ -51,8 +52,6 @@
 * ✔️ `/asset settags <id> [etiquetas]`
 * 🕙 `/asset delete <id>`
 * ✔️ `/asset search [texto]`
-* 🕙 `/asset addfav <id>`
-* 🕙 `/asset removefav <id>`
 * 🕙 `/asset fav`
 * 🕙 `/assetgroup create <nombre>`
 * 🕙 `/assetgroup delete <nombre>`

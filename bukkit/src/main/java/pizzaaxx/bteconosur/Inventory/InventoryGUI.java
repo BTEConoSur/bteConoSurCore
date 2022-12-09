@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +21,8 @@ public class InventoryGUI {
     private final Map<Integer, ItemStack> items;
     private final Set<Integer> draggableSlots = new HashSet<>();
     private ItemStack background;
-    private final Map<Integer, InventoryAction> actions;
+    private final Map<Integer, InventoryAction> leftClickActions;
+    private final Map<Integer, InventoryAction> rightClickActions;
     private final Map<Integer, InventoryDataSet> data;
 
 
@@ -36,7 +36,8 @@ public class InventoryGUI {
         this.rows = rows;
         this.title = title;
         this.items = new HashMap<>();
-        this.actions = new HashMap<>();
+        this.leftClickActions = new HashMap<>();
+        this.rightClickActions = new HashMap<>();
         this.data = new HashMap<>();
         this.background = background;
     }
@@ -50,7 +51,8 @@ public class InventoryGUI {
         this.rows = rows;
         this.title = title;
         this.items = new HashMap<>();
-        this.actions = new HashMap<>();
+        this.leftClickActions = new HashMap<>();
+        this.rightClickActions = new HashMap<>();
         this.data = new HashMap<>();
         ItemStack background = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
         ItemMeta meta = background.getItemMeta();
@@ -111,12 +113,18 @@ public class InventoryGUI {
         }
     }
 
-    public void setAction(InventoryAction action, int slot) {
-        actions.put(slot, action);
+    public void setLCAction(InventoryAction action, int slot) {
+        leftClickActions.put(slot, action);
+    }
+    public void setRCAction(InventoryAction action, int slot) {
+        rightClickActions.put(slot, action);
     }
 
-    public void deleteAction(int slot) {
-        actions.remove(slot);
+    public void deleteLCAction(int slot) {
+        leftClickActions.remove(slot);
+    }
+    public void deleteRCAction(int slot) {
+        rightClickActions.remove(slot);
     }
 
     public void setData(String key, Object value, int slot) {
@@ -142,14 +150,14 @@ public class InventoryGUI {
     }
 
     public void setCommand(@NotNull String command, int slot) {
-        this.setAction(
+        this.setLCAction(
                 event -> event.getPlayer().performCommand(command),
                 slot
         );
     }
 
     public void setTP(Location loc, int slot) {
-        this.setAction(
+        this.setLCAction(
                 event -> event.getPlayer().teleport(loc),
                 slot
         );
@@ -161,8 +169,13 @@ public class InventoryGUI {
     }
 
     @Nullable
-    public InventoryAction getAction(int slot) {
-        return actions.get(slot);
+    public InventoryAction getLCAction(int slot) {
+        return leftClickActions.get(slot);
+    }
+
+    @Nullable
+    public InventoryAction getRCAction(int slot) {
+        return rightClickActions.get(slot);
     }
 
     public boolean isDraggable(int slot) {
