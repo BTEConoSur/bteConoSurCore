@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Commands;
 
+import com.google.common.collect.Lists;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
@@ -311,7 +312,6 @@ public class AssetsCommand implements CommandExecutor {
 
             }
             case "search": {
-
                 String input;
                 if (args.length < 2) {
                     input = null;
@@ -321,30 +321,21 @@ public class AssetsCommand implements CommandExecutor {
 
                 List<String> ids = plugin.getAssetsRegistry().getSearch(input);
 
-                int page = 1;
-                int length = ids.size();
-                int totalPages = Math.floorDiv(length, 45) + 1;
-                InventoryGUI gui = new InventoryGUI(
-                        6,
-                        "Assets",
-                        null
-                );
-                gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
-                if (totalPages > 1) {
-                    gui.setItem(
-                            ItemBuilder.head(
-                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
-                                    "§aSiguiente §7(1/" + totalPages + ")",
-                                    null
-                            ),
-                            8
+                List<List<String>> idsLists = Lists.partition(ids, 45);
+                int totalPages = idsLists.size();
+                List<InventoryGUI> pages = new ArrayList<>();
+                for (int i = 0; i < totalPages; i++) {
+                    InventoryGUI gui = new InventoryGUI(
+                            6,
+                            "Assets (" + (i + 1) + "/" + totalPages + ")",
+                            null
                     );
-                }
-                while (length > 45 * (page - 1)) {
-                    for (int i = 0; i < Math.min(45, length - (45 * (page - 1))); i++) {
-                        int listIndex = i + (45 * (page - 1));
-                        int inventoryIndex = i + 9;
-                        Asset asset = plugin.getAssetsRegistry().get(ids.get(listIndex));
+                    gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
+
+                    List<String> pageIDs = idsLists.get(i);
+                    int j = 9;
+                    for (String id : pageIDs) {
+                        Asset asset = plugin.getAssetsRegistry().get(id);
                         WorldEditManager manager = s.getWorldEditManager();
                         ItemStack head = ItemBuilder.head(
                                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
@@ -360,8 +351,9 @@ public class AssetsCommand implements CommandExecutor {
                                         )
                                 )
                         );
-                        gui.setItem(head, inventoryIndex);
-                        gui.setDraggable(inventoryIndex);
+                        gui.setItem(head, j);
+                        gui.setDraggable(j);
+                        int finalI1 = i;
                         gui.setRCAction(
                                 event -> {
                                     try {
@@ -380,6 +372,7 @@ public class AssetsCommand implements CommandExecutor {
                                                             )
                                                     )
                                             );
+                                            pages.set(finalI1, event.getGui());
                                         } else {
                                             manager.addFavAsset(asset.getId());
                                             event.updateSlot("§6" + asset.getName() + " ⭐");
@@ -395,17 +388,169 @@ public class AssetsCommand implements CommandExecutor {
                                                             )
                                                     )
                                             );
+                                            pages.set(finalI1, event.getGui());
                                         }
                                     } catch (SQLException e) {
                                         throw new RuntimeException(e);
                                     }
                                 },
-                                inventoryIndex
+                                j
+                        );
+                        j++;
+                    }
+                    if (i > 0) {
+                        gui.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=",
+                                        "Anterior (" + i + "/" + totalPages + ")",
+                                        null
+                                ),
+                                0
+                        );
+                        int finalI = i;
+                        gui.setLCAction(
+                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI - 1)),
+                                0
                         );
                     }
-                    page++;
+                    if (i + 1 < totalPages) {
+                        gui.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
+                                        "Siguiente (" + (i + 2) + "/" + totalPages + ")",
+                                        null
+                                ),
+                                8
+                        );
+                        int finalI = i;
+                        gui.setLCAction(
+                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI + 1)),
+                                8
+                        );
+                    }
+                    pages.add(gui);
                 }
-                plugin.getInventoryHandler().open(p, gui);
+                plugin.getInventoryHandler().open(p, pages.get(0));
+                break;
+            }
+            case "fav": {
+                List<String> ids = new ArrayList<>(s.getWorldEditManager().getFavAssets());
+                if (ids.isEmpty()) {
+                    p.sendMessage(prefix + "No tienes assets favoritos. Selecciona algunos en §a/asset search§f.");
+                    return true;
+                }
+
+                List<List<String>> idsLists = Lists.partition(ids, 45);
+                int totalPages = idsLists.size();
+                List<InventoryGUI> pages = new ArrayList<>();
+                for (int i = 0; i < totalPages; i++) {
+                    InventoryGUI gui = new InventoryGUI(
+                            6,
+                            "Assets favoritos (" + (i + 1) + "/" + totalPages + ")",
+                            null
+                    );
+                    gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
+
+                    List<String> pageIDs = idsLists.get(i);
+                    int j = 9;
+                    for (String id : pageIDs) {
+                        Asset asset = plugin.getAssetsRegistry().get(id);
+                        WorldEditManager manager = s.getWorldEditManager();
+                        ItemStack head = ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
+                                (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
+                                new ArrayList<>(
+                                        Arrays.asList(
+                                                "§fID: §7" + asset.getId(),
+                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                "",
+                                                "§7Haz click derecho para " + (manager.isFavourite(asset.getId()) ? "§celiminar§7 de" : "§aagregar§f a") + " favoritos."
+                                        )
+                                )
+                        );
+                        gui.setItem(head, j);
+                        gui.setDraggable(j);
+                        int finalI1 = i;
+                        gui.setRCAction(
+                                event -> {
+                                    try {
+                                        if (manager.isFavourite(asset.getId())) {
+                                            manager.removeFavAsset(asset.getId());
+                                            event.updateSlot("§a" + asset.getName());
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§7Haz click derecho para §aagregar§7 a favoritos."
+                                                            )
+                                                    )
+                                            );
+                                            pages.set(finalI1, event.getGui());
+                                        } else {
+                                            manager.addFavAsset(asset.getId());
+                                            event.updateSlot("§6" + asset.getName() + " ⭐");
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§7Haz click derecho para §celiminar§7 de favoritos."
+                                                            )
+                                                    )
+                                            );
+                                            pages.set(finalI1, event.getGui());
+                                        }
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                },
+                                j
+                        );
+                        j++;
+                    }
+                    if (i > 0) {
+                        gui.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=",
+                                        "Anterior (" + i + "/" + totalPages + ")",
+                                        null
+                                ),
+                                0
+                        );
+                        int finalI = i;
+                        gui.setLCAction(
+                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI - 1)),
+                                0
+                        );
+                    }
+                    if (i + 1 < totalPages) {
+                        gui.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
+                                        "Siguiente (" + (i + 2) + "/" + totalPages + ")",
+                                        null
+                                ),
+                                8
+                        );
+                        int finalI = i;
+                        gui.setLCAction(
+                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI + 1)),
+                                8
+                        );
+                    }
+                    pages.add(gui);
+                }
+                plugin.getInventoryHandler().open(p, pages.get(0));
+                break;
             }
         }
         return true;

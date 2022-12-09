@@ -53,23 +53,37 @@ public class InventoryGUIClickEvent {
     }
 
     public void updateSlot(ItemStack stack) {
+        this.updateSlot(stack, slot);
+    }
+
+    public void updateSlot(String name){
+        this.updateSlot(name, slot);
+    }
+
+    public void updateSlot(List<String> lore) {
+        this.updateSlot(lore, slot);
+    }
+
+    public void updateSlot(ItemStack stack, int slot) {
         inventory.setItem(slot, stack);
         gui.setItem(stack, slot);
     }
 
-    public void updateSlot(String name) {
+    public void updateSlot(String name, int slot) {
         ItemStack stack = inventory.getItem(slot);
         ItemMeta meta = stack.getItemMeta();
         meta.setDisplayName(name);
         stack.setItemMeta(meta);
         inventory.setItem(slot, stack);
+        gui.setItem(stack, slot);
     }
 
-    public void updateSlot(List<String> lore) {
+    public void updateSlot(List<String> lore, int slot) {
         ItemStack stack = inventory.getItem(slot);
         ItemMeta meta = stack.getItemMeta();
         meta.setLore(lore);
         stack.setItemMeta(meta);
         inventory.setItem(slot, stack);
+        gui.setItem(stack, slot);
     }
 }

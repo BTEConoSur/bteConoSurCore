@@ -52,7 +52,7 @@
 * ✔️ `/asset settags <id> [etiquetas]`
 * 🕙 `/asset delete <id>`
 * ✔️ `/asset search [texto]`
-* 🕙 `/asset fav`
+* ✔️ `/asset fav`
 * 🕙 `/assetgroup create <nombre>`
 * 🕙 `/assetgroup delete <nombre>`
 * 🕙 `/assetgroup add <nombre> <id>`
