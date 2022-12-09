@@ -19,9 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Inventory.InventoryAction;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
-import pizzaaxx.bteconosur.Inventory.InventoryGUIClickEvent;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -338,7 +336,7 @@ public class AssetsCommand implements CommandExecutor {
                         Asset asset = plugin.getAssetsRegistry().get(id);
                         WorldEditManager manager = s.getWorldEditManager();
                         ItemStack head = ItemBuilder.head(
-                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
+                                this.getHeadValue(asset.getId()),
                                 (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
                                 new ArrayList<>(
                                         Arrays.asList(
@@ -457,7 +455,7 @@ public class AssetsCommand implements CommandExecutor {
                         Asset asset = plugin.getAssetsRegistry().get(id);
                         WorldEditManager manager = s.getWorldEditManager();
                         ItemStack head = ItemBuilder.head(
-                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
+                                this.getHeadValue(asset.getId()),
                                 (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
                                 new ArrayList<>(
                                         Arrays.asList(
@@ -554,5 +552,24 @@ public class AssetsCommand implements CommandExecutor {
             }
         }
         return true;
+    }
+
+    private final List<String> headOptions = new ArrayList<>(
+            Arrays.asList(
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGYwZWYxNjc0YjcxZjhkYWQ3ZjU4ODJmMTNjZjI0MTE2NTNmNmEyZjllOTBlNDViMTgxZjQ0YjllZWYyNzhmZiJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTNjMjQ3YjBkODJkZDg3MTQ4Yzk2NTZhNDJlMDI0MDcwYzQ1OTcwZTExNDlmZGM1NTNlZjYzNjBmMjc5OWM2YyJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDhlZGYwYzMxODYyNDM2M2MzMzI2YTY3NzQ1MmY5ZTk0MGNiNjk3NjMwNWY3NTg3NWFlMzMwZDE1ZDE1N2FlNCJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODBjNDUyOGU2MjJiZDMxODcyMGQzOGUwZTQ1OTllNjliZjIzMzA4Zjg5NjkzOTIwZTBlNGVjYjU1ZDFjMGJhYyJ9fX0="
+            )
+    );
+
+    private String getHeadValue(@NotNull String id) {
+        int sum = 0;
+        for (char character : id.toCharArray()) {
+            sum += character;
+        }
+        int option = sum % 5;
+        return headOptions.get(option);
     }
 }
