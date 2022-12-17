@@ -22,7 +22,9 @@ public class InventoryGUI {
     private final Set<Integer> draggableSlots = new HashSet<>();
     private ItemStack background;
     private final Map<Integer, InventoryAction> leftClickActions;
+    private final Map<Integer, InventoryAction> shiftLeftClickActions;
     private final Map<Integer, InventoryAction> rightClickActions;
+    private final Map<Integer, InventoryAction> shiftRightClickActions;
     private final Map<Integer, InventoryDataSet> data;
 
 
@@ -37,7 +39,9 @@ public class InventoryGUI {
         this.title = title;
         this.items = new HashMap<>();
         this.leftClickActions = new HashMap<>();
+        this.shiftLeftClickActions = new HashMap<>();
         this.rightClickActions = new HashMap<>();
+        this.shiftRightClickActions = new HashMap<>();
         this.data = new HashMap<>();
         this.background = background;
     }
@@ -52,7 +56,9 @@ public class InventoryGUI {
         this.title = title;
         this.items = new HashMap<>();
         this.leftClickActions = new HashMap<>();
+        this.shiftLeftClickActions = new HashMap<>();
         this.rightClickActions = new HashMap<>();
+        this.shiftRightClickActions = new HashMap<>();
         this.data = new HashMap<>();
         ItemStack background = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
         ItemMeta meta = background.getItemMeta();
@@ -61,63 +67,127 @@ public class InventoryGUI {
         this.background = background;
     }
 
+    /**
+     * Modifies the amount of rows of this GUI.
+     */
     public void setRows(int rows) {
         this.rows = rows;
     }
 
+    /**
+     * Modifies the title of this GUI.
+     */
     public void setTitle(@NotNull String title) {
         this.title = title;
     }
 
+    /**
+     * Modifies the {@link ItemStack} to be used as background on this GUI.
+     */
     public void setBackground(@Nullable ItemStack background) {
         this.background = background;
     }
 
+    /**
+     * Sets an empty slot. This slot won't have an item nor a background.
+     */
     public void setEmptySlot(int slot) {
         items.put(slot, null);
     }
 
+    /**
+     * Sets empty slots. These slots won't have an item nor a background.
+     */
     public void setEmptySlots(@NotNull int... slots) {
         for (int slot : slots) {
             this.setEmptySlot(slot);
         }
     }
 
+    /**
+     * Marks slots as draggable. Draggable slots won't stop the {@link org.bukkit.event.inventory.InventoryClickEvent} and will allow the player to retrieve the item.
+     */
     public void setDraggable(@NotNull int... slots) {
         for (int slot : slots) {
             this.setDraggable(slot);
         }
     }
 
+    /**
+     * Marks a slot as draggable. Draggable slots won't stop the {@link org.bukkit.event.inventory.InventoryClickEvent} and will allow the player to retrieve the item.
+     */
     public void setDraggable(int slot) {
         this.draggableSlots.add(slot);
     }
 
+    /**
+     * Sets an item of this GUI.
+     */
     public void setItem(ItemStack item, int slot) {
         items.put(slot, item);
     }
 
+    /**
+     * Sets the same item to many slots of this GUI.
+     */
     public void setItems(ItemStack itemStack, @NotNull int... slots) {
         for (int slot : slots) {
             this.setItem(itemStack, slot);
         }
     }
 
+    /**
+     * Sets an item of this GUI based on its {@link Material}.
+     */
     public void setItem(Material material, int slot) {
         items.put(slot, new ItemStack(material));
     }
 
+    /**
+     * Set the same item to many slots of this GUI based on its {@link Material}.
+     */
     public void setItems(Material material, @NotNull int... slots) {
         for (int slot : slots) {
             this.setItem(material, slot);
         }
     }
 
+    /**
+     * Defines an {@link InventoryAction} that should be run when a player left-clicks the inventory slot.
+     * If there is no shift-left-click action defined on this slot, this action will also be triggered by shift-left-clicks.
+     * @param action The action that should be run.
+     * @param slot The slot that has to be clicked for this action to run.
+     */
     public void setLCAction(InventoryAction action, int slot) {
         leftClickActions.put(slot, action);
     }
+
+    /**
+     * Defines an {@link InventoryAction} that should be run when a player left-clicks the inventory slot while pressing shift.
+     * @param action The action that should be run.
+     * @param slot The slot that has to be clicked for this action to run.
+     */
+    public void setShiftLCAction(InventoryAction action, int slot) {
+        shiftLeftClickActions.put(slot, action);
+    }
+
+    /**
+     * Defines an {@link InventoryAction} that should be run when a player right-clicks the inventory slot.
+     * If there is no shift-right-click action defined on this slot, this action will also be triggered by shift-right-clicks.
+     * @param action The action that should be run.
+     * @param slot The slot that has to be clicked for this action to run.
+     */
     public void setRCAction(InventoryAction action, int slot) {
         rightClickActions.put(slot, action);
+    }
+
+    /**
+     * Defines an {@link InventoryAction} that should be run when a player right-clicks the inventory slot while pressing shift.
+     * @param action The action that should be run.
+     * @param slot The slot that has to be clicked for this action to run.
+     */
+    public void setShiftRCAction(InventoryAction action, int slot) {
+        shiftRightClickActions.put(slot, action);
     }
 
     public void deleteLCAction(int slot) {
@@ -125,6 +195,14 @@ public class InventoryGUI {
     }
     public void deleteRCAction(int slot) {
         rightClickActions.remove(slot);
+    }
+
+    public void deleteShiftLCAction(int slot) {
+        shiftLeftClickActions.remove(slot);
+    }
+
+    public void deleteShiftRCAction(int slot) {
+        shiftRightClickActions.remove(slot);
     }
 
     public void setData(String key, Object value, int slot) {
@@ -149,6 +227,11 @@ public class InventoryGUI {
         return data.get(slot);
     }
 
+    /**
+     * Shortcut for making the player run a command when left-clicking this slot.
+     * @param command The command that should be run.
+     * @param slot The slot that has to be clicked.
+     */
     public void setCommand(@NotNull String command, int slot) {
         this.setLCAction(
                 event -> event.getPlayer().performCommand(command),
@@ -156,6 +239,11 @@ public class InventoryGUI {
         );
     }
 
+    /**
+     * Shortcut for making the player teleport to a location when left-clicking this slot.
+     * @param loc The location the player should be teleported to.
+     * @param slot The slot that has to be clicked.
+     */
     public void setTP(Location loc, int slot) {
         this.setLCAction(
                 event -> event.getPlayer().teleport(loc),
@@ -172,16 +260,26 @@ public class InventoryGUI {
     public InventoryAction getLCAction(int slot) {
         return leftClickActions.get(slot);
     }
+    public InventoryAction getShiftLCAction(int slot) {
+        return shiftLeftClickActions.get(slot);
+    }
 
     @Nullable
     public InventoryAction getRCAction(int slot) {
         return rightClickActions.get(slot);
+    }
+    public InventoryAction getShiftRCAction(int slot) {
+        return shiftRightClickActions.get(slot);
     }
 
     public boolean isDraggable(int slot) {
         return this.draggableSlots.contains(slot);
     }
 
+    /**
+     * Creates an {@link Inventory} representation of this GUI.
+     * @return The inventory.
+     */
     @NotNull
     public Inventory buildInventory() {
         Inventory inventory = Bukkit.createInventory(
