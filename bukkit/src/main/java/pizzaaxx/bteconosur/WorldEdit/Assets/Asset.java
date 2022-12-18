@@ -68,10 +68,12 @@ public class Asset {
     }
 
     public void loadSchematic() throws IOException {
-        File file = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
-        ClipboardFormat format = ClipboardFormat.SCHEMATIC;
-        ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
-        this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
+        if (this.clipboard == null) {
+            File file = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
+            ClipboardFormat format = ClipboardFormat.SCHEMATIC;
+            ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
+            this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
+        }
     }
 
     // --- GETTER ---

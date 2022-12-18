@@ -26,6 +26,7 @@ public class InventoryGUI {
     private final Map<Integer, InventoryAction> rightClickActions;
     private final Map<Integer, InventoryAction> shiftRightClickActions;
     private final Map<Integer, InventoryDataSet> data;
+    private final Set<Integer> removedLoreLinesOnMove;
 
 
     /**
@@ -44,6 +45,7 @@ public class InventoryGUI {
         this.shiftRightClickActions = new HashMap<>();
         this.data = new HashMap<>();
         this.background = background;
+        this.removedLoreLinesOnMove = new HashSet<>();
     }
 
     /**
@@ -65,6 +67,7 @@ public class InventoryGUI {
         meta.setDisplayName(" ");
         background.setItemMeta(meta);
         this.background = background;
+        this.removedLoreLinesOnMove = new HashSet<>();
     }
 
     /**
@@ -203,6 +206,14 @@ public class InventoryGUI {
 
     public void deleteShiftRCAction(int slot) {
         shiftRightClickActions.remove(slot);
+    }
+
+    public void addRemoveLoreLine(int line) {
+        this.removedLoreLinesOnMove.add(line);
+    }
+
+    public Set<Integer> getRemovedLoreLines() {
+        return removedLoreLinesOnMove;
     }
 
     public void setData(String key, Object value, int slot) {

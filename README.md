@@ -55,8 +55,6 @@
 * ✔️ `/asset fav`
 * 🕙 `/assetgroup create <nombre>`
 * 🕙 `/assetgroup delete <nombre>`
-* 🕙 `/assetgroup add <nombre> <id>`
-* 🕙 `/assetgroup remove <nombre> <id>`
 * 🕙 `/assetgroup list [nombre]`
 ## Administración
 * 🕙 `/donador <nombre>`

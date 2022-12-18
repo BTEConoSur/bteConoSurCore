@@ -10,13 +10,11 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
+import pizzaaxx.bteconosur.WorldEdit.Assets.AssetGroup;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class WorldEditManager {
 
@@ -25,7 +23,7 @@ public class WorldEditManager {
     private int increment;
     private final Map<String, String> presets;
     private final Set<String> favAssets;
-    private final Map<String, Set<String>> assetGroups;
+    private final Map<String, List<String>> assetGroups;
 
     // --- CONSTRUCTOR ---
 
@@ -58,14 +56,16 @@ public class WorldEditManager {
             Map<String, Object> assetGroupsRaw = plugin.getJSONMapper().readValue(set.getString("asset_groups"), HashMap.class);
             boolean changed = false;
             for (Map.Entry<String, Object> entry : assetGroupsRaw.entrySet()) {
-                Set<String> ids =  (Set<String>) entry.getValue();
+                List<String> ids = (List<String>) entry.getValue();
+                List<String> finalIDs = new ArrayList<>();
                 for (String id : ids) {
-                    if (!plugin.getAssetsRegistry().exists(id) || !plugin.getAssetsRegistry().get(id).isAutoRotate()) {
-                        ids.remove(id);
+                    if (plugin.getAssetsRegistry().exists(id) && plugin.getAssetsRegistry().get(id).isAutoRotate()) {
+                        finalIDs.add(id);
+                    } else {
                         changed = true;
                     }
                 }
-                this.assetGroups.put(entry.getKey(), ids);
+                this.assetGroups.put(entry.getKey(), finalIDs);
             }
             if (changed) {
                 plugin.getSqlManager().update(
@@ -207,16 +207,30 @@ public class WorldEditManager {
         return favAssets.contains(id);
     }
 
+    public Map<String, List<String>> getAssetGroups() {
+        return assetGroups;
+    }
+
     public boolean existsAssetGroup(String name) {
         return this.assetGroups.containsKey(name);
     }
 
-    public Set<String> getAssetGroup(String name) {
-        return this.assetGroups.get(name);
+
+
+    public AssetGroup getAssetGroup(String name) {
+        if (this.assetGroups.containsKey(name)) {
+            return new AssetGroup(
+                    plugin,
+                    serverPlayer.getUUID(),
+                    name,
+                    this.assetGroups.get(name)
+            );
+        }
+        return null;
     }
 
     public void createAssetGroup(String name) throws SQLException {
-        this.assetGroups.put(name, new HashSet<>());
+        this.assetGroups.put(name, new ArrayList<>());
         this.updateAssetGroups();
     }
 
@@ -229,7 +243,7 @@ public class WorldEditManager {
 
     public void addAssetToGroup(String name, String id) throws SQLException {
         if (this.existsAssetGroup(name)) {
-            Set<String> ids = this.assetGroups.get(name);
+            List<String> ids = this.assetGroups.get(name);
             if (!ids.contains(id)) {
                 ids.add(id);
                 this.assetGroups.put(name, ids);
@@ -240,7 +254,7 @@ public class WorldEditManager {
 
     public void removeAssetFromGroup(String name, String id) throws SQLException {
         if (this.existsAssetGroup(name)) {
-            Set<String> ids = this.assetGroups.get(name);
+            List<String> ids = this.assetGroups.get(name);
             if (ids.contains(id)) {
                 ids.remove(id);
                 this.assetGroups.put(name, ids);

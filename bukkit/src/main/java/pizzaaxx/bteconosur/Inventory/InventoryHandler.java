@@ -5,12 +5,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class InventoryHandler implements Listener {
 
@@ -31,16 +34,33 @@ public class InventoryHandler implements Listener {
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
         if (openedInventories.containsKey(event.getWhoClicked().getUniqueId())) {
             InventoryGUI gui = openedInventories.get(event.getWhoClicked().getUniqueId());
+            if (event.getClickedInventory() == null) {
+                return;
+            }
             if (event.getClickedInventory().getName().equals(gui.getTitle())) {
                 InventoryAction action;
                 if (event.isLeftClick()) {
                     if (!gui.isDraggable(event.getSlot())) {
                         event.setCancelled(true);
                     }
-                    action = gui.getLCAction(event.getSlot());
+                    if (event.isShiftClick()) {
+                        action = gui.getShiftLCAction(event.getSlot());
+                        if (action == null) {
+                            action = gui.getLCAction(event.getSlot());
+                        }
+                    } else {
+                        action = gui.getLCAction(event.getSlot());
+                    }
                 } else {
                     event.setCancelled(true);
-                    action = gui.getRCAction(event.getSlot());
+                    if (event.isShiftClick()) {
+                        action = gui.getShiftRCAction(event.getSlot());
+                        if (action == null) {
+                            action = gui.getRCAction(event.getSlot());
+                        }
+                    } else {
+                        action = gui.getRCAction(event.getSlot());
+                    }
                 }
                 if (action != null) {
                     InventoryGUIClickEvent clickEvent = new InventoryGUIClickEvent(
@@ -60,6 +80,32 @@ public class InventoryHandler implements Listener {
             InventoryGUI gui = openedInventories.get(event.getPlayer().getUniqueId());
             if (event.getInventory().getName().equals(gui.getTitle())) {
                 openedInventories.remove(event.getPlayer().getUniqueId());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryItemMove(@NotNull InventoryMoveItemEvent event) {
+        InventoryHolder holder = event.getSource().getHolder();
+        if (holder instanceof Player) {
+            Player p = (Player) holder;
+            if (openedInventories.containsKey(p.getUniqueId())) {
+                InventoryGUI gui = openedInventories.get(p.getUniqueId());
+                if (event.getSource().getName().equals(gui.getTitle())) {
+                    if (!gui.getRemovedLoreLines().isEmpty()) {
+                        ItemStack finalStack = new ItemStack(event.getItem());
+                        ItemMeta meta = finalStack.getItemMeta();
+                        if (meta.hasLore()) {
+                            List<String> lore = new ArrayList<>(meta.getLore());
+                            for (int index : gui.getRemovedLoreLines()) {
+                                lore.remove(index);
+                            }
+                            meta.setLore(lore);
+                            finalStack.setItemMeta(meta);
+                            event.setItem(finalStack);
+                        }
+                    }
+                }
             }
         }
     }

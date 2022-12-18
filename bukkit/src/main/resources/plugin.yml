@@ -46,3 +46,5 @@ commands:
     description: Maneja tus warps personales.
   asset:
     description: Maneja los assets.
+  assetgroup:
+    description: Maneja tus grupos de assets.

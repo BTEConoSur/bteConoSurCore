@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Commands;
 
-import com.google.common.collect.Lists;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
@@ -16,20 +15,27 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Inventory.InventoryGUI;
+import pizzaaxx.bteconosur.Inventory.InventoryAction;
+import pizzaaxx.bteconosur.Inventory.InventoryGUIClickEvent;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Inventory.PaginatedInventoryGUI;
 import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
+import pizzaaxx.bteconosur.WorldEdit.Assets.AssetGroup;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-public class AssetsCommand implements CommandExecutor {
+public class AssetsCommand implements CommandExecutor, Listener {
 
     private final BTEConoSur plugin;
     private final String prefix;
@@ -309,252 +315,170 @@ public class AssetsCommand implements CommandExecutor {
             case "delete": {
 
             }
-            case "search": {
-                String input;
-                if (args.length < 2) {
-                    input = null;
-                } else {
-                    input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                }
-
-                List<String> ids = plugin.getAssetsRegistry().getSearch(input);
-
-                List<List<String>> idsLists = Lists.partition(ids, 45);
-                int totalPages = idsLists.size();
-                List<InventoryGUI> pages = new ArrayList<>();
-                for (int i = 0; i < totalPages; i++) {
-                    InventoryGUI gui = new InventoryGUI(
-                            6,
-                            "Assets (" + (i + 1) + "/" + totalPages + ")",
-                            null
-                    );
-                    gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
-
-                    List<String> pageIDs = idsLists.get(i);
-                    int j = 9;
-                    for (String id : pageIDs) {
-                        Asset asset = plugin.getAssetsRegistry().get(id);
-                        WorldEditManager manager = s.getWorldEditManager();
-                        ItemStack head = ItemBuilder.head(
-                                this.getHeadValue(asset.getId()),
-                                (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
-                                new ArrayList<>(
-                                        Arrays.asList(
-                                                "§fID: §7" + asset.getId(),
-                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                "",
-                                                "§7Haz click derecho para " + (manager.isFavourite(asset.getId()) ? "§celiminar§7 de" : "§aagregar§f a") + " favoritos."
-                                        )
-                                )
-                        );
-                        gui.setItem(head, j);
-                        gui.setDraggable(j);
-                        int finalI1 = i;
-                        gui.setRCAction(
-                                event -> {
-                                    try {
-                                        if (manager.isFavourite(asset.getId())) {
-                                            manager.removeFavAsset(asset.getId());
-                                            event.updateSlot("§a" + asset.getName());
-                                            event.updateSlot(
-                                                    new ArrayList<>(
-                                                            Arrays.asList(
-                                                                    "§fID: §7" + asset.getId(),
-                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                    "",
-                                                                    "§7Haz click derecho para §aagregar§7 a favoritos."
-                                                            )
-                                                    )
-                                            );
-                                            pages.set(finalI1, event.getGui());
-                                        } else {
-                                            manager.addFavAsset(asset.getId());
-                                            event.updateSlot("§6" + asset.getName() + " ⭐");
-                                            event.updateSlot(
-                                                    new ArrayList<>(
-                                                            Arrays.asList(
-                                                                    "§fID: §7" + asset.getId(),
-                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                    "",
-                                                                    "§7Haz click derecho para §celiminar§7 de favoritos."
-                                                            )
-                                                    )
-                                            );
-                                            pages.set(finalI1, event.getGui());
-                                        }
-                                    } catch (SQLException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                },
-                                j
-                        );
-                        j++;
-                    }
-                    if (i > 0) {
-                        gui.setItem(
-                                ItemBuilder.head(
-                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=",
-                                        "Anterior (" + i + "/" + totalPages + ")",
-                                        null
-                                ),
-                                0
-                        );
-                        int finalI = i;
-                        gui.setLCAction(
-                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI - 1)),
-                                0
-                        );
-                    }
-                    if (i + 1 < totalPages) {
-                        gui.setItem(
-                                ItemBuilder.head(
-                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
-                                        "Siguiente (" + (i + 2) + "/" + totalPages + ")",
-                                        null
-                                ),
-                                8
-                        );
-                        int finalI = i;
-                        gui.setLCAction(
-                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI + 1)),
-                                8
-                        );
-                    }
-                    pages.add(gui);
-                }
-                plugin.getInventoryHandler().open(p, pages.get(0));
-                break;
-            }
+            case "search": {}
             case "fav": {
-                List<String> ids = new ArrayList<>(s.getWorldEditManager().getFavAssets());
+                List<String> ids;
+                WorldEditManager manager = s.getWorldEditManager();
+                if (args[0].equalsIgnoreCase("search")) {
+                    String input;
+                    if (args.length < 2) {
+                        input = null;
+                    } else {
+                        input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                    }
+                    ids = plugin.getAssetsRegistry().getSearch(input);
+                } else {
+                    ids = new ArrayList<>(manager.getFavAssets());
+                }
                 if (ids.isEmpty()) {
                     p.sendMessage(prefix + "No tienes assets favoritos. Selecciona algunos en §a/asset search§f.");
                     return true;
                 }
 
-                List<List<String>> idsLists = Lists.partition(ids, 45);
-                int totalPages = idsLists.size();
-                List<InventoryGUI> pages = new ArrayList<>();
-                for (int i = 0; i < totalPages; i++) {
-                    InventoryGUI gui = new InventoryGUI(
-                            6,
-                            "Assets favoritos (" + (i + 1) + "/" + totalPages + ")",
-                            null
+                PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                        6,
+                        "Assets favoritos"
+                );
+                gui.setDraggable(true);
+                for (String id : ids) {
+                    Asset asset = plugin.getAssetsRegistry().get(id);
+                    ItemStack head = ItemBuilder.head(
+                            this.getAssetHeadValue(asset.getId()),
+                            (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
+                            new ArrayList<>(
+                                    Arrays.asList(
+                                            "§fID: §7" + asset.getId(),
+                                            "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                            "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                            (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                            "",
+                                            "§7Haz click derecho para " + (manager.isFavourite(asset.getId()) ? "§celiminar§7 de" : "§aagregar§f a") + " favoritos.",
+                                            (asset.isAutoRotate() ? "§7Haz click derecho más shift para agregar el §oasset§7 a un grupo." : "§8No puedes agregar §oassets§8 con rotación manual a grupos.")
+                                    )
+                            )
                     );
-                    gui.setItems(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 15).name(" ").build(), 0, 1, 2, 3, 4, 5, 6, 7, 8);
-
-                    List<String> pageIDs = idsLists.get(i);
-                    int j = 9;
-                    for (String id : pageIDs) {
-                        Asset asset = plugin.getAssetsRegistry().get(id);
-                        WorldEditManager manager = s.getWorldEditManager();
-                        ItemStack head = ItemBuilder.head(
-                                this.getHeadValue(asset.getId()),
-                                (s.getWorldEditManager().isFavourite(asset.getId()) ? "§6" + asset.getName() + " ⭐" : "§a" + asset.getName()),
-                                new ArrayList<>(
-                                        Arrays.asList(
-                                                "§fID: §7" + asset.getId(),
-                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                "",
-                                                "§7Haz click derecho para " + (manager.isFavourite(asset.getId()) ? "§celiminar§7 de" : "§aagregar§f a") + " favoritos."
-                                        )
-                                )
-                        );
-                        gui.setItem(head, j);
-                        gui.setDraggable(j);
-                        int finalI1 = i;
-                        gui.setRCAction(
-                                event -> {
-                                    try {
-                                        if (manager.isFavourite(asset.getId())) {
-                                            manager.removeFavAsset(asset.getId());
-                                            event.updateSlot("§a" + asset.getName());
-                                            event.updateSlot(
-                                                    new ArrayList<>(
-                                                            Arrays.asList(
-                                                                    "§fID: §7" + asset.getId(),
-                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                    "",
-                                                                    "§7Haz click derecho para §aagregar§7 a favoritos."
-                                                            )
-                                                    )
-                                            );
-                                            pages.set(finalI1, event.getGui());
-                                        } else {
-                                            manager.addFavAsset(asset.getId());
-                                            event.updateSlot("§6" + asset.getName() + " ⭐");
-                                            event.updateSlot(
-                                                    new ArrayList<>(
-                                                            Arrays.asList(
-                                                                    "§fID: §7" + asset.getId(),
-                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                    "",
-                                                                    "§7Haz click derecho para §celiminar§7 de favoritos."
-                                                            )
-                                                    )
-                                            );
-                                            pages.set(finalI1, event.getGui());
-                                        }
-                                    } catch (SQLException e) {
-                                        throw new RuntimeException(e);
+                    InventoryAction changeFavAction = event -> {
+                                try {
+                                    if (manager.isFavourite(asset.getId())) {
+                                        manager.removeFavAsset(asset.getId());
+                                        event.updateSlot("§a" + asset.getName());
+                                        event.updateSlot(
+                                                new ArrayList<>(
+                                                        Arrays.asList(
+                                                                "§fID: §7" + asset.getId(),
+                                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                "",
+                                                                "§7Haz click derecho para §aagregar§7 a favoritos.",
+                                                                (asset.isAutoRotate() ? "§7Haz click derecho más shift para agregar el §oasset§7 a un grupo." : "§8No puedes agregar §oassets§8 con rotación manual a grupos.")
+                                                        )
+                                                )
+                                        );
+                                    } else {
+                                        manager.addFavAsset(asset.getId());
+                                        event.updateSlot("§6" + asset.getName() + " ⭐");
+                                        event.updateSlot(
+                                                new ArrayList<>(
+                                                        Arrays.asList(
+                                                                "§fID: §7" + asset.getId(),
+                                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                "",
+                                                                "§7Haz click derecho para §celiminar§7 de favoritos.",
+                                                                (asset.isAutoRotate() ? "§7Haz click derecho más shift para agregar el §oasset§7 a un grupo." : "§8No puedes agregar §oassets§8 con rotación manual a grupos.")
+                                                        )
+                                                )
+                                        );
                                     }
-                                },
-                                j
-                        );
-                        j++;
-                    }
-                    if (i > 0) {
-                        gui.setItem(
-                                ItemBuilder.head(
-                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=",
-                                        "Anterior (" + i + "/" + totalPages + ")",
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            };
+                    InventoryAction addToGroupAction;
+                    if (asset.isAutoRotate()) {
+                        addToGroupAction = event -> {
+                            PaginatedInventoryGUI groupsGUI = new PaginatedInventoryGUI(
+                                    6,
+                                    "Selecciona un grupo para agregar el §oasset"
+                            );
+                            for (String name : manager.getAssetGroups().keySet()) {
+                                AssetGroup group = manager.getAssetGroup(name);
+                                ItemStack groupHead = ItemBuilder.head(
+                                        this.getGroupHeadValue(name),
+                                        "§7Grupo §a" + name,
+                                        Arrays.asList(
+                                                "§a§oAssets§a: §7" + String.join(", ", group.getNames()),
+                                                " ",
+                                                (group.isPart(id) ? "§8El §oasset§8 ya es parte de este grupo" : "§a[+] §7Haz click para agregar el §oasset§7 §a" + asset.getName() + "§7 al grupo")
+                                        )
+                                );
+                                InventoryAction action;
+                                if (!group.isPart(id)) {
+                                    action = groupClickEvent -> {
+                                        try {
+                                            manager.addAssetToGroup(name, id);
+                                            p.sendMessage(prefix + "§oAsset§r §a" + asset.getName() + "§f agregado al grupo §a" + name + "§f.");
+                                            gui.openTo(p, plugin);
+                                        } catch (SQLException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    };
+                                } else {
+                                    action = null;
+                                }
+                                groupsGUI.add(
+                                        groupHead,
+                                        action,
+                                        null,
+                                        null,
                                         null
-                                ),
-                                0
-                        );
-                        int finalI = i;
-                        gui.setLCAction(
-                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI - 1)),
-                                0
-                        );
+                                );
+                            }
+                            groupsGUI.openTo(p, plugin);
+                        };
+                    } else {
+                        addToGroupAction = null;
                     }
-                    if (i + 1 < totalPages) {
-                        gui.setItem(
-                                ItemBuilder.head(
-                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=",
-                                        "Siguiente (" + (i + 2) + "/" + totalPages + ")",
-                                        null
-                                ),
-                                8
-                        );
-                        int finalI = i;
-                        gui.setLCAction(
-                                event -> plugin.getInventoryHandler().open(p, pages.get(finalI + 1)),
-                                8
-                        );
-                    }
-                    pages.add(gui);
+                    gui.add(
+                            head,
+                            null,
+                            null,
+                            changeFavAction,
+                            addToGroupAction
+                    );
                 }
-                plugin.getInventoryHandler().open(p, pages.get(0));
+                gui.addRemovedLoreLine(4);
+                gui.addRemovedLoreLine(5);
+                gui.addRemovedLoreLine(6);
+                gui.openTo(p, plugin);
                 break;
             }
         }
         return true;
     }
 
-    private final List<String> headOptions = new ArrayList<>(
+    private final List<String> assetHeadOptions = new ArrayList<>(
+            Arrays.asList(
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjZjY2Q0MzRlMWQxNTYzNTUzNjNmNDg2ODkyYTkzOTIxNTQ5ZGI1MGEzNDkzMTM1YjRkYjQ5MjM3ZWE0NDVlMiJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTViYWNkMWQ3ZTY3NDZjN2YyNjg4ZDE4NDE3OGM2MjVlNzFjOWFhMTczMWUwMmQ3ZGZlNzg3NDlhNzU0YWY0MSJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzExMDFjNDk4YWFhYzkzZTc2YjhmMTZkMjljYmZhNDczZWQyNGQ5YzZjNzU1NjNjMjdlZWRkNDljOTYzZTk4YiJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjIyMTAwNTFmZjRmZjVhNzM5ZGY5NDUxYzc5YWYwZmQwYTNiMDU1NmMxMzg5M2Y3Yzk2YWY1OTk3ZDAxNjY1MiJ9fX0=",
+                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWQ3OGNjMzkxYWZmYjgwYjJiMzVlYjczNjRmZjc2MmQzODQyNGMwN2U3MjRiOTkzOTZkZWU5MjFmYmJjOWNmIn19fQ=="
+            )
+    );
+
+    private String getAssetHeadValue(@NotNull String id) {
+        int sum = 0;
+        for (char character : id.toCharArray()) {
+            sum += character;
+        }
+        int option = sum % 5;
+        return assetHeadOptions.get(option);
+    }
+
+    private final List<String> groupHeadOptions = new ArrayList<>(
             Arrays.asList(
                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODAzNzYyNTRkNTczNWFiMTU2N2IzZjg3YzdmYmRlNDFkZmM0MTYyMmI2NTEwYjY2N2Q4MmM5ZWZlOGE1Y2VkMSJ9fX0=",
                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGYwZWYxNjc0YjcxZjhkYWQ3ZjU4ODJmMTNjZjI0MTE2NTNmNmEyZjllOTBlNDViMTgxZjQ0YjllZWYyNzhmZiJ9fX0=",
@@ -564,12 +488,33 @@ public class AssetsCommand implements CommandExecutor {
             )
     );
 
-    private String getHeadValue(@NotNull String id) {
+    private String getGroupHeadValue(@NotNull String name) {
         int sum = 0;
-        for (char character : id.toCharArray()) {
+        for (char character : name.toCharArray()) {
             sum += character;
         }
         int option = sum % 5;
-        return headOptions.get(option);
+        return groupHeadOptions.get(option);
+    }
+
+    @EventHandler
+    public void onInventoryClick(@NotNull InventoryClickEvent event) {
+        if (event.getClickedInventory() == null || !event.getInventory().getName().equalsIgnoreCase("container.inventory")) {
+            return;
+        }
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() != Material.SKULL_ITEM || !event.getCurrentItem().hasItemMeta() || !event.getCurrentItem().getItemMeta().hasLore() || !event.getCurrentItem().getItemMeta().getLore().get(0).startsWith("§fID: §7") ||  !event.getCurrentItem().getItemMeta().getLore().get(0).startsWith("§fCreador: §7")) {
+            return;
+        }
+
+        ItemStack stack = new ItemStack(event.getCurrentItem());
+        ItemMeta meta = stack.getItemMeta();
+        List<String> lore = new ArrayList<>(meta.getLore());
+        lore.remove(4);
+        lore.remove(5);
+        lore.remove(6);
+        meta.setLore(lore);
+        stack.setItemMeta(meta);
+
+        event.setCurrentItem(stack);
     }
 }

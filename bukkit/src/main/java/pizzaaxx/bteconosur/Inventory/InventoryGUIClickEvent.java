@@ -36,7 +36,7 @@ public class InventoryGUIClickEvent {
         return player;
     }
 
-    public InventoryGUI getGui() {
+    public InventoryGUI getGUI() {
         return gui;
     }
 

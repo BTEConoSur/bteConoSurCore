@@ -45,6 +45,7 @@ import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
@@ -96,7 +97,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return playerRegistry;
     }
 
-    private AssetsRegistry assetsRegistry = new AssetsRegistry(this);
+    private final AssetsRegistry assetsRegistry = new AssetsRegistry(this);
 
     public AssetsRegistry getAssetsRegistry() {
         return assetsRegistry;
@@ -281,6 +282,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("/polywalls").setExecutor(new PolywallsCommand(this));
         getCommand("pwarp").setExecutor(new PWarpsCommand(this));
         getCommand("asset").setExecutor(new AssetsCommand(this));
+        getCommand("assetgroup").setExecutor(new AssetGroupCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

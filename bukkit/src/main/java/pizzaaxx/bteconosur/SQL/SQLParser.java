@@ -57,7 +57,7 @@ public class SQLParser {
 
             int counter = 1;
             for (Map.Entry<?,?> entry : map.entrySet()) {
-                builder.append("\"").append(SQLParser.getString(entry.getKey())).append("\": ").append(SQLParser.getString(entry.getValue(), true));
+                builder.append(SQLParser.getString(entry.getKey(), true)).append(": ").append(SQLParser.getString(entry.getValue(), true));
                 if (counter < size) {
                     builder.append(", ");
                 }
