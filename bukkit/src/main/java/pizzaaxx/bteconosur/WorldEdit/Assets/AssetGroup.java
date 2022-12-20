@@ -5,6 +5,7 @@ import com.sk89q.worldedit.WorldEditException;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSur;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -58,8 +59,9 @@ public class AssetGroup {
      * @param vector Where to paste de asset.
      * @throws WorldEditException
      */
-    public void paste(Player player, Vector vector) throws WorldEditException {
+    public void paste(Player player, Vector vector) throws WorldEditException, IOException {
         Asset asset = plugin.getAssetsRegistry().get(ids.get(random.nextInt(ids.size())));
+        asset.loadSchematic();
         asset.paste(
                 player,
                 vector,

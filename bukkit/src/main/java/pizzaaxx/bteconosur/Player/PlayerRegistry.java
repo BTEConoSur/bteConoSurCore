@@ -11,9 +11,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerRegistry { // REGISTRO CIVIL XD
 
@@ -63,6 +61,10 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         } catch (SQLException e) {
             return false;
         }
+    }
+
+    public Collection<ServerPlayer> getLoadedPlayers() {
+        return cache.values();
     }
 
     public void load(UUID uuid) {

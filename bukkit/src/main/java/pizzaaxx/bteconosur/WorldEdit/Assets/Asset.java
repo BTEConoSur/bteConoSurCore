@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
@@ -14,6 +15,7 @@ import org.bukkit.Rotation;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -117,7 +119,7 @@ public class Asset {
         this.name = nuevoNombre;
     }
 
-    public void setAutoRotate(boolean autoRotate) throws SQLException {
+    public void setAutoRotate(boolean autoRotate) throws SQLException, JsonProcessingException {
         plugin.getSqlManager().update(
                 "assets",
                 new SQLValuesSet(
@@ -132,6 +134,9 @@ public class Asset {
                 )
         ).execute();
         this.autoRotate = autoRotate;
+        for (ServerPlayer s : plugin.getPlayerRegistry().getLoadedPlayers()) {
+            s.getWorldEditManager().checkAssetsGroups();
+        }
     }
 
     public void setTags(Set<String> tags) throws SQLException {

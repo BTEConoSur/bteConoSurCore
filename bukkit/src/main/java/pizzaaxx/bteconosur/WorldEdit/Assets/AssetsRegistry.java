@@ -10,9 +10,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Registry.Registry;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DualMap;
@@ -155,8 +157,24 @@ public class AssetsRegistry implements Registry<String, Asset> {
         return id;
     }
 
-    public void delete(String id) {
+    public void delete(String id) throws SQLException, JsonProcessingException {
 
+        this.unload(id);
+        this.names.remove(id);
+        this.tags.remove(id);
+
+        plugin.getSqlManager().delete(
+                "assets",
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", id
+                        )
+                )
+        ).execute();
+
+        for (ServerPlayer s : plugin.getPlayerRegistry().getLoadedPlayers()) {
+            s.getWorldEditManager().checkAssetsGroups();
+        }
     }
 
     public List<String> getSearch(@Nullable String input) {

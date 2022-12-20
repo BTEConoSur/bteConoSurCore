@@ -14,13 +14,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
+import pizzaaxx.bteconosur.WorldEdit.Assets.AssetGroup;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class AssetListener implements Listener {
 
@@ -36,14 +36,20 @@ public class AssetListener implements Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         ItemStack item = event.getItem();
-        if (item != null && item.getType() == Material.SKULL_ITEM) {
+        if (item != null && item.getType() == Material.SKULL_ITEM && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
             if (meta.hasLore()) {
-                String lore = String.join("~", meta.getLore());
+                List<String> lore = meta.getLore();
                 UUID uuid = event.getPlayer().getUniqueId();
-                if (lore.contains("ID:") && lore.contains("Creador:") && lore.contains("Rotación")) {
+                if (lore.get(0).startsWith("§fID: §7") && lore.get(1).startsWith("§fCreador: §7") && lore.get(2).startsWith("§fRotación: §7")) {
                     event.setCancelled(true);
                     String id = ChatColor.stripColor(meta.getLore().get(0)).replace("ID: ", "");
+
+                    if (!plugin.getAssetsRegistry().exists(id)) {
+                        event.getPlayer().sendActionBar("§cEste §oasset§c no existe.");
+                        return;
+                    }
+
                     Asset asset = plugin.getAssetsRegistry().get(id);
                     switch (event.getAction()) {
                         case RIGHT_CLICK_BLOCK: {
@@ -101,6 +107,31 @@ public class AssetListener implements Listener {
 
                             event.getPlayer().sendActionBar("§a§oAsset§a rotado 90° en sentido horario.");
                             break;
+                        }
+                    }
+                } else if (lore.get(0).startsWith("§8Este grupo no tiene §oassets§8 aún.") || lore.get(0).startsWith("§a§oAssets§a: §7")) {
+                    if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                        event.setCancelled(true);
+                        String name = ChatColor.stripColor(meta.getDisplayName()).replace("Grupo ", "");
+                        ServerPlayer s = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+                        WorldEditManager manager = s.getWorldEditManager();
+                        if (!manager.existsAssetGroup(name)) {
+                            event.getPlayer().sendActionBar("§cEste grupo no existe.");
+                            return;
+                        }
+                        AssetGroup group = s.getWorldEditManager().getAssetGroup(name);
+
+                        if (group.getIds().isEmpty()) {
+                            event.getPlayer().sendActionBar("§eEste grupo no tiene §oassets§e.");
+                            return;
+                        }
+
+                        BlockFace face = event.getBlockFace();
+                        Location location = event.getClickedBlock().getLocation().add(face.getModX(), face.getModY(), face.getModZ());
+                        try {
+                            group.paste(event.getPlayer(), new Vector(location.getX(), location.getY(), location.getZ()));
+                        } catch (IOException | WorldEditException e) {
+                            event.getPlayer().sendActionBar("§cHa ocurrido un error.");
                         }
                     }
                 }

@@ -50,12 +50,12 @@
 * ✔️ `/asset editName <id> <nuevoNombre>`
 * ✔️ `/asset editAutoRotate <id> <(true|false)>`
 * ✔️ `/asset settags <id> [etiquetas]`
-* 🕙 `/asset delete <id>`
+* ✔️ `/asset delete <id>`
 * ✔️ `/asset search [texto]`
 * ✔️ `/asset fav`
-* 🕙 `/assetgroup create <nombre>`
-* 🕙 `/assetgroup delete <nombre>`
-* 🕙 `/assetgroup list [nombre]`
+* ✔️ `/assetgroup create <nombre>`
+* ✔️ `/assetgroup delete <nombre>`
+* ✔️ `/assetgroup list [nombre]`
 ## Administración
 * 🕙 `/donador <nombre>`
 * 🕙 `/streamer <nombre>`

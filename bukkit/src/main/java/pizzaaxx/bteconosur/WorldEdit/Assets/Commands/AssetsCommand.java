@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Commands;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
@@ -10,20 +11,15 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Inventory.InventoryAction;
-import pizzaaxx.bteconosur.Inventory.InventoryGUIClickEvent;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Inventory.PaginatedInventoryGUI;
 import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
@@ -35,7 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-public class AssetsCommand implements CommandExecutor, Listener {
+public class AssetsCommand implements CommandExecutor {
 
     private final BTEConoSur plugin;
     private final String prefix;
@@ -44,6 +40,21 @@ public class AssetsCommand implements CommandExecutor, Listener {
     public AssetsCommand(@NotNull BTEConoSur plugin) {
         this.plugin = plugin;
         this.prefix = plugin.getWorldEdit().getPrefix();
+    }
+
+    private final Set<UUID> onCooldown = new HashSet<>();
+
+    private void startCooldown(@NotNull Player player) {
+
+        // TODO ADD GROUP BYPASSES
+
+        onCooldown.add(player.getUniqueId());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                onCooldown.remove(player.getUniqueId());
+            }
+        }.runTaskLaterAsynchronously(plugin, 200);
     }
 
     @Override
@@ -103,6 +114,10 @@ public class AssetsCommand implements CommandExecutor, Listener {
                     return true;
                 }
 
+                if (onCooldown.contains(p.getUniqueId())) {
+                    p.sendMessage(prefix + "Solo puedes crear §oassets§f cada 5 minutos.");
+                    return true;
+                }
 
                 if (args.length < 2) {
                     p.sendMessage(prefix + "Introduce un nombre para el §oasset§r.");
@@ -154,6 +169,8 @@ public class AssetsCommand implements CommandExecutor, Listener {
 
                     try {
                         String id = plugin.getAssetsRegistry().create(name, clipboard, origins.get(p.getUniqueId()), p.getUniqueId());
+                        this.origins.remove(p.getUniqueId());
+                        this.startCooldown(p);
                         p.sendMessage(prefix + "§oAsset§r §a" + name + "§f creado correctamente con la ID §a" + id + "§f.");
                     } catch (SQLException e) {
                         p.sendMessage(prefix + "Ha ocurrido un error en la base de datos.");
@@ -262,7 +279,7 @@ public class AssetsCommand implements CommandExecutor, Listener {
                 try {
                     asset.setAutoRotate(autoRotate);
                     p.sendMessage(prefix + "Rotación automática del §oasset§r establecida en " + (autoRotate ? "§averdadero" : "§cfalso") + "§f.");
-                } catch (SQLException e) {
+                } catch (SQLException | JsonProcessingException e) {
                     p.sendMessage(prefix + "Ha ocurrido un error en la base de datos.");
                 }
 
@@ -314,6 +331,39 @@ public class AssetsCommand implements CommandExecutor, Listener {
             }
             case "delete": {
 
+                if (!s.isBuilder()) {
+                    p.sendMessage(prefix + "Deber haber terminado un proyecto para poder crear §oassets§r.");
+                    return true;
+                }
+
+                if (args.length < 2) {
+                    p.sendMessage(prefix + "Introduce una ID.");
+                    return true;
+                }
+
+                String id = args[1];
+
+                if (!plugin.getAssetsRegistry().exists(id)) {
+                    p.sendMessage(prefix + "No existe un §oasset§r con esa ID.");
+                    return true;
+                }
+
+                Asset asset = plugin.getAssetsRegistry().get(id);
+
+                if (!asset.getCreator().equals(p.getUniqueId())) {
+                    p.sendMessage(prefix + "No eres el creador de este §oasset§r por lo que no puedes eliminarlo.");
+                    return true;
+                }
+
+                try {
+                    plugin.getAssetsRegistry().delete(id);
+                    p.sendMessage(prefix + "Asset §a" + id + "§f eliminado correctamente.");
+                } catch (SQLException | JsonProcessingException e) {
+                    p.sendMessage(prefix + "Ha ocurrido un error en la base de datos.");
+                }
+
+                break;
+
             }
             case "search": {}
             case "fav": {
@@ -337,7 +387,7 @@ public class AssetsCommand implements CommandExecutor, Listener {
 
                 PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
                         6,
-                        "Assets favoritos"
+                        (args[0].equals("search") ? "Resultados de búsqueda" : "Assets favoritos")
                 );
                 gui.setDraggable(true);
                 for (String id : ids) {
@@ -409,7 +459,7 @@ public class AssetsCommand implements CommandExecutor, Listener {
                                         this.getGroupHeadValue(name),
                                         "§7Grupo §a" + name,
                                         Arrays.asList(
-                                                "§a§oAssets§a: §7" + String.join(", ", group.getNames()),
+                                                (group.getIds().isEmpty() ? "§8Este grupo no tiene §oassets§8 aún." : "§a§oAssets§a: §7" + String.join(", ", group.getNames())),
                                                 " ",
                                                 (group.isPart(id) ? "§8El §oasset§8 ya es parte de este grupo" : "§a[+] §7Haz click para agregar el §oasset§7 §a" + asset.getName() + "§7 al grupo")
                                         )
@@ -495,26 +545,5 @@ public class AssetsCommand implements CommandExecutor, Listener {
         }
         int option = sum % 5;
         return groupHeadOptions.get(option);
-    }
-
-    @EventHandler
-    public void onInventoryClick(@NotNull InventoryClickEvent event) {
-        if (event.getClickedInventory() == null || !event.getInventory().getName().equalsIgnoreCase("container.inventory")) {
-            return;
-        }
-        if (event.getCurrentItem() == null || event.getCurrentItem().getType() != Material.SKULL_ITEM || !event.getCurrentItem().hasItemMeta() || !event.getCurrentItem().getItemMeta().hasLore() || !event.getCurrentItem().getItemMeta().getLore().get(0).startsWith("§fID: §7") ||  !event.getCurrentItem().getItemMeta().getLore().get(0).startsWith("§fCreador: §7")) {
-            return;
-        }
-
-        ItemStack stack = new ItemStack(event.getCurrentItem());
-        ItemMeta meta = stack.getItemMeta();
-        List<String> lore = new ArrayList<>(meta.getLore());
-        lore.remove(4);
-        lore.remove(5);
-        lore.remove(6);
-        meta.setLore(lore);
-        stack.setItemMeta(meta);
-
-        event.setCurrentItem(stack);
     }
 }

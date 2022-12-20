@@ -1,15 +1,10 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Commands;
 
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Inventory.InventoryAction;
@@ -22,9 +17,12 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetGroup;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-public class AssetGroupCommand implements CommandExecutor, Listener {
+public class AssetGroupCommand implements CommandExecutor{
 
     private final BTEConoSur plugin;
     private final String prefix;
@@ -47,7 +45,7 @@ public class AssetGroupCommand implements CommandExecutor, Listener {
         WorldEditManager worldEditManager = s.getWorldEditManager();
 
         if (args.length < 1) {
-
+            p.performCommand("assetgroup list");
         } else {
             switch (args[0]) {
                 case "create": {
@@ -114,101 +112,186 @@ public class AssetGroupCommand implements CommandExecutor, Listener {
                         return true;
                     }
 
-                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
-                            6,
-                            "Tus grupos de §oassets"
-                    );
-                    gui.setDraggable(true);
-                    for (String name : groups.keySet()) {
-                        AssetGroup group = worldEditManager.getAssetGroup(name);
-                        gui.add(
-                                ItemBuilder.head(
-                                        this.getGroupHeadValue(name),
-                                        "§7Grupo §a" + name,
-                                        Arrays.asList(
-                                                (group.getIds().isEmpty() ? "§8Este grupo no tiene §oassets§8 aún." : "§a§oAssets§a: §7" + String.join(", ", group.getNames())),
-                                                " ",
-                                                "§7Haz click derecho para ver los §oassets§7 de este grupo"
-                                        )
-                                ),
-                                null,
-                                null,
-                                event -> {
+                    if (args.length == 1) {
 
-                                    PaginatedInventoryGUI groupGUI = new PaginatedInventoryGUI(
-                                            6,
-                                            "§oAssets§r del grupo " + name
-                                    );
-                                    groupGUI.setDraggable(true);
-                                    for (String id : group.getIds()) {
-                                        Asset asset = plugin.getAssetsRegistry().get(id);
-                                        ItemStack head = ItemBuilder.head(
-                                                this.getAssetHeadValue(asset.getId()),
-                                                "§a" + asset.getName(),
-                                                new ArrayList<>(
-                                                        Arrays.asList(
-                                                                "§fID: §7" + asset.getId(),
-                                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                "",
-                                                                "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
-                                                        )
-                                                )
-                                        );
-                                        InventoryAction action = new InventoryAction() {
-                                            @Override
-                                            public void exec(InventoryGUIClickEvent event) {
-                                                try {
-                                                    if (group.isPart(id)) {
-                                                        worldEditManager.removeAssetFromGroup(name, id);
-                                                        event.updateSlot(
-                                                                new ArrayList<>(
-                                                                        Arrays.asList(
-                                                                                "§fID: §7" + asset.getId(),
-                                                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                                "",
-                                                                                "§a[+] §7Haz click derecho para volver a agregar este §oasset§7 al grupo"
-                                                                        )
-                                                                )
-                                                        );
-                                                    } else {
-                                                        worldEditManager.addAssetToGroup(name, id);
-                                                        event.updateSlot(
-                                                                new ArrayList<>(
-                                                                        Arrays.asList(
-                                                                                "§fID: §7" + asset.getId(),
-                                                                                "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
-                                                                                "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
-                                                                                (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
-                                                                                "",
-                                                                                "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
-                                                                        )
-                                                                )
-                                                        );
-                                                    }
-                                                } catch (SQLException e) {
-                                                    throw new RuntimeException(e);
-                                                }
-                                            }
-                                        };
-                                        groupGUI.add(
-                                                head,
-                                                null,
-                                                null,
-                                                action,
-                                                null
-                                        );
-                                        groupGUI.openTo(p, plugin);
-                                    }
-                                },
-                                null
+                        PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                                6,
+                                "Tus grupos de §oassets§r"
                         );
+                        gui.setDraggable(true);
+                        for (String name : groups.keySet()) {
+                            AssetGroup group = worldEditManager.getAssetGroup(name);
+                            gui.add(
+                                    ItemBuilder.head(
+                                            this.getGroupHeadValue(name),
+                                            "§7Grupo §a" + name,
+                                            Arrays.asList(
+                                                    (group.getIds().isEmpty() ? "§8Este grupo no tiene §oassets§8 aún." : "§a§oAssets§a: §7" + String.join(", ", group.getNames())),
+                                                    " ",
+                                                    "§7Haz click derecho para ver los §oassets§7 de este grupo"
+                                            )
+                                    ),
+                                    null,
+                                    null,
+                                    event -> {
+
+                                        PaginatedInventoryGUI groupGUI = new PaginatedInventoryGUI(
+                                                6,
+                                                "§oAssets§r del grupo " + name
+                                        );
+                                        groupGUI.setDraggable(true);
+                                        for (String id : group.getIds()) {
+                                            Asset asset = plugin.getAssetsRegistry().get(id);
+                                            ItemStack head = ItemBuilder.head(
+                                                    this.getAssetHeadValue(asset.getId()),
+                                                    "§a" + asset.getName(),
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
+                                                            )
+                                                    )
+                                            );
+                                            InventoryAction action = new InventoryAction() {
+                                                @Override
+                                                public void exec(InventoryGUIClickEvent event) {
+                                                    try {
+                                                        if (group.isPart(id)) {
+                                                            worldEditManager.removeAssetFromGroup(name, id);
+                                                            event.updateSlot(
+                                                                    new ArrayList<>(
+                                                                            Arrays.asList(
+                                                                                    "§fID: §7" + asset.getId(),
+                                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                                    "",
+                                                                                    "§a[+] §7Haz click derecho para volver a agregar este §oasset§7 al grupo"
+                                                                            )
+                                                                    )
+                                                            );
+                                                        } else {
+                                                            worldEditManager.addAssetToGroup(name, id);
+                                                            event.updateSlot(
+                                                                    new ArrayList<>(
+                                                                            Arrays.asList(
+                                                                                    "§fID: §7" + asset.getId(),
+                                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                                    "",
+                                                                                    "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
+                                                                            )
+                                                                    )
+                                                            );
+                                                        }
+                                                    } catch (SQLException e) {
+                                                        throw new RuntimeException(e);
+                                                    }
+                                                }
+                                            };
+                                            groupGUI.add(
+                                                    head,
+                                                    null,
+                                                    null,
+                                                    action,
+                                                    null
+                                            );
+                                        }
+                                        groupGUI.openTo(p, plugin);
+                                    },
+                                    null
+                            );
+                        }
                         gui.openTo(p, plugin);
+                    } else {
+
+                        String name = args[1];
+
+                        if (!worldEditManager.existsAssetGroup(name)) {
+                            p.sendMessage(prefix + "El grupo introducido no existe.");
+                            return true;
+                        }
+
+                        AssetGroup group = worldEditManager.getAssetGroup(name);
+
+                        PaginatedInventoryGUI groupGUI = new PaginatedInventoryGUI(
+                                6,
+                                "§oAssets§r del grupo " + name
+                        );
+                        groupGUI.setDraggable(true);
+                        for (String id : group.getIds()) {
+                            Asset asset = plugin.getAssetsRegistry().get(id);
+                            ItemStack head = ItemBuilder.head(
+                                    this.getAssetHeadValue(asset.getId()),
+                                    "§a" + asset.getName(),
+                                    new ArrayList<>(
+                                            Arrays.asList(
+                                                    "§fID: §7" + asset.getId(),
+                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                    "",
+                                                    "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
+                                            )
+                                    )
+                            );
+                            InventoryAction action = new InventoryAction() {
+                                @Override
+                                public void exec(InventoryGUIClickEvent event) {
+                                    try {
+                                        if (group.isPart(id)) {
+                                            worldEditManager.removeAssetFromGroup(name, id);
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§a[+] §7Haz click derecho para volver a agregar este §oasset§7 al grupo"
+                                                            )
+                                                    )
+                                            );
+                                        } else {
+                                            worldEditManager.addAssetToGroup(name, id);
+                                            event.updateSlot(
+                                                    new ArrayList<>(
+                                                            Arrays.asList(
+                                                                    "§fID: §7" + asset.getId(),
+                                                                    "§fCreador: §7" + plugin.getPlayerRegistry().get(asset.getCreator()).getName(),
+                                                                    "§fRotación: §7" + (asset.isAutoRotate() ? "Automática" : "Manual"),
+                                                                    (!asset.getTags().isEmpty() ? "§7#" + String.join(" #", asset.getTags()):""),
+                                                                    "",
+                                                                    "§c[-] §7Haz click derecho para eliminar este §oasset§7 del grupo"
+                                                            )
+                                                    )
+                                            );
+                                        }
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            };
+                            groupGUI.add(
+                                    head,
+                                    null,
+                                    null,
+                                    action,
+                                    null
+                            );
+                        }
+                        groupGUI.openTo(p, plugin);
                     }
                     break;
+                }
+                default: {
+                    p.performCommand("assetgroup list " + args[0]);
                 }
             }
         }
@@ -252,35 +335,5 @@ public class AssetGroupCommand implements CommandExecutor, Listener {
         }
         int option = sum % 5;
         return assetHeadOptions.get(option);
-    }
-
-    @EventHandler
-    public void onInventoryClick(@NotNull InventoryClickEvent event) {
-        if (event.getClickedInventory() == null || !event.getInventory().getName().equalsIgnoreCase("container.inventory")) {
-            return;
-        }
-        if (event.getCurrentItem() == null || event.getCurrentItem().getType() != Material.SKULL_ITEM || !event.getCurrentItem().hasItemMeta()) {
-            return;
-        }
-        ItemStack stack = new ItemStack(event.getCurrentItem());
-        ItemMeta meta = stack.getItemMeta();
-
-        if (!meta.hasDisplayName() || !meta.hasLore()) {
-            return;
-        }
-
-        if (meta.getLore().get(0).startsWith("\"§8Este grupo no tiene §oassets§8 aún.\"") || meta.getDisplayName().startsWith("§a§oAssets§a: §7")) {
-            if (meta.getDisplayName().startsWith("§7Grupo §a")) {
-                List<String> lore = new ArrayList<>(meta.getLore());
-                lore.remove(1);
-                lore.remove(2);
-                meta.setLore(lore);
-                stack.setItemMeta(meta);
-
-                event.setCurrentItem(stack);
-            }
-
-        }
-
     }
 }

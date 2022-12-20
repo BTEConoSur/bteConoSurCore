@@ -47,6 +47,7 @@ import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
@@ -202,7 +203,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 this.inventoryHandler,
                 new TeleportEvent(),
                 getCommand,
-                new AssetListener(this)
+                new AssetListener(this),
+                new AssetInventoryListener(this)
         );
 
         this.log("Starting chats...");

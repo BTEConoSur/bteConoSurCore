@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Inventory;
 
+import com.sk89q.worldguard.bukkit.listener.debounce.legacy.InventoryMoveItemEventDebounce;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,6 +39,12 @@ public class InventoryHandler implements Listener {
                 return;
             }
             if (event.getClickedInventory().getName().equals(gui.getTitle())) {
+                if (event.getClick().isKeyboardClick() && !event.isShiftClick()) {
+                    if (!gui.isDraggable(event.getSlot())) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
                 InventoryAction action;
                 if (event.isLeftClick()) {
                     if (!gui.isDraggable(event.getSlot())) {

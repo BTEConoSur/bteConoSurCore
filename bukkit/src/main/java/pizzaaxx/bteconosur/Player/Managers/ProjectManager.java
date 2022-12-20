@@ -66,7 +66,18 @@ public class ProjectManager {
                 points.put(plugin.getCountryManager().get(entry.getKey()), (Integer) entry.getValue());
             }
         } else {
-            throw new SQLException();
+            plugin.getSqlManager().insert(
+                    "project_managers",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "uuid", serverPlayer.getUUID()
+                            )
+                    )
+            );
+            this.adminPermission = new HashSet<>();
+            this.ids = new HashSet<>();
+            this.points = new HashMap<>();
+            this.finished = new HashMap<>();
         }
     }
 

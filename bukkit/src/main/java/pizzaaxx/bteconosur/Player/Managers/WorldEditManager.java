@@ -47,7 +47,7 @@ public class WorldEditManager {
                 )
         ).retrieve();
 
-        if (set.next()) {
+        if (set.next()) { // TODO CREATION OF OTHER MANAGERS
 
             this.increment = set.getInt("increment");
             this.presets = plugin.getJSONMapper().readValue(set.getString("presets"), HashMap.class);
@@ -95,6 +95,57 @@ public class WorldEditManager {
             this.presets = new HashMap<>();
             this.favAssets = new HashSet<>();
             this.assetGroups = new HashMap<>();
+        }
+    }
+
+    // --- FIX ---
+
+    public void checkAssetsGroups() throws SQLException, JsonProcessingException {
+
+        this.assetGroups.clear();
+
+        ResultSet set = plugin.getSqlManager().select(
+                "world_edit_managers",
+                new SQLColumnSet(
+                        "asset_groups"
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            Map<String, Object> assetGroupsRaw = plugin.getJSONMapper().readValue(set.getString("asset_groups"), HashMap.class);
+            boolean changed = false;
+            for (Map.Entry<String, Object> entry : assetGroupsRaw.entrySet()) {
+                List<String> ids = (List<String>) entry.getValue();
+                List<String> finalIDs = new ArrayList<>();
+                for (String id : ids) {
+                    if (plugin.getAssetsRegistry().exists(id) && plugin.getAssetsRegistry().get(id).isAutoRotate()) {
+                        finalIDs.add(id);
+                    } else {
+                        changed = true;
+                    }
+                }
+                this.assetGroups.put(entry.getKey(), finalIDs);
+            }
+            if (changed) {
+                plugin.getSqlManager().update(
+                        "world_edit_managers",
+                        new SQLValuesSet(
+                                new SQLValue(
+                                        "asset_groups", this.assetGroups
+                                )
+                        ),
+                        new SQLConditionSet(
+                                new SQLOperatorCondition(
+                                        "uuid", "=", serverPlayer.getUUID()
+                                )
+                        )
+                ).execute();
+            }
         }
     }
 
