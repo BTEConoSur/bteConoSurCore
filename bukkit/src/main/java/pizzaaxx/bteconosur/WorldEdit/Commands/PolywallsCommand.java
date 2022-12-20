@@ -5,11 +5,13 @@ import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class PolywallsCommand implements CommandExecutor {
         }
 
         Player p = (Player) sender;
+        ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
 
         try {
             List<BlockVector2D> points = plugin.getWorldEdit().getSelectionPoints(p);
@@ -57,20 +60,28 @@ public class PolywallsCommand implements CommandExecutor {
                     BlockVector2D pos1 = finalPoints.get(j);
                     BlockVector2D pos2 = finalPoints.get(j + 1);
 
-                    editSession = plugin.getWorldEdit().setBlocksInLine(
-                            p,
-                            editSession,
-                            pattern,
-                            mask,
-                            pos1.toVector(i),
-                            pos2.toVector(i)
-                    );
+                    for (Vector point : plugin.getWorldEdit().getBlocksInLine(pos1.toVector(i), pos2.toVector(i))) {
+                        if (!s.canBuild(
+                             new Location(
+                                     plugin.getWorld(),
+                                     point.getX(),
+                                     point.getY(),
+                                     point.getZ()
+                             )
+                        )) {
+                            continue;
+                        }
+                        if (mask != null && !(mask.test(point))) {
+                            continue;
+                        }
+                        editSession.setBlock(point, pattern.apply(point));
+                    }
                 }
             }
 
             localSession.remember(editSession);
 
-            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Paredes creadas.");
+            p.sendMessage(plugin.getWorldEdit().getPrefix() + "Paredes creadas. §7Bloques afectados: " + editSession.getBlockChangeCount());
 
         } catch (IncompleteRegionException e) {
             p.sendMessage(plugin.getWorldEdit().getPrefix() + "Este comando solo se puede usar con selecciones cúbicas o poligonales.");

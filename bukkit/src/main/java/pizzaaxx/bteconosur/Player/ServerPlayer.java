@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.Player;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
@@ -87,6 +88,10 @@ public class ServerPlayer {
     }
 
     public boolean isBuilder() {
+        return true;
+    }
+
+    public boolean canBuild(Location loc) {
         return true;
     }
 

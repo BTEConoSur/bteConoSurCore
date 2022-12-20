@@ -48,3 +48,5 @@ commands:
     description: Maneja los assets.
   assetgroup:
     description: Maneja tus grupos de assets.
+  /divide:
+    description: Divide a line into multiple divisions.

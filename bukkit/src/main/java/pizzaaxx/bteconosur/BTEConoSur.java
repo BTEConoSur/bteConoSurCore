@@ -49,6 +49,7 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
+import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
@@ -285,6 +286,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("pwarp").setExecutor(new PWarpsCommand(this));
         getCommand("asset").setExecutor(new AssetsCommand(this));
         getCommand("assetgroup").setExecutor(new AssetGroupCommand(this));
+        getCommand("/divide").setExecutor(new DivideCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

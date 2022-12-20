@@ -34,7 +34,7 @@
 * 🕙 `//terraform (<patrón>|border|inner)`
 * 🕙 `//selundo`
 * 🕙 `//selredo`
-* 🕙 `//divide <cantidad>`
+* ✔️ `//divide <cantidad>`
 * ✔️ `/incremento <cantidad>` 
 ### Presets
 * 🕙 Presets 

@@ -106,7 +106,7 @@ public class WorldEditHandler implements Prefixable {
         return worldEdit.getPatternFactory().parseFromInput(input, context);
     }
 
-    public EditSession setBlocksInLine(Player p, EditSession editSession, Pattern pattern, Mask mask, @NotNull Vector pos1, @NotNull Vector pos2) throws MaxChangedBlocksException {
+    public Set<Vector> getBlocksInLine(@NotNull Vector pos1, @NotNull Vector pos2) {
         Set<Vector> vset = new HashSet<>();
         boolean notdrawn = true;
 
@@ -152,16 +152,7 @@ public class WorldEditHandler implements Prefixable {
                 vset.add(new Vector(tipx, tipy, tipz));
             }
         }
-
-        for (Vector point : vset) {
-            if (mask != null && !(mask.test(point))) {
-                continue;
-            }
-            editSession.setBlock(point, pattern.apply(point));
-        }
-
-        return editSession;
-
+        return vset;
     }
 
 }
