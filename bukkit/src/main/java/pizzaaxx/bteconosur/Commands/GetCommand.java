@@ -1,14 +1,22 @@
 package pizzaaxx.bteconosur.Commands;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.util.ArrayList;
 
@@ -96,5 +104,98 @@ public class GetCommand implements CommandExecutor, Listener {
         plugin.getInventoryHandler().open(p, gui);
 
         return true;
+    }
+
+    @EventHandler
+    public void onClick(@NotNull PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            ItemStack item = event.getItem();
+            if (item != null && item.getType() == Material.SKULL_ITEM && item.hasItemMeta()) {
+                ItemMeta meta = item.getItemMeta();
+                if (meta.hasDisplayName()) {
+                    Material material;
+                    byte metadata;
+                    switch (meta.getDisplayName()) {
+                        case "§a[43:9] §fArenisca Lisa":
+                            material = Material.DOUBLE_STEP;
+                            metadata = 9;
+                            break;
+                        case "§a[181:9] §fArenisca Roja Lisa":
+                            material = Material.DOUBLE_STONE_SLAB2;
+                            metadata = 9;
+                            break;
+                        case "§a[17:12] §fTronco de Roble Entero":
+                            material = Material.LOG;
+                            metadata = 12;
+                            break;
+                        case "§a[17:13] §fTronco de Abeto Entero":
+                            material = Material.LOG;
+                            metadata = 13;
+                            break;
+                        case "§a[17:14] §fTronco de Abedul Entero":
+                            material = Material.LOG;
+                            metadata = 14;
+                            break;
+                        case "§a[17:15] §fTronco de Jungla Entero":
+                            material = Material.LOG;
+                            metadata = 15;
+                            break;
+                        case "§a[162:12] §fTronco de Acacia Entero":
+                            material = Material.LOG_2;
+                            metadata = 12;
+                            break;
+                        case "§a[162:13] §fTronco de Roble Oscuro Entero":
+                            material = Material.LOG_2;
+                            metadata = 13;
+                            break;
+                        case "§a[100:14] §fChampiñón Rojo":
+                            material = Material.HUGE_MUSHROOM_2;
+                            metadata = 14;
+                            break;
+                        case "§a[99:14] §fChampiñón Café":
+                            material = Material.HUGE_MUSHROOM_1;
+                            metadata = 14;
+                            break;
+                        case "§a[99:0 / 100:0] §fChampiñón Interior":
+                            material = Material.HUGE_MUSHROOM_2;
+                            metadata = 0;
+                            break;
+                        case "§a[99:15 / 100:15] §fTallo de Champiñón Entero":
+                            material = Material.HUGE_MUSHROOM_2;
+                            metadata = 15;
+                            break;
+                        case "§a[167:5] §fTrampilla de Hierro Norte":
+                            material = Material.IRON_TRAPDOOR;
+                            metadata = 5;
+                            break;
+                        case "§a[167:4] §fTrampilla de Hierro Sur":
+                            material = Material.IRON_TRAPDOOR;
+                            metadata = 4;
+                            break;
+                        case "§a[167:6] §fTrampilla de Hierro Este":
+                            material = Material.IRON_TRAPDOOR;
+                            metadata = 6;
+                            break;
+                        case "§a[167:7] §fTrampilla de Hierro Oeste":
+                            material = Material.IRON_TRAPDOOR;
+                            metadata = 7;
+                            break;
+                        default:
+                            material = Material.DOUBLE_STEP;
+                            metadata = 8;
+                            break;
+                    }
+                    event.setCancelled(true);
+
+                    ServerPlayer s = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+
+                    Block targetBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+                    if (s.canBuild(targetBlock.getLocation())) {
+                        targetBlock.setType(material);
+                        targetBlock.setData(metadata);
+                    }
+                }
+            }
+        }
     }
 }
