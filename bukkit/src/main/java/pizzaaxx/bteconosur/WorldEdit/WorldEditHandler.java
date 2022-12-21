@@ -65,7 +65,16 @@ public class WorldEditHandler implements Prefixable {
         World selectionWorld = localSession.getSelectionWorld();
 
         return localSession.getSelection(selectionWorld);
+    }
 
+    public Region getIncompleteSelection(Player player){
+        com.sk89q.worldedit.entity.Player actor = this.getWEPlayer(player);
+
+        SessionManager manager = worldEdit.getSessionManager();
+        LocalSession localSession = manager.get(actor);
+        World selectionWorld = localSession.getSelectionWorld();
+
+        return localSession.getRegionSelector(selectionWorld).getIncompleteRegion();
     }
 
     public List<BlockVector2D> getSelectionPoints(Player player) throws IncompleteRegionException {

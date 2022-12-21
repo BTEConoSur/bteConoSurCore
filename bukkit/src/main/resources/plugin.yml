@@ -50,3 +50,9 @@ commands:
     description: Maneja tus grupos de assets.
   /divide:
     description: Divide a line into multiple divisions.
+  /terraform:
+    description: Genera terreno basado en diferentes alturas dentro de un polígono.
+    aliases:
+      - terraform
+      - tf
+      - /tf
