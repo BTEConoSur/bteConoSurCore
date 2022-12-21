@@ -48,6 +48,8 @@ commands:
     description: Maneja los assets.
   assetgroup:
     description: Maneja tus grupos de assets.
+  /assetfill:
+    description: Llena una zona con assets de un grupo.
   /divide:
     description: Divide a line into multiple divisions.
   /terraform:

@@ -44,6 +44,7 @@ import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
+import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
@@ -289,6 +290,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("assetgroup").setExecutor(new AssetGroupCommand(this));
         getCommand("/divide").setExecutor(new DivideCommand(this));
         getCommand("/terraform").setExecutor(new TerraformCommand(this));
+        getCommand("/assetfill").setExecutor(new AssetFillCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

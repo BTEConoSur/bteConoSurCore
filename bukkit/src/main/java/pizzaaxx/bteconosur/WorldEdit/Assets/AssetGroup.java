@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class AssetGroup {
+public class AssetGroup implements AssetHolder {
 
     private final Random random = new Random();
     private final BTEConoSur plugin;
@@ -67,5 +67,10 @@ public class AssetGroup {
                 vector,
                 random.nextInt(4) * 90
         );
+    }
+
+    @Override
+    public Asset select() {
+        return plugin.getAssetsRegistry().get(ids.get(random.nextInt(ids.size())));
     }
 }

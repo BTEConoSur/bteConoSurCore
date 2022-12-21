@@ -97,6 +97,12 @@ public class TerraformCommand implements CommandExecutor {
                 p.sendMessage(prefix + "Alturas guardadas.");
                 break;
             }
+            case "desel": {
+                this.borderRegions.remove(p.getUniqueId());
+                this.heightPoints.remove(p.getUniqueId());
+                p.sendMessage(prefix + "Selección eliminada.");
+                break;
+            }
             default: {
 
                 if (!this.borderRegions.containsKey(p.getUniqueId())) {

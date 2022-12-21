@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class Asset {
+public class Asset implements AssetHolder {
 
     private final BTEConoSur plugin;
 
@@ -76,6 +76,10 @@ public class Asset {
             ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
             this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
         }
+    }
+
+    public Clipboard getClipboard() {
+        return clipboard;
     }
 
     // --- GETTER ---
@@ -172,5 +176,10 @@ public class Asset {
         Operations.complete(operation);
 
         localSession.remember(editSession);
+    }
+
+    @Override
+    public Asset select() {
+        return this;
     }
 }

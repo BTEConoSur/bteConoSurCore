@@ -31,7 +31,11 @@
 ## WorldEdit
 * ✔️ Atajos
 * ✔️ `//polywalls <patrón>`
-* 🕙 `//terraform (<patrón>|border|inner)`
+* ✔️ `//terraform (<patrón>|border|height|desel)`  
+**Cambios:**
+  * El borde ahora se selecciona con `poly`.
+  * Los bordes ya no representan puntos de altura.
+  * Todos los puntos de altura ahora deben ser seleccionados con `convex` y el subcomando `height`.
 * 🕙 `//selundo`
 * 🕙 `//selredo`
 * ✔️ `//divide <cantidad>`
@@ -56,6 +60,14 @@
 * ✔️ `/assetgroup create <nombre>`
 * ✔️ `/assetgroup delete <nombre>`
 * ✔️ `/assetgroup list [nombre]`
+* ✔️ `//assetfill <(nombreGrupo|ID)> <distanciaMínima>`  
+**Comando nuevo:**
+  * Cubre un área poligonal con los assets de un grupo de _assets_ o un _asset_ en específico.
+  * Los assets no se pegarán a menos de la distancia mínima especificada uno del otro.
+  * Si se usa ID, esta debe corresponder si o si a un _asset_ que tenga rotación automática.
+  * Los _assets_ se pegan siempre en el bloque más alto, siempre y cuando esta altura esté contenida dentro de la selección principal.
+  * Si se aplica una máscara global, esta determinará **sobre** qué bloques se pegarán _assets_.
+    * Ejemplo: `//gmask 2` solo permitirá _assets_ **sobre** bloques de pasto.
 ## Administración
 * 🕙 `/donador <nombre>`
 * 🕙 `/streamer <nombre>`
