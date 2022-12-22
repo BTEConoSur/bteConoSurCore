@@ -56,6 +56,7 @@ import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.TerraformCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsListener;
+import pizzaaxx.bteconosur.WorldEdit.Selection.SelUndoRedoCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -163,6 +164,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return notificationsService;
     }
 
+    private final SelUndoRedoCommand selUndoRedoCommand = new SelUndoRedoCommand(this);
+
+    public SelUndoRedoCommand getSelUndoRedoCommand() {
+        return selUndoRedoCommand;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -210,7 +217,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 getCommand,
                 new AssetListener(this),
                 new AssetInventoryListener(this),
-                new PresetsListener(this)
+                new PresetsListener(this),
+                this.selUndoRedoCommand
         );
 
         this.log("Starting chats...");
@@ -295,6 +303,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("/terraform").setExecutor(new TerraformCommand(this));
         getCommand("/assetfill").setExecutor(new AssetFillCommand(this));
         getCommand("preset").setExecutor(new PresetsCommand(this));
+        getCommand("/selredo").setExecutor(this.selUndoRedoCommand);
+        getCommand("/selundo").setExecutor(this.selUndoRedoCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

@@ -24,13 +24,19 @@ public class Shortcuts implements Listener {
             switch (event.getAction()) {
                 case LEFT_CLICK_AIR:
                     if (p.isSneaking()) {
+                        plugin.getSelUndoRedoCommand().onShortcutBefore(p);
                         p.performCommand("/shift " + increment);
+                        plugin.getSelUndoRedoCommand().onShortcutAfter(p);
                     } else {
+                        plugin.getSelUndoRedoCommand().onShortcutBefore(p);
                         p.performCommand("/expand " + increment);
+                        plugin.getSelUndoRedoCommand().onShortcutAfter(p);
                     }
                     break;
                 case RIGHT_CLICK_AIR:
+                    plugin.getSelUndoRedoCommand().onShortcutBefore(p);
                     p.performCommand("/contract " + increment);
+                    plugin.getSelUndoRedoCommand().onShortcutAfter(p);
             }
         }
     }

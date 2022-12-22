@@ -62,3 +62,13 @@ commands:
     description: Pedazos de texto que se reemplazan en comandos.
     aliases:
       - presets
+  /selredo:
+    description: Rehace una selección.
+    aliases:
+      - /sr
+      - /sredo
+  /selundo:
+    description: Deshace una selección.
+    aliases:
+      - /su
+      - /sundo

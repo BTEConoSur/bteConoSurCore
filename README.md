@@ -13,7 +13,7 @@
 * ✔️ `/height`
 * ✔️ `/googlemaps`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
-* ⏳ `/get`
+* ✔️ `/get`
 * 🕙 `/help [comando]`
 * 🕙 `/scoreboard [<tipo>|auto]`
 * 🕙 `/streaming <link>`
@@ -36,8 +36,8 @@
   * El borde ahora se selecciona con `poly`.
   * Los bordes ya no representan puntos de altura.
   * Todos los puntos de altura ahora deben ser seleccionados con `convex` y el subcomando `height`.
-* 🕙 `//selundo`
-* 🕙 `//selredo`
+* ✔️ `//selundo`
+* ✔️ `//selredo`
 * ✔️ `//divide <cantidad>`
 * ✔️ `/incremento <cantidad>` 
 ### Presets
