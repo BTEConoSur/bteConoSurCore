@@ -72,3 +72,7 @@ commands:
     aliases:
       - /su
       - /sundo
+  nightvision:
+    description: Da o quita el efecto de visión nocturna.
+    aliases:
+      - nv
