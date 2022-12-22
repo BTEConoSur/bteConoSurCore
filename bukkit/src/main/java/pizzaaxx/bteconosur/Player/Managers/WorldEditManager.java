@@ -167,6 +167,10 @@ public class WorldEditManager {
         return presets.get(preset);
     }
 
+    public boolean existsPreset(String preset) {
+        return presets.containsKey(preset);
+    }
+
     // --- SET ---
 
     public void setIncrement(int increment) throws SQLException {

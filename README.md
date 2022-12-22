@@ -62,7 +62,7 @@
 * ✔️ `/assetgroup list [nombre]`
 * ✔️ `//assetfill <(nombreGrupo|ID)> <distanciaMínima>`  
 **Comando nuevo:**
-  * Cubre un área poligonal con los assets de un grupo de _assets_ o un _asset_ en específico.
+  * Cubre un área poligonal con los _assets_ de un grupo de _assets_ o un _asset_ en específico.
   * Los assets no se pegarán a menos de la distancia mínima especificada uno del otro.
   * Si se usa ID, esta debe corresponder si o si a un _asset_ que tenga rotación automática.
   * Los _assets_ se pegan siempre en el bloque más alto, siempre y cuando esta altura esté contenida dentro de la selección principal.

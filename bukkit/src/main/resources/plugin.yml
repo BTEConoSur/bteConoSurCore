@@ -58,3 +58,7 @@ commands:
       - terraform
       - tf
       - /tf
+  preset:
+    description: Pedazos de texto que se reemplazan en comandos.
+    aliases:
+      - presets

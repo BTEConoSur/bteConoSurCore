@@ -54,6 +54,7 @@ import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.TerraformCommand;
+import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -291,6 +292,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("/divide").setExecutor(new DivideCommand(this));
         getCommand("/terraform").setExecutor(new TerraformCommand(this));
         getCommand("/assetfill").setExecutor(new AssetFillCommand(this));
+        getCommand("preset").setExecutor(new PresetsCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
