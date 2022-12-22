@@ -55,6 +55,7 @@ import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.TerraformCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsCommand;
+import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsListener;
 import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
@@ -208,7 +209,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new TeleportEvent(),
                 getCommand,
                 new AssetListener(this),
-                new AssetInventoryListener(this)
+                new AssetInventoryListener(this),
+                new PresetsListener(this)
         );
 
         this.log("Starting chats...");

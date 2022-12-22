@@ -41,10 +41,13 @@
 * ✔️ `//divide <cantidad>`
 * ✔️ `/incremento <cantidad>` 
 ### Presets
-* 🕙 Presets 
-* 🕙 `/presets set <nombre> <texto>`
-* 🕙 `/presets delete <nombre>`
-* 🕙 `/presets list`
+* ✔️ Presets  
+**Cambios:**
+  * El preset ahora se usa como `$preset$`. Ahora se puede utilizar el preset dentro de más texto sin ningún problema.
+    * Ejemplo: `//set 1,1:5,$calles$,252:8`
+* ✔️ `/presets set <nombre> <texto>`
+* ✔️ `/presets delete <nombre>`
+* ✔️ `/presets list`
 ### Assets
 * ✔️ Pegado
 * ✔️ Rotación
