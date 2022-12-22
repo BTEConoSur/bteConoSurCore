@@ -119,7 +119,7 @@ public class ProjectManager {
         return points.getOrDefault(country, 0);
     }
 
-    public boolean hasPermission(Country country) {
+    public boolean hasAdminPermission(Country country) {
         return adminPermission.contains(country);
     }
 

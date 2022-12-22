@@ -44,6 +44,7 @@ import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
@@ -168,6 +169,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public SelUndoRedoCommand getSelUndoRedoCommand() {
         return selUndoRedoCommand;
+    }
+
+    private final SatMapHandler satMapHandler = new SatMapHandler(this);
+
+    public SatMapHandler getSatMapHandler() {
+        return satMapHandler;
     }
 
     @Override

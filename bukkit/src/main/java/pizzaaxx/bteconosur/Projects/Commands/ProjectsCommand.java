@@ -1,19 +1,37 @@
 package pizzaaxx.bteconosur.Projects.Commands;
 
+import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldedit.regions.Region;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.*;
+import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
+import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -35,6 +53,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
         Player p = (Player) sender;
         ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+        ProjectManager projectManager = s.getProjectManager();
 
         if (args.length < 1) {
             p.sendMessage(this.getPrefix() + "Introduce un subcomando. Usa §a/help project§f para obtener ayuda.");
@@ -44,6 +63,164 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
         switch (args[0].toLowerCase()) {
             case "create": {
 
+                Region region;
+                try {
+                    region = plugin.getWorldEdit().getSelection(p);
+                } catch (IncompleteRegionException e) {
+                    p.sendMessage(getPrefix() + "Selecciona un área poligonal.");
+                    return true;
+                }
+
+                if (!(region instanceof Polygonal2DRegion)) {
+                    p.sendMessage(getPrefix() + "Selecciona un área poligonal.");
+                    return true;
+                }
+
+                Polygonal2DRegion polyRegion = (Polygonal2DRegion) region;
+
+                Location loc = new Location(plugin.getWorld(), polyRegion.getPoints().get(0).getBlockX(), 100, polyRegion.getPoints().get(0).getBlockZ());
+
+                if (!plugin.getCountryManager().isInsideCountry(loc)) {
+                    p.sendMessage("El área seleccionada no está dentro de ningún país.");
+                    return true;
+                }
+
+                Country country = plugin.getCountryManager().getCountryAt(loc);
+
+                if (projectManager.hasAdminPermission(country)) {
+
+                } else {
+
+                    ResultSet set;
+                    try {
+                        set = plugin.getSqlManager().select(
+                                "project_requests",
+                                new SQLColumnSet(
+                                        "message_id",
+                                        "country"
+                                ),
+                                new SQLConditionSet(
+                                        new SQLOperatorCondition(
+                                                "owner", "=", p.getUniqueId()
+                                        ),
+                                        new SQLOperatorCondition(
+                                                "country", "=", country.getName()
+                                        )
+                                )
+                        ).retrieve();
+
+                        BukkitRunnable sendRequest = new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                EmbedBuilder builder = new EmbedBuilder();
+                                builder.setImage("attachments://map.png");
+                                builder.setTitle(s.getName() + " quiere crear un proyecto.");
+
+                                try {
+                                    country.getRequestsChannel().sendFiles(FileUpload.fromData(
+                                            plugin.getSatMapHandler().getMapStream(
+                                                    new SatMapHandler.SatMapPolygon(
+                                                            plugin,
+                                                            polyRegion.getPoints()
+                                                    )
+                                            ),
+                                            "map.png"
+                                    )).addEmbeds(builder.build()).queue(
+                                            message -> {
+                                                try {
+                                                    plugin.getSqlManager().insert(
+                                                            "project_requests",
+                                                            new SQLValuesSet(
+                                                                    new SQLValue(
+                                                                            "owner", p.getUniqueId()
+                                                                    ),
+                                                                    new SQLValue(
+                                                                            "points", polyRegion.getPoints()
+                                                                    ),
+                                                                    new SQLValue(
+                                                                            "message_id", message.getId()
+                                                                            ),
+                                                                    new SQLValue(
+                                                                            "country", country.getName()
+                                                                    )
+                                                            )
+                                                    ).execute();
+                                                } catch (SQLException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                    message.delete().queue();
+                                                }
+                                            }
+                                    );
+                                } catch (IOException e) {
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error al enviar la solicitud.");
+                                    return;
+                                }
+                                p.sendMessage(getPrefix() + "Solicitud enviada correctamente.");
+                            }
+                        };
+
+                        if (set.next()) {
+                            // OPEN GUI
+                            InventoryGUI gui = new InventoryGUI(
+                                    1,
+                                    "¿Reemplazar la última solicitud?"
+                            );
+                            gui.setItem(
+                                    ItemBuilder.head(
+                                            ItemBuilder.confirmHead(),
+                                            "§aConfirmar",
+                                            null
+                                    ),
+                                    3
+                            );
+
+                            gui.setLCAction(
+                                    event -> {
+                                        try {
+                                            String messageID = set.getString("message_id");
+
+                                            plugin.getCountryManager().get(set.getString("country")).getRequestsChannel().deleteMessageById(messageID).queue();
+
+                                            plugin.getSqlManager().delete(
+                                                    "project_requests",
+                                                    new SQLConditionSet(
+                                                            new SQLOperatorCondition(
+                                                                    "owner", "=", p.getUniqueId()
+                                                            )
+                                                    )
+                                            ).execute();
+                                        } catch (SQLException e) {
+                                            event.closeGUI();
+                                            p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                        }
+
+                                        sendRequest.run();
+                                    },
+                                    3
+                            );
+
+                            gui.setItem(
+                                    ItemBuilder.head(
+                                            ItemBuilder.cancelHead(),
+                                            "§cCancelar",
+                                            null
+                                    ),
+                                    5
+                            );
+                            gui.setLCAction(
+                                    InventoryGUIClickEvent::closeGUI,
+                                    5
+                            );
+                        } else {
+                            sendRequest.run();
+                        }
+                    } catch (SQLException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        return true;
+                    }
+
+
+                }
 
                 break;
             }
