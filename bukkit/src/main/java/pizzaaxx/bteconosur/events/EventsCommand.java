@@ -95,7 +95,8 @@ public class EventsCommand implements CommandExecutor, Listener {
                         if (event.getStatus() != ServerEvent.Status.OFF) {
                             if (!event.getParticipants().contains(player)) {
                                 ServerPlayer s = new ServerPlayer(player);
-                                if (s.getPointsManager().getMaxPoints().getValue() >= event.getMinPoints()) {
+                                Map.Entry<String, Integer> maxPoints = s.getPointsManager().getMaxPoints();
+                                if ((maxPoints == null ? 0 : maxPoints.getValue()) >= event.getMinPoints()) {
                                     player.sendMessage(eventsPrefix + "¡Te has unido al evento \"" + event.getName() + "\"! ¡Esperamos que te diviertas!");
                                     if (event.getStatus() == ServerEvent.Status.ON) {
                                         for (OfflinePlayer offlinePlayer : event.getParticipants()) {
