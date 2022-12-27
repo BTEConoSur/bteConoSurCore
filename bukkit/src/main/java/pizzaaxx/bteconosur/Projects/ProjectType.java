@@ -46,6 +46,11 @@ public class ProjectType {
             this.displayName = set.getString("display_name");
             this.maxMembers = set.getInt("max_members");
             this.pointsOptions = plugin.getJSONMapper().readValue(set.getString("points_options"), ArrayList.class);
+
+            while (this.pointsOptions.size() > 25) {
+                this.pointsOptions.remove(this.pointsOptions.size() - 1);
+            } // -> To avoid Discord problems.
+
             this.unlockProjects = plugin.getJSONMapper().readValue(set.getString("unlock_projects"), HashMap.class);
 
         } else {
