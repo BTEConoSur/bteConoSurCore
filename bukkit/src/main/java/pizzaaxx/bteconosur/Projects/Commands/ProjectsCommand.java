@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Projects.Commands;
 
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -29,11 +31,16 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
+import pizzaaxx.bteconosur.Utils.StringUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
+
+import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -88,6 +95,28 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                 Country country = plugin.getCountryManager().getCountryAt(loc);
 
                 if (projectManager.hasAdminPermission(country)) {
+
+                    // TESTING
+
+                    List<Coords2D> coordinates = new ArrayList<>();
+
+                    for (BlockVector2D vector : polyRegion.getPoints()) {
+                        coordinates.add(
+                                new Coords2D(
+                                        plugin, vector
+                                )
+                        );
+                    }
+
+                    try {
+                        plugin.getTerramapHandler().drawPolygon(
+                                coordinates,
+                                Color.GREEN,
+                                StringUtils.generateCode(6, null, LOWER_CASE)
+                        );
+                    } catch (IOException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error.");
+                    }
 
                 } else {
 

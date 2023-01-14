@@ -43,6 +43,7 @@ import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.Terramap.TerramapHandler;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
@@ -175,6 +176,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     public SatMapHandler getSatMapHandler() {
         return satMapHandler;
+    }
+
+    private final TerramapHandler terramapHandler = new TerramapHandler(this);
+
+    public TerramapHandler getTerramapHandler() {
+        return terramapHandler;
     }
 
     @Override
