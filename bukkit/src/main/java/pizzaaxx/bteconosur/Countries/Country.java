@@ -14,10 +14,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Country {
 
@@ -74,6 +71,10 @@ public class Country {
         return plugin.getBot().getGuildById(guildID);
     }
 
+    public String getGuildID() {
+        return guildID;
+    }
+
     public TextChannel getShowcaseChannel() {
         return plugin.getBot().getTextChannelById(showcaseID);
     }
@@ -120,6 +121,10 @@ public class Country {
 
     public ProjectType getType(String type) {
         return projectTypes.get(type);
+    }
+
+    public Collection<ProjectType> getTypes() {
+        return projectTypes.values();
     }
 
     public Set<String> getPendingProjectsIDs() {

@@ -61,7 +61,7 @@ public class DrawPolygonCommand implements CommandExecutor {
             handler.drawPolygon(
                     coordinates,
                     Color.GREEN,
-                    StringUtils.generateCode(6, null, LOWER_CASE)
+                    StringUtils.generateCode(6, new ArrayList<>(), LOWER_CASE)
             );
         } catch (IOException e) {
             e.printStackTrace();

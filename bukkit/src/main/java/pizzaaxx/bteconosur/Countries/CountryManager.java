@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
@@ -73,6 +74,16 @@ public class CountryManager {
                 // country_chile_1
                 String name = region.getId().split("_")[1];
                 return this.get(name);
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public Country getCountryByGuild(String guildID) {
+        for (Country country : countries.values()) {
+            if (country.getGuildID().equals(guildID)) {
+                return country;
             }
         }
         return null;

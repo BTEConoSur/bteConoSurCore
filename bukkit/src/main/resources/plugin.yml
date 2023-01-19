@@ -76,3 +76,5 @@ commands:
     description: Da o quita el efecto de visión nocturna.
     aliases:
       - nv
+  drawPolygon:
+    description: Testing.

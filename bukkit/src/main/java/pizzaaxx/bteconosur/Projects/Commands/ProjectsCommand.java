@@ -5,8 +5,15 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.internal.interactions.component.StringSelectMenuImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +31,7 @@ import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
@@ -146,15 +154,64 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 builder.setTitle(s.getName() + " quiere crear un proyecto.");
 
                                 try {
-                                    country.getRequestsChannel().sendFiles(FileUpload.fromData(
-                                            plugin.getSatMapHandler().getMapStream(
-                                                    new SatMapHandler.SatMapPolygon(
-                                                            plugin,
-                                                            polyRegion.getPoints()
+                                    StringSelectMenu.Builder typeMenu = StringSelectMenu.create("projectCreationRequestTypeMenu");
+                                    typeMenu.setPlaceholder("Selecciona un tipo de proyecto");
+
+                                    for (ProjectType type : country.getTypes()) {
+                                        typeMenu.addOption(type.getDisplayName(), type.getName());
+                                    }
+
+                                    StringSelectMenu.Builder pointsMenu = StringSelectMenu.create("projectCreationRequestPointsMenu");
+                                    pointsMenu.setPlaceholder("Selecciona un puntaje");
+                                    pointsMenu.setDisabled(true);
+
+                                    Button acceptButton = Button.of(
+                                            ButtonStyle.SUCCESS,
+                                            "projectCreationRequestAccept",
+                                            "Aceptar",
+                                            Emoji.fromCustom(
+                                                    "approve",
+                                                    959984723868913714L,
+                                                    false
+                                            )
+                                    ).withDisabled(true);
+
+                                    Button rejectButton = Button.of(
+                                            ButtonStyle.SUCCESS,
+                                            "projectCreationRequestReject",
+                                            "Rechazar",
+                                            Emoji.fromCustom(
+                                                    "reject",
+                                                    959984723789250620L,
+                                                    false
+                                            )
+                                    );
+
+                                    country.getRequestsChannel()
+                                            .sendFiles(
+                                                    FileUpload.fromData(
+                                                            plugin.getSatMapHandler().getMapStream(
+                                                                    new SatMapHandler.SatMapPolygon(
+                                                                            plugin,
+                                                                            polyRegion.getPoints()
+                                                                    )
+                                                            ),
+                                                            "map.png"
+                                                    ))
+                                            .addEmbeds(builder.build())
+                                            .setComponents(
+                                                    ActionRow.of(
+                                                            typeMenu.build()
+                                                    ),
+                                                    ActionRow.of(
+                                                            pointsMenu.build()
+                                                    ),
+                                                    ActionRow.of(
+                                                            acceptButton,
+                                                            rejectButton
                                                     )
-                                            ),
-                                            "map.png"
-                                    )).addEmbeds(builder.build()).queue(
+                                            )
+                                            .queue(
                                             message -> {
                                                 try {
                                                     plugin.getSqlManager().insert(
@@ -221,8 +278,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                         } catch (SQLException e) {
                                             event.closeGUI();
                                             p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                            return;
                                         }
-
                                         sendRequest.run();
                                     },
                                     3

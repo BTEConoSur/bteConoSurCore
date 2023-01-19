@@ -44,6 +44,9 @@ public class InventoryGUIClickEvent {
         return slot;
     }
 
+    /**
+     * Close the current GUI.
+     */
     public void closeGUI() {
         player.closeInventory();
     }

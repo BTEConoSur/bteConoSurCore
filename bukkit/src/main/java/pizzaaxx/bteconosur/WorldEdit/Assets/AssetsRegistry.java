@@ -172,6 +172,9 @@ public class AssetsRegistry implements Registry<String, Asset> {
                 )
         ).execute();
 
+        File schematic = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
+        schematic.delete();
+
         for (ServerPlayer s : plugin.getPlayerRegistry().getLoadedPlayers()) {
             s.getWorldEditManager().checkAssetsGroups();
         }

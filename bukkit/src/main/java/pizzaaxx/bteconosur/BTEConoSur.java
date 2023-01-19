@@ -44,6 +44,7 @@ import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
+import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
@@ -320,6 +321,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("/selredo").setExecutor(this.selUndoRedoCommand);
         getCommand("/selundo").setExecutor(this.selUndoRedoCommand);
         getCommand("nightvision").setExecutor(new NightVisionCommand());
+        getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

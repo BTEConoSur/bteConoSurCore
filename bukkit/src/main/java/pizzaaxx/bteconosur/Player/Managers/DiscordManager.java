@@ -87,7 +87,7 @@ public class DiscordManager {
             this.hasSQLRow = true;
             this.id = set.getString("id");
             this.name = set.getString("name");
-            this.discriminator = set.getString("name");
+            this.discriminator = set.getString("discriminator");
         } else {
             this.hasSQLRow = false;
         }

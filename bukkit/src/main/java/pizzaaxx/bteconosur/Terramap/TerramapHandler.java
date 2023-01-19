@@ -7,6 +7,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Utils.ImageUtils;
 import pizzaaxx.bteconosur.Utils.NumberUtils;
+import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -35,7 +36,7 @@ public class TerramapHandler {
     public InputStream getTileStream(int x, int y, int zoom) throws IOException {
         File image = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "," + y + ".png");
         if (image.exists()) {
-            return new FileInputStream(image);
+            return Files.newInputStream(image.toPath());
         } else {
             URL url = new URL("a"); // TODO GET OSM URL
             return url.openStream();
@@ -81,10 +82,10 @@ public class TerramapHandler {
 
         } // FIND MAXs AND MINs
 
-        int maxTileX = this.getTileX(maxLon, zoom);
-        int minTileX = this.getTileX(minLon, zoom);
-        int maxTileY = this.getTileY(maxLat, zoom);
-        int minTileY = this.getTileY(minLat, zoom);
+        int maxTileX = Math.floorDiv((int) WebMercatorUtils.getXFromLongitude(maxLon, zoom), 256);
+        int minTileX = Math.floorDiv((int) WebMercatorUtils.getXFromLongitude(minLon, zoom), 256);
+        int maxTileY = Math.floorDiv((int) WebMercatorUtils.getYFromLatitude(maxLat, zoom), 256);
+        int minTileY = Math.floorDiv((int) WebMercatorUtils.getYFromLatitude(minLat, zoom), 256);
 
         int xSize = (maxTileX - minTileX + 1) * 256;
         int ySize = (maxTileY - minTileY + 1) * 256;
@@ -117,11 +118,7 @@ public class TerramapHandler {
                 int tileX = minTileX + (x / 256);
                 int tileY = maxTileY - (y / 256);
                 File tileFile = new File(plugin.getDataFolder(), "terramap/layers/" + zoom + "/" + tileX + "_" + tileY + "_" + id + ".png");
-                tileFile.createNewFile();
-
-                InputStream is = ImageUtils.getStream(tile);
-                FileOutputStream os = new FileOutputStream(tileFile, false);
-                IOUtils.copy(is, os);
+                ImageIO.write(tile, "png", tileFile);
 
                 this.updateTile(x / 256, y / 256, zoom);
             }
@@ -160,7 +157,7 @@ public class TerramapHandler {
             return;
         }
 
-        InputStream baseTileURL = new URL("https://tile.openstreetmap.org/" + x + "/" + y + "/" + zoom + ".png").openStream();
+        InputStream baseTileURL = new URL("https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png").openStream();
         BufferedImage baseTile = ImageIO.read(baseTileURL);
         Graphics2D graphics = baseTile.createGraphics();
 
@@ -183,22 +180,8 @@ public class TerramapHandler {
             graphics.drawImage(layer, 0, 0, null);
         }
 
-        InputStream is = ImageUtils.getStream(baseTile);
         File tile = new File(plugin.getDataFolder(), "terramap/final/" + x + "_" + y + ".png");
-        FileOutputStream os = new FileOutputStream(tile, false);
-        IOUtils.copy(is, os);
-    }
-
-    private int getTileX(double lon, int zoom) {
-        double tileXStep = 360.0 / (2 ^ zoom);
-        double tileX = lon / tileXStep;
-        return (int) Math.floor(tileX);
-    }
-
-    private int getTileY(double lat, int zoom) {
-        double tileYStep = 180.0 / (2 ^ zoom);
-        double tileY = lat / tileYStep;
-        return (int) Math.floor(tileY);
+        ImageIO.write(baseTile, "png", tile);
     }
 
 }
