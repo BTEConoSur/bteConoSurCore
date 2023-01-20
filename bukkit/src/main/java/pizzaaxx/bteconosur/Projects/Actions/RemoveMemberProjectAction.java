@@ -7,6 +7,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class RemoveMemberProjectAction {
         this.member = member;
     }
 
-    public void execute() throws SQLException {
+    public void execute() throws SQLException, IOException {
         Set<UUID> members = project.getMembers();
         members.remove(member);
 
@@ -40,6 +41,8 @@ public class RemoveMemberProjectAction {
                         )
                 )
         ).execute();
+
+        project.update();
 
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha removido a **" + plugin.getPlayerRegistry().get(member).getName() + "** del proyecto `" + project.getId() + "`.").queue();
     }

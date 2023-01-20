@@ -7,6 +7,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -22,7 +23,7 @@ public class SetOwnerProjectAction {
         this.owner = owner;
     }
 
-    public void execute() throws SQLException {
+    public void execute() throws SQLException, IOException {
         plugin.getSqlManager().update(
                 "project",
                 new SQLValuesSet(
@@ -36,5 +37,6 @@ public class SetOwnerProjectAction {
                         )
                 )
         ).execute();
+        project.update();
     }
 }

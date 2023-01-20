@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Terramap;
 
+import com.sk89q.worldguard.util.net.HttpRequest;
+import net.buildtheearth.terraplusplus.util.http.Http;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +17,14 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class TerramapHandler {
 
@@ -33,13 +37,23 @@ public class TerramapHandler {
     // terramap/final/Z/X,Y.png
     // terramap/layers/Z/X,Y.png
 
-    public InputStream getTileStream(int x, int y, int zoom) throws IOException {
+    public InputStream getTileStream(int x, int y, int zoom) throws IOException, IllegalArgumentException {
+
+        if (zoom < 15 || zoom > 19) {
+            throw new IllegalArgumentException();
+        }
+
+        double tiles = Math.pow(2, zoom);
+        if (x < 0 || y < 0 || x >= tiles || y >= tiles) {
+            throw new IllegalArgumentException();
+        }
+
         File image = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "," + y + ".png");
         if (image.exists()) {
             return Files.newInputStream(image.toPath());
         } else {
-            URL url = new URL("a"); // TODO GET OSM URL
-            return url.openStream();
+            HttpRequest request = HttpRequest.get(new URL("https://a.tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png"));
+            return request.execute().getInputStream();
         }
     }
 
@@ -104,11 +118,12 @@ public class TerramapHandler {
         }
         Polygon polygon = new Polygon(xCoordinates, yCoordinates, coordinates.size());
 
-        Color fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 125);
+        Color fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 50);
         graphics.setColor(fillColor);
         graphics.fillPolygon(polygon);
 
         graphics.setColor(color);
+        graphics.setStroke(new BasicStroke(5));
         graphics.drawPolygon(polygon);
 
         for (int x = 0; x < xSize; x += 256) {
@@ -117,10 +132,13 @@ public class TerramapHandler {
 
                 int tileX = minTileX + (x / 256);
                 int tileY = maxTileY - (y / 256);
-                File tileFile = new File(plugin.getDataFolder(), "terramap/layers/" + zoom + "/" + tileX + "_" + tileY + "_" + id + ".png");
+
+                File tileFile = new File(plugin.getDataFolder(), "assets/" + tileX + "_" + tileY + "_" + id + ".png");
+                tileFile.createNewFile();
+
                 ImageIO.write(tile, "png", tileFile);
 
-                this.updateTile(x / 256, y / 256, zoom);
+                this.updateTile(tileX, tileY, zoom);
             }
         }
     }
@@ -157,8 +175,9 @@ public class TerramapHandler {
             return;
         }
 
-        InputStream baseTileURL = new URL("https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png").openStream();
-        BufferedImage baseTile = ImageIO.read(baseTileURL);
+        HttpRequest request = HttpRequest.get(new URL("https://a.tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png"));
+        InputStream inputStream = request.execute().getInputStream();
+        BufferedImage baseTile = ImageIO.read(inputStream);
         Graphics2D graphics = baseTile.createGraphics();
 
         List<Map.Entry<File, FileTime>> fileTimes = new ArrayList<>();

@@ -104,27 +104,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 if (projectManager.hasAdminPermission(country)) {
 
-                    // TESTING
 
-                    List<Coords2D> coordinates = new ArrayList<>();
-
-                    for (BlockVector2D vector : polyRegion.getPoints()) {
-                        coordinates.add(
-                                new Coords2D(
-                                        plugin, vector
-                                )
-                        );
-                    }
-
-                    try {
-                        plugin.getTerramapHandler().drawPolygon(
-                                coordinates,
-                                Color.GREEN,
-                                StringUtils.generateCode(6, null, LOWER_CASE)
-                        );
-                    } catch (IOException e) {
-                        p.sendMessage(getPrefix() + "Ha ocurrido un error.");
-                    }
 
                 } else {
 
@@ -150,7 +130,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             @Override
                             public void run() {
                                 EmbedBuilder builder = new EmbedBuilder();
-                                builder.setImage("attachments://map.png");
+                                builder.setImage("attachment://map.png");
                                 builder.setTitle(s.getName() + " quiere crear un proyecto.");
 
                                 try {
@@ -162,6 +142,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     }
 
                                     StringSelectMenu.Builder pointsMenu = StringSelectMenu.create("projectCreationRequestPointsMenu");
+                                    pointsMenu.addOption("a", "b");
                                     pointsMenu.setPlaceholder("Selecciona un puntaje");
                                     pointsMenu.setDisabled(true);
 
@@ -177,7 +158,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     ).withDisabled(true);
 
                                     Button rejectButton = Button.of(
-                                            ButtonStyle.SUCCESS,
+                                            ButtonStyle.DANGER,
                                             "projectCreationRequestReject",
                                             "Rechazar",
                                             Emoji.fromCustom(
@@ -221,7 +202,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                                             "owner", p.getUniqueId()
                                                                     ),
                                                                     new SQLValue(
-                                                                            "points", polyRegion.getPoints()
+                                                                            "region_points", polyRegion.getPoints()
                                                                     ),
                                                                     new SQLValue(
                                                                             "message_id", message.getId()
@@ -238,6 +219,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                             }
                                     );
                                 } catch (IOException e) {
+                                    e.printStackTrace();
                                     p.sendMessage(getPrefix() + "Ha ocurrido un error al enviar la solicitud.");
                                     return;
                                 }
@@ -458,7 +440,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                             project.transfer(member).execute();
                                                             player.sendMessage(this.getPrefix() + "Has transferido el proyecto §a" + project.getDisplayName() + "§f a §a" + plugin.getPlayerRegistry().get(member).getName());
                                                             Bukkit.getPlayer(member).sendMessage(this.getPrefix() + "§a" + player.getName() + "§f te ha transferido el proyecto §a" + project.getDisplayName() + "§f.");
-                                                        } catch (SQLException e) {
+                                                        } catch (SQLException | IOException e) {
                                                             player.sendMessage(this.getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                         }
                                                     },

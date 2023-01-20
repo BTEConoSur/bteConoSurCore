@@ -40,10 +40,13 @@ import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
+import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
+import pizzaaxx.bteconosur.Terramap.TerramapServer;
 import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
@@ -64,6 +67,7 @@ import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
 import java.awt.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -286,7 +290,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
         jdaBuilder.addEventListeners(
-            linkCommand
+                linkCommand,
+                new ProjectCreationRequestListener(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
@@ -322,6 +327,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("/selundo").setExecutor(this.selUndoRedoCommand);
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
+        getCommand("project").setExecutor(new ProjectsCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
@@ -332,6 +338,14 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
             country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
 
+        }
+
+        try {
+            TerramapServer terramapServer = new TerramapServer(this);
+            terramapServer.init();
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.error("The Terramap tile server couldn't be started.");
         }
     }
 

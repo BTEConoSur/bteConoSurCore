@@ -3,10 +3,12 @@ package pizzaaxx.bteconosur.Projects.Actions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -15,6 +17,7 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
@@ -23,24 +26,36 @@ public class CreateProjectAction {
     private final BTEConoSur plugin;
 
     private final Country country;
-    private final City city;
     private final ProjectType type;
     private final int points;
 
     private final List<BlockVector2D> region;
 
 
-    public CreateProjectAction(BTEConoSur plugin, Country country, City city, ProjectType type, int points, List<BlockVector2D> region) {
+    public CreateProjectAction(BTEConoSur plugin, Country country, ProjectType type, int points, List<BlockVector2D> region) {
         this.plugin = plugin;
         this.country = country;
-        this.city = city;
         this.type = type;
         this.points = points;
         this.region = region;
     }
 
-    public void exec() throws SQLException, CityActionException, JsonProcessingException {
+    public Project exec() throws SQLException, CityActionException, JsonProcessingException {
         String id = StringUtils.generateCode(6, plugin.getProjectRegistry().getIds(), LOWER_CASE);
+
+        ProtectedPolygonalRegion protectedPolygonalRegion = new ProtectedPolygonalRegion("project_" + id, region, -100, 8000);
+
+        Set<ProtectedRegion> cityRegions = new HashSet<>();
+        for (String cityName : country.getCities()) {
+            cityRegions.add(plugin.getRegionManager().getRegion("city_" + cityName));
+        }
+
+        List<ProtectedRegion> intersectingCities = protectedPolygonalRegion.getIntersectingRegions(cityRegions);
+        Set<City> cities = new HashSet<>();
+        for (ProtectedRegion intersectingCity : intersectingCities) {
+            cities.add(plugin.getCityManager().get(intersectingCity.getId().replace("city_", "")));
+        }
+
         plugin.getSqlManager().insert(
                 "projects",
                 new SQLValuesSet(
@@ -51,7 +66,7 @@ public class CreateProjectAction {
                                 "country", country.getName()
                         ),
                         new SQLValue(
-                                "city", city.getName()
+                                "cities", cities
                         ),
                         new SQLValue(
                                 "pending", false
@@ -68,11 +83,15 @@ public class CreateProjectAction {
                 )
         ).execute();
 
-        ProtectedPolygonalRegion protectedPolygonalRegion = new ProtectedPolygonalRegion("project_" + id, region, -100, 8000);
         plugin.getRegionManager().addRegion(protectedPolygonalRegion);
 
-        city.addProject(id).execute();
+        for (City city : cities) {
+            city.addProject(id);
+        }
+        plugin.getProjectRegistry().registerID(id);
 
         country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + "` creado con la ID `" + id + "`.").queue();
+
+        return plugin.getProjectRegistry().get(id);
     }
 }

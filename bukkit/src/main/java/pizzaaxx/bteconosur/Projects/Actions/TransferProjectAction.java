@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Projects.Actions;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class TransferProjectAction {
         this.owner = owner;
     }
 
-    public void execute() throws SQLException {
+    public void execute() throws SQLException, IOException {
         UUID oldOwner = project.getOwner();
         new AddMemberProjectAction(plugin, project, project.getOwner()).execute();
         new RemoveMemberProjectAction(plugin, project, owner).execute();

@@ -24,12 +24,12 @@ public class Project {
     private final String id;
     private String displayName;
     private final Country country;
-    private final String city;
+    private final Set<String> cities;
     private boolean pending;
     private final ProjectType type;
     private int points;
-    private Set<UUID> members;
-    private UUID owner;
+    public Set<UUID> members;
+    public UUID owner;
     private ProjectTag tag;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
@@ -54,7 +54,7 @@ public class Project {
 
             this.country = plugin.getCountryManager().get(set.getString("country"));
 
-            this.city = set.getString("city");
+            this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
 
             this.pending = set.getBoolean("pending");
 
@@ -96,8 +96,12 @@ public class Project {
         return country;
     }
 
-    public City getCity() {
-        return plugin.getCityManager().get(city);
+    public Set<City> getCities() {
+        Set<City> cities = new HashSet<>();
+        for (String cityName : this.cities) {
+            cities.add(plugin.getCityManager().get(cityName));
+        }
+        return cities;
     }
 
     public boolean isPending() {

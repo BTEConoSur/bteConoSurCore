@@ -113,8 +113,8 @@ public class GetCommand implements CommandExecutor, Listener {
             if (item != null && item.getType() == Material.SKULL_ITEM && item.hasItemMeta()) {
                 ItemMeta meta = item.getItemMeta();
                 if (meta.hasDisplayName()) {
-                    Material material;
-                    byte metadata;
+                    Material material = null;
+                    byte metadata = 0;
                     switch (meta.getDisplayName()) {
                         case "§a[43:9] §fArenisca Lisa":
                             material = Material.DOUBLE_STEP;
@@ -180,20 +180,24 @@ public class GetCommand implements CommandExecutor, Listener {
                             material = Material.IRON_TRAPDOOR;
                             metadata = 7;
                             break;
-                        default:
+                        case "§a[43:8] §fPiedra Lisa":
                             material = Material.DOUBLE_STEP;
                             metadata = 8;
                             break;
                     }
-                    event.setCancelled(true);
 
-                    ServerPlayer s = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+                    if (material != null) {
+                        event.setCancelled(true);
 
-                    Block targetBlock = event.getClickedBlock().getRelative(event.getBlockFace());
-                    if (s.canBuild(targetBlock.getLocation())) {
-                        targetBlock.setType(material);
-                        targetBlock.setData(metadata);
+                        ServerPlayer s = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+
+                        Block targetBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+                        if (s.canBuild(targetBlock.getLocation())) {
+                            targetBlock.setType(material);
+                            targetBlock.setData(metadata);
+                        }
                     }
+
                 }
             }
         }

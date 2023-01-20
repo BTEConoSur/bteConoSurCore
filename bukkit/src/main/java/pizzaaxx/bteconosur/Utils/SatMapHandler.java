@@ -60,16 +60,16 @@ public class SatMapHandler {
 
     public String getMap(@NotNull Iterable<SatMapPolygon> polygons) {
         StringBuilder builder = new StringBuilder();
-        builder.append("https://open.mapquestapi.com/staticmap/v5/map?type=sat&size=1920,1080&imagetype=png");
+        builder.append("https://www.mapquestapi.com/staticmap/v5/map?type=sat&size=1920,1080&imagetype=png");
         builder.append("&key=").append(key);
         for (SatMapPolygon polygon : polygons) {
             StringBuilder shapeBuilder = new StringBuilder("&shape=");
-            shapeBuilder.append("border:").append(polygon.getColor()).append("|");
-            shapeBuilder.append("fill:").append(polygon.getColor()).append("50");
             for (Coords2D coord : polygon.points) {
-                shapeBuilder.append("|").append(coord.getLat()).append(",").append(coord.getLon());
+                shapeBuilder.append(coord.getLat()).append(",").append(coord.getLon()).append("|");
             }
             shapeBuilder.append("|").append(polygon.points.get(0).getLat()).append(",").append(polygon.points.get(0).getLon());
+            shapeBuilder.append("|fill:").append(polygon.getColor()).append("50");
+            shapeBuilder.append("border:").append(polygon.getColor());
             builder.append(shapeBuilder);
         }
         return builder.toString();

@@ -10,6 +10,7 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.JSONParsable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class City {
+public class City implements JSONParsable {
 
     private final BTEConoSur plugin;
     private final String name;
@@ -158,4 +159,9 @@ public class City {
         );
     }
 
+
+    @Override
+    public String getJSON(boolean insideJSON) {
+        return name;
+    }
 }

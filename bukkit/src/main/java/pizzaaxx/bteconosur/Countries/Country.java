@@ -31,7 +31,7 @@ public class Country {
     private final String iconURL;
     private final Location spawnPoint;
     public final Set<String> cities;
-    public final Map<String, ProjectType> projectTypes;
+    public final LinkedHashMap<String, ProjectType> projectTypes;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -48,7 +48,7 @@ public class Country {
         Map<String, Integer> spawnJSON = plugin.getJSONMapper().readValue(set.getString("spawn_point"), Map.class);
         this.spawnPoint = new Location(plugin.getWorld(), spawnJSON.get("x"), spawnJSON.get("y"), spawnJSON.get("z"));
         this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
-        this.projectTypes = new HashMap<>();
+        this.projectTypes = new LinkedHashMap<>();
         Set<String> projectTypeIDs = plugin.getJSONMapper().readValue(set.getString("project_types"), HashSet.class);
         for (String projectTypeID : projectTypeIDs) {
             this.projectTypes.put(projectTypeID, new ProjectType(plugin, this, projectTypeID));
@@ -123,8 +123,8 @@ public class Country {
         return projectTypes.get(type);
     }
 
-    public Collection<ProjectType> getTypes() {
-        return projectTypes.values();
+    public List<ProjectType> getTypes() {
+        return (List<ProjectType>) projectTypes.values();
     }
 
     public Set<String> getPendingProjectsIDs() {

@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.SQL;
 
+import com.sk89q.worldedit.BlockVector2D;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -7,6 +8,7 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.Project;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,13 +27,21 @@ public class SQLParser {
         } else if (object instanceof Location) {
 
             Location loc = (Location) object;
+            Map<String, Double> coords = new HashMap<>();
 
-            return (insideJSON ? "" : "'") + "{" +
-                    "\"x\":" + loc.getX() + ", " +
-                    "\"y\":" + loc.getY() + ", " +
-                    "\"z\":" + loc.getZ() +
-                    "}" + (insideJSON ? "" : "'");
+            coords.put("x", loc.getX());
+            coords.put("z", loc.getZ());
+            coords.put("y", loc.getY());
+            return SQLParser.getString(coords, insideJSON);
 
+        } else if (object instanceof BlockVector2D) {
+            
+            BlockVector2D vector = (BlockVector2D) object;
+            Map<String, Double> coords = new HashMap<>();
+            coords.put("x", vector.getX());
+            coords.put("z", vector.getZ());
+            return SQLParser.getString(coords, insideJSON);
+            
         } else if (object instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) object;
             int size = collection.size();

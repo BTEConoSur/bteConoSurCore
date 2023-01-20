@@ -17,12 +17,11 @@ public class TerramapServer {
 
     public void init() throws IOException {
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(3000), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.setExecutor(Executors.newSingleThreadExecutor());
-        server.createContext("", new TerramapRequestHandler(plugin));
+        server.createContext("/terramap", new TerramapRequestHandler(plugin));
         server.start();
-
-
+        plugin.log("Terramap tiles server started.");
 
     }
 }
