@@ -14,6 +14,7 @@ import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -59,10 +60,6 @@ public class TerramapHandler {
 
     public void drawPolygon(@NotNull List<Coords2D> coordinates, Color color, String id) throws IOException {
         this.drawPolygon(coordinates, color, 15, id);
-        this.drawPolygon(coordinates, color, 16, id);
-        this.drawPolygon(coordinates, color, 17, id);
-        this.drawPolygon(coordinates, color, 18, id);
-        this.drawPolygon(coordinates, color, 19, id);
     }
 
     private void drawPolygon(@NotNull List<Coords2D> coordinates, Color color, int zoom, String id) throws IOException {
@@ -101,8 +98,11 @@ public class TerramapHandler {
         int maxTileY = Math.floorDiv((int) WebMercatorUtils.getYFromLatitude(maxLat, zoom), 256);
         int minTileY = Math.floorDiv((int) WebMercatorUtils.getYFromLatitude(minLat, zoom), 256);
 
-        int xSize = (maxTileX - minTileX + 1) * 256;
-        int ySize = (maxTileY - minTileY + 1) * 256;
+        plugin.log("maxY: " + maxTileY);
+        plugin.log("minY: " + minTileY);
+
+        int xSize = (Math.abs(maxTileX - minTileX) + 1) * 256;
+        int ySize = (Math.abs(maxTileY - minTileY) + 1) * 256;
 
         BufferedImage image = new BufferedImage(xSize, ySize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
@@ -110,10 +110,15 @@ public class TerramapHandler {
         int[] xCoordinates = new int[coordinates.size()];
         int[] yCoordinates = new int[coordinates.size()];
 
+        double maxImageLon = WebMercatorUtils.getLongitudeFromX((maxTileX + 1) * 256, zoom);
+        double minImageLon = WebMercatorUtils.getLongitudeFromX(minTileX * 256, zoom);
+        double maxImageLat = WebMercatorUtils.getLatitudeFromY((minTileY + 1) * 256, zoom);
+        double minImageLat = WebMercatorUtils.getLatitudeFromY(maxTileY * 256, zoom);
+
         int i = 0;
         for (Coords2D coordinate : coordinates) {
-            xCoordinates[i] = (int) NumberUtils.getInNewRange(minLon, maxLon, 0, xSize, coordinate.getLon());
-            yCoordinates[i] = (int) NumberUtils.getInNewRange(maxLat, minLat, 0, ySize, coordinate.getLat());
+            xCoordinates[i] = (int) NumberUtils.getInNewRange(minImageLon, maxImageLon, 0, xSize, coordinate.getLon());
+            yCoordinates[i] = (int) NumberUtils.getInNewRange(minImageLat, maxImageLat, 0, ySize, coordinate.getLat());
             i++;
         }
         Polygon polygon = new Polygon(xCoordinates, yCoordinates, coordinates.size());
@@ -131,9 +136,9 @@ public class TerramapHandler {
                 BufferedImage tile = image.getSubimage(x, y, 256, 256);
 
                 int tileX = minTileX + (x / 256);
-                int tileY = maxTileY - (y / 256);
+                int tileY = maxTileY + (y / 256);
 
-                File tileFile = new File(plugin.getDataFolder(), "assets/" + tileX + "_" + tileY + "_" + id + ".png");
+                File tileFile = new File(plugin.getDataFolder(), "terramap/layers/" + zoom + "/" + tileX + "_" + tileY + "_" + id + ".png");
                 tileFile.createNewFile();
 
                 ImageIO.write(tile, "png", tileFile);
@@ -196,10 +201,15 @@ public class TerramapHandler {
             File layerFile = entry.getKey();
 
             BufferedImage layer = ImageIO.read(layerFile);
-            graphics.drawImage(layer, 0, 0, null);
+            graphics.drawImage(layer, 0, 0, new ImageObserver() {
+                @Override
+                public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+                    return false;
+                }
+            });
         }
 
-        File tile = new File(plugin.getDataFolder(), "terramap/final/" + x + "_" + y + ".png");
+        File tile = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
         ImageIO.write(baseTile, "png", tile);
     }
 
