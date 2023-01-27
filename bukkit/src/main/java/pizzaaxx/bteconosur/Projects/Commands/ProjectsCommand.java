@@ -130,6 +130,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             @Override
                             public void run() {
                                 EmbedBuilder builder = new EmbedBuilder();
+                                builder.setColor(Color.GREEN);
                                 builder.setImage("attachment://map.png");
                                 builder.setTitle(s.getName() + " quiere crear un proyecto.");
 
@@ -174,7 +175,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                             plugin.getSatMapHandler().getMapStream(
                                                                     new SatMapHandler.SatMapPolygon(
                                                                             plugin,
-                                                                            polyRegion.getPoints()
+                                                                            polyRegion.getPoints(),
+                                                                            "3068ff"
                                                                     )
                                                             ),
                                                             "map.png"
@@ -231,7 +233,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             // OPEN GUI
                             InventoryGUI gui = new InventoryGUI(
                                     1,
-                                    "¿Reemplazar la última solicitud?"
+                                    "¿Reemplazar la última solicitud en " + country.getDisplayName() + "?"
                             );
                             gui.setItem(
                                     ItemBuilder.head(
@@ -257,6 +259,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                             )
                                                     )
                                             ).execute();
+
+                                            event.closeGUI();
                                         } catch (SQLException e) {
                                             event.closeGUI();
                                             p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
@@ -279,6 +283,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     InventoryGUIClickEvent::closeGUI,
                                     5
                             );
+                            plugin.getInventoryHandler().open(p, gui);
                         } else {
                             sendRequest.run();
                         }

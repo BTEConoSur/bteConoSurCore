@@ -1,9 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
-import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -15,27 +13,18 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
-import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
 import pizzaaxx.bteconosur.Countries.Country;
-import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
-import pizzaaxx.bteconosur.SQL.SQLManager;
-import pizzaaxx.bteconosur.SQL.SQLParser;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.awt.*;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ProjectCreationRequestListener extends ListenerAdapter implements Prefixable {
 
@@ -45,220 +34,15 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
         this.plugin = plugin;
     }
 
+    // ACCEPT (Button) -> projectCreationRequestAccept
+    // REJECT (Button) -> projectCreationRequestReject
+    // TYPE (Menu) -> projectCreationRequestTypeMenu
+    // POINTS (Menu) -> projectCreationRequestPointsMenu
+
     @Override
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
-
-        StringSelectMenu menu = event.getSelectMenu();
-
-        String id = menu.getId();
-
-        if (id == null) {
-            return;
-        }
-
-        if (id.startsWith("projectCreationRequest")) {
-
+        if (event.getSelectMenu().getId().startsWith("projectCreationRequest")) {
             Message message = event.getMessage();
-
-            try {
-                ResultSet set = plugin.getSqlManager().select(
-                        "project_requests",
-                        new SQLColumnSet(
-                                "message_id"
-                        ),
-                        new SQLConditionSet(
-                                new SQLOperatorCondition(
-                                        "message_id", "=", message.getId()
-                                )
-                        )
-                ).retrieve();
-
-                if (set.next()) {
-                    MessageEmbed embed = message.getEmbeds().get(0);
-
-                    MessageEmbed.Footer footer = embed.getFooter();
-
-                    boolean hasFooter = true;
-                    if (footer != null) {
-                        String footerText = footer.getText();
-                        if (footerText != null) {
-                            String userID = footerText.replace("En revisión por ", "");
-                            if (!userID.equals(event.getUser().getId())) {
-                                plugin.getBot().retrieveUserById(userID).queue(
-                                        user -> event.replyEmbeds(
-                                                DiscordUtils.fastEmbed(
-                                                        Color.RED,
-                                                        "Esta solicitud ya esta siendo revisada por " + user.getId() + "#" + user.getDiscriminator() + "."
-                                                )
-                                        ).setEphemeral(true).queue()
-                                );
-                                return;
-                            }
-                        }
-                    } else {
-                        hasFooter = false;
-                    }
-
-                    if (event.getGuild() == null) {
-                        return;
-                    }
-
-                    Country country = plugin.getCountryManager().getCountryByGuild(event.getGuild().getId());
-
-                    if (country == null) {
-                        return;
-                    }
-
-                    if (id.equals("projectCreationRequestTypeMenu")) {
-
-                        String label = event.getSelectedOptions().get(0).getLabel();
-
-                        ProjectType type = country.getType(label);
-
-                        plugin.getSqlManager().update(
-                                "project_requests",
-                                new SQLValuesSet(
-                                        new SQLValue(
-                                                "type", type.getName()
-                                        ),
-                                        new SQLValue(
-                                                "points", null
-                                        )
-                                ),
-                                new SQLConditionSet(
-                                        new SQLOperatorCondition(
-                                                "message_id", "=", message.getId()
-                                        )
-                                )
-                        ).execute();
-
-                        StringSelectMenu.Builder pointsMenu = StringSelectMenu.create("projectCreationRequestPointsMenu");
-                        pointsMenu.setPlaceholder("Selecciona un puntaje");
-
-                        for (Integer points : type.getPointsOptions()){
-                            pointsMenu.addOption(points.toString(), points.toString());
-                        }
-
-                        if (!hasFooter) {
-                            EmbedBuilder builder = new EmbedBuilder(embed);
-                            builder.setFooter("En revisión por " + event.getUser().getId());
-                            event.editComponents(
-                                    message.getComponents().get(0),
-                                    ActionRow.of(
-                                            pointsMenu.build()
-                                    ),
-                                    message.getComponents().get(2)
-                            ).setEmbeds(builder.build()).queue();
-                        } else {
-                            event.editComponents(
-                                    message.getComponents().get(0),
-                                    ActionRow.of(
-                                            pointsMenu.build()
-                                    ),
-                                    message.getComponents().get(2)
-                            ).queue();
-                        }
-                    }
-
-                    if (id.equals("projectCreationRequestPointsMenu")) {
-
-                        plugin.getSqlManager().update(
-                                "project_requests",
-                                new SQLValuesSet(
-                                        new SQLValue(
-                                                "points", Integer.parseInt(event.getInteraction().getSelectedOptions().get(0).getValue())
-                                        )
-                                ),
-                                new SQLConditionSet(
-                                        new SQLOperatorCondition(
-                                                "message_id", "=", message.getId()
-                                        )
-                                )
-                        ).execute();
-
-                        net.dv8tion.jda.api.interactions.components.buttons.Button acceptButton = Button.of(
-                                ButtonStyle.SUCCESS,
-                                "projectCreationRequestAccept",
-                                "Aceptar",
-                                Emoji.fromCustom(
-                                        "approve",
-                                        959984723868913714L,
-                                        false
-                                )
-                        );
-
-                        if (!hasFooter) {
-                            EmbedBuilder builder = new EmbedBuilder(embed);
-                            builder.setFooter("En revisión por " + event.getUser().getId());
-                            event.editComponents(
-                                    message.getComponents().get(0),
-                                    message.getComponents().get(1),
-                                    ActionRow.of(
-                                            acceptButton,
-                                            message.getComponents().get(2).getComponents().get(1)
-                                    )
-                            ).setEmbeds(builder.build()).queue();
-                        } else {
-                            event.editComponents(
-                                    message.getComponents().get(0),
-                                    message.getComponents().get(1),
-                                    ActionRow.of(
-                                            acceptButton,
-                                            message.getComponents().get(2).getComponents().get(1)
-                                    )
-                            ).queue();
-                        }
-                    }
-                } else {
-                    event.getMessage().delete().queue();
-                    event.replyEmbeds(
-                            DiscordUtils.fastEmbed(
-                                    Color.RED,
-                                    "Ha ocurrido un error en la base de datos."
-                            )
-                    ).setEphemeral(true).queue();
-                }
-            } catch (SQLException e) {
-                plugin.error(e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-
-        Button button = event.getButton();
-
-        String id = button.getId();
-
-        if (id == null) {
-            return;
-        }
-
-        if (id.startsWith("projectCreationRequest")) {
-
-            Message message = event.getMessage();
-            MessageEmbed embed = message.getEmbeds().get(0);
-
-            MessageEmbed.Footer footer = embed.getFooter();
-
-            if (footer != null) {
-                String footerText = footer.getText();
-                if (footerText != null) {
-                    String userID = footerText.replace("En revisión por ", "");
-                    if (!userID.equals(event.getUser().getId())) {
-                        plugin.getBot().retrieveUserById(userID).queue(
-                                user -> event.replyEmbeds(
-                                        DiscordUtils.fastEmbed(
-                                                Color.RED,
-                                                "Esta solicitud ya esta siendo revisada por " + user.getName() + "#" + user.getDiscriminator() + "."
-                                        )
-                                ).setEphemeral(true).queue()
-                        );
-                        return;
-                    }
-                }
-            }
 
             try {
                 ResultSet set = plugin.getSqlManager().select(
@@ -268,105 +52,143 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         ),
                         new SQLConditionSet(
                                 new SQLOperatorCondition(
-                                        "message_id", "=", event.getMessage().getId()
+                                        "message_id", "=", message.getId()
                                 )
                         )
                 ).retrieve();
 
                 if (set.next()) {
 
-                    if (event.getGuild() == null) {
-                        return;
-                    }
-
-                    Country country = plugin.getCountryManager().getCountryByGuild(event.getGuild().getId());
-
-                    if (country == null) {
-                        return;
-                    }
-
-                    ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "owner"));
-
-                    if (id.equals("projectCreationRequestAccept")) {
-
-                        ProjectType type = country.getType(
-                                set.getString("type")
+                    String moderatorID = set.getString("moderator_id");
+                    if (moderatorID != null && !moderatorID.equals(event.getUser().getId())) {
+                        plugin.getBot().retrieveUserById(moderatorID).queue(
+                                user -> event.replyEmbeds(
+                                        DiscordUtils.fastEmbed(
+                                                Color.RED,
+                                                "Esta solicitud ya está siendo revisada por " + user.getName() + "#" + user.getDiscriminator() + "."
+                                        )
+                                ).setEphemeral(true).queue()
                         );
+                        return;
+                    }
 
-                        int points = set.getInt("points");
+                    Country country = plugin.getCountryManager().get(set.getString("country"));
 
-                        List<BlockVector2D> regionPoints = new ArrayList<>();
-                        List<Object> raw1 = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
-                        for (Object object : raw1) {
-                            Map<String, Double> coordsMap = (Map<String, Double>) object;
-                            regionPoints.add(
-                                    new BlockVector2D(
-                                            coordsMap.get("x"),
-                                            coordsMap.get("z")
-                                    )
-                            );
+                    if (event.getSelectMenu().getId().equals("projectCreationRequestTypeMenu")) {
+                        String typeName = event.getInteraction().getSelectedOptions().get(0).getValue();
+                        ProjectType type = country.getProjectType(typeName);
+
+                        StringSelectMenu.Builder pointsMenuBuilder = StringSelectMenu.create("projectCreationRequestPointsMenu");
+                        for (Integer points : type.getPointsOptions()) {
+                            pointsMenuBuilder.addOption(String.valueOf(points), String.valueOf(points));
                         }
+                        pointsMenuBuilder.setPlaceholder("Selecciona un puntaje");
 
-                        Project project = plugin.getProjectRegistry().createProject(
-                                country,
-                                type,
-                                points,
-                                regionPoints
-                        ).exec();
-                        project.claim(plugin.getSqlManager().getUUID(set, "owner")).execute();
+                        EmbedBuilder embedBuilder = new EmbedBuilder(message.getEmbeds().get(0));
+                        embedBuilder.setColor(Color.YELLOW);
+                        embedBuilder.setFooter("En revisión por " + event.getUser().getName() + "#" + event.getUser().getDiscriminator());
 
-                        plugin.getSqlManager().delete(
+                        plugin.getSqlManager().update(
                                 "project_requests",
+                                new SQLValuesSet(
+                                        new SQLValue(
+                                                "type", type.getName()
+                                        ),
+                                        new SQLValue(
+                                                "points", null
+                                        ),
+                                        new SQLValue(
+                                                "moderator_id", event.getUser().getId()
+                                        )
+                                ),
                                 new SQLConditionSet(
                                         new SQLOperatorCondition(
-                                                "message_id", "=", event.getMessage().getId()
+                                                "message_id", "=", message.getId()
                                         )
                                 )
                         ).execute();
 
-                        s.sendNotification(
-                                this.getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + "§f ha sido aceptada.",
-                                "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido aceptada."
-                        );
-
-                        event.getMessage().delete().queue();
-
-                        event.replyEmbeds(
-                                DiscordUtils.fastEmbed(
-                                        Color.GREEN,
-                                        "Solicitud aceptada."
+                        event.editComponents(
+                                ActionRow.of(
+                                        event.getInteraction().getSelectMenu().createCopy().setDefaultValues(typeName).build()
+                                ),
+                                ActionRow.of(pointsMenuBuilder.build()),
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "projectCreationRequestAccept",
+                                                "Aceptar",
+                                                Emoji.fromCustom(
+                                                        "approve",
+                                                        959984723868913714L,
+                                                        false
+                                                )
+                                        ).withDisabled(true),
+                                        Button.of(
+                                                ButtonStyle.DANGER,
+                                                "projectCreationRequestReject",
+                                                "Rechazar",
+                                                Emoji.fromCustom(
+                                                        "reject",
+                                                        959984723789250620L,
+                                                        false
+                                                )
+                                        )
                                 )
-                        ).setEphemeral(true).queue();
-
+                        ).setEmbeds(embedBuilder.build()).setAttachments(message.getAttachments()).queue();
                     }
 
-                    if (id.equals("projectCreationRequestReject")) {
+                    if (event.getSelectMenu().getId().equals("projectCreationRequestPointsMenu")) {
 
-                        plugin.getSqlManager().delete(
+                        int points = Integer.parseInt(event.getInteraction().getSelectedOptions().get(0).getValue());
+
+                        plugin.getSqlManager().update(
                                 "project_requests",
+                                new SQLValuesSet(
+                                        new SQLValue(
+                                                "points", points
+                                        )
+                                ),
                                 new SQLConditionSet(
                                         new SQLOperatorCondition(
-                                                "message_id", "=", event.getMessage().getId()
+                                                "message_id", "=", message.getId()
                                         )
                                 )
                         ).execute();
 
-                        s.sendNotification(
-                                this.getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + "§f ha sido rechazada.",
-                                "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido rechazada."
-                        );
-
-                        event.getMessage().delete().queue();
-
-                        event.replyEmbeds(
-                                DiscordUtils.fastEmbed(
-                                        Color.GREEN,
-                                        "Solicitud rechazada."
+                        event.editComponents(
+                                message.getComponents().get(0),
+                                ActionRow.of(
+                                        event.getInteraction().getSelectMenu().createCopy().setDefaultValues(String.valueOf(points)).build()
+                                ),
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "projectCreationRequestAccept",
+                                                "Aceptar",
+                                                Emoji.fromCustom(
+                                                        "approve",
+                                                        959984723868913714L,
+                                                        false
+                                                )
+                                        ),
+                                        Button.of(
+                                                ButtonStyle.DANGER,
+                                                "projectCreationRequestReject",
+                                                "Rechazar",
+                                                Emoji.fromCustom(
+                                                        "reject",
+                                                        959984723789250620L,
+                                                        false
+                                                )
+                                        )
                                 )
-                        ).setEphemeral(true).queue();
+                        ).queue();
+
                     }
+
                 } else {
-                    event.getMessage().delete().queue();
+                    message.delete().queue();
                     event.replyEmbeds(
                             DiscordUtils.fastEmbed(
                                     Color.RED,
@@ -374,8 +196,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                             )
                     ).setEphemeral(true).queue();
                 }
-
-            } catch (SQLException | IOException | CityActionException e) {
+            } catch (SQLException e) {
                 event.replyEmbeds(
                         DiscordUtils.fastEmbed(
                                 Color.RED,
@@ -385,8 +206,10 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
             }
 
         }
-
     }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {}
 
     @Override
     public String getPrefix() {

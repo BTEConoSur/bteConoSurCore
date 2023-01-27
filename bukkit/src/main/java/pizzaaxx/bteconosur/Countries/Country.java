@@ -119,7 +119,7 @@ public class Country {
         return projectTypes.containsKey(type);
     }
 
-    public ProjectType getType(String type) {
+    public ProjectType getProjectType(String type) {
         return projectTypes.get(type);
     }
 

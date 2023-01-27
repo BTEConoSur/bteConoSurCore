@@ -1,8 +1,6 @@
 package pizzaaxx.bteconosur.Projects;
 
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
@@ -62,7 +60,7 @@ public class Project {
 
             this.pending = set.getBoolean("pending");
 
-            this.type = country.getType(set.getString("type"));
+            this.type = country.getProjectType(set.getString("type"));
 
             this.points = set.getInt("points");
 
