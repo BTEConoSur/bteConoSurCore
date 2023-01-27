@@ -28,8 +28,6 @@ dependencies {
     implementation("fr.minuskube:netherboard-bukkit:1.2.3")
     implementation("com.mysql:mysql-connector-j:8.0.31")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
-    implementation("org.eclipse.jetty:jetty-server:9.4.3.v20170317")
-    implementation("org.eclipse.jetty:jetty-servlet:9.4.3.v20170317")
 }
 
 tasks.withType<JavaCompile> {
