@@ -49,7 +49,7 @@ public class Country {
         this.spawnPoint = new Location(plugin.getWorld(), spawnJSON.get("x"), spawnJSON.get("y"), spawnJSON.get("z"));
         this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
         this.projectTypes = new LinkedHashMap<>();
-        Set<String> projectTypeIDs = plugin.getJSONMapper().readValue(set.getString("project_types"), HashSet.class);
+        List<String> projectTypeIDs = plugin.getJSONMapper().readValue(set.getString("project_types"), ArrayList.class);
         for (String projectTypeID : projectTypeIDs) {
             this.projectTypes.put(projectTypeID, new ProjectType(plugin, this, projectTypeID));
         }
@@ -124,7 +124,7 @@ public class Country {
     }
 
     public List<ProjectType> getTypes() {
-        return (List<ProjectType>) projectTypes.values();
+        return new ArrayList<>(projectTypes.values());
     }
 
     public Set<String> getPendingProjectsIDs() {
