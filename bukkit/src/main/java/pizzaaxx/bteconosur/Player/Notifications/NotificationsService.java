@@ -32,7 +32,7 @@ public class NotificationsService {
     ) {
         if (Bukkit.getOfflinePlayer(target).isOnline()) {
             Player p = Bukkit.getPlayer(target);
-            p.sendMessage(discordMessage);
+            p.sendMessage(minecraftMessage);
         } else if (plugin.getPlayerRegistry().get(target).getDiscordManager().isLinked()) {
             DiscordManager manager = plugin.getPlayerRegistry().get(target).getDiscordManager();
             plugin.getBot().openPrivateChannelById(manager.getId()).queue(
