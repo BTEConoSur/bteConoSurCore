@@ -217,7 +217,6 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                                     "Ha ocurrido un error en la base de datos."
                             )
                     ).setEphemeral(true).queue();
-                    return;
                 }
             } catch (SQLException e) {
                 plugin.error(e.getMessage());

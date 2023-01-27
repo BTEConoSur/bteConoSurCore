@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
@@ -29,7 +30,20 @@ public class DrawPolygonCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, @NotNull String[] args) {
+
+        if (args.length > 0) {
+            if (args[0].equals("delete")) {
+                if (args.length > 1) {
+                    try {
+                        plugin.getTerramapHandler().deletePolygon(args[1]);
+                    } catch (IOException e) {
+                        sender.sendMessage("Error deleting polygon.");
+                    }
+                }
+            }
+            return true;
+        }
 
         if (!(sender instanceof Player)) {
             return true;

@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Projects;
 
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -31,10 +33,12 @@ public class Project {
     public Set<UUID> members;
     public UUID owner;
     private ProjectTag tag;
+    private final ProtectedPolygonalRegion region;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
         this.id = id;
+        this.region = (ProtectedPolygonalRegion) plugin.getRegionManager().getRegion("project_" + id);
 
         ResultSet set = plugin.getSqlManager().select(
                 "projects",
@@ -132,6 +136,10 @@ public class Project {
 
     public ProjectTag getTag() {
         return tag;
+    }
+
+    public ProtectedPolygonalRegion getRegion() {
+        return region;
     }
 
     public void update() throws SQLException, IOException {

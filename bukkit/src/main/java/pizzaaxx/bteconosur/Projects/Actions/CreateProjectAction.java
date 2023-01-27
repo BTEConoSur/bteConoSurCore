@@ -8,13 +8,17 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
+import java.awt.*;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +44,7 @@ public class CreateProjectAction {
         this.region = region;
     }
 
-    public Project exec() throws SQLException, CityActionException, JsonProcessingException {
+    public Project exec() throws SQLException, CityActionException, IOException {
         String id = StringUtils.generateCode(6, plugin.getProjectRegistry().getIds(), LOWER_CASE);
 
         ProtectedPolygonalRegion protectedPolygonalRegion = new ProtectedPolygonalRegion("project_" + id, region, -100, 8000);
@@ -88,7 +92,15 @@ public class CreateProjectAction {
         for (City city : cities) {
             city.addProject(id);
         }
+
         plugin.getProjectRegistry().registerID(id);
+
+        List<Coords2D> coords = new ArrayList<>();
+        for (BlockVector2D vector2D : region) {
+            coords.add(new Coords2D(plugin, vector2D));
+        }
+
+        plugin.getTerramapHandler().drawPolygon(coords, new Color(78, 255, 71), id);
 
         country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + "` creado con la ID `" + id + "`.").queue();
 

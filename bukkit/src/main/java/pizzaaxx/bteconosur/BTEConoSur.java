@@ -189,6 +189,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         return terramapHandler;
     }
 
+    TerramapServer terramapServer = new TerramapServer(this);
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -341,8 +343,8 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         }
 
         try {
-            TerramapServer terramapServer = new TerramapServer(this);
             terramapServer.init();
+            this.log("Terramap server started on " + terramapServer.getServer().getAddress().getHostName() + ":" + terramapServer.getServer().getAddress().getPort());
         } catch (Exception e) {
             e.printStackTrace();
             this.error("The Terramap tile server couldn't be started.");
@@ -351,6 +353,11 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     @Override
     public void onDisable() {
+        try {
+            terramapServer.stop();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.RED);
         embedBuilder.setTitle("El servidor se ha apagado.");
