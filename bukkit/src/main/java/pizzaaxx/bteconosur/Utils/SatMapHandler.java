@@ -69,7 +69,7 @@ public class SatMapHandler {
             }
             shapeBuilder.append("|").append(polygon.points.get(0).getLat()).append(",").append(polygon.points.get(0).getLon());
             shapeBuilder.append("|fill:").append(polygon.getColor()).append("50");
-            shapeBuilder.append("border:").append(polygon.getColor());
+            shapeBuilder.append("|border:").append(polygon.getColor());
             builder.append(shapeBuilder);
         }
         return builder.toString();
