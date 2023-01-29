@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
@@ -20,8 +22,10 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
+import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
@@ -36,6 +40,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class ProjectCreationRequestListener extends ListenerAdapter implements Prefixable {
 
@@ -255,7 +261,50 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                     Country country = plugin.getCountryManager().get(set.getString("country"));
 
                     if (event.getButton().getId().equals("projectCreationRequestAccept")) {
+                        ProjectType type = country.getProjectType(set.getString("type"));
+                        int points = set.getInt("points");
+                        ArrayList<Object> rawRegionPoints = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
+                        ArrayList<BlockVector2D> regionPoints = new ArrayList<>();
+                        for (Object object : rawRegionPoints) {
+                            Map<String, Double> regionPointMap = (Map<String, Double>) object;
+                            regionPoints.add(
+                                    new BlockVector2D(
+                                            regionPointMap.get("x"), regionPointMap.get("z")
+                                    )
+                            );
+                        }
 
+                        Project project = plugin.getProjectRegistry().createProject(
+                                country,
+                                type,
+                                points,
+                                regionPoints
+                        ).exec();
+
+                        ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "target"));
+
+                        project.claim(s.getUUID()).execute();
+
+                        s.sendNotification(
+                                getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido aceptada.",
+                                "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido aceptada."
+                        );
+
+                        message.delete().queue();
+                        plugin.getSqlManager().delete(
+                                "project_requests",
+                                new SQLConditionSet(
+                                        new SQLOperatorCondition(
+                                                "message_id", "=", message.getId()
+                                        )
+                                )
+                        ).execute();
+                        event.replyEmbeds(
+                                DiscordUtils.fastEmbed(
+                                        Color.GREEN,
+                                        "Solicitud aceptada."
+                                )
+                        ).setEphemeral(true).queue();
                     }
 
                     if (event.getButton().getId().equals("projectCreationRequestReject")) {
@@ -282,7 +331,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                             )
                     ).setEphemeral(true).queue();
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | CityActionException | IOException e) {
                 event.replyEmbeds(
                         DiscordUtils.fastEmbed(
                                 Color.RED,
