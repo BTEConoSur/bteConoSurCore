@@ -2,7 +2,9 @@ package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,19 +12,28 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.SQL.SQLParser;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.awt.*;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -209,7 +220,149 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
     }
 
     @Override
-    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {}
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if (event.getButton().getId().startsWith("projectCreationRequest")) {
+            Message message = event.getMessage();
+
+            try {
+                ResultSet set = plugin.getSqlManager().select(
+                        "project_requests",
+                        new SQLColumnSet(
+                                "*"
+                        ),
+                        new SQLConditionSet(
+                                new SQLOperatorCondition(
+                                        "message_id", "-", message.getId()
+                                )
+                        )
+                ).retrieve();
+
+                if (set.next()) {
+
+                    String moderatorID = set.getString("moderator_id");
+                    if (moderatorID != null && !moderatorID.equals(event.getUser().getId())) {
+                        plugin.getBot().retrieveUserById(moderatorID).queue(
+                                user -> event.replyEmbeds(
+                                        DiscordUtils.fastEmbed(
+                                                Color.RED,
+                                                "Esta solicitud ya está siendo revisada por " + user.getName() + "#" + user.getDiscriminator() + "."
+                                        )
+                                ).setEphemeral(true).queue()
+                        );
+                        return;
+                    }
+
+                    Country country = plugin.getCountryManager().get(set.getString("country"));
+
+                    if (event.getButton().getId().equals("projectCreationRequestAccept")) {
+
+                    }
+
+                    if (event.getButton().getId().equals("projectCreationRequestReject")) {
+
+                        event.replyModal(
+                                Modal.create(
+                                        "projectCreationRequestRejectReason",
+                                        "Razón (Opcional)"
+                                ).addActionRow(
+                                        TextInput.create("projectCreationRequestRejectReasonInput", "Razón de rechazo", TextInputStyle.SHORT)
+                                                .setPlaceholder("Introduce una razón para rechazar la solicitud")
+                                                .setRequired(false)
+                                                .build()
+                                ).build()
+                        ).queue();
+                    }
+
+                } else {
+                    message.delete().queue();
+                    event.replyEmbeds(
+                            DiscordUtils.fastEmbed(
+                                    Color.RED,
+                                    "Ha ocurrido un error en la base de datos."
+                            )
+                    ).setEphemeral(true).queue();
+                }
+            } catch (SQLException e) {
+                event.replyEmbeds(
+                        DiscordUtils.fastEmbed(
+                                Color.RED,
+                                "Ha ocurrido un error en la base de datos."
+                        )
+                ).setEphemeral(true).queue();
+            }
+        }
+    }
+
+    @Override
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
+        if (event.getModalId().equals("projectCreationRequestRejectReason")) {
+            Message message = event.getMessage();
+
+            try {
+                ResultSet set = plugin.getSqlManager().select(
+                        "project_requests",
+                        new SQLColumnSet(
+                                "*"
+                        ),
+                        new SQLConditionSet(
+                                new SQLOperatorCondition(
+                                        "message_id", "=", message.getId()
+                                )
+                        )
+                ).retrieve();
+
+                if (set.next()) {
+                    ModalMapping mapping = event.getValue("projectCreationRequestRejectReasonInput");
+
+                    Country country = plugin.getCountryManager().get(set.getString("country"));
+
+                    message.delete().queue();
+                    plugin.getSqlManager().delete(
+                            "project_requests",
+                            new SQLConditionSet(
+                                    new SQLOperatorCondition(
+                                            "message_id", "=", message.getId()
+                                    )
+                            )
+                    ).execute();
+                    ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "target"));
+
+                    if (mapping != null) {
+                        s.sendNotification(
+                                getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido rechazada. §7Razón: " + mapping.getAsString(),
+                                "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido rechazada. *Razón: " + mapping.getAsString() + "*"
+                        );
+                    } else {
+                        s.sendNotification(
+                                getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido rechazada.",
+                                "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido rechazada."
+                        );
+                    }
+                    event.replyEmbeds(
+                            DiscordUtils.fastEmbed(
+                                    Color.GREEN,
+                                    "Solicitud rechazada."
+                            )
+                    ).setEphemeral(true).queue();
+                } else {
+                    message.delete().queue();
+                    event.replyEmbeds(
+                            DiscordUtils.fastEmbed(
+                                    Color.RED,
+                                    "Ha ocurrido un error en la base de datos."
+                            )
+                    ).setEphemeral(true).queue();
+                }
+            } catch (SQLException | IOException e) {
+                event.replyEmbeds(
+                        DiscordUtils.fastEmbed(
+                                Color.RED,
+                                "Ha ocurrido un error en la base de datos."
+                        )
+                ).setEphemeral(true).queue();
+            }
+        }
+    }
 
     @Override
     public String getPrefix() {
