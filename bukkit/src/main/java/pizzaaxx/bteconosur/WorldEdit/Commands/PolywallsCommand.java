@@ -36,12 +36,6 @@ public class PolywallsCommand implements CommandExecutor {
         ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
 
         try {
-            List<BlockVector2D> points = plugin.getWorldEdit().getSelectionPoints(p);
-            int minY = plugin.getWorldEdit().getSelection(p).getMinimumPoint().getBlockY();
-            int maxY = plugin.getWorldEdit().getSelection(p).getMaximumPoint().getBlockY();
-
-            List<BlockVector2D> finalPoints = new ArrayList<>(points);
-            finalPoints.add(points.get(0));
 
             if (args.length < 1) {
                 p.sendMessage(plugin.getWorldEdit().getPrefix() + "Introduce un patrón de bloques.");
@@ -53,10 +47,24 @@ public class PolywallsCommand implements CommandExecutor {
 
             Pattern pattern = plugin.getWorldEdit().getPattern(p, args[0]);
 
+
+            List<BlockVector2D> points = plugin.getWorldEdit().getSelectionPoints(p);
+            int minY = plugin.getWorldEdit().getSelection(p).getMinimumPoint().getBlockY();
+            int maxY = plugin.getWorldEdit().getSelection(p).getMaximumPoint().getBlockY();
+
+            List<BlockVector2D> finalPoints = new ArrayList<>(points);
+
+            boolean skipLast = true;
+            if (args.length == 1 || !(args[1].equals("-last") || args[1].equals("-l"))) {
+                skipLast = false;
+                finalPoints.add(points.get(0));
+            }
+
+
             EditSession editSession = plugin.getWorldEdit().getWorldEdit().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
 
             for (int i = minY; i <= maxY; i++) {
-                for (int j = 0; j < points.size(); j++) {
+                for (int j = 0; j < (skipLast ? points.size() - 1 : points.size()); j++) {
                     BlockVector2D pos1 = finalPoints.get(j);
                     BlockVector2D pos2 = finalPoints.get(j + 1);
 

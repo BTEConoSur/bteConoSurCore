@@ -30,7 +30,9 @@
 * ✔️ `/pwarp <nombre>`
 ## WorldEdit
 * ✔️ Atajos
-* ✔️ `//polywalls <patrón>`
+* ✔️ `//polywalls <patrón> [-l|-last]`
+  **Cambios:**
+  * Se agregó la *flag* `-l` o `-last` que evita que se conecten el último punto con el primero.
 * ✔️ `//terraform (<patrón>|border|height|desel)`  
 **Cambios:**
   * El borde ahora se selecciona con `poly`.
