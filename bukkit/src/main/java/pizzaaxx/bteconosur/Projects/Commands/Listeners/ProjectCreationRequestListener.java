@@ -285,12 +285,10 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
 
                         project.claim(s.getUUID()).execute();
 
-                        plugin.log("a");
                         s.sendNotification(
                                 this.getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido aceptada.",
                                 "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido aceptada."
                         );
-                        plugin.log("b");
 
                         message.delete().queue();
                         plugin.getSqlManager().delete(

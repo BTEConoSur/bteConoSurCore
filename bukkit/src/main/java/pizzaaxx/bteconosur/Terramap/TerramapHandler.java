@@ -197,7 +197,10 @@ public class TerramapHandler {
         File layersFolder = new File(plugin.getDataFolder(), "terramap/layers/" + zoom);
         File[] layers = layersFolder.listFiles((FilenameFilter) new RegexFileFilter(x + "_" + y + "_[a-zA-Z]{1,32}\\.png"));
         if (layers ==  null) {
-            return;
+            File finalTileFile = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
+            if (finalTileFile.exists()) {
+                finalTileFile.delete();
+            }
         }
 
         BufferedImage base = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
