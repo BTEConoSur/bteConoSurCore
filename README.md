@@ -18,7 +18,7 @@
 * 🕙 `/scoreboard [<tipo>|auto]`
 * 🕙 `/streaming <link>`
 * 🕙 `/prefix`
-* 🕙 `/nightvision`
+* ✔️ `/nightvision`
 * 🕙 `/lobby`
 * ✔️ `/tpdir <nombre>`  
   **Mejoras:**
@@ -91,7 +91,7 @@
 * 🕙 `/project remove [jugador]`
 * 🕙 `/project transfer [miembro]`
 * 🕙 `/project name [nombre]`
-* 🕙 `/project borders`
+* ✔️ `/project borders`
 * 🕙 `/project manage`
 * 🕙 `/project tag <etiqueta>|delete`
 * 🕙 `/project claim`

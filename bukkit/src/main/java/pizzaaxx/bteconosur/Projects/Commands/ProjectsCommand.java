@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Commands;
 
-import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,11 +9,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.dv8tion.jda.internal.interactions.component.StringSelectMenuImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Countries.Country;
-import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -39,7 +35,6 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
-import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -47,8 +42,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
-
-import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -104,7 +97,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 if (projectManager.hasAdminPermission(country)) {
 
-
+                    // TODO THIS
 
                 } else {
 
@@ -297,7 +290,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 break;
             }
-            case "manage": {
+            case "manage": { // TODO FINISH THIS
                 List<String> projectOptions = plugin.getProjectRegistry().getProjectsAt(
                         p.getLocation(),
                         new OwnerProjectSelector(
@@ -345,6 +338,58 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 emptySlots[i]
                         );
                         i++;
+                    }
+                }
+            }
+            case "borders": {
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos en este lugar.");
+                } else if (projectIDs.size() == 1) {
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+                    Polygonal2DSelection selection = new Polygonal2DSelection(
+                            plugin.getWorld(),
+                            project.getRegion().getPoints(),
+                            p.getLocation().getBlockY() - 10,
+                            p.getLocation().getBlockY() + 10
+                    );
+                    plugin.getWorldEdit().setSelection(p, selection);
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(6, "Elige un proyecto para mostrar");
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+                        List<String> lore = new ArrayList<>();
+                        lore.add("§f• ID: §7" + id);
+                        lore.add("§f• Tipo: §7" + project.getType().getDisplayName());
+                        if (project.isClaimed()) {
+                            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
+                            if (project.getMembers().size() > 0) {
+                                List<String> memberNames = new ArrayList<>();
+                                for (UUID memberUUID : project.getMembers()) {
+                                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
+                                }
+                                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
+                            }
+                        }
+                        gui.add(
+                                ItemBuilder.of(Material.MAP)
+                                        .name("§aProyecto " + project.getDisplayName())
+                                        .lore(lore)
+                                        .build(),
+                                event -> {
+                                    event.closeGUI();
+                                    Polygonal2DSelection selection = new Polygonal2DSelection(
+                                            plugin.getWorld(),
+                                            project.getRegion().getPoints(),
+                                            p.getLocation().getBlockY() - 10,
+                                            p.getLocation().getBlockY() + 10
+                                    );
+                                    plugin.getWorldEdit().setSelection(p, selection);
+                                },
+                                null,
+                                null,
+                                null
+                        );
                     }
                 }
             }

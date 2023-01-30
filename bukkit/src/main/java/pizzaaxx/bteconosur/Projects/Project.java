@@ -13,9 +13,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Project {
 
@@ -134,6 +132,10 @@ public class Project {
         return owner;
     }
 
+    public boolean isClaimed() {
+        return owner != null;
+    }
+
     public ProjectTag getTag() {
         return tag;
     }
@@ -166,7 +168,8 @@ public class Project {
             this.pending = set.getBoolean("pending");
             this.points = set.getInt("points");
             this.owner = plugin.getSqlManager().getUUID(set, "owner");
-            this.tag = ProjectTag.valueOf(set.getString("tag").toUpperCase());
+            String tag = set.getString("tag");
+            this.tag = tag == null ? null : ProjectTag.valueOf(tag);
             this.members = new HashSet<>();
             Set<String> uuids = plugin.getJSONMapper().readValue(set.getString("members"), HashSet.class);
             for (String uuid : uuids) {

@@ -3,12 +3,10 @@ package pizzaaxx.bteconosur.WorldEdit;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.bukkit.selections.Selection;
+import com.sk89q.worldedit.bukkit.selections.RegionSelection;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
-import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extent.Extent;
-import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
@@ -100,6 +98,10 @@ public class WorldEditHandler implements Prefixable {
             return result;
         }
         throw new IncompleteRegionException();
+    }
+
+    public void setSelection(Player player, RegionSelection selection) {
+        worldEditPlugin.setSelection(player, selection);
     }
 
     public Pattern getPattern(Player player, String input) throws InputParseException {
