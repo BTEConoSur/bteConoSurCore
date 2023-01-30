@@ -238,7 +238,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         ),
                         new SQLConditionSet(
                                 new SQLOperatorCondition(
-                                        "message_id", "-", message.getId()
+                                        "message_id", "=", message.getId()
                                 )
                         )
                 ).retrieve();
@@ -281,14 +281,16 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                                 regionPoints
                         ).exec();
 
-                        ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "target"));
+                        ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "owner"));
 
                         project.claim(s.getUUID()).execute();
 
+                        plugin.log("a");
                         s.sendNotification(
-                                getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido aceptada.",
+                                this.getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido aceptada.",
                                 "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido aceptada."
                         );
+                        plugin.log("b");
 
                         message.delete().queue();
                         plugin.getSqlManager().delete(
@@ -332,6 +334,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                     ).setEphemeral(true).queue();
                 }
             } catch (SQLException | CityActionException | IOException e) {
+                e.printStackTrace();
                 event.replyEmbeds(
                         DiscordUtils.fastEmbed(
                                 Color.RED,
@@ -365,18 +368,9 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
 
                     Country country = plugin.getCountryManager().get(set.getString("country"));
 
-                    message.delete().queue();
-                    plugin.getSqlManager().delete(
-                            "project_requests",
-                            new SQLConditionSet(
-                                    new SQLOperatorCondition(
-                                            "message_id", "=", message.getId()
-                                    )
-                            )
-                    ).execute();
-                    ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "target"));
+                    ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getSqlManager().getUUID(set, "owner"));
 
-                    if (mapping != null) {
+                    if (!mapping.getAsString().equals("")) {
                         s.sendNotification(
                                 getPrefix() + "Tu solicitud de proyecto en §a" + country.getDisplayName() + " §fha sido rechazada. §7Razón: " + mapping.getAsString(),
                                 "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido rechazada. *Razón: " + mapping.getAsString() + "*"
@@ -387,6 +381,15 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                                 "**[PROYECTOS]** » Tu solicitud de proyecto en **" + country.getDisplayName() + "** ha sido rechazada."
                         );
                     }
+                    message.delete().queue();
+                    plugin.getSqlManager().delete(
+                            "project_requests",
+                            new SQLConditionSet(
+                                    new SQLOperatorCondition(
+                                            "message_id", "=", message.getId()
+                                    )
+                            )
+                    ).execute();
                     event.replyEmbeds(
                             DiscordUtils.fastEmbed(
                                     Color.GREEN,

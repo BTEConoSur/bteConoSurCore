@@ -70,9 +70,11 @@ public class Project {
                 members.add(UUID.fromString(uuid));
             }
 
-            this.owner = plugin.getSqlManager().getUUID(set, "uuid");
+            this.owner = plugin.getSqlManager().getUUID(set, "owner");
 
-            this.tag = ProjectTag.valueOf(set.getString("tag").toUpperCase());
+            String tag = set.getString("tag");
+
+            this.tag = tag == null ? null : ProjectTag.valueOf(tag);
 
         } else {
             throw new IllegalArgumentException();

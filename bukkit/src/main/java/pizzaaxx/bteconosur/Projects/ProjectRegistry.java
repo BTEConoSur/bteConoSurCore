@@ -82,6 +82,7 @@ public class ProjectRegistry {
             try {
                 load(id);
             } catch (SQLException | IOException e) {
+                e.printStackTrace();
                 plugin.error("Error with project " + id + ".");
             }
         }

@@ -15,7 +15,9 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -57,8 +59,13 @@ public class SQLManager {
         return new DeleteAction(plugin, tableName, conditions);
     }
 
+    @Nullable
     public UUID getUUID(@NotNull ResultSet set, String column) throws SQLException, IOException {
-        return UUIDUtils.getFromInputStream(set.getBinaryStream(column));
+        InputStream stream = set.getBinaryStream(column);
+        if (stream != null) {
+            return UUIDUtils.getFromInputStream(set.getBinaryStream(column));
+        }
+        return null;
     }
 
 }

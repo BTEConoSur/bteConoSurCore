@@ -80,9 +80,6 @@ public class CreateProjectAction {
                         ),
                         new SQLValue(
                                 "points", points
-                        ),
-                        new SQLValue(
-                                "members", new HashSet<>()
                         )
                 )
         ).execute();

@@ -25,7 +25,7 @@ public class SetOwnerProjectAction {
 
     public void execute() throws SQLException, IOException {
         plugin.getSqlManager().update(
-                "project",
+                "projects",
                 new SQLValuesSet(
                         new SQLValue(
                                 "owner", owner

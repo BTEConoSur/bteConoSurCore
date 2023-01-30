@@ -176,7 +176,7 @@ public class TerramapHandler {
         this.deletePolygon(id, 19);
     }
 
-    private void deletePolygon(String id, int zoom) throws IOException {
+    private void deletePolygon(String id, int zoom) throws IOException { // TODO FIX THIS
         File layersFolder = new File(plugin.getDataFolder(), "terramap/layers/" + zoom);
         File[] layers = layersFolder.listFiles((FilenameFilter) new RegexFileFilter("-?\\d{1,12}_-?\\d{1,12}_" + id + "\\.png"));
         if (layers == null) {
