@@ -40,6 +40,7 @@ import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Projects.ActionBarListener;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
@@ -50,6 +51,7 @@ import pizzaaxx.bteconosur.Terramap.TerramapServer;
 import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
+import pizzaaxx.bteconosur.Utils.StringMatcher;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetsRegistry;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
@@ -221,6 +223,10 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         regionListenersHandler.registerEnter(
                 input -> input.startsWith("city_") && !input.endsWith("_urban"),
                 new CityEnterEvent(this)
+        );
+        regionListenersHandler.registerEnter(
+                input -> input.matches("project_[a-z]{6}"),
+                new ActionBarListener(this)
         );
 
         GetCommand getCommand = new GetCommand(this);
