@@ -72,6 +72,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
             try {
                 cache.put(uuid, new ServerPlayer(plugin, uuid));
             } catch (SQLException | JsonProcessingException e) {
+                e.printStackTrace();
                 plugin.error("SQL error loading player data: " + uuid);
             }
         }

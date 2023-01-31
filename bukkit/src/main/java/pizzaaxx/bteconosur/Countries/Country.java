@@ -123,7 +123,7 @@ public class Country {
         return projectTypes.get(type);
     }
 
-    public List<ProjectType> getTypes() {
+    public List<ProjectType> getProjectTypes() {
         return new ArrayList<>(projectTypes.values());
     }
 

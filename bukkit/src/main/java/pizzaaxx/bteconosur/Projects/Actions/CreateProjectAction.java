@@ -99,7 +99,7 @@ public class CreateProjectAction {
 
         plugin.getTerramapHandler().drawPolygon(coords, new Color(78, 255, 71), id);
 
-        country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + "` creado con la ID `" + id + "`.").queue();
+        country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + " ` y puntaje `" + points + "` creado con la ID `" + id + "`.").queue();
 
         return plugin.getProjectRegistry().get(id);
     }

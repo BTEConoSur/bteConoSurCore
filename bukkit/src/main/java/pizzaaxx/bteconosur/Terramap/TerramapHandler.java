@@ -52,7 +52,7 @@ public class TerramapHandler {
                 throw new IllegalArgumentException();
             }
 
-            File image = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "," + y + ".png");
+            File image = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
             if (image.exists()) {
                 return Files.newInputStream(image.toPath());
             } else {

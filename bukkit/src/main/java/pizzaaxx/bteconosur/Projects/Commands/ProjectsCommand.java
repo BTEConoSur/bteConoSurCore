@@ -22,6 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
@@ -42,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -97,8 +99,53 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 if (projectManager.hasAdminPermission(country)) {
 
-                    // TODO THIS
+                    if (args.length < 2) {
+                        p.sendMessage(getPrefix() + "Introduce un tipo de proyecto.");
+                        return true;
+                    }
 
+                    ProjectType type = country.getProjectType(args[1]);
+
+                    if (type == null) {
+                        p.sendMessage(getPrefix() + "Introduce un tipo de proyecto válido. §7Opciones: " + country.getProjectTypes().stream().map(ProjectType::getName).collect(Collectors.joining(", ")));
+                        return true;
+                    }
+
+                    if (args.length < 3) {
+                        p.sendMessage(getPrefix() + "Introduce un puntaje.");
+                        return true;
+                    }
+
+                    int points;
+                    try {
+                        points = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        p.sendMessage(getPrefix() + "Introduce un número válido.");
+                        return true;
+                    }
+
+                    if (!type.getPointsOptions().contains(points)) {
+                        List<String> pointsStrings = new ArrayList<>();
+                        for (int pointOption : type.getPointsOptions()) {
+                            pointsStrings.add(String.valueOf(pointOption));
+                        }
+                        p.sendMessage(getPrefix() + "El puntaje introducido no es parte de las opciones. §7Opciones: " + String.join(", ", pointsStrings));
+                        return true;
+                    }
+
+                    Project project;
+                    try {
+                        project = plugin.getProjectRegistry().createProject(
+                                country,
+                                type,
+                                points,
+                                polyRegion.getPoints()
+                        ).exec();
+                        p.sendMessage(getPrefix() + "Proyecto de tipo §a" + type.getDisplayName() + "§f y puntaje §a" + points + "§f creado con la ID §a" + project.getId() + "§f.");
+                    } catch (SQLException | CityActionException | IOException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error.");
+                        return true;
+                    }
                 } else {
 
                     ResultSet set;
@@ -131,7 +178,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     StringSelectMenu.Builder typeMenu = StringSelectMenu.create("projectCreationRequestTypeMenu");
                                     typeMenu.setPlaceholder("Selecciona un tipo de proyecto");
 
-                                    for (ProjectType type : country.getTypes()) {
+                                    for (ProjectType type : country.getProjectTypes()) {
                                         typeMenu.addOption(type.getDisplayName(), type.getName());
                                     }
 
@@ -390,6 +437,70 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 null,
                                 null
                         );
+                        gui.openTo(p, plugin);
+                    }
+                }
+            }
+            case "name": {
+                if (args.length < 2) {
+                    p.sendMessage(getPrefix() + "Introduce un nombre.");
+                    return true;
+                }
+
+                String name = args[1];
+
+                if (!name.matches("[a-zA-Z_]{1,32}")) {
+                    p.sendMessage(getPrefix() + "Introduce un nombre válido.");
+                    return true;
+                }
+
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId()));
+
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos que lideres aquí.");
+                    return true;
+                } else if (projectIDs.size() == 1) {
+
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto"
+                    );
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+                        List<String> lore = new ArrayList<>();
+                        lore.add("§f• ID: §7" + id);
+                        lore.add("§f• Tipo: §7" + project.getType().getDisplayName());
+                        if (project.isClaimed()) {
+                            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
+                            if (project.getMembers().size() > 0) {
+                                List<String> memberNames = new ArrayList<>();
+                                for (UUID memberUUID : project.getMembers()) {
+                                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
+                                }
+                                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
+                            }
+                        }
+                        gui.add(
+                                ItemBuilder.of(Material.MAP)
+                                        .name("§aProyecto " + project.getDisplayName())
+                                        .lore(lore)
+                                        .build(),
+                                event -> {
+                                    event.closeGUI();
+                                    try {
+                                        String oldName = project.getDisplayName();
+                                        project.setDisplayName(name).execute();
+                                        p.sendMessage(getPrefix() + "Nombre del proyecto §a" + oldName + "§f cambiado a §a" + name + "§f.");
+                                    } catch (SQLException | IOException e) {
+                                        p.sendMessage(getPrefix() + "Ha ocurrido un error.");
+                                    }
+                                },
+                                null,
+                                null,
+                                null
+                        );
+                        gui.openTo(p, plugin);
                     }
                 }
             }

@@ -73,7 +73,7 @@ public class ProjectManager {
                                     "uuid", serverPlayer.getUUID()
                             )
                     )
-            );
+            ).execute();
             this.adminPermission = new HashSet<>();
             this.ids = new HashSet<>();
             this.points = new HashMap<>();

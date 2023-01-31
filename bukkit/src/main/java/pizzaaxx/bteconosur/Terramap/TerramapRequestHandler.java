@@ -2,10 +2,15 @@ package pizzaaxx.bteconosur.Terramap;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TerramapRequestHandler implements HttpHandler {
 
@@ -18,14 +23,7 @@ public class TerramapRequestHandler implements HttpHandler {
     @Override
     public void handle(@NotNull HttpExchange exchange) throws IOException {
 
-        plugin.log("request");
-
-        byte[] bytes = "Test.".getBytes();
-        exchange.sendResponseHeaders(200, bytes.length);
-        exchange.getResponseBody().write(bytes);
-        exchange.close();
-
-        /*Map<String, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         for (String part : exchange.getRequestURI().getQuery().split("&")) {
             String[] sides = part.split("=");
             values.put(sides[0], Integer.parseInt(sides[1]));
@@ -42,6 +40,6 @@ public class TerramapRequestHandler implements HttpHandler {
             exchange.sendResponseHeaders(404, bytes.length);
             exchange.getResponseBody().write(bytes);
             exchange.close();
-        }*/
+        }
     }
 }
