@@ -42,6 +42,8 @@ public class RemoveMemberProjectAction {
                 )
         ).execute();
 
+        plugin.getPlayerRegistry().get(member).getProjectManager().removeProject(project);
+
         project.update();
 
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha removido a **" + plugin.getPlayerRegistry().get(member).getName() + "** del proyecto `" + project.getId() + "`.").queue();

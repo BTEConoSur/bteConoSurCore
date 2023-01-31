@@ -161,6 +161,23 @@ public class ProjectManager {
         ).execute();
     }
 
+    public void removeProject(@NotNull Project project) throws SQLException {
+        this.ids.remove(project.getId());
+        plugin.getSqlManager().update(
+                "project_managers",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "projects", this.ids
+                        )
+                ),
+                new SQLConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).execute();
+    }
+
     public void addFinished(Country country) throws SQLException {
         int actual = this.points.getOrDefault(country, 0);
         this.finished.put(country, actual + 1);

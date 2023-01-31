@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Projects.RegionSelectors;
 
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Projects.Project;
 
@@ -15,6 +16,6 @@ public class OwnerProjectSelector implements ProjectRegionSelector {
 
     @Override
     public boolean applies(@NotNull Project project) {
-        return project.getOwner() == owner;
+        return project.getOwner().equals(owner);
     }
 }

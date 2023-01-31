@@ -15,7 +15,7 @@ import java.util.UUID;
 public class SQLParser {
 
     @Contract(pure = true)
-    private static @NotNull String getString(Object object, boolean insideJSON) {
+    public static @NotNull String getString(Object object, boolean insideJSON) {
 
         if (object instanceof UUID) {
             // binary(16)

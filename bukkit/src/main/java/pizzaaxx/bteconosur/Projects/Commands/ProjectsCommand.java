@@ -440,6 +440,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                         gui.openTo(p, plugin);
                     }
                 }
+                break;
             }
             case "name": {
                 if (args.length < 2) {
@@ -449,7 +450,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 String name = args[1];
 
-                if (!name.matches("[a-zA-Z_]{1,32}")) {
+                if (!name.matches("[a-zA-Z1-9_]{1,32}")) {
                     p.sendMessage(getPrefix() + "Introduce un nombre válido.");
                     return true;
                 }
@@ -460,7 +461,14 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     p.sendMessage(getPrefix() + "No hay proyectos que lideres aquí.");
                     return true;
                 } else if (projectIDs.size() == 1) {
-
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+                    try {
+                        String oldName = project.getDisplayName();
+                        project.setDisplayName(name).execute();
+                        p.sendMessage(getPrefix() + "Nombre del proyecto §a" + oldName + "§f cambiado a §a" + name + "§f.");
+                    } catch (SQLException | IOException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error.");
+                    }
                 } else {
                     PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
                             6,
@@ -503,6 +511,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                         gui.openTo(p, plugin);
                     }
                 }
+                break;
             }
         }
         return true;

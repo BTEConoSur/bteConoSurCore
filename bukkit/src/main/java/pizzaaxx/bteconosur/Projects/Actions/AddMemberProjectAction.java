@@ -44,6 +44,8 @@ public class AddMemberProjectAction {
                 )
         ).execute();
 
+        plugin.getPlayerRegistry().get(member).getProjectManager().addProject(project);
+
         project.update();
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha agregado a **" + plugin.getPlayerRegistry().get(member).getName() + "** al proyecto `" + project.getId() + "`.").queue();
     }

@@ -27,6 +27,8 @@ public class ClaimProjectAction {
     public void execute() throws SQLException, IOException {
         new SetOwnerProjectAction(plugin, project, owner).execute();
 
+        plugin.getPlayerRegistry().get(owner).getProjectManager().addProject(project);
+
         plugin.getTerramapHandler().deletePolygon(project.getId());
         List<Coords2D> coords = new ArrayList<>();
         for (BlockVector2D vector2D : project.getRegion().getPoints()) {
