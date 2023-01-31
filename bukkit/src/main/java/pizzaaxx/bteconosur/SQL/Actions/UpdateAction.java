@@ -18,7 +18,7 @@ public class UpdateAction {
     private final SQLValuesSet values;
     private final SQLConditionSet conditions;
 
-    public UpdateAction(BTEConoSur plugin, String tableName, SQLValuesSet values, SQLANDConditionSet conditions) {
+    public UpdateAction(BTEConoSur plugin, String tableName, SQLValuesSet values, SQLConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.values = values;

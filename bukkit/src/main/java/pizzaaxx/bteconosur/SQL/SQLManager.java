@@ -9,6 +9,7 @@ import pizzaaxx.bteconosur.SQL.Actions.SelectAction;
 import pizzaaxx.bteconosur.SQL.Actions.UpdateAction;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
@@ -40,7 +41,7 @@ public class SQLManager {
         return connection;
     }
 
-    public UpdateAction update(String tableName, SQLValuesSet values, SQLANDConditionSet conditions) {
+    public UpdateAction update(String tableName, SQLValuesSet values, SQLConditionSet conditions) {
         return new UpdateAction(plugin, tableName, values, conditions);
     }
 
@@ -48,11 +49,11 @@ public class SQLManager {
         return new InsertAction(plugin, tableName, values);
     }
 
-    public SelectAction select(String tableName, SQLColumnSet columns, SQLANDConditionSet conditions) {
+    public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
         return new SelectAction(plugin, tableName, columns, conditions);
     }
 
-    public DeleteAction delete(String tableName, SQLANDConditionSet conditions) {
+    public DeleteAction delete(String tableName, SQLConditionSet conditions) {
         return new DeleteAction(plugin, tableName, conditions);
     }
 

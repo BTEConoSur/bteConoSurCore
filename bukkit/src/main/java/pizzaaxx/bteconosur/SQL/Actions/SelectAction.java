@@ -17,7 +17,7 @@ public class SelectAction {
     private final SQLConditionSet conditions;
     private final StringBuilder additionalText;
 
-    public SelectAction(BTEConoSur plugin, String tableName, SQLColumnSet columns, SQLANDConditionSet conditions) {
+    public SelectAction(BTEConoSur plugin, String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.columns = columns;

@@ -13,7 +13,7 @@ public class DeleteAction {
     private final String tableName;
     private final SQLConditionSet conditions;
 
-    public DeleteAction(BTEConoSur plugin, String tableName, SQLANDConditionSet conditions) {
+    public DeleteAction(BTEConoSur plugin, String tableName, SQLConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.conditions = conditions;

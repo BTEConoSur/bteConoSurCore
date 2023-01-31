@@ -6,11 +6,10 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.ProjectSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLContainedCondition;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
@@ -27,7 +26,7 @@ public class ProjectManager {
     private final ServerPlayer serverPlayer;
     private final Set<Country> adminPermission;
     private final Set<String> ids;
-    private final Map<Country, Integer> finished;
+    private final Map<Country, Map<ProjectType, Integer>> finished;
     private final Map<Country, Integer> points;
 
     public ProjectManager(@NotNull BTEConoSur plugin, @NotNull ServerPlayer serverPlayer) throws SQLException, JsonProcessingException {
@@ -52,16 +51,55 @@ public class ProjectManager {
             for (String name : adminRaw) {
                 adminPermission.add(plugin.getCountryManager().get(name));
             }
-            ids = plugin.getJSONMapper().readValue(set.getString("projects"), HashSet.class);
+
+            ids = new HashSet<>();
+            ResultSet projectsSet = plugin.getSqlManager().select(
+                    "projects",
+                    new SQLColumnSet(
+                            "id"
+                    ),
+                    new SQLORConditionSet(
+                            new SQLOperatorCondition(
+                                    "owner", "=", serverPlayer.getUUID()
+                            ),
+                            new SQLJSONArrayCondition(
+                                    "members", serverPlayer.getUUID()
+                            )
+                    )
+            ).retrieve();
+
+            while (projectsSet.next()) {
+                ids.add(projectsSet.getString("id"));
+            }
 
             finished = new HashMap<>();
-            Map<String, Object> finishedRaw = plugin.getJSONMapper().readValue(set.getString("finished_projects"), HashMap.class);
-            for (Map.Entry<String, Object> entry : finishedRaw.entrySet()) {
-                finished.put(plugin.getCountryManager().get(entry.getKey()), (Integer) entry.getValue());
+            ResultSet finishedProjectsSet = plugin.getSqlManager().select(
+                    "finished_projects",
+                    new SQLColumnSet(
+                            "country", "type"
+                    ),
+                    new SQLORConditionSet(
+                            new SQLOperatorCondition(
+                                    "owner", "=", serverPlayer.getUUID()
+                            ),
+                            new SQLJSONArrayCondition(
+                                    "members", serverPlayer.getUUID()
+                            )
+                    )
+            ).retrieve();
+
+            while (finishedProjectsSet.next()) {
+                Country country = plugin.getCountryManager().get(finishedProjectsSet.getString("country"));
+                Map<ProjectType, Integer> projectsMap = finished.getOrDefault(country, new HashMap<>());
+                ProjectType type = country.getProjectType(finishedProjectsSet.getString("type"));
+                int amount = projectsMap.getOrDefault(type, 0);
+                amount++;
+                projectsMap.put(type, amount);
+                finished.put(country, projectsMap);
             }
 
             points = new HashMap<>();
-            Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(set.getString("points"), HashMap.class);
+            Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(finishedProjectsSet.getString("points"), HashMap.class);
             for (Map.Entry<String, Object> entry : pointsRaw.entrySet()) {
                 points.put(plugin.getCountryManager().get(entry.getKey()), (Integer) entry.getValue());
             }
@@ -112,7 +150,17 @@ public class ProjectManager {
     }
 
     public int getFinishedProjects(Country country) {
-        return finished.getOrDefault(country, 0);
+        Map<ProjectType, Integer> countryMap = finished.getOrDefault(country, new HashMap<>());
+        int counter = 0;
+        for (int amount : countryMap.values()) {
+            counter += amount;
+        }
+        return counter;
+    }
+
+    public int getFinishedProjects(Country country, ProjectType type) {
+        Map<ProjectType, Integer> countryMap = finished.getOrDefault(country, new HashMap<>());
+        return countryMap.getOrDefault(type, 0);
     }
 
     public int getPoints(Country country) {
@@ -146,54 +194,18 @@ public class ProjectManager {
 
     public void addProject(@NotNull Project project) throws SQLException {
         this.ids.add(project.getId());
-        plugin.getSqlManager().update(
-                "project_managers",
-                new SQLValuesSet(
-                        new SQLValue(
-                                "projects", this.ids
-                        )
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "uuid", "=", serverPlayer.getUUID()
-                        )
-                )
-        ).execute();
     }
 
     public void removeProject(@NotNull Project project) throws SQLException {
         this.ids.remove(project.getId());
-        plugin.getSqlManager().update(
-                "project_managers",
-                new SQLValuesSet(
-                        new SQLValue(
-                                "projects", this.ids
-                        )
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "uuid", "=", serverPlayer.getUUID()
-                        )
-                )
-        ).execute();
     }
 
-    public void addFinished(Country country) throws SQLException {
-        int actual = this.points.getOrDefault(country, 0);
-        this.finished.put(country, actual + 1);
-        plugin.getSqlManager().update(
-                "project_managers",
-                new SQLValuesSet(
-                        new SQLValue(
-                                "finished_projects", this.finished
-                        )
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "uuid", "=", serverPlayer.getUUID()
-                        )
-                )
-        ).execute();
+    public void addFinished(@NotNull Project project) throws SQLException {
+        Map<ProjectType, Integer> countryMap = finished.getOrDefault(project.getCountry(), new HashMap<>());
+        Integer amount = countryMap.getOrDefault(project.getType(), 0);
+        amount++;
+        countryMap.put(project.getType(), amount);
+        finished.put(project.getCountry(), countryMap);
     }
 
 }
