@@ -6,7 +6,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
 import pizzaaxx.bteconosur.SQL.Actions.SelectAction;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -61,7 +61,7 @@ public class NotificationsService {
     public void deleteNotifications(UUID uuid) throws SQLException {
         plugin.getSqlManager().delete(
                 "notifications",
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "target", "=", uuid
                         )
@@ -78,7 +78,7 @@ public class NotificationsService {
                         "minecraft_message",
                         "discord_message"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "target", "=", uuid
                         )

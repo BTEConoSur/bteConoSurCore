@@ -6,7 +6,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Notifications.Notification;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -26,7 +26,7 @@ public class DiscordManager {
                 new SQLColumnSet(
                         "id"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", id
                         )
@@ -43,7 +43,7 @@ public class DiscordManager {
                 new SQLColumnSet(
                         "uuid"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", id
                         )
@@ -76,7 +76,7 @@ public class DiscordManager {
                 new SQLColumnSet(
                         "id", "name", "discriminator"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -133,7 +133,7 @@ public class DiscordManager {
                             plugin.getSqlManager().update(
                                     "discord_managers",
                                     valuesSet,
-                                    new SQLConditionSet(
+                                    new SQLANDConditionSet(
                                             new SQLOperatorCondition(
                                                     "uuid", "=", serverPlayer.getUUID()
                                             )
@@ -176,7 +176,7 @@ public class DiscordManager {
         if (this.isLinked()) {
             plugin.getSqlManager().delete(
                     "discord_managers",
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "uuid", "=", serverPlayer.getUUID()
                             )

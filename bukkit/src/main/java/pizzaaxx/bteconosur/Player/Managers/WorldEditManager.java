@@ -5,11 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
-import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetGroup;
 
 import java.sql.ResultSet;
@@ -40,7 +39,7 @@ public class WorldEditManager {
                         "fav_assets",
                         "asset_groups"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -75,7 +74,7 @@ public class WorldEditManager {
                                         "asset_groups", this.assetGroups
                                 )
                         ),
-                        new SQLConditionSet(
+                        new SQLANDConditionSet(
                                 new SQLOperatorCondition(
                                         "uuid", "=", serverPlayer.getUUID()
                                 )
@@ -109,7 +108,7 @@ public class WorldEditManager {
                 new SQLColumnSet(
                         "asset_groups"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -139,7 +138,7 @@ public class WorldEditManager {
                                         "asset_groups", this.assetGroups
                                 )
                         ),
-                        new SQLConditionSet(
+                        new SQLANDConditionSet(
                                 new SQLOperatorCondition(
                                         "uuid", "=", serverPlayer.getUUID()
                                 )
@@ -181,7 +180,7 @@ public class WorldEditManager {
                                 "increment", increment
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -199,7 +198,7 @@ public class WorldEditManager {
                                 "presets", this.presets
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -216,7 +215,7 @@ public class WorldEditManager {
                                 "presets", this.presets
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -250,7 +249,7 @@ public class WorldEditManager {
                                 "fav_assets", this.favAssets
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -326,7 +325,7 @@ public class WorldEditManager {
                                 "asset_groups", this.assetGroups
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )

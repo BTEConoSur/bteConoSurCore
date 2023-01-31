@@ -2,7 +2,7 @@ package pizzaaxx.bteconosur.Projects.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -35,7 +35,7 @@ public class RemoveMemberProjectAction {
                                 "members", members
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", project.getId()
                         )

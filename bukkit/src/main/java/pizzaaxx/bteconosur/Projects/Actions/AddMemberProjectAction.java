@@ -2,13 +2,12 @@ package pizzaaxx.bteconosur.Projects.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public class AddMemberProjectAction {
                                 "members", members
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", project.getId()
                         )

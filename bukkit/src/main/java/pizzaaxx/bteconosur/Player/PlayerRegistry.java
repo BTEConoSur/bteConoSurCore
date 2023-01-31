@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
                     new SQLColumnSet(
                             "name"
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "name", "=", name
                             )
@@ -52,7 +52,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
                     new SQLColumnSet(
                             "uuid"
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "uuid", "=", uuid
                             )
@@ -88,7 +88,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
                 new SQLColumnSet(
                         "uuid"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "name", "=", name
                         )

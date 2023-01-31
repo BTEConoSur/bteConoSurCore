@@ -6,7 +6,7 @@ import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -35,7 +35,7 @@ public class PreLoginEvent implements Listener {
                     new SQLColumnSet(
                             "name"
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition("uuid", "=", event.getUniqueId())
                     )
             ).retrieve();
@@ -46,7 +46,7 @@ public class PreLoginEvent implements Listener {
                             new SQLValuesSet(
                                     new SQLValue("name", event.getName())
                             ),
-                            new SQLConditionSet(
+                            new SQLANDConditionSet(
                                     new SQLOperatorCondition("uuid", "=", event.getUniqueId())
                             )
                     ).execute();

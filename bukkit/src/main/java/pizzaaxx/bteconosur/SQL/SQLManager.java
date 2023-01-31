@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.SQL;
 
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Configuration.Configuration;
@@ -9,12 +8,10 @@ import pizzaaxx.bteconosur.SQL.Actions.InsertAction;
 import pizzaaxx.bteconosur.SQL.Actions.SelectAction;
 import pizzaaxx.bteconosur.SQL.Actions.UpdateAction;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
-import pizzaaxx.bteconosur.Utils.StringUtils;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
-import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +40,7 @@ public class SQLManager {
         return connection;
     }
 
-    public UpdateAction update(String tableName, SQLValuesSet values, SQLConditionSet conditions) {
+    public UpdateAction update(String tableName, SQLValuesSet values, SQLANDConditionSet conditions) {
         return new UpdateAction(plugin, tableName, values, conditions);
     }
 
@@ -51,11 +48,11 @@ public class SQLManager {
         return new InsertAction(plugin, tableName, values);
     }
 
-    public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
+    public SelectAction select(String tableName, SQLColumnSet columns, SQLANDConditionSet conditions) {
         return new SelectAction(plugin, tableName, columns, conditions);
     }
 
-    public DeleteAction delete(String tableName, SQLConditionSet conditions) {
+    public DeleteAction delete(String tableName, SQLANDConditionSet conditions) {
         return new DeleteAction(plugin, tableName, conditions);
     }
 

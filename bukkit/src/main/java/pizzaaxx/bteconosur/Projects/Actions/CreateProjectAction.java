@@ -86,10 +86,6 @@ public class CreateProjectAction {
 
         plugin.getRegionManager().addRegion(protectedPolygonalRegion);
 
-        for (City city : cities) {
-            city.addProject(id);
-        }
-
         plugin.getProjectRegistry().registerID(id);
 
         List<Coords2D> coords = new ArrayList<>();

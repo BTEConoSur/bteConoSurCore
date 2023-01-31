@@ -5,7 +5,6 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
-import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,11 +12,10 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Registry.Registry;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
-import pizzaaxx.bteconosur.Utils.DualMap;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
@@ -52,7 +50,7 @@ public class AssetsRegistry implements Registry<String, Asset> {
                 new SQLColumnSet(
                         "id", "name", "tags"
                 ),
-                new SQLConditionSet()
+                new SQLANDConditionSet()
         ).retrieve();
 
         while (set.next()) {
@@ -165,7 +163,7 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
         plugin.getSqlManager().delete(
                 "assets",
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", id
                         )

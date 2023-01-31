@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.SQL.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 
 import java.sql.SQLException;
@@ -12,7 +13,7 @@ public class DeleteAction {
     private final String tableName;
     private final SQLConditionSet conditions;
 
-    public DeleteAction(BTEConoSur plugin, String tableName, SQLConditionSet conditions) {
+    public DeleteAction(BTEConoSur plugin, String tableName, SQLANDConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.conditions = conditions;
@@ -28,8 +29,8 @@ public class DeleteAction {
             throw new SQLException("No condition was set.");
         }
 
-        StringBuilder query = new StringBuilder("DELETE FROM ").append(tableName).append(" WHERE ").append(conditions.getString());
+        String query = "DELETE FROM " + tableName + " WHERE " + conditions.getConditionSetString();
 
-        plugin.getSqlManager().getConnection().prepareStatement(query.toString()).executeUpdate();
+        plugin.getSqlManager().getConnection().prepareStatement(query).executeUpdate();
     }
 }

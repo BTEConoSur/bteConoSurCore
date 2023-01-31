@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.SQL.Actions;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 
 import java.sql.ResultSet;
@@ -16,7 +17,7 @@ public class SelectAction {
     private final SQLConditionSet conditions;
     private final StringBuilder additionalText;
 
-    public SelectAction(BTEConoSur plugin, String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
+    public SelectAction(BTEConoSur plugin, String tableName, SQLColumnSet columns, SQLANDConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.columns = columns;
@@ -40,7 +41,7 @@ public class SelectAction {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(columns.getString()).append(" FROM ").append(tableName);
         if (!conditions.isEmpty()) {
-            query.append(" WHERE ").append(conditions.getString());
+            query.append(" WHERE ").append(conditions.getConditionSetString());
         }
         query.append(additionalText);
         try {

@@ -8,12 +8,14 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.*;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ public class City implements JSONParsable {
     private final String name;
     private final String displayName;
     private final Set<String> showcaseIDs;
-    private final Set<String> projects;
     private final Country country;
     private final boolean hasUrbanArea;
     private final ProtectedRegion region;
@@ -37,7 +38,7 @@ public class City implements JSONParsable {
                 new SQLColumnSet(
                         "*"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "name", "=", name
                         )
@@ -48,7 +49,6 @@ public class City implements JSONParsable {
             this.name = set.getString("name");
             this.displayName = set.getString("display_name");
             this.showcaseIDs = plugin.getJSONMapper().readValue(set.getString("showcase_ids"), HashSet.class);
-            this.projects = plugin.getJSONMapper().readValue(set.getString("projects"), HashSet.class);
             this.country = plugin.getCountryManager().get(set.getString("country"));
             this.hasUrbanArea = set.getBoolean("urban_area");
             if (this.hasUrbanArea) {
@@ -76,12 +76,29 @@ public class City implements JSONParsable {
         return showcaseIDs;
     }
 
-    public Set<String> getProjects() {
-        return projects;
-    }
-
     public Country getCountry() {
         return country;
+    }
+
+    public List<String> getProjects() throws SQLException {
+        List<String> ids = new ArrayList<>();
+        ResultSet set = plugin.getSqlManager().select(
+                "projects",
+                new SQLColumnSet(
+                        "id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition(
+                                "cities", this.name
+                        )
+                )
+        ).retrieve();
+
+        while (set.next()) {
+            ids.add(set.getString("id"));
+        }
+
+        return ids;
     }
 
     public boolean hasUrbanArea() {
@@ -129,22 +146,6 @@ public class City implements JSONParsable {
 
     public RemoveShowcaseIDCityAction removeShowcaseID(String id) {
         return new RemoveShowcaseIDCityAction(
-                plugin,
-                name,
-                id
-        );
-    }
-
-    public AddProjectCityAction addProject(String id) {
-        return new AddProjectCityAction(
-                plugin,
-                name,
-                id
-        );
-    }
-
-    public RemoveProjectCityAction removeProject(String id) {
-        return new RemoveProjectCityAction(
                 plugin,
                 name,
                 id

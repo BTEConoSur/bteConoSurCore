@@ -9,7 +9,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Actions.AddCityProjectAction;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.sql.ResultSet;
@@ -135,7 +135,7 @@ public class Country {
                     new SQLColumnSet(
                             "id"
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "pending", "=", true
                             ),

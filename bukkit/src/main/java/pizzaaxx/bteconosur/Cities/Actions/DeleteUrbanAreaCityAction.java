@@ -1,16 +1,12 @@
 package pizzaaxx.bteconosur.Cities.Actions;
 
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.sql.SQLException;
-import java.util.List;
 
 public class DeleteUrbanAreaCityAction {
 
@@ -40,7 +36,7 @@ public class DeleteUrbanAreaCityAction {
                                     false
                             )
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "name", "=", name
                             )

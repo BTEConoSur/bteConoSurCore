@@ -31,7 +31,7 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -156,7 +156,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                         "message_id",
                                         "country"
                                 ),
-                                new SQLConditionSet(
+                                new SQLANDConditionSet(
                                         new SQLOperatorCondition(
                                                 "owner", "=", p.getUniqueId()
                                         ),
@@ -293,7 +293,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                                             plugin.getSqlManager().delete(
                                                     "project_requests",
-                                                    new SQLConditionSet(
+                                                    new SQLANDConditionSet(
                                                             new SQLOperatorCondition(
                                                                     "owner", "=", p.getUniqueId()
                                                             )

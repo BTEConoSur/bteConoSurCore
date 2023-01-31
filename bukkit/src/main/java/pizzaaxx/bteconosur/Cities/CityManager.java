@@ -2,13 +2,12 @@ package pizzaaxx.bteconosur.Cities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.CreateCityAction;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +31,7 @@ public class CityManager {
                 new SQLColumnSet(
                         "name"
                 ),
-                new SQLConditionSet()
+                new SQLANDConditionSet()
         ).retrieve();
 
         while (set.next()) {

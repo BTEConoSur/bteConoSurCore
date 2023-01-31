@@ -1,10 +1,8 @@
 package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -18,7 +16,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
@@ -28,10 +25,8 @@ import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
-import pizzaaxx.bteconosur.SQL.SQLManager;
-import pizzaaxx.bteconosur.SQL.SQLParser;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
@@ -67,7 +62,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         new SQLColumnSet(
                                 "*"
                         ),
-                        new SQLConditionSet(
+                        new SQLANDConditionSet(
                                 new SQLOperatorCondition(
                                         "message_id", "=", message.getId()
                                 )
@@ -118,7 +113,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                                                 "moderator_id", event.getUser().getId()
                                         )
                                 ),
-                                new SQLConditionSet(
+                                new SQLANDConditionSet(
                                         new SQLOperatorCondition(
                                                 "message_id", "=", message.getId()
                                         )
@@ -166,7 +161,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                                                 "points", points
                                         )
                                 ),
-                                new SQLConditionSet(
+                                new SQLANDConditionSet(
                                         new SQLOperatorCondition(
                                                 "message_id", "=", message.getId()
                                         )
@@ -236,7 +231,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         new SQLColumnSet(
                                 "*"
                         ),
-                        new SQLConditionSet(
+                        new SQLANDConditionSet(
                                 new SQLOperatorCondition(
                                         "message_id", "=", message.getId()
                                 )
@@ -293,7 +288,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         message.delete().queue();
                         plugin.getSqlManager().delete(
                                 "project_requests",
-                                new SQLConditionSet(
+                                new SQLANDConditionSet(
                                         new SQLOperatorCondition(
                                                 "message_id", "=", message.getId()
                                         )
@@ -354,7 +349,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                         new SQLColumnSet(
                                 "*"
                         ),
-                        new SQLConditionSet(
+                        new SQLANDConditionSet(
                                 new SQLOperatorCondition(
                                         "message_id", "=", message.getId()
                                 )
@@ -382,7 +377,7 @@ public class ProjectCreationRequestListener extends ListenerAdapter implements P
                     message.delete().queue();
                     plugin.getSqlManager().delete(
                             "project_requests",
-                            new SQLConditionSet(
+                            new SQLANDConditionSet(
                                     new SQLOperatorCondition(
                                             "message_id", "=", message.getId()
                                     )

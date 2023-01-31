@@ -8,7 +8,7 @@ import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.ProjectSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLContainedCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
@@ -39,7 +39,7 @@ public class ProjectManager {
                 new SQLColumnSet(
                         "*"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -86,7 +86,7 @@ public class ProjectManager {
             return new HashSet<>();
         }
 
-        SQLConditionSet conditionSet = new SQLConditionSet(
+        SQLANDConditionSet conditionSet = new SQLANDConditionSet(
                 new SQLContainedCondition<>(
                         "id",
                         ids,
@@ -133,7 +133,7 @@ public class ProjectManager {
                                 "points", this.points
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -153,7 +153,7 @@ public class ProjectManager {
                                 "projects", this.ids
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -170,7 +170,7 @@ public class ProjectManager {
                                 "projects", this.ids
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )
@@ -188,7 +188,7 @@ public class ProjectManager {
                                 "finished_projects", this.finished
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", serverPlayer.getUUID()
                         )

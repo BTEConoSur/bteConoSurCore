@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.SQL.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -17,7 +18,7 @@ public class UpdateAction {
     private final SQLValuesSet values;
     private final SQLConditionSet conditions;
 
-    public UpdateAction(BTEConoSur plugin, String tableName, SQLValuesSet values, SQLConditionSet conditions) {
+    public UpdateAction(BTEConoSur plugin, String tableName, SQLValuesSet values, SQLANDConditionSet conditions) {
         this.plugin = plugin;
         this.tableName = tableName;
         this.values = values;
@@ -51,7 +52,7 @@ public class UpdateAction {
             counter++;
         }
 
-        query.append(" WHERE ").append(conditions.getString());
+        query.append(" WHERE ").append(conditions.getConditionSetString());
         plugin.getSqlManager().getConnection().prepareStatement(query.toString()).executeUpdate();
     }
 

@@ -6,12 +6,11 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.Actions.CreateProjectAction;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.ProjectRegionSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -40,7 +39,7 @@ public class ProjectRegistry {
                 new SQLColumnSet(
                         "id"
                 ),
-                new SQLConditionSet()
+                new SQLANDConditionSet()
         ).retrieve();
 
         while (set.next()) {

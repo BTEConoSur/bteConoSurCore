@@ -1,7 +1,8 @@
-package pizzaaxx.bteconosur.Projects;
+package pizzaaxx.bteconosur.Projects.Listeners;
 
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Regions.RegionEnterEvent;
 import pizzaaxx.bteconosur.Regions.RegionListener;
 

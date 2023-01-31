@@ -2,12 +2,11 @@ package pizzaaxx.bteconosur.Projects.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
-import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -33,7 +32,7 @@ public class SetPendingProjectAction {
                                 "pending", pending
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "id", "=", project.getId()
                         )

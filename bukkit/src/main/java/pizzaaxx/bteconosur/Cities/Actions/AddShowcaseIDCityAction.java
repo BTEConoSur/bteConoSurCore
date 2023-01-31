@@ -3,7 +3,7 @@ package pizzaaxx.bteconosur.Cities.Actions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -35,7 +35,7 @@ public class AddShowcaseIDCityAction {
                 new SQLColumnSet(
                         "showcase_ids"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "name", "=", name
                         )
@@ -53,7 +53,7 @@ public class AddShowcaseIDCityAction {
                                     ids
                             )
                     ),
-                    new SQLConditionSet(
+                    new SQLANDConditionSet(
                             new SQLOperatorCondition(
                                     "name", "=", name
                             )

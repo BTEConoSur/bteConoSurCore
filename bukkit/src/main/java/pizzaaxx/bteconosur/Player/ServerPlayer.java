@@ -6,10 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
-import javax.persistence.Temporal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -32,7 +31,7 @@ public class ServerPlayer {
                 new SQLColumnSet(
                         "*"
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "uuid", "=", uuid
                         )

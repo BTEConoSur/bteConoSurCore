@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.Cities.Actions;
 
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
@@ -34,7 +34,7 @@ public class SetDisplayNameCityAction {
                                 this.displayName
                         )
                 ),
-                new SQLConditionSet(
+                new SQLANDConditionSet(
                         new SQLOperatorCondition(
                                 "name", "=", this.name
                         )
