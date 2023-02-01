@@ -11,6 +11,8 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ServerPlayer {
@@ -44,7 +46,7 @@ public class ServerPlayer {
             this.uuid = uuid;
             this.name = set.getString("name");
 
-            this.chatManager = new ChatManager(this, plugin);
+            this.chatManager = new ChatManager(plugin, this);
             this.worldEditManager = new WorldEditManager(plugin, this);
             this.discordManager = new DiscordManager(plugin, this);
             this.miscManager = new MiscManager(plugin, this, set);
@@ -95,6 +97,20 @@ public class ServerPlayer {
 
     public boolean canBuild(Location loc) {
         return true;
+    }
+
+    public List<String> getLore(boolean name) {
+        List<String> lore = new ArrayList<>();
+        if (name) {
+            lore.add("§a§l" + this.name);
+            lore.add("§r ");
+        }
+        if (discordManager.isLinked()) {
+            lore.add("§aDiscord: §f" + discordManager.getName() + "#" + discordManager.getDiscriminator());
+        } else {
+            lore.add("§aDiscord: §fN/A");
+        }
+        return lore;
     }
 
     public void sendNotification(

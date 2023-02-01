@@ -18,11 +18,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import pizzaaxx.bteconosur.Chat.ChatHolder;
-import pizzaaxx.bteconosur.Chat.ChatMessage;
-import pizzaaxx.bteconosur.Chat.Components.ChatMessageComponent;
-import pizzaaxx.bteconosur.Chat.Components.HoverAction;
-import pizzaaxx.bteconosur.Chat.Events.ChatEventsListener;
+import org.jetbrains.annotations.Nullable;
+import pizzaaxx.bteconosur.Chat.ChatHandler;
+import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
+import pizzaaxx.bteconosur.Chat.CountryChat;
+import pizzaaxx.bteconosur.Chat.GlobalChat;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
@@ -40,9 +40,9 @@ import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
-import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
+import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
@@ -73,7 +73,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
+public class BTEConoSur extends JavaPlugin implements Prefixable {
 
     private World mainWorld;
 
@@ -191,6 +191,12 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
 
     TerramapServer terramapServer = new TerramapServer(this);
 
+    private final ChatHandler chatHandler = new ChatHandler(this);
+
+    public ChatHandler getChatHandler() {
+        return chatHandler;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -235,7 +241,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
                 new PreLoginEvent(this),
                 new JoinEvent(this),
                 new QuitEvent(this),
-                new ChatEventsListener(this),
                 new Shortcuts(this),
                 this.inventoryHandler,
                 new TeleportEvent(),
@@ -247,9 +252,6 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         );
 
         this.log("Starting chats...");
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.addToChat(player.getUniqueId(), true);
-        }
 
         // --- COUNTRIES ---
         this.log("Starting country manager...");
@@ -334,6 +336,7 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
         getCommand("project").setExecutor(new ProjectsCommand(this));
+        getCommand("chat").setExecutor(new ChatCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
@@ -352,6 +355,11 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         } catch (Exception e) {
             e.printStackTrace();
             this.error("The Terramap tile server couldn't be started.");
+        }
+
+        chatHandler.registerChat(new GlobalChat(this, chatHandler));
+        for (Country country : countryManager.getAllCountries()) {
+            chatHandler.registerChat(new CountryChat(this, chatHandler, country));
         }
     }
 
@@ -392,121 +400,14 @@ public class BTEConoSur extends JavaPlugin implements ChatHolder, Prefixable {
         }
     }
 
-    // --- CHAT ---
-
-    private final Set<UUID> players = new HashSet<>();
-
-    @Override
-    public String getChatID() {
-        return "global";
-    }
-
-    @Override
-    public String getChatEmoji() {
-        return ":globe_with_meridians:";
-    }
-
-    @Override
-    public String getChatDisplayName() {
-        return "Global";
-    }
-
-    @Override
-    public void moveToChat(UUID uuid, @NotNull ChatHolder newHolder) {
-        this.removeFromChat(uuid, false);
-        newHolder.addToChat(uuid, false);
-    }
-
-    @Override
-    public void removeFromChat(UUID uuid, boolean disableDiscord) {
-        players.remove(uuid);
-        String name = Bukkit.getPlayer(uuid).getName();
-        for (UUID player : players) {
-            this.getPlayerRegistry().get(player).getChatManager().sendMessage(
-                    new ChatMessage(
-                            new ChatMessageComponent(
-                                    name,
-                                    ChatColor.GREEN,
-                                    new HoverAction(
-                                            name,
-                                            ChatColor.GREEN
-                                    )
-                            ),
-                            new ChatMessageComponent(
-                                    " ha salido del chat.",
-                                    ChatColor.GRAY
-                            )
-                    )
-            );
-        }
-        if (!disableDiscord) {
-            for (Country country : countryManager.getAllCountries()) {
-                country.getGlobalChatChannel().sendMessage(":heavy_minus_sign: **" + name + "** ha salido del chat.").queue();
+    @Nullable
+    public Player getOnlinePlayer(String partialName) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getName().toLowerCase().startsWith(partialName.toLowerCase())) {
+                return player;
             }
         }
-    }
-
-    @Override
-    public void addToChat(UUID uuid, boolean disableDiscord) {
-        String name = Bukkit.getPlayer(uuid).getName();
-        ChatMessage message = new ChatMessage(
-                new ChatMessageComponent(
-                        name,
-                        ChatColor.GREEN,
-                        new HoverAction(
-                                name,
-                                ChatColor.GREEN
-                        )
-                ),
-                new ChatMessageComponent(
-                        " se ha unido al chat.",
-                        ChatColor.GRAY
-                )
-        );
-        for (UUID player : players) {
-            this.getPlayerRegistry().get(player).getChatManager().sendMessage(
-                  message
-            );
-        }
-        players.add(uuid);
-        if (!disableDiscord) {
-            for (Country country : countryManager.getAllCountries()) {
-                country.getGlobalChatChannel().sendMessage(":heavy_plus_sign: **" + name + "** ha entrado al chat.").queue();
-            }
-        }
-    }
-
-    @Override
-    public void sendMessage(UUID sender, @NotNull ChatMessage message) {
-        String name = Bukkit.getPlayer(sender).getName();
-        ChatMessage chatMessage = new ChatMessage(
-                new ChatMessageComponent("<"),
-                new ChatMessageComponent(
-                        name,
-                        ChatColor.GREEN,
-                        new HoverAction(
-                                name,
-                                ChatColor.GREEN
-                        )
-                ),
-                new ChatMessageComponent("> ", ChatColor.WHITE)
-        );
-        chatMessage.append(message.getChatComponents());
-        for (UUID player : players) {
-            this.getPlayerRegistry().get(player).getChatManager().sendMessage(
-                    chatMessage
-            );
-        }
-    }
-
-    @Override
-    public void broadcast(ChatMessage message) {
-
-    }
-
-    @Override
-    public void broadcast(ChatMessage message, boolean ignoreHidden) {
-
+        return null;
     }
 
     @Override

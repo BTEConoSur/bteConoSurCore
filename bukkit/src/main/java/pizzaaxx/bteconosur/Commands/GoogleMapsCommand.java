@@ -6,11 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Chat.ChatMessage;
-import pizzaaxx.bteconosur.Chat.Components.ChatMessageComponent;
-import pizzaaxx.bteconosur.Chat.Components.ClickAction;
-import pizzaaxx.bteconosur.Chat.Components.HoverAction;
 import pizzaaxx.bteconosur.Geo.Coords2D;
+import xyz.upperlevel.spigot.book.BookUtil;
 
 public class GoogleMapsCommand implements CommandExecutor {
 
@@ -35,22 +32,12 @@ public class GoogleMapsCommand implements CommandExecutor {
 
         String url = "https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",100m/data=!3m1!1e3";
 
-        ChatMessage message = new ChatMessage(
-                new ChatMessageComponent(
-                        plugin.getPrefix()
-                ),
-                new ChatMessageComponent(
-                        "Haz click "
-                ),
-                new ChatMessageComponent(
-                        "aquí", ChatColor.GREEN, new HoverAction("Haz click para ir"), new ClickAction(url)
-                ),
-                new ChatMessageComponent(
-                        " para ver dónde estás en GoogleMaps."
-                )
+        p.sendMessage(
+                BookUtil.TextBuilder.of(plugin.getPrefix()).build(),
+                BookUtil.TextBuilder.of("Haz click ").color(ChatColor.WHITE).build(),
+                BookUtil.TextBuilder.of("aquí").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para ir")).onClick(BookUtil.ClickAction.openUrl(url)).build(),
+                BookUtil.TextBuilder.of(" para ver dónde estás en GoogleMaps.").color(ChatColor.WHITE).build()
         );
-
-        p.sendMessage(message.getBaseComponents());
 
         return true;
     }

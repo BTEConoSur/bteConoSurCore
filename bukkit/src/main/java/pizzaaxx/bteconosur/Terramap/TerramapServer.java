@@ -24,7 +24,7 @@ public class TerramapServer {
                 ),
                 0
         );
-        server.setExecutor(Executors.newSingleThreadExecutor());
+        server.setExecutor(Executors.newFixedThreadPool(4));
         server.createContext("/terramap", new TerramapRequestHandler(plugin));
         server.start();
 

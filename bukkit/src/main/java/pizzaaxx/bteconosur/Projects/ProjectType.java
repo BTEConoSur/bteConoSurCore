@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -88,5 +89,17 @@ public class ProjectType {
 
     public Integer getRequiredProjects(@NotNull ProjectType type) {
         return unlockProjects.get(type.getName());
+    }
+
+    public boolean isUnlocked(ProjectManager manager) {
+        boolean unlocked = true;
+        for (String typeName : unlockProjects.keySet()) {
+            ProjectType type = country.getProjectType(typeName);
+            if (manager.getFinishedProjects(country, type) < unlockProjects.get(typeName)) {
+                unlocked = false;
+                break;
+            }
+        }
+        return unlocked;
     }
 }

@@ -63,6 +63,10 @@ public class Country {
         return name;
     }
 
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
     public String getDisplayName() {
         return displayName;
     }

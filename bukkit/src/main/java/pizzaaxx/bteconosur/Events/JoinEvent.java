@@ -31,6 +31,5 @@ public class JoinEvent implements Listener {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
             country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
         }
-        plugin.addToChat(event.getPlayer().getUniqueId(), true);
     }
 }

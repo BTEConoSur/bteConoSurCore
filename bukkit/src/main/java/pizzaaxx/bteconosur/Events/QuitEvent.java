@@ -30,7 +30,6 @@ public class QuitEvent implements Listener {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
             country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
         }
-        plugin.removeFromChat(event.getPlayer().getUniqueId(), true);
     }
 
 }

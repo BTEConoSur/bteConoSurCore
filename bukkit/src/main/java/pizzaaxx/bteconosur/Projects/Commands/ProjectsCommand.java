@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Projects.Commands;
 
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
@@ -11,7 +12,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -30,12 +33,16 @@ import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
+import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
+import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.RegionUtils;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
+import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
 import java.io.IOException;
@@ -179,7 +186,9 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     typeMenu.setPlaceholder("Selecciona un tipo de proyecto");
 
                                     for (ProjectType type : country.getProjectTypes()) {
-                                        typeMenu.addOption(type.getDisplayName(), type.getName());
+                                        if (type.isUnlocked(projectManager)) {
+                                            typeMenu.addOption(type.getDisplayName(), type.getName());
+                                        }
                                     }
 
                                     StringSelectMenu.Builder pointsMenu = StringSelectMenu.create("projectCreationRequestPointsMenu");
@@ -437,8 +446,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 null,
                                 null
                         );
-                        gui.openTo(p, plugin);
                     }
+                    gui.openTo(p, plugin);
                 }
                 break;
             }
@@ -508,9 +517,83 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 null,
                                 null
                         );
-                        gui.openTo(p, plugin);
                     }
+                    gui.openTo(p, plugin);
                 }
+                break;
+            }
+            case "list": {
+
+                try {
+                    BookUtil.BookBuilder builder = BookUtil.writtenBook();
+                    List<BaseComponent[]> pages = new ArrayList<>();
+
+                    List<String> ownerIDs = new ArrayList<>(projectManager.getProjects(new OwnerSQLSelector(p.getUniqueId())));
+                    Collections.sort(ownerIDs);
+                    List<String> memberIDs = new ArrayList<>(projectManager.getProjects(new NotOwnerSQLSelector(p.getUniqueId())));
+                    Collections.sort(memberIDs);
+                    List<String> ids = new ArrayList<>(ownerIDs);
+                    ids.addAll(memberIDs);
+
+                    for (String id : ids) {
+                        Project project = plugin.getProjectRegistry().get(id);
+                        BlockVector2D avgPoint = RegionUtils.getAveragePoint(project.getRegion());
+
+                        BookUtil.PageBuilder pageBuilder = BookUtil.PageBuilder.of(BookUtil.TextBuilder.of("§7\"§0" + project.getDisplayName() + "§7\"").build());
+                        pageBuilder.newLine();
+                        pageBuilder.newLine();
+                        pageBuilder.add("• ID: §8" + project.getId());
+                        pageBuilder.newLine();
+                        pageBuilder.add("• País: §8" + project.getCountry().getDisplayName());
+                        pageBuilder.newLine();
+                        pageBuilder.add("• Tipo: §8" + project.getType().getDisplayName());
+                        pageBuilder.newLine();
+                        pageBuilder.add("• Ptje.: §8" + project.getPoints());
+                        pageBuilder.newLine();
+                        pageBuilder.add("• Coord.: §8");
+                        pageBuilder.add(
+                                BookUtil.TextBuilder.of(
+                                        avgPoint.getBlockX() + " " + plugin.getWorld().getHighestBlockAt(avgPoint.getBlockX(), avgPoint.getBlockZ()).getLocation().getBlockY() + " " + avgPoint.getBlockZ())
+                                        .onClick(BookUtil.ClickAction.runCommand("/tp " + avgPoint.getBlockX() + " " + plugin.getWorld().getHighestBlockAt(avgPoint.getBlockX(), avgPoint.getBlockZ()).getLocation().getBlockY() + " " + avgPoint.getBlockZ()))
+                                        .onHover(BookUtil.HoverAction.showText("Haz click para ir"))
+                                        .build());
+                        pageBuilder.newLine();
+                        if (project.isClaimed()) {
+                            pageBuilder.add("• Líder: §8");
+                            ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
+                            pageBuilder.add(
+                                    BookUtil.TextBuilder.of(owner.getName())
+                                            .onHover(BookUtil.HoverAction.showText(String.join("\n", owner.getLore(true))))
+                                            .build()
+                            );
+                            if (project.getMembers().size() > 0) {
+                                pageBuilder.add("• Mmbrs.: §8");
+                                int counter = 0;
+                                for (UUID memberUUID : project.getMembers()) {
+                                    ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+                                    pageBuilder.add(
+                                            BookUtil.TextBuilder.of(member.getName())
+                                                    .onHover(BookUtil.HoverAction.showText(String.join(", ", member.getLore(true))))
+                                                    .build()
+                                    );
+                                    if (counter < project.getMembers().size() - 1) {
+                                        pageBuilder.add(", ");
+                                    }
+                                    counter++;
+                                }
+                            }
+                        }
+                        pages.add(pageBuilder.build());
+                    }
+
+                    builder.pages(pages);
+
+                    BookUtil.openPlayer(p, builder.build());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                }
+
                 break;
             }
         }

@@ -92,7 +92,7 @@
 * 🕙 `/project add [jugador]`
 * 🕙 `/project remove [jugador]`
 * 🕙 `/project transfer [miembro]`
-* 🕙 `/project name [nombre]`
+* ✔️ `/project name [nombre]`
 * ✔️ `/project borders`
 * 🕙 `/project manage`
 * 🕙 `/project tag <etiqueta>|delete`
@@ -104,7 +104,7 @@
 * 🕙 `/project request`
 * 🕙 `/project tutorial`
 ## Chat
-* 🕙 `/chat [nombre]`
+* ✔️ `/chat [nombre]`
 * 🕙 `/chat <(global|<país>|<idProyecto>)>`
 * 🕙 `/chat default [(global|<país>|<idProyecto>)]`
 * 🕙 `/chat invite <nombre>`

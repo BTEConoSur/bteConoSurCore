@@ -99,7 +99,7 @@ public class ProjectManager {
             }
 
             points = new HashMap<>();
-            Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(finishedProjectsSet.getString("points"), HashMap.class);
+            Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(set.getString("points"), HashMap.class);
             for (Map.Entry<String, Object> entry : pointsRaw.entrySet()) {
                 points.put(plugin.getCountryManager().get(entry.getKey()), (Integer) entry.getValue());
             }

@@ -14,6 +14,12 @@ import java.util.UUID;
 
 public class SQLParser {
 
+    /**
+     *
+     * @param object The object to be parsed.
+     * @param insideJSON Whether the object is part of a JSON object or not.
+     * @return A {@link String} representation of the value depending on its context.
+     */
     @Contract(pure = true)
     public static @NotNull String getString(Object object, boolean insideJSON) {
 
@@ -91,6 +97,11 @@ public class SQLParser {
     }
 
 
+    /**
+     * A shorthand method that assumes the object is not inside a JSON object.
+     * @param object The object to be parsed.
+     * @return A {@link String} representation of the value.
+     */
     public static @NotNull String getString(@NotNull Object object) {
         return SQLParser.getString(object, false);
     }
