@@ -58,7 +58,7 @@ public class ProjectChat implements Chat {
 
     @Override
     public Set<UUID> getPlayers() {
-        return null;
+        return players;
     }
 
     @Override
@@ -100,14 +100,31 @@ public class ProjectChat implements Chat {
     }
 
     @Override
-    public void sendMessage(UUID uuid, String message) {
+    public void sendMessageFromOther(Chat originChat, UUID uuid, String message) {
         ServerPlayer senderPlayer = plugin.getPlayerRegistry().get(uuid);
         for (UUID playerUUID : players) {
             ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(playerUUID);
             if (!serverPlayer.getChatManager().isHidden()) {
                 Bukkit.getPlayer(playerUUID).sendMessage(
-                        BookUtil.TextBuilder.of("<").color(ChatColor.WHITE).build(),
-                        BookUtil.TextBuilder.of(senderPlayer.getName()).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of("§f[§ePING§f] §7(" + originChat.getDisplayName() + ") §f<").color(ChatColor.WHITE).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getName()).color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
+                        BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
+                );
+            }
+        }
+    }
+
+    @Override
+    public void sendMessage(UUID uuid, String message) { // TODO PREFIXES
+        ServerPlayer senderPlayer = plugin.getPlayerRegistry().get(uuid);
+        Project.ProjectRole projectRole = getProject().getProjectRole(uuid);
+        for (UUID playerUUID : players) {
+            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(playerUUID);
+            if (!serverPlayer.getChatManager().isHidden()) {
+                Bukkit.getPlayer(playerUUID).sendMessage(
+                        BookUtil.TextBuilder.of(projectRole.getPrefix() + "<").color(ChatColor.WHITE).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getName()).color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
                         BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
                         BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
                 );

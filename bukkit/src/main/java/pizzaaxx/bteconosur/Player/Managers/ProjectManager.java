@@ -119,9 +119,17 @@ public class ProjectManager {
         }
     }
 
+    public Set<String> getAllProjectIDs() {
+        return ids;
+    }
+
     public Set<String> getProjects(ProjectSQLSelector... selectors) throws SQLException {
         if (ids.isEmpty()) {
             return new HashSet<>();
+        }
+
+        if (selectors.length == 0) {
+            return ids;
         }
 
         SQLANDConditionSet conditionSet = new SQLANDConditionSet(
@@ -147,6 +155,14 @@ public class ProjectManager {
             result.add(set.getString("id"));
         }
         return result;
+    }
+
+    public int getFinishedProjects() {
+        int counter = 0;
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+            counter += this.getFinishedProjects(country);
+        }
+        return counter;
     }
 
     public int getFinishedProjects(Country country) {

@@ -20,6 +20,8 @@ public interface Chat {
 
     void removePlayer(UUID uuid);
 
+    void sendMessageFromOther(Chat originChat, UUID uuid, String message);
+
     void sendMessage(UUID uuid, String message);
 
     void broadcast(String message, boolean ignoreHidden);

@@ -414,24 +414,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     PaginatedInventoryGUI gui = new PaginatedInventoryGUI(6, "Elige un proyecto para mostrar");
                     for (String id : projectIDs) {
                         Project project = plugin.getProjectRegistry().get(id);
-                        List<String> lore = new ArrayList<>();
-                        lore.add("§f• ID: §7" + id);
-                        lore.add("§f• Tipo: §7" + project.getType().getDisplayName());
-                        if (project.isClaimed()) {
-                            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
-                            if (project.getMembers().size() > 0) {
-                                List<String> memberNames = new ArrayList<>();
-                                for (UUID memberUUID : project.getMembers()) {
-                                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
-                                }
-                                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
-                            }
-                        }
                         gui.add(
-                                ItemBuilder.of(Material.MAP)
-                                        .name("§aProyecto " + project.getDisplayName())
-                                        .lore(lore)
-                                        .build(),
+                                project.getItem(),
                                 event -> {
                                     event.closeGUI();
                                     Polygonal2DSelection selection = new Polygonal2DSelection(
@@ -485,24 +469,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     );
                     for (String id : projectIDs) {
                         Project project = plugin.getProjectRegistry().get(id);
-                        List<String> lore = new ArrayList<>();
-                        lore.add("§f• ID: §7" + id);
-                        lore.add("§f• Tipo: §7" + project.getType().getDisplayName());
-                        if (project.isClaimed()) {
-                            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
-                            if (project.getMembers().size() > 0) {
-                                List<String> memberNames = new ArrayList<>();
-                                for (UUID memberUUID : project.getMembers()) {
-                                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
-                                }
-                                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
-                            }
-                        }
                         gui.add(
-                                ItemBuilder.of(Material.MAP)
-                                        .name("§aProyecto " + project.getDisplayName())
-                                        .lore(lore)
-                                        .build(),
+                                project.getItem(),
                                 event -> {
                                     event.closeGUI();
                                     try {

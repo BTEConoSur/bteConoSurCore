@@ -19,11 +19,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pizzaaxx.bteconosur.Chat.ChatHandler;
+import pizzaaxx.bteconosur.Chat.*;
 import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
-import pizzaaxx.bteconosur.Chat.CountryChat;
-import pizzaaxx.bteconosur.Chat.GlobalChat;
-import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
@@ -38,6 +35,7 @@ import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Events.TeleportEvent;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
+import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
@@ -248,7 +246,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new AssetListener(this),
                 new AssetInventoryListener(this),
                 new PresetsListener(this),
-                this.selUndoRedoCommand
+                this.selUndoRedoCommand,
+                chatHandler
         );
 
         this.log("Starting chats...");
@@ -360,6 +359,16 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         chatHandler.registerChat(new GlobalChat(this, chatHandler));
         for (Country country : countryManager.getAllCountries()) {
             chatHandler.registerChat(new CountryChat(this, chatHandler, country));
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ChatManager chatManager = this.getPlayerRegistry().get(player.getUniqueId()).getChatManager();
+            try {
+                Chat chat = chatManager.getCurrentChat();
+                chat.addPlayer(player.getUniqueId());
+            } catch (SQLException e) {
+                this.warn("Problem with Chat Manager: " + player.getUniqueId());
+            }
         }
     }
 

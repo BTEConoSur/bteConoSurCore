@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Chat.ChatHandler;
+import pizzaaxx.bteconosur.Chat.ProjectChat;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -71,6 +72,9 @@ public class ChatManager {
         if (currentChat.startsWith("project_")) {
             if (!plugin.getProjectRegistry().exists(currentChat.replace("project_", ""))) {
                 this.setCurrentChat(plugin.getChatHandler().getChat("global"));
+            } else if (!handler.isLoaded(currentChat)) {
+                Project project = plugin.getProjectRegistry().get(currentChat.replace("project_", ""));
+                handler.registerChat(new ProjectChat(project, handler));
             }
         }
         return handler.getChat(currentChat);
@@ -131,6 +135,24 @@ public class ChatManager {
 
     public boolean isHidden() {
         return hidden;
+    }
+
+    public boolean toggleHidden() throws SQLException {
+        this.hidden = !this.hidden;
+        plugin.getSqlManager().update(
+                "chat_managers",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "hidden", this.hidden
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).execute();
+        return this.hidden;
     }
 
     public boolean hasNickname() {

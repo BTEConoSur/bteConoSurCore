@@ -60,6 +60,7 @@ public class CountryChat implements Chat {
     public void addPlayer(UUID uuid) {
         if (!players.contains(uuid)) {
             players.add(uuid);
+            country.getCountryChatChannel().sendMessage("<:plus:1042295433969537055> **" + plugin.getPlayerRegistry().get(uuid).getName() + "** ha entrado al chat.").queue();
         }
     }
 
@@ -68,6 +69,23 @@ public class CountryChat implements Chat {
         if (players.contains(uuid)) {
             players.remove(uuid);
             handler.tryUnregister(this);
+            country.getCountryChatChannel().sendMessage("<:minus:1042295467322654736> **" + plugin.getPlayerRegistry().get(uuid).getName() + "** ha salido del chat.").queue();
+        }
+    }
+
+    @Override
+    public void sendMessageFromOther(Chat originChat, UUID uuid, String message) {
+        ServerPlayer senderPlayer = plugin.getPlayerRegistry().get(uuid);
+        for (UUID playerUUID : players) {
+            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(playerUUID);
+            if (!serverPlayer.getChatManager().isHidden()) {
+                Bukkit.getPlayer(playerUUID).sendMessage(
+                        BookUtil.TextBuilder.of("§f[§ePING§f] §7(" + originChat.getDisplayName() + ") §f<").color(ChatColor.WHITE).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getName()).color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
+                        BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
+                );
+            }
         }
     }
 
@@ -79,15 +97,15 @@ public class CountryChat implements Chat {
             if (!serverPlayer.getChatManager().isHidden()) {
                 Bukkit.getPlayer(playerUUID).sendMessage(
                         BookUtil.TextBuilder.of("<").color(ChatColor.WHITE).build(),
-                        BookUtil.TextBuilder.of(senderPlayer.getName()).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getName()).color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
                         BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
                         BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
                 );
             }
         }
 
-        country.getGlobalChatChannel().sendMessage(
-                "<:chat:1042295395625209886> **" + senderPlayer.getName() + ":** " + message
+        country.getCountryChatChannel().sendMessage(
+                "<:chat:1042295395625209886> **" + senderPlayer.getName() + ":** " + ChatColor.stripColor(message)
         ).queue();
     }
 

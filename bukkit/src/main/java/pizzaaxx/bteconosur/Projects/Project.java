@@ -1,10 +1,14 @@
 package pizzaaxx.bteconosur.Projects;
 
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -142,6 +146,60 @@ public class Project {
 
     public ProtectedPolygonalRegion getRegion() {
         return region;
+    }
+
+    public ItemStack getItem() {
+        List<String> lore = new ArrayList<>();
+        lore.add("§f• ID: §7" + id);
+        lore.add("§f• Tipo: §7" + this.getType().getDisplayName());
+        if (this.isClaimed()) {
+            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(this.getOwner()).getName());
+            if (this.getMembers().size() > 0) {
+                List<String> memberNames = new ArrayList<>();
+                for (UUID memberUUID : this.getMembers()) {
+                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
+                }
+                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
+            }
+        }
+        return ItemBuilder.of(Material.MAP)
+                .name("§aProyecto " + this.getDisplayName())
+                .lore(lore)
+                .build();
+    }
+
+    public enum ProjectRole implements PrefixHolder {
+        LEADER("§f[§6LÍDER§f] §r", ""),
+        MEMBER("§f[§9MIEMBRO§f] §r", ""),
+        GUEST("§f[§7INVITADO§f] §r", "");
+
+        private final String prefix;
+        private final String discordPrefix;
+
+        ProjectRole(String prefix, String discordPrefix) {
+            this.prefix = prefix;
+            this.discordPrefix = discordPrefix;
+        }
+
+        @Override
+        public String getPrefix() {
+            return prefix;
+        }
+
+        @Override
+        public String getDiscordPrefix() {
+            return discordPrefix;
+        }
+    }
+
+    public ProjectRole getProjectRole(UUID uuid) {
+        if (owner.equals(uuid)) {
+            return ProjectRole.LEADER;
+        } else if (members.contains(uuid)) {
+            return ProjectRole.MEMBER;
+        } else {
+            return ProjectRole.GUEST;
+        }
     }
 
     public void update() throws SQLException, IOException {

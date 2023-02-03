@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Player.Managers.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -11,9 +12,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ServerPlayer {
 
@@ -25,6 +24,56 @@ public class ServerPlayer {
     private final DiscordManager discordManager;
     private final MiscManager miscManager;
     private final ProjectManager projectManager;
+    private final List<SecondaryRoles> secondaryRoles;
+
+    public enum BuilderRank implements PrefixHolder {
+        VISITA("§f[VISITA§f] §r", "[:flag_white:] "),
+        POSTULANTE("§f[§7POSTULANTE§f] §r", "[:books:] "),
+        BUILDER("§f[§9BUILDER§f] §r", "[:pick_hammer:] ");
+
+        private final String prefix;
+        private final String discordPrefix;
+
+        BuilderRank(String prefix, String discordPrefix) {
+            this.prefix = prefix;
+            this.discordPrefix = discordPrefix;
+        }
+
+        @Override
+        public String getPrefix() {
+            return prefix;
+        }
+
+        @Override
+        public String getDiscordPrefix() {
+            return discordPrefix;
+        }
+    }
+
+    public enum SecondaryRoles implements PrefixHolder {
+        ADMIN("§f[§cADMIN§f] §r", "[:crown:] "),
+        MOD("§f[§5MOD§f] §r", "[:shield:] "),
+        STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] "),
+        DONADOR("§f[§dDONADOR§f] §r", "[:gem:] ");
+
+        private final String prefix;
+        private final String discordPrefix;
+
+        SecondaryRoles(String prefix, String discordPrefix) {
+            this.prefix = prefix;
+            this.discordPrefix = discordPrefix;
+        }
+
+        @Override
+        public String getPrefix() {
+            return prefix;
+        }
+
+        @Override
+        public String getDiscordPrefix() {
+            return discordPrefix;
+        }
+    }
 
     public ServerPlayer(@NotNull BTEConoSur plugin, UUID uuid) throws SQLException, JsonProcessingException {
 
@@ -45,6 +94,12 @@ public class ServerPlayer {
             this.plugin = plugin;
             this.uuid = uuid;
             this.name = set.getString("name");
+            this.secondaryRoles = new ArrayList<>();
+            List<String> rawRoles = plugin.getJSONMapper().readValue(set.getString("roles"), ArrayList.class);
+            for (String role : rawRoles) {
+                secondaryRoles.add(SecondaryRoles.valueOf(role.toUpperCase()));
+            }
+            Collections.sort(secondaryRoles);
 
             this.chatManager = new ChatManager(plugin, this);
             this.worldEditManager = new WorldEditManager(plugin, this);
@@ -120,4 +175,17 @@ public class ServerPlayer {
         plugin.getNotificationsService().sendNotification(this.uuid, minecraftMessage, discordMessage);
     }
 
+    public BuilderRank getBuilderRank() {
+        if (projectManager.getFinishedProjects() > 0) {
+            return BuilderRank.BUILDER;
+        } else if (projectManager.getAllProjectIDs().size() > 0) {
+            return BuilderRank.POSTULANTE;
+        } else {
+            return BuilderRank.VISITA;
+        }
+    }
+
+    public List<SecondaryRoles> getSecondaryRoles() {
+        return secondaryRoles;
+    }
 }
