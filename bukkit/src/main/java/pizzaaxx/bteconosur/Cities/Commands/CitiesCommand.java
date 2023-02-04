@@ -107,6 +107,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                             country,
                             points
                     ).execute();
+                    p.sendMessage(getPrefix() + "Ciudad §a" + displayName + "§7 (" + name + ")§f creada con éxito.");
                 } catch (CityActionException | SQLException | JsonProcessingException e) {
                     p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
                     e.printStackTrace();
@@ -137,6 +138,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                 }
 
                 City city = plugin.getCityManager().get(name);
+                String oldDisplayName = city.getDisplayName();
 
                 if (!p.hasPermission("bteconosur.city.admin." + city.getCountry().getName())) {
                     p.sendMessage("No puedes manejar ciudades de este país.");
@@ -147,6 +149,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 try {
                     city.setDisplayName(displayName).execute();
+                    p.sendMessage(getPrefix() + "Nombre de §a" + name + "§f cambiado de §a" + oldDisplayName + "§f a §a" + displayName + "§f.");
                 } catch (CityActionException | SQLException e) {
                     p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
                     e.printStackTrace();
@@ -188,6 +191,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 try {
                     city.setUrbanArea(points).execute();
+                    p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f establecida.");
                 } catch (CityActionException | SQLException e) {
                     p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
                     e.printStackTrace();
@@ -221,6 +225,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 try {
                     city.deleteUrbanArea().execute();
+                    p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f eliminada.");
                 } catch (CityActionException | SQLException e) {
                     p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
                     e.printStackTrace();
@@ -262,6 +267,7 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 try {
                     city.redefine(points).execute();
+                    p.sendMessage("Área de §a" + city.getDisplayName() + "§f redefinida.");
                 } catch (CityActionException e) {
                     p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
                     e.printStackTrace();

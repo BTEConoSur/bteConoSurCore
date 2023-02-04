@@ -29,7 +29,7 @@ public class Project {
     private final String id;
     private String displayName;
     private final Country country;
-    private final Set<String> cities;
+    private Set<String> cities;
     private boolean pending;
     private final ProjectType type;
     private int points;
@@ -214,7 +214,8 @@ public class Project {
                         "points",
                         "owner",
                         "tag",
-                        "members"
+                        "members",
+                        "cities"
                 ),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition(
@@ -236,6 +237,7 @@ public class Project {
             for (String uuid : uuids) {
                 members.add(UUID.fromString(uuid));
             }
+            this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
 
         } else {
             throw new IllegalArgumentException();
