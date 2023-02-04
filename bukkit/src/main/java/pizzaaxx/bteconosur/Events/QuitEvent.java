@@ -7,9 +7,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.awt.*;
+import java.sql.SQLException;
 
 public class QuitEvent implements Listener {
 
@@ -21,6 +24,14 @@ public class QuitEvent implements Listener {
 
     @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent event) {
+        ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+        try {
+            Chat chat = serverPlayer.getChatManager().getCurrentChat();
+            serverPlayer.getChatManager().setCurrentChat(chat);
+            chat.removePlayer(event.getPlayer().getUniqueId());
+        } catch (SQLException e) {
+            plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
+        }
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.RED);
         embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha salido del servidor.", null,

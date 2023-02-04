@@ -32,7 +32,10 @@ import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.NonMemberProjectSelector;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.NotClaimedProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
+import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -51,6 +54,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
 
 public class ProjectsCommand implements CommandExecutor, Prefixable {
 
@@ -154,6 +159,16 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                         return true;
                     }
                 } else {
+
+                    try {
+                        if (projectManager.getProjects(new OwnerSQLSelector(p.getUniqueId())).size() >= MAX_PROJECTS_PER_PLAYER) {
+                            p.sendMessage(getPrefix() + "Solo puedes ser líder de 15 proyectos a la vez.");
+                            return true;
+                        }
+                    } catch (SQLException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        return true;
+                    }
 
                     ResultSet set;
                     try {
@@ -563,6 +578,75 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                 }
 
                 break;
+            }
+            case "claim": {
+                try {
+                    if (projectManager.getProjects(new OwnerSQLSelector(p.getUniqueId())).size() >= MAX_PROJECTS_PER_PLAYER) {
+                        p.sendMessage(getPrefix() + "Solo puedes ser líder de 15 proyectos a la vez.");
+                        return true;
+                    }
+                } catch (SQLException e) {
+                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    return true;
+                }
+
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new NonMemberProjectSelector(p.getUniqueId()), new NotClaimedProjectSelector());
+
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos disponibles aquí.");
+                } else if (projectIDs.size() == 1) {
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+                    if (!project.getType().isUnlocked(projectManager)) {
+                        p.sendMessage(getPrefix() + "Aún no desbloqueas los proyectos de tipo §a" + project.getType().getDisplayName() + "§f. Solo puedes reclamar proyectos de tipo §a" + project.getCountry().getUnlockedProjectTypes(projectManager).stream().map(ProjectType::getDisplayName).collect(Collectors.joining("§f, §a")) + "§f.");
+                        return true;
+                    }
+
+                    if (project.isClaimed()) {
+                        p.sendMessage(getPrefix() + "El proyecto ya ha sido reclamado. Usa §a/p request§f para solicitar unirte.");
+                        return true;
+                    }
+
+                    try {
+                        project.claim(p.getUniqueId()).execute();
+                        p.sendMessage(getPrefix() + "Has reclamado el proyecto §a" + project.getDisplayName() + "§f de tipo §a" + project.getType().getDisplayName() + "§f.");
+                    } catch (SQLException | IOException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    }
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto para reclamar"
+                    );
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+                        gui.add(
+                                project.getItem(),
+                                event -> {
+                                    event.closeGUI();
+                                    if (!project.getType().isUnlocked(projectManager)) {
+                                        p.sendMessage(getPrefix() + "Aún no desbloqueas los proyectos de tipo §a" + project.getType().getDisplayName() + "§f. Solo puedes reclamar proyectos de tipo §a" + project.getCountry().getUnlockedProjectTypes(projectManager).stream().map(ProjectType::getDisplayName).collect(Collectors.joining("§f, §a")) + "§f.");
+                                        return;
+                                    }
+
+                                    if (project.isClaimed()) {
+                                        p.sendMessage(getPrefix() + "El proyecto ya ha sido reclamado. Usa §a/p request§f para solicitar unirte.");
+                                        return;
+                                    }
+
+                                    try {
+                                        project.claim(p.getUniqueId()).execute();
+                                        p.sendMessage(getPrefix() + "Has reclamado el proyecto §a" + project.getDisplayName() + "§f de tipo §a" + project.getType().getDisplayName() + "§f.");
+                                    } catch (SQLException | IOException e) {
+                                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                    }
+                                },
+                                null,
+                                null,
+                                null
+                        );
+                    }
+                    gui.openTo(p, plugin);
+                }
             }
         }
         return true;

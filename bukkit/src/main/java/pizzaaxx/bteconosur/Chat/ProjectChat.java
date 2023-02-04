@@ -74,7 +74,7 @@ public class ProjectChat implements Chat {
             } else {
                 role = "Invitado";
             }
-            this.broadcast(prefix + "§a" + plugin.getPlayerRegistry().get(uuid).getName() + " §7(" + role + ")§f se ha unido al chat.", false);
+            this.broadcast(prefix + "§a" + plugin.getPlayerRegistry().get(uuid).getName() + " §7(" + role + ")§f ha entrado al chat.", false);
 
             players.add(uuid);
         }

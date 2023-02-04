@@ -56,10 +56,6 @@ public class CreateCityAction {
                                 "[]"
                         ),
                         new SQLValue(
-                                "projects",
-                                "[]"
-                        ),
-                        new SQLValue(
                                 "country",
                                 this.country.getName()
                         ),
@@ -70,6 +66,5 @@ public class CreateCityAction {
                 )
         ).execute();
         plugin.getCityManager().registerName(this.name);
-        country.addCity(name).execute();
     }
 }

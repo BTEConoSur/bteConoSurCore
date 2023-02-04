@@ -4,22 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CountryManager {
 
     private final BTEConoSur plugin;
     private final Map<String, Country> countries = new HashMap<>();
     private final Map<String, String> abbreviations = new HashMap<>();
+    public final Map<String, Country> countryChannels = new HashMap<>();
+    public final Map<String, Country> guilds = new HashMap<>();
+    public final Set<String> globalChannels = new HashSet<>();
 
     public CountryManager(BTEConoSur plugin) {
         this.plugin = plugin;
@@ -35,8 +35,12 @@ public class CountryManager {
         ).retrieve();
 
         while (set.next()) {
-            countries.put(set.getString("name"), new Country(plugin, set));
+            Country country = new Country(plugin, set);
+            countries.put(set.getString("name"), country);
             abbreviations.put(set.getString("abbreviation"), set.getString("name"));
+            countryChannels.put(set.getString("country_chat_id"), country);
+            guilds.put(set.getString("guild_id"), country);
+            globalChannels.add(set.getString("global_chat_id"));
         }
     }
 
@@ -74,16 +78,6 @@ public class CountryManager {
                 // country_chile_1
                 String name = region.getId().split("_")[1];
                 return this.get(name);
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public Country getCountryByGuild(String guildID) {
-        for (Country country : countries.values()) {
-            if (country.getGuildID().equals(guildID)) {
-                return country;
             }
         }
         return null;

@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -44,6 +46,12 @@ public class AddMemberProjectAction {
         ).execute();
 
         plugin.getPlayerRegistry().get(member).getProjectManager().addProject(project);
+
+        DefaultDomain domain = new DefaultDomain(project.getRegion().getMembers());
+        domain.addPlayer(member);
+        ProtectedPolygonalRegion region = project.getRegion();
+        region.setMembers(domain);
+        plugin.getRegionManager().addRegion(region);
 
         project.update();
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha agregado a **" + plugin.getPlayerRegistry().get(member).getName() + "** al proyecto `" + project.getId() + "`.").queue();

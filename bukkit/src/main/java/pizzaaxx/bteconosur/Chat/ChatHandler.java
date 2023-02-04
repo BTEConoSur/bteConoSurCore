@@ -1,5 +1,11 @@
 package pizzaaxx.bteconosur.Chat;
 
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -9,6 +15,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 
 import java.sql.SQLException;
@@ -16,7 +23,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ChatHandler implements Listener, Prefixable {
+public class ChatHandler extends ListenerAdapter implements Listener, Prefixable {
 
     private final BTEConoSur plugin;
     private final Map<String, Chat> chats = new HashMap<>();
@@ -83,11 +90,11 @@ public class ChatHandler implements Listener, Prefixable {
                 try {
                     ChatManager targetChatManager = plugin.getPlayerRegistry().get(target.getUniqueId()).getChatManager();
                     if (!targetChatManager.isHidden()) {
-                        message = matcher.replaceAll("§a" + target.getName());
+                        message = matcher.replaceAll("§a" + target.getName() + "§f");
                         targetChats.add(targetChatManager.getCurrentChat());
                         targetPlayers.add(target.getUniqueId());
                     } else {
-                        message = matcher.replaceAll("§7" + target.getName());
+                        message = matcher.replaceAll("§7" + target.getName() + "§f");
                     }
                 } catch (SQLException e) {
                     plugin.warn("Problem with Chat Manager: " + target.getUniqueId());
@@ -147,6 +154,55 @@ public class ChatHandler implements Listener, Prefixable {
             pitch4.runTaskLaterAsynchronously(plugin, 8);
             pitch5.runTaskLaterAsynchronously(plugin, 10);
             pitch6.runTaskLaterAsynchronously(plugin, 12);
+        }
+    }
+
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+
+        if (event.getChannelType() != ChannelType.TEXT) {
+            return;
+        }
+
+        User user = event.getMember().getUser();
+
+        if (user.isBot()) {
+            return;
+        }
+
+        String channelID = event.getChannel().getId();
+        if (plugin.getCountryManager().globalChannels.contains(channelID)) {
+
+            Chat chat = this.getChat("global");
+
+            Country originCountry = plugin.getCountryManager().guilds.get(event.getGuild().getId());
+
+            StringBuilder newMessage = new StringBuilder(); // TODO TEST THIS
+            newMessage.append(":flag_").append(originCountry.getAbbreviation()).append(": **").append(user.getName()).append("#").append(user.getDiscriminator()).append(":** ").append(event.getMessage().getContentDisplay());
+            for (Country country : plugin.getCountryManager().getAllCountries()) {
+                if (country != originCountry) {
+                    MessageCreateAction action = country.getGlobalChatChannel().sendMessage(newMessage);
+                    if (event.getMessage().getAttachments().size() > 0) {
+                        action.addActionRow(
+                                        Button.link(
+                                                event.getMessage().getJumpUrl(),
+                                                "Ver archivo(s) adjunto(s)"
+                                        )
+                                );
+                    }
+                    action.queue();
+                }
+            }
+
+            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + "#" + user.getDiscriminator() + "§f: " + event.getMessage().getContentDisplay(), false);
+
+        } else if (plugin.getCountryManager().countryChannels.containsKey(channelID)) {
+
+            Country country = plugin.getCountryManager().countryChannels.get(channelID);
+            Chat chat = this.getChat(country.getName());
+
+            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + "#" + user.getDiscriminator() + "§f: " + event.getMessage().getContentDisplay(), false);
+
         }
     }
 

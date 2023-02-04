@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Countries.Actions.AddCityProjectAction;
+import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -47,7 +47,24 @@ public class Country {
         this.iconURL = set.getString("icon_url");
         Map<String, Integer> spawnJSON = plugin.getJSONMapper().readValue(set.getString("spawn_point"), Map.class);
         this.spawnPoint = new Location(plugin.getWorld(), spawnJSON.get("x"), spawnJSON.get("y"), spawnJSON.get("z"));
-        this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
+
+        this.cities = new HashSet<>();
+        ResultSet citiesSet = plugin.getSqlManager().select(
+                "cities",
+                new SQLColumnSet(
+                        "name"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "country", "=", this.name
+                        )
+                )
+        ).retrieve();
+
+        while (citiesSet.next()) {
+            this.cities.add(citiesSet.getString("name"));
+        }
+
         this.projectTypes = new LinkedHashMap<>();
         List<String> projectTypeIDs = plugin.getJSONMapper().readValue(set.getString("project_types"), ArrayList.class);
         for (String projectTypeID : projectTypeIDs) {
@@ -111,14 +128,6 @@ public class Country {
         return cities;
     }
 
-    public AddCityProjectAction addCity(String name) {
-        return new AddCityProjectAction(
-                plugin,
-                this,
-                name
-        );
-    }
-
     public boolean isType(String type) {
         return projectTypes.containsKey(type);
     }
@@ -129,6 +138,16 @@ public class Country {
 
     public List<ProjectType> getProjectTypes() {
         return new ArrayList<>(projectTypes.values());
+    }
+
+    public List<ProjectType> getUnlockedProjectTypes(ProjectManager manager) {
+        List<ProjectType> result = new ArrayList<>();
+        for (ProjectType type : projectTypes.values()) {
+            if (type.isUnlocked(manager)) {
+                result.add(type);
+            }
+        }
+        return result;
     }
 
     public Set<String> getPendingProjectsIDs() {

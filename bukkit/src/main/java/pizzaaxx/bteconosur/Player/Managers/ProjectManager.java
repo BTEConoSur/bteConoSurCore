@@ -208,15 +208,15 @@ public class ProjectManager {
         ).queue();
     }
 
-    public void addProject(@NotNull Project project) throws SQLException {
+    public void addProject(@NotNull Project project) {
         this.ids.add(project.getId());
     }
 
-    public void removeProject(@NotNull Project project) throws SQLException {
+    public void removeProject(@NotNull Project project) {
         this.ids.remove(project.getId());
     }
 
-    public void addFinished(@NotNull Project project) throws SQLException {
+    public void addFinished(@NotNull Project project) {
         Map<ProjectType, Integer> countryMap = finished.getOrDefault(project.getCountry(), new HashMap<>());
         Integer amount = countryMap.getOrDefault(project.getType(), 0);
         amount++;

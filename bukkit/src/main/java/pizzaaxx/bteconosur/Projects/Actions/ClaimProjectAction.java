@@ -1,6 +1,8 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Projects.Project;
@@ -35,6 +37,12 @@ public class ClaimProjectAction {
             coords.add(new Coords2D(plugin, vector2D));
         }
         plugin.getTerramapHandler().drawPolygon(coords, new Color(255, 200, 0), project.getId());
+
+        DefaultDomain domain = new DefaultDomain();
+        domain.addPlayer(owner);
+        ProtectedPolygonalRegion region = project.getRegion();
+        region.setMembers(domain);
+        plugin.getRegionManager().addRegion(region);
 
         project.getCountry().getLogsChannel().sendMessage(":inbox_tray: **" + plugin.getPlayerRegistry().get(owner).getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
     }

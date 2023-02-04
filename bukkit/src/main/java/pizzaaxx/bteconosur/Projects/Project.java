@@ -14,12 +14,15 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
+import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 public class Project {
+
+    public static int MAX_PROJECTS_PER_PLAYER = 15;
 
     private final BTEConoSur plugin;
 
@@ -243,6 +246,7 @@ public class Project {
         return new AddMemberProjectAction(plugin, this, uuid);
     }
 
+    @CheckReturnValue
     public ClaimProjectAction claim(UUID owner) {
         return new ClaimProjectAction(plugin, this, owner);
     }

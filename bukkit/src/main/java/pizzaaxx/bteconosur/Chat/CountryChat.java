@@ -59,6 +59,8 @@ public class CountryChat implements Chat {
     @Override
     public void addPlayer(UUID uuid) {
         if (!players.contains(uuid)) {
+            ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+            this.broadcast(handler.getPrefix() + "§a" + s.getName() + " §fha entrado al chat.", false);
             players.add(uuid);
             country.getCountryChatChannel().sendMessage("<:plus:1042295433969537055> **" + plugin.getPlayerRegistry().get(uuid).getName() + "** ha entrado al chat.").queue();
         }
@@ -68,6 +70,8 @@ public class CountryChat implements Chat {
     public void removePlayer(UUID uuid) {
         if (players.contains(uuid)) {
             players.remove(uuid);
+            ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+            this.broadcast(handler.getPrefix() + "§a" + s.getName() + " §fha salido del chat.", false);
             handler.tryUnregister(this);
             country.getCountryChatChannel().sendMessage("<:minus:1042295467322654736> **" + plugin.getPlayerRegistry().get(uuid).getName() + "** ha salido del chat.").queue();
         }

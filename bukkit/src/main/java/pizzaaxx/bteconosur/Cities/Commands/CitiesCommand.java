@@ -75,8 +75,8 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
 
                 String name = args[2];
 
-                if (!name.matches("[a-zA-Z]{1,32}")) {
-                    p.sendMessage(this.getPrefix() + "Introduce un nombre válido. Solo mayúsculas y minúsculas, sin espacios ni guiones bajos.");
+                if (!name.matches("[a-z]{1,32}")) {
+                    p.sendMessage(this.getPrefix() + "Introduce un nombre válido. Solo minúsculas, sin espacios ni guiones bajos.");
                     return true;
                 }
 

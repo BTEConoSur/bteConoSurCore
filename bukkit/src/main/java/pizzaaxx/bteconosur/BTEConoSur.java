@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -257,6 +258,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         try {
             countryManager.init();
         } catch (SQLException | JsonProcessingException e) {
+            e.printStackTrace();
             this.error("Plugin starting stopped. Country manager startup failed.");
             return;
         }
@@ -296,9 +298,14 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         String token = discordConfig.getString("token");
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
+        jdaBuilder.enableIntents(
+                GatewayIntent.MESSAGE_CONTENT,
+                GatewayIntent.DIRECT_MESSAGES
+        );
         jdaBuilder.addEventListeners(
                 linkCommand,
-                new ProjectCreationRequestListener(this)
+                new ProjectCreationRequestListener(this),
+                chatHandler
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

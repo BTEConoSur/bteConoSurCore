@@ -7,9 +7,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.awt.*;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 
 public class JoinEvent implements Listener {
 
@@ -22,6 +26,7 @@ public class JoinEvent implements Listener {
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
         plugin.getPlayerRegistry().load(event.getPlayer().getUniqueId());
+        ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.GREEN);
         embedBuilder.setAuthor(plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).getName() + " ha entrado al servidor.", null,
@@ -29,7 +34,12 @@ public class JoinEvent implements Listener {
         MessageEmbed embed = embedBuilder.build();
         for (Country country : plugin.getCountryManager().getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
-            country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
+        }
+        try {
+            Chat chat = serverPlayer.getChatManager().getDefaultChat();
+            chat.addPlayer(event.getPlayer().getUniqueId());
+        } catch (SQLException e) {
+            plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
         }
     }
 }

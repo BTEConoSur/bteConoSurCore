@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -43,6 +45,12 @@ public class RemoveMemberProjectAction {
         ).execute();
 
         plugin.getPlayerRegistry().get(member).getProjectManager().removeProject(project);
+
+        DefaultDomain domain = new DefaultDomain(project.getRegion().getMembers());
+        domain.removePlayer(member);
+        ProtectedPolygonalRegion region = project.getRegion();
+        region.setMembers(domain);
+        plugin.getRegionManager().addRegion(region);
 
         project.update();
 
