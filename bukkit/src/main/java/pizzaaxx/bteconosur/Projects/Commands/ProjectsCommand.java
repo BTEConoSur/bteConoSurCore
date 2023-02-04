@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -35,7 +34,6 @@ import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.NonMemberProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.NotClaimedProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
-import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -51,8 +49,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
@@ -108,6 +106,11 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                 }
 
                 Country country = plugin.getCountryManager().getCountryAt(loc);
+
+                if (country == null) {
+                    p.sendMessage(getPrefix() + "El área seleccionada no está dentro de ningún país.");
+                    return true;
+                }
 
                 if (projectManager.hasAdminPermission(country)) {
 
@@ -648,6 +651,135 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     }
                     gui.openTo(p, plugin);
                 }
+                break;
+            }
+            case "delete": {
+
+                Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                if (country == null) {
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún país.");
+                    return true;
+                }
+
+                if (!s.getProjectManager().hasAdminPermission(country)) {
+                    p.sendMessage(getPrefix() + "No tienes permisos para administrar proyectos en §a" + country.getDisplayName() + "§f.");
+                    return true;
+                }
+
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
+
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos en este lugar.");
+                } else if (projectIDs.size() == 1) {
+
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+
+                    InventoryGUI confirmGUI = new InventoryGUI(
+                            1,
+                            "¿Eliminar proyecto " + project.getDisplayName() + "?"
+                    );
+                    confirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.confirmHead(),
+                                    "§aConfirmar",
+                                    null
+                            ),
+                            3
+                    );
+                    confirmGUI.setLCAction(
+                            confirmEvent -> {
+                                confirmEvent.closeGUI();
+                                try {
+                                    plugin.getProjectRegistry().deleteProject(
+                                            project,
+                                            p.getUniqueId()
+                                    ).exec();
+                                    p.sendMessage(getPrefix() + "Proyecto §a" + project.getId() + "§f eliminado.");
+                                } catch (SQLException e) {
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+                            },
+                            3
+                    );
+                    confirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.cancelHead(),
+                                    "§cCancelar",
+                                    null
+                            ),
+                            5
+                    );
+                    confirmGUI.setLCAction(
+                            InventoryGUIClickEvent::closeGUI,
+                            5
+                    );
+                    plugin.getInventoryHandler().open(p, confirmGUI);
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto para eliminar"
+                    );
+
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+
+                        gui.add(
+                                project.getItem(),
+                                event -> {
+                                    InventoryGUI confirmGUI = new InventoryGUI(
+                                            1,
+                                            "¿Eliminar proyecto " + project.getDisplayName() + "?"
+                                    );
+                                    confirmGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.confirmHead(),
+                                                    "§aConfirmar",
+                                                    null
+                                            ),
+                                            3
+                                    );
+                                    confirmGUI.setLCAction(
+                                            confirmEvent -> {
+                                                confirmEvent.closeGUI();
+                                                try {
+                                                    plugin.getProjectRegistry().deleteProject(
+                                                            project,
+                                                            p.getUniqueId()
+                                                    ).exec();
+                                                    p.sendMessage(getPrefix() + "Proyecto §a" + project.getId() + "§f eliminado.");
+                                                } catch (SQLException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                            },
+                                            3
+                                    );
+                                    confirmGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.cancelHead(),
+                                                    "§cCancelar",
+                                                    null
+                                            ),
+                                            5
+                                    );
+                                    confirmGUI.setLCAction(
+                                            cancelEvent -> {
+                                                cancelEvent.closeGUI();
+                                                gui.openTo(p, plugin);
+                                            },
+                                            5
+                                    );
+                                    plugin.getInventoryHandler().open(p, confirmGUI);
+                                },
+                                null,
+                                null,
+                                null
+                        );
+                    }
+                    gui.openTo(p, plugin);
+                }
+
+                break;
             }
         }
         return true;

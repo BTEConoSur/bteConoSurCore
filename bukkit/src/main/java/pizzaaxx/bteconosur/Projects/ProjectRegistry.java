@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.Actions.CreateProjectAction;
+import pizzaaxx.bteconosur.Projects.Actions.DeleteProjectAction;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.ProjectRegionSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -74,6 +75,10 @@ public class ProjectRegistry {
 
     public CreateProjectAction createProject(Country country, ProjectType type, int points, List<BlockVector2D> region) {
         return new CreateProjectAction(plugin, country, type, points, region);
+    }
+
+    public DeleteProjectAction deleteProject(Project project, UUID moderator) {
+        return new DeleteProjectAction(plugin, project, moderator);
     }
 
     public Project get(String id) {

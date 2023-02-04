@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -113,7 +114,7 @@ public class ItemBuilder {
     }
 
     @NotNull
-    public static ItemStack head(UUID owner, String name, List<String> lore) {
+    public static ItemStack head(UUID owner, String name, @Nullable List<String> lore) {
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 
@@ -132,7 +133,7 @@ public class ItemBuilder {
     }
 
     @NotNull
-    public static ItemStack head(String value, String name, List<String> lore) {
+    public static ItemStack head(String value, String name, @Nullable List<String> lore) {
         ItemStack skull = new ItemStack(Material.SKULL_ITEM,1, (short) 3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 

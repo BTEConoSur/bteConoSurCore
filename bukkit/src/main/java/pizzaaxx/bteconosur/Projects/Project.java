@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
+import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
@@ -21,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Project implements JSONParsable {
+public class Project implements JSONParsable, Prefixable {
 
     public static int MAX_PROJECTS_PER_PLAYER = 15;
 
@@ -175,6 +176,11 @@ public class Project implements JSONParsable {
     @Override
     public String getJSON(boolean insideJSON) {
         return (insideJSON?"\"":"'") + this.id + (insideJSON?"\"":"'");
+    }
+
+    @Override
+    public String getPrefix() {
+        return "§f[§dPROYECTO§f] §7>> §f";
     }
 
     public enum ProjectRole implements PrefixHolder {

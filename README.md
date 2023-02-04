@@ -88,7 +88,8 @@
 * 🕙 `/city delete <nombre>`
 ## Proyectos
 * ✔️ *Action Bar*
-* 🕙 `/project create [<tipo> <puntos>]`
+* ✔️ `/project create [<tipo> <puntos>]`
+* ✔️ `/project delete`
 * 🕙 `/project add [jugador]`
 * 🕙 `/project remove [jugador]`
 * 🕙 `/project transfer [miembro]`
@@ -96,7 +97,7 @@
 * ✔️ `/project borders`
 * 🕙 `/project manage`
 * 🕙 `/project tag <etiqueta>|delete`
-* 🕙 `/project claim`
+* ✔️ `/project claim`
 * 🕙 `/project find`
 * 🕙 `/project finish`
 * 🕙 `/project review <(accept|continue|deny)>`
@@ -105,8 +106,8 @@
 * 🕙 `/project tutorial`
 ## Chat
 * ✔️ `/chat [nombre]`
-* 🕙 `/chat <(global|<país>|<idProyecto>)>`
+* ✔️ `/chat <(global|<país>|<idProyecto>)>`
 * 🕙 `/chat default [(global|<país>|<idProyecto>)]`
-* 🕙 `/chat invite <nombre>`
-* 🕙 `/chat <código>`
+* ✔️ `/chat invite <nombre>`
+* ✔️ `/chat <código>`
 * 🕙 `/nickname <nickname>`
