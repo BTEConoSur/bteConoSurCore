@@ -36,8 +36,9 @@ public class JoinEvent implements Listener {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
         }
         try {
-            Chat chat = serverPlayer.getChatManager().getDefaultChat();
-            chat.addPlayer(event.getPlayer().getUniqueId());
+            Chat defaultChat = serverPlayer.getChatManager().getDefaultChat();
+            serverPlayer.getChatManager().setCurrentChat(defaultChat);
+            defaultChat.addPlayer(event.getPlayer().getUniqueId());
         } catch (SQLException e) {
             plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
         }

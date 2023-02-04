@@ -110,6 +110,10 @@ public class ChatManager {
                 Project project = plugin.getProjectRegistry().get(defaultChat.replace("project_", ""));
                 if (!project.getAllMembers().contains(serverPlayer.getUUID())) {
                     this.setDefaultChat(plugin.getChatHandler().getChat("global"));
+                } else {
+                    if (!handler.isLoaded(defaultChat)) {
+                        handler.registerChat(new ProjectChat(project, handler));
+                    }
                 }
             }
         }

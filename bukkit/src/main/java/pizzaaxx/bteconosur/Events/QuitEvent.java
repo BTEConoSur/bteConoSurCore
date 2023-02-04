@@ -27,7 +27,6 @@ public class QuitEvent implements Listener {
         ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
         try {
             Chat chat = serverPlayer.getChatManager().getCurrentChat();
-            serverPlayer.getChatManager().setCurrentChat(chat);
             chat.removePlayer(event.getPlayer().getUniqueId());
         } catch (SQLException e) {
             plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
@@ -39,7 +38,6 @@ public class QuitEvent implements Listener {
         MessageEmbed embed = embedBuilder.build();
         for (Country country : plugin.getCountryManager().getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
-            country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
         }
     }
 

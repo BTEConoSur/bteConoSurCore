@@ -103,6 +103,114 @@ public class ChatCommand implements CommandExecutor, Prefixable {
                     return true;
                 }
 
+                if (args[0].equals("default")) {
+
+                    if (args.length < 2) {
+
+                        if (chatManager.getCurrentChatName().equals(chatManager.getDefaultChatName())) {
+                            p.sendMessage(getPrefix() + "Ya estás en tu chat por defecto.");
+                            return true;
+                        }
+
+                        Chat oldChat = chatManager.getCurrentChat();
+                        oldChat.removePlayer(p.getUniqueId());
+
+                        Chat defaultChat = chatManager.getDefaultChat();
+                        chatManager.setCurrentChat(defaultChat);
+                        defaultChat.addPlayer(p.getUniqueId());
+                        p.sendMessage(getPrefix() + "Te has unido a tu chat por defecto: §a" + defaultChat.getDisplayName() + "§f.");
+                    } else {
+                        if (args[1].equals("global")) {
+
+                            if (chatManager.getCurrentChatName().equals("global")) {
+                                p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat §aGlobal§f.");
+                                return true;
+                            }
+
+                            chatManager.setDefaultChat(handler.getChat("global"));
+                            p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en el chat §aGlobal§f.");
+                            return true;
+                        }
+
+                        Country country = plugin.getCountryManager().get(args[1]);
+
+                        if (country != null) {
+
+                            if (chatManager.getCurrentChatName().equals(country.getName())) {
+                                p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de §a" + country.getDisplayName() + "§f.");
+                                return true;
+                            }
+
+                            chatManager.setDefaultChat(handler.getChat(country.getName()));
+                            p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en el chat de §a" + country.getDisplayName() + "§f.");
+                            return true;
+                        }
+
+                        if (args[1].equals("project") || args[1].equals("proyecto")) {
+                            List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
+
+                            if (projectIDs.size() == 0) {
+                                p.sendMessage(getPrefix() + "No hay proyectos de los que seas miembro en este lugar.");
+                            } else if (projectIDs.size() == 1) {
+                                String projectID = projectIDs.get(0);
+
+                                if (chatManager.getCurrentChatName().equals("project_" + projectID)) {
+                                    p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de este proyecto.");
+                                    return true;
+                                }
+
+                                Project project = plugin.getProjectRegistry().get(projectID);
+                                if (!handler.isLoaded("project_" + projectID)) {
+                                    handler.registerChat(new ProjectChat(project, handler));
+                                }
+
+                                Chat chat = handler.getChat("project_" + projectID);
+                                chatManager.setDefaultChat(chat);
+                                p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en chat del proyecto §a" + project.getDisplayName() + "§f.");
+                                return true;
+                            } else {
+                                PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                                        6,
+                                        "Elige un proyecto"
+                                );
+                                for (String id : projectIDs) {
+                                    Project project = plugin.getProjectRegistry().get(id);
+                                    gui.add(
+                                            project.getItem(),
+                                            event -> {
+                                                event.closeGUI();
+                                                try {
+                                                    if (chatManager.getCurrentChatName().equals("project_" + id)) {
+                                                        p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de este proyecto.");
+                                                        return;
+                                                    }
+
+                                                    if (!handler.isLoaded("project_" + id)) {
+                                                        handler.registerChat(new ProjectChat(project, handler));
+                                                    }
+
+                                                    Chat chat = handler.getChat("project_" + id);
+                                                    chatManager.setDefaultChat(chat);
+                                                    p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en chat del proyecto §a" + project.getDisplayName() + "§f.");
+                                                } catch (SQLException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                            },
+                                            null,
+                                            null,
+                                            null
+                                    );
+                                }
+                                gui.openTo(p, plugin);
+                            }
+                            return true;
+                        }
+
+                        p.sendMessage(getPrefix() + "Introduce un chat válido.");
+                    }
+                    return true;
+                }
+
                 if (args[0].equals("global")) {
 
                     if (chatManager.getCurrentChatName().equals("global")) {
