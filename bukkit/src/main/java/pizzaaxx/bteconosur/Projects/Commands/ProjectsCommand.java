@@ -155,6 +155,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                         ).exec();
                         p.sendMessage(getPrefix() + "Proyecto de tipo §a" + type.getDisplayName() + "§f y puntaje §a" + points + "§f creado con la ID §a" + project.getId() + "§f.");
                     } catch (SQLException | CityActionException | IOException e) {
+                        e.printStackTrace();
                         p.sendMessage(getPrefix() + "Ha ocurrido un error.");
                         return true;
                     }

@@ -13,6 +13,7 @@ import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.JSONParsable;
 
 import javax.annotation.CheckReturnValue;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Project {
+public class Project implements JSONParsable {
 
     public static int MAX_PROJECTS_PER_PLAYER = 15;
 
@@ -169,6 +170,11 @@ public class Project {
                 .name("§aProyecto " + this.getDisplayName())
                 .lore(lore)
                 .build();
+    }
+
+    @Override
+    public String getJSON(boolean insideJSON) {
+        return (insideJSON?"\"":"'") + this.id + (insideJSON?"\"":"'");
     }
 
     public enum ProjectRole implements PrefixHolder {

@@ -27,7 +27,6 @@ public class City implements JSONParsable {
     private final String displayName;
     private final Set<String> showcaseIDs;
     private final Country country;
-    private final boolean hasUrbanArea;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
 
@@ -50,8 +49,7 @@ public class City implements JSONParsable {
             this.displayName = set.getString("display_name");
             this.showcaseIDs = plugin.getJSONMapper().readValue(set.getString("showcase_ids"), HashSet.class);
             this.country = plugin.getCountryManager().get(set.getString("country"));
-            this.hasUrbanArea = set.getBoolean("urban_area");
-            if (this.hasUrbanArea) {
+            if (plugin.getRegionManager().hasRegion("city_" + this.name + "_urban")) {
                 this.urbanRegion = plugin.getRegionManager().getRegion("city_" + this.name + "_urban");
             }
             this.region = plugin.getRegionManager().getRegion("city_" + this.name);
@@ -102,7 +100,7 @@ public class City implements JSONParsable {
     }
 
     public boolean hasUrbanArea() {
-        return hasUrbanArea;
+        return urbanRegion != null;
     }
 
     public ProtectedRegion getRegion() {
@@ -163,6 +161,6 @@ public class City implements JSONParsable {
 
     @Override
     public String getJSON(boolean insideJSON) {
-        return name;
+        return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
     }
 }

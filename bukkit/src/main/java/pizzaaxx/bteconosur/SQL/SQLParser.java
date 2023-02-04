@@ -23,7 +23,10 @@ public class SQLParser {
     @Contract(pure = true)
     public static @NotNull String getString(Object object, boolean insideJSON) {
 
-        if (object instanceof UUID) {
+        if (object instanceof JSONParsable) {
+            JSONParsable parsable = (JSONParsable) object;
+            return parsable.getJSON(insideJSON);
+        } else if (object instanceof UUID) {
             // binary(16)
             UUID uuid = (UUID) object;
             if (insideJSON) {
@@ -84,12 +87,6 @@ public class SQLParser {
             return builder.toString();
         } else if (object instanceof String) {
             return (insideJSON?"\"":"'") + object + (insideJSON?"\"":"'");
-        } else if (object instanceof Country) {
-            Country country = (Country) object;
-            return (insideJSON?"\"":"'") + country.getName() + (insideJSON?"\"":"'");
-        } else if (object instanceof Project) {
-            Project project = (Project) object;
-            return (insideJSON?"\"":"'") + project.getId() + (insideJSON?"\"":"'");
         } else if (object == null) {
             return (insideJSON?"{}":"NULL");
         }

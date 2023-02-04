@@ -11,12 +11,13 @@ import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.JSONParsable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Country {
+public class Country implements JSONParsable {
 
     private final BTEConoSur plugin;
     private final String name;
@@ -173,5 +174,10 @@ public class Country {
             }
         } catch (SQLException ignored) {}
         return result;
+    }
+
+    @Override
+    public String getJSON(boolean insideJSON) {
+        return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
     }
 }

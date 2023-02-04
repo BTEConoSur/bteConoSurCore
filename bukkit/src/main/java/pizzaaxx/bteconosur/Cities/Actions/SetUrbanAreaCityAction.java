@@ -38,21 +38,6 @@ public class SetUrbanAreaCityAction {
         );
         plugin.getRegionManager().addRegion(urbanRegion);
 
-        plugin.getSqlManager().update(
-                "cities",
-                new SQLValuesSet(
-                        new SQLValue(
-                                "urban_area",
-                                true
-                        )
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "name", "=", name
-                        )
-                )
-        ).execute();
-
         plugin.getCityManager().reloadCity(name);
     }
 }

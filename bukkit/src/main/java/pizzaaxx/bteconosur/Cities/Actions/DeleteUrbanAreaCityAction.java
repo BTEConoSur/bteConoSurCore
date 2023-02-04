@@ -25,24 +25,7 @@ public class DeleteUrbanAreaCityAction {
         }
 
         if (plugin.getRegionManager().hasRegion("city_" + name + "_urban")) {
-
             plugin.getRegionManager().removeRegion("city_" + name + "_urban");
-
-            plugin.getSqlManager().update(
-                    "cities",
-                    new SQLValuesSet(
-                            new SQLValue(
-                                    "urban_area",
-                                    false
-                            )
-                    ),
-                    new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "name", "=", name
-                            )
-                    )
-            ).execute();
-
             plugin.getCityManager().reloadCity(name);
         }
     }
