@@ -107,7 +107,7 @@
 ## Chat
 * ✔️ `/chat [nombre]`
 * ✔️ `/chat <(global|<país>|<idProyecto>)>`
-* 🕙 `/chat default [(global|<país>|<idProyecto>)]`
+* ✔️ `/chat default [(global|<país>|<idProyecto>)]`
 * ✔️ `/chat invite <nombre>`
 * ✔️ `/chat <código>`
 * 🕙 `/nickname <nickname>`
