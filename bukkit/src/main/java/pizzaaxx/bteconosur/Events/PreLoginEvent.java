@@ -60,6 +60,7 @@ public class PreLoginEvent implements Listener {
                                 new SQLValue("name", event.getName())
                         )
                 ).execute();
+                plugin.getPlayerRegistry().registerUUID(event.getUniqueId());
                 plugin.log("Created database registry for player with UUID §f" + uuid);
             }
         } catch (SQLException e) {

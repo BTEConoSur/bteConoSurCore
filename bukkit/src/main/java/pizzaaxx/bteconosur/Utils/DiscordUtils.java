@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscordUtils {
 
-    public static void respondError(@NotNull SlashCommandInteractionEvent event, String error) {
+
+    public static void respondError(@NotNull IReplyCallback event, String error) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setColor(Color.RED)
@@ -22,7 +24,7 @@ public class DiscordUtils {
         );
     }
 
-    public static void respondSuccess(@NotNull SlashCommandInteractionEvent event, String success) {
+    public static void respondSuccess(@NotNull IReplyCallback event, String success) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setColor(Color.GREEN)
@@ -31,7 +33,7 @@ public class DiscordUtils {
         ).queue();
     }
 
-    public static void respondSuccess(@NotNull SlashCommandInteractionEvent event, String success, int deleteAfter) {
+    public static void respondSuccess(@NotNull IReplyCallback event, String success, int deleteAfter) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setColor(Color.GREEN)

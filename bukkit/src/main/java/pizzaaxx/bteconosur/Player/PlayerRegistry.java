@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Player;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -18,53 +19,48 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
     private final BTEConoSur plugin;
     private final Map<UUID, ServerPlayer> cache = new HashMap<>();
     private final Map<UUID, Long> deletionCache = new HashMap<>();
+    private final Set<UUID> uuids = new HashSet<>();
 
-    public PlayerRegistry(BTEConoSur plugin) {
+    public PlayerRegistry(@NotNull BTEConoSur plugin) throws SQLException, IOException {
         this.plugin = plugin;
-    }
 
-    public boolean hasPlayedBefore(String name){
-        try {
-            return plugin.getSqlManager().select(
-                    "players",
-                    new SQLColumnSet(
-                            "name"
-                    ),
-                    new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "name", "=", name
-                            )
-                    )
-            ).retrieve().next();
-        } catch (SQLException e) {
-            return false;
+        ResultSet set = plugin.getSqlManager().select(
+                "players",
+                new SQLColumnSet(
+                        "uuid"
+                ),
+                new SQLANDConditionSet()
+        ).retrieve();
+
+        while (set.next()) {
+            uuids.add(plugin.getSqlManager().getUUID(set, "uuid"));
         }
     }
 
-    public boolean hasPlayedBefore(UUID uuid){
-        if (cache.containsKey(uuid)) {
-            return true;
-        }
+    public boolean hasPlayedBefore(String name) throws SQLException {
+        return plugin.getSqlManager().select(
+                "players",
+                new SQLColumnSet(
+                        "name"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "name", "=", name
+                        )
+                )
+        ).retrieve().next();
+    }
 
-        try {
-            return plugin.getSqlManager().select(
-                    "players",
-                    new SQLColumnSet(
-                            "uuid"
-                    ),
-                    new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "uuid", "=", uuid
-                            )
-                    )
-            ).retrieve().next();
-        } catch (SQLException e) {
-            return false;
-        }
+    public boolean hasPlayedBefore(UUID uuid) {
+        return uuids.contains(uuid);
     }
 
     public Collection<ServerPlayer> getLoadedPlayers() {
         return cache.values();
+    }
+
+    public void registerUUID(UUID uuid) {
+        uuids.add(uuid);
     }
 
     public void load(UUID uuid) {
@@ -103,7 +99,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         }
     }
 
-    public ServerPlayer get(UUID uuid){
+    public ServerPlayer get(UUID uuid) {
         if (this.hasPlayedBefore(uuid)) {
             if (!this.isLoaded(uuid)) {
                 this.load(uuid);
