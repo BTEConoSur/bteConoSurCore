@@ -27,11 +27,20 @@ public class SQLManager {
     private final BTEConoSur plugin;
     private final Connection connection;
 
-    public SQLManager(@NotNull BTEConoSur plugin) throws SQLException {
+    private static final String AUTO_RECONNECT_PROPERTY = "?autoReconnect=true&useUnicode=yes";
+    private static final String CLASS_NAME = "com.mysql.jdbc.Driver";
+
+    public SQLManager(@NotNull BTEConoSur plugin) throws SQLException, ClassNotFoundException {
         this.plugin = plugin;
+
+        Class.forName(CLASS_NAME);
+
         Configuration databaseConfig = new Configuration(plugin, "database");
+
+        String url = databaseConfig.getString("url") + AUTO_RECONNECT_PROPERTY;
+
         connection = DriverManager.getConnection(
-                databaseConfig.getString("url"),
+                url,
                 databaseConfig.getString("username"),
                 databaseConfig.getString("password")
         );

@@ -21,7 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.Chat.*;
-import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
@@ -67,6 +66,7 @@ import pizzaaxx.bteconosur.WorldEdit.Shortcuts;
 import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
 import java.awt.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -209,11 +209,17 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         } catch (SQLException e) {
             this.error("Plugin starting stopped. Database connection failed.");
             return;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         this.log("Database connection established.");
 
         this.log("Starting player registry...");
-        this.playerRegistry = new PlayerRegistry(this);
+        try {
+            this.playerRegistry = new PlayerRegistry(this);
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
 
         mainWorld = Bukkit.getWorld("BTECS");
         worldEditWorld = new BukkitWorld(mainWorld);
@@ -342,7 +348,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
         getCommand("project").setExecutor(new ProjectsCommand(this));
-        getCommand("chat").setExecutor(new ChatCommand(this));
+        getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chat.commands.ChatCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
