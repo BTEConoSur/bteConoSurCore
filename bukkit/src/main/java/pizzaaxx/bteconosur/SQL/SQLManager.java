@@ -13,6 +13,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,18 +51,22 @@ public class SQLManager {
         return connection;
     }
 
+    @CheckReturnValue
     public UpdateAction update(String tableName, SQLValuesSet values, SQLConditionSet conditions) {
         return new UpdateAction(plugin, tableName, values, conditions);
     }
 
+    @CheckReturnValue
     public InsertAction insert(String tableName, SQLValuesSet values) {
         return new InsertAction(plugin, tableName, values);
     }
 
+    @CheckReturnValue
     public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
         return new SelectAction(plugin, tableName, columns, conditions);
     }
 
+    @CheckReturnValue
     public DeleteAction delete(String tableName, SQLConditionSet conditions) {
         return new DeleteAction(plugin, tableName, conditions);
     }

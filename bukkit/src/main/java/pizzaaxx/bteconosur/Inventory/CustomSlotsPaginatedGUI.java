@@ -56,6 +56,32 @@ public class CustomSlotsPaginatedGUI {
     }
 
     public void setStatic(
+            int slot, ItemStack itemStack
+    ) {
+        this.setStatic(
+                slot,
+                itemStack,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public void setStatic(
+            int slot, ItemStack itemStack, InventoryAction leftClick
+    ) {
+        this.setStatic(
+                slot,
+                itemStack,
+                leftClick,
+                null,
+                null,
+                null
+        );
+    }
+
+    public void setStatic(
             int slot,
             ItemStack itemStack,
             InventoryAction leftClick,
@@ -187,7 +213,7 @@ public class CustomSlotsPaginatedGUI {
             if (counter - 2 >= 0) {
                 gui.setItem(
                         ItemBuilder.head(
-                                ItemBuilder.backHead(),
+                                ItemBuilder.BACK_HEAD,
                                 "Anterior " + (counter - 1) + "/" + total + ")",
                                 null
                         ),
@@ -205,7 +231,7 @@ public class CustomSlotsPaginatedGUI {
             if (counter < total) {
                 gui.setItem(
                         ItemBuilder.head(
-                                ItemBuilder.nextHead(),
+                                ItemBuilder.NEXT_HEAD,
                                 "Siguiente (" + counter + 1 + "/" + total + ")",
                                 null
                         ),

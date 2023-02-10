@@ -127,7 +127,7 @@ public class PaginatedInventoryGUI {
             if (count > 0) {
                 gui.setItem(
                         ItemBuilder.head(
-                                ItemBuilder.backHead(),
+                                ItemBuilder.BACK_HEAD,
                                 "Anterior (" + count + "/" + total + ")",
                                 null
                         ),
@@ -142,7 +142,7 @@ public class PaginatedInventoryGUI {
             if (count + 1 < total) {
                 gui.setItem(
                         ItemBuilder.head(
-                                ItemBuilder.nextHead(),
+                                ItemBuilder.NEXT_HEAD,
                                 "Siguiente (" + (count + 2) + "/" + total + ")",
                                 null
                         ),

@@ -15,11 +15,12 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -49,8 +50,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
@@ -305,7 +306,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             );
                             gui.setItem(
                                     ItemBuilder.head(
-                                            ItemBuilder.confirmHead(),
+                                            ItemBuilder.CONFIRM_HEAD,
                                             "§aConfirmar",
                                             null
                                     ),
@@ -341,7 +342,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                             gui.setItem(
                                     ItemBuilder.head(
-                                            ItemBuilder.cancelHead(),
+                                            ItemBuilder.CANCEL_HEAD,
                                             "§cCancelar",
                                             null
                                     ),
@@ -367,7 +368,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
             }
             case "manage": {
 
-                
+
 
             }
             case "borders": {
@@ -635,7 +636,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     );
                     confirmGUI.setItem(
                             ItemBuilder.head(
-                                    ItemBuilder.confirmHead(),
+                                    ItemBuilder.CONFIRM_HEAD,
                                     "§aConfirmar",
                                     null
                             ),
@@ -658,7 +659,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     );
                     confirmGUI.setItem(
                             ItemBuilder.head(
-                                    ItemBuilder.cancelHead(),
+                                    ItemBuilder.CANCEL_HEAD,
                                     "§cCancelar",
                                     null
                             ),
@@ -687,7 +688,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     );
                                     confirmGUI.setItem(
                                             ItemBuilder.head(
-                                                    ItemBuilder.confirmHead(),
+                                                    ItemBuilder.CONFIRM_HEAD,
                                                     "§aConfirmar",
                                                     null
                                             ),
@@ -710,7 +711,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     );
                                     confirmGUI.setItem(
                                             ItemBuilder.head(
-                                                    ItemBuilder.cancelHead(),
+                                                    ItemBuilder.CANCEL_HEAD,
                                                     "§cCancelar",
                                                     null
                                             ),
@@ -739,7 +740,321 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
         return true;
     }
 
-    private void openManageInventory(Player player, String projectID) {
+    private void openManageInventory(@NotNull Player player, String id) {
+
+        Project project = plugin.getProjectRegistry().get(id);
+
+        boolean isLeader = project.getOwner().equals(player.getUniqueId());
+
+        Integer[] slots;
+        if (project.getMembers().size() > 36) {
+            slots = new Integer[]{
+                    3,  4,  5,  6,  7,  8,
+                    12, 13, 14, 15, 16, 17,
+                    21, 22, 23, 24, 25, 26,
+                    30, 31, 32, 33, 34, 35,
+                    39, 40, 41, 42, 43, 44
+            };
+        } else {
+            slots = new Integer[]{
+                    3,  4,  5,  6,  7,  8,
+                    12, 13, 14, 15, 16, 17,
+                    21, 22, 23, 24, 25, 26,
+                    30, 31, 32, 33, 34, 35,
+                    39, 40, 41, 42, 43, 44,
+                    48, 49, 50, 51, 52, 53
+            };
+        }
+
+        CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                "Proyecto " + project.getDisplayName(),
+                6,
+                slots,
+                49,
+                52
+        );
+
+        {
+            ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
+
+            InventoryAction action;
+
+            List<String> lore = new ArrayList<>(owner.getLore(false));
+            lore.add(" ");
+
+            if (isLeader) {
+                {
+                    action = transferClickEvent -> {
+                        CustomSlotsPaginatedGUI transferGUI = new CustomSlotsPaginatedGUI(
+                                "Elige un jugador para transferir",
+                                4,
+                                new Integer[]{
+                                        9, 10, 11, 12, 13, 14, 15, 16, 17,
+                                        18, 19, 20, 21, 22, 23, 24, 25, 26,
+                                        27, 28, 29, 30, 31, 32, 33, 34, 35
+                                },
+                                0,
+                                8
+                        );
+
+                        transferGUI.setStatic(
+                                5,
+                                ItemBuilder.head(
+                                        ItemBuilder.INFO_HEAD,
+                                        "§aSolo puedes transferir un proyecto a miembros que estén en línea",
+                                        null
+                                )
+                        );
+
+                        for (UUID memberUUID : project.getMembers()) {
+                            if (Bukkit.getOfflinePlayer(memberUUID).isOnline()) {
+
+                                ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+
+                                List<String> lore1 = new ArrayList<>(member.getLore(false));
+                                lore1.add(" ");
+                                lore1.add("§e[➡]§7 Haz click para transferir");
+
+                                transferGUI.addPaginated(
+                                        ItemBuilder.head(
+                                                memberUUID,
+                                                "§a" + member.getName(),
+                                                lore1
+                                        ),
+                                        transferPlayerClickEvent -> {
+                                            InventoryGUI confirmTransferGUI = new InventoryGUI(
+                                                    1,
+                                                    "¿Transferir a " + member.getName() + "?"
+                                            );
+
+                                            confirmTransferGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            ItemBuilder.CONFIRM_HEAD,
+                                                            "§aConfirmar",
+                                                            null
+                                                    ),
+                                                    3
+                                            );
+                                            confirmTransferGUI.setLCAction(
+                                                    transferConfirmClickEvent -> {
+                                                        try {
+                                                            project.transfer(memberUUID).execute();
+                                                            player.sendMessage(getPrefix() + "Has transferido el proyecto §a" + project.getDisplayName() + "§f a §a" + member.getName() + "§f.");
+                                                            this.openManageInventory(player, id);
+                                                        } catch (SQLException | IOException e) {
+                                                            transferConfirmClickEvent.closeGUI();
+                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error con la base de datos.");
+                                                            this.openManageInventory(player, id);
+                                                        }
+                                                    },
+                                                    3
+                                            );
+
+                                            confirmTransferGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            ItemBuilder.CANCEL_HEAD,
+                                                            "§cCancelar",
+                                                            null
+                                                    ),
+                                                    5
+                                            );
+                                            confirmTransferGUI.setLCAction(
+                                                    transferCancelClickEvent -> {
+                                                        transferGUI.openTo(player, plugin);
+                                                    },
+                                                    5
+                                            );
+                                        },
+                                        null, null, null
+                                );
+
+                            }
+                        }
+
+                        transferGUI.openTo(player, plugin);
+                    };
+
+                } // ACTION
+                lore.add("§e[➡] §7Haz click para transferir el proyecto");
+            } else {
+                action = null;
+                lore.add("§8[➡] Solo el líder puede transferir el proyecto");
+            }
+
+            gui.setStatic(
+                    10,
+                    ItemBuilder.head(
+                            project.getOwner(),
+                            "§a§lLíder: §a" + owner.getName(),
+                            lore
+                    ),
+                    action
+            );
+        } // TRANSFER
+
+        {
+
+            if (isLeader) {
+                try {
+                    ResultSet requestsSet = plugin.getSqlManager().select(
+                            "project_join_requests",
+                            new SQLColumnSet(
+                                    "target"
+                            ),
+                            new SQLANDConditionSet(
+                                    new SQLOperatorCondition(
+                                            "project_id", "=", id
+                                    )
+                            )
+                    ).retrieve();
+
+                    int total = 0;
+
+                    while (requestsSet.next()) {
+                        total++;
+                    }
+
+                    ItemStack item = ItemBuilder.head(
+                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                            "§6§lSolicitudes de unión (" + total + ")",
+                            Collections.singletonList("§a[+]§7 Haz click para ver las solicitudes")
+                    );
+
+                    InventoryAction action = requestsClickEvent -> {
+                        Runnable openRequestsGUI = new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ResultSet requestsSet1 = plugin.getSqlManager().select(
+                                            "project_join_requests",
+                                            new SQLColumnSet(
+                                                    "target"
+                                            ),
+                                            new SQLANDConditionSet(
+                                                    new SQLOperatorCondition(
+                                                            "project_id", "=", id
+                                                    )
+                                            )
+                                    ).retrieve();
+
+                                    CustomSlotsPaginatedGUI requestsGUI = new CustomSlotsPaginatedGUI(
+                                            "Solicitudes de unión",
+                                            5,
+                                            new Integer[]{
+                                                    9, 10, 11, 12, 13, 14, 15, 16, 17,
+                                                    18, 19, 20, 21, 22, 23, 24, 25, 26,
+                                                    27, 28, 29, 30, 31, 32, 33, 34, 35
+                                            },
+                                            0,
+                                            8
+                                    );
+
+                                    requestsGUI.setStatic(
+                                            40,
+                                            ItemBuilder.head(
+                                                    ItemBuilder.BACK_HEAD,
+                                                    "Volver",
+                                                    null
+                                            ),
+                                            event -> gui.openTo(player, plugin)
+                                    );
+
+                                    while (requestsSet1.next()) {
+
+                                        UUID targetUUID = plugin.getSqlManager().getUUID(requestsSet1, "target");
+                                        ServerPlayer target = plugin.getPlayerRegistry().get(targetUUID);
+
+                                        List<String> lore = new ArrayList<>(target.getLore(false));
+                                        lore.add(" ");
+                                        lore.add("§a[+]§7 Haz click izquierdo para aceptar la solicitud");
+                                        lore.add("§c[✕]§7 Haz click derecho para rechazar la solicitud");
+
+                                        requestsGUI.addPaginated(
+                                                ItemBuilder.head(
+                                                        targetUUID,
+                                                        "§a" + target.getName(),
+                                                        lore
+                                                ),
+                                                requestAcceptClickEvent -> {
+                                                    try {
+                                                        project.addMember(targetUUID).execute();
+                                                        player.sendMessage(getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                        target.sendNotification(
+                                                                getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
+                                                                "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
+                                                        );
+                                                        plugin.getSqlManager().delete(
+                                                                "project_join_requests",
+                                                                new SQLANDConditionSet(
+                                                                        new SQLOperatorCondition(
+                                                                                "target", "=", targetUUID
+                                                                        ),
+                                                                        new SQLOperatorCondition(
+                                                                                "project_id", "=", id
+                                                                        )
+                                                                )
+                                                        ).execute();
+                                                        this.run();
+                                                    } catch (SQLException | IOException e) {
+                                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                        requestAcceptClickEvent.closeGUI();
+                                                    }
+                                                },
+                                                null,
+                                                requestRejectClickEvent -> {
+                                                    try {
+                                                        player.sendMessage(getPrefix() + "Has rechazado la solicitud de unión de §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                        target.sendNotification(
+                                                                getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
+                                                                "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
+                                                        );
+                                                        plugin.getSqlManager().delete(
+                                                                "project_join_requests",
+                                                                new SQLANDConditionSet(
+                                                                        new SQLOperatorCondition(
+                                                                                "target", "=", targetUUID
+                                                                        ),
+                                                                        new SQLOperatorCondition(
+                                                                                "project_id", "=", id
+                                                                        )
+                                                                )
+                                                        ).execute();
+                                                        this.run();
+                                                    } catch (SQLException e) {
+                                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                        requestRejectClickEvent.closeGUI();
+                                                    }
+                                                },
+                                                null
+                                        );
+
+                                    }
+
+                                } catch (SQLException | IOException e) {
+                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                    requestsClickEvent.closeGUI();
+                                }
+                            }
+                        };
+                        openRequestsGUI.run();
+                    };
+
+                } catch (SQLException e) {
+                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    return;
+                }
+            } else {
+                gui.setStatic(
+                        19,
+                        ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                                "§6§lSolicitudes de unión",
+                                Collections.singletonList("§8[+] Solo el líder puede manejar las solicitudes")
+                        )
+                );
+            }
+
+        } // REQUESTS
 
     }
 
