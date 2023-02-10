@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class PaginatedInventoryGUI {
 
-    private static class InventoryGUISlot {
+    public static class InventoryGUISlot {
         private final ItemStack item;
         private final InventoryAction leftClick;
         private final InventoryAction shiftLeftClick;
@@ -35,6 +35,26 @@ public class PaginatedInventoryGUI {
             this.shiftLeftClick = shiftLeftClick;
             this.rightClick = rightClick;
             this.shiftRightClick = shiftRightClick;
+        }
+
+        public ItemStack getItem() {
+            return item;
+        }
+
+        public InventoryAction getLeftClick() {
+            return leftClick;
+        }
+
+        public InventoryAction getShiftLeftClick() {
+            return shiftLeftClick;
+        }
+
+        public InventoryAction getRightClick() {
+            return rightClick;
+        }
+
+        public InventoryAction getShiftRightClick() {
+            return shiftRightClick;
         }
     }
 
