@@ -90,18 +90,13 @@
 * ✔️ *Action Bar*
 * ✔️ `/project create [<tipo> <puntos>]`
 * ✔️ `/project delete`
-* 🕙 `/project add [jugador]`
-* 🕙 `/project remove [jugador]`
-* 🕙 `/project transfer [miembro]`
 * ✔️ `/project name [nombre]`
 * ✔️ `/project borders`
-* 🕙 `/project manage`
+* ⏳ `/project manage`
 * 🕙 `/project tag <etiqueta>|delete`
 * ✔️ `/project claim`
 * 🕙 `/project find`
-* 🕙 `/project finish`
 * 🕙 `/project review <(accept|continue|deny)>`
-* 🕙 `/project leave`
 * 🕙 `/project request`
 * 🕙 `/project tutorial`
 ## Chat

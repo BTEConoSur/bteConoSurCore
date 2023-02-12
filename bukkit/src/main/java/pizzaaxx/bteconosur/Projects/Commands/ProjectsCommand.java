@@ -18,7 +18,6 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
+import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.NonMemberProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.NotClaimedProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
@@ -50,8 +51,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
@@ -368,7 +369,37 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
             }
             case "manage": {
 
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
 
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún proyecto del que seas miembro.");
+                } else if (projectIDs.size() == 1) {
+
+                    this.openManageInventory(p, projectIDs.get(0));
+
+                } else {
+
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto para administrar"
+                    );
+
+                    for (String id : projectIDs) {
+
+                        Project project = plugin.getProjectRegistry().get(id);
+                        gui.add(
+                                project.getItem(),
+                                event -> this.openManageInventory(p, id),
+                                null, null, null
+                        );
+
+                    }
+
+                    gui.openTo(p, plugin);
+
+                }
+
+                break;
 
             }
             case "borders": {
@@ -651,7 +682,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                             p.getUniqueId()
                                     ).exec();
                                     p.sendMessage(getPrefix() + "Proyecto §a" + project.getId() + "§f eliminado.");
-                                } catch (SQLException e) {
+                                } catch (SQLException | IOException e) {
                                     p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                 }
                             },
@@ -703,7 +734,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                             p.getUniqueId()
                                                     ).exec();
                                                     p.sendMessage(getPrefix() + "Proyecto §a" + project.getId() + "§f eliminado.");
-                                                } catch (SQLException e) {
+                                                } catch (SQLException | IOException e) {
                                                     p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                 }
                                             },
@@ -742,27 +773,30 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
     private void openManageInventory(@NotNull Player player, String id) {
 
+        ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
+
         Project project = plugin.getProjectRegistry().get(id);
 
         boolean isLeader = project.getOwner().equals(player.getUniqueId());
+        boolean isPending = project.isPending();
 
         Integer[] slots;
-        if (project.getMembers().size() > 36) {
+        if (project.getMembers().size() > 0) {
             slots = new Integer[]{
-                    3,  4,  5,  6,  7,  8,
-                    12, 13, 14, 15, 16, 17,
-                    21, 22, 23, 24, 25, 26,
-                    30, 31, 32, 33, 34, 35,
-                    39, 40, 41, 42, 43, 44
+                    4,  5,  6,  7,  8,
+                    13, 14, 15, 16, 17,
+                    22, 23, 24, 25, 26,
+                    31, 32, 33, 34, 35,
+                    40, 41, 42, 43, 44
             };
         } else {
             slots = new Integer[]{
-                    3,  4,  5,  6,  7,  8,
-                    12, 13, 14, 15, 16, 17,
-                    21, 22, 23, 24, 25, 26,
-                    30, 31, 32, 33, 34, 35,
-                    39, 40, 41, 42, 43, 44,
-                    48, 49, 50, 51, 52, 53
+                    4,  5,  6,  7,  8,
+                    13, 14, 15, 16, 17,
+                    22, 23, 24, 25, 26,
+                    31, 32, 33, 34, 35,
+                    40, 41, 42, 43, 44,
+                    49, 50, 51, 52, 53
             };
         }
 
@@ -770,9 +804,38 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                 "Proyecto " + project.getDisplayName(),
                 6,
                 slots,
-                49,
+                50,
                 52
         );
+
+        {
+
+            List<String> lore = new ArrayList<>();
+            lore.add("§aPaís: §f" + project.getCountry().getDisplayName());
+
+            if (!project.getCities().isEmpty()) {
+                lore.add("§aCiudad(es): §f" + project.getCities().stream().map(City::getDisplayName).collect(Collectors.joining(", ")));
+            }
+
+            lore.add("§aTipo: §f" + project.getType().getDisplayName());
+            lore.add("§aPuntos: §f" + project.getPoints());
+
+            if (project.getTag() != null) {
+                lore.add("§aEtiqueta: §f" + project.getTag().toString());
+            }
+
+            ItemStack item = ItemBuilder.head(
+                    ItemBuilder.INFO_HEAD,
+                    "§d§lInformación",
+                    lore
+            );
+
+            gui.setStatic(
+                    10,
+                    item
+            );
+
+        } // INFO
 
         {
             ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
@@ -783,106 +846,120 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
             lore.add(" ");
 
             if (isLeader) {
-                {
-                    action = transferClickEvent -> {
-                        CustomSlotsPaginatedGUI transferGUI = new CustomSlotsPaginatedGUI(
-                                "Elige un jugador para transferir",
-                                4,
-                                new Integer[]{
-                                        9, 10, 11, 12, 13, 14, 15, 16, 17,
-                                        18, 19, 20, 21, 22, 23, 24, 25, 26,
-                                        27, 28, 29, 30, 31, 32, 33, 34, 35
-                                },
-                                0,
-                                8
-                        );
+                if (isPending) {
+                    action = null;
+                    lore.add("§8[➡] No puedes transferir el proyecto mientras está pendiente de revisión.");
+                } else {
+                    {
+                        action = transferClickEvent -> {
+                            CustomSlotsPaginatedGUI transferGUI = new CustomSlotsPaginatedGUI(
+                                    "Elige un jugador para transferir",
+                                    5,
+                                    new Integer[]{
+                                            9, 10, 11, 12, 13, 14, 15, 16, 17,
+                                            18, 19, 20, 21, 22, 23, 24, 25, 26,
+                                            27, 28, 29, 30, 31, 32, 33, 34, 35
+                                    },
+                                    0,
+                                    8
+                            );
 
-                        transferGUI.setStatic(
-                                5,
-                                ItemBuilder.head(
-                                        ItemBuilder.INFO_HEAD,
-                                        "§aSolo puedes transferir un proyecto a miembros que estén en línea",
-                                        null
-                                )
-                        );
+                            transferGUI.setStatic(
+                                    4,
+                                    ItemBuilder.head(
+                                            ItemBuilder.INFO_HEAD,
+                                            "§aSolo puedes transferir un proyecto a miembros que estén en línea",
+                                            null
+                                    )
+                            );
 
-                        for (UUID memberUUID : project.getMembers()) {
-                            if (Bukkit.getOfflinePlayer(memberUUID).isOnline()) {
+                            transferGUI.setStatic(
+                                    36,
+                                    ItemBuilder.head(
+                                            ItemBuilder.LEFT_DOWN_CORNER_ARROW_HEAD,
+                                            "Volver",
+                                            null
+                                    ),
+                                    transferReturnClickEvent -> this.openManageInventory(player, id)
+                            );
 
-                                ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+                            for (UUID memberUUID : project.getMembers()) {
+                                if (Bukkit.getOfflinePlayer(memberUUID).isOnline()) {
 
-                                List<String> lore1 = new ArrayList<>(member.getLore(false));
-                                lore1.add(" ");
-                                lore1.add("§e[➡]§7 Haz click para transferir");
+                                    ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
 
-                                transferGUI.addPaginated(
-                                        ItemBuilder.head(
-                                                memberUUID,
-                                                "§a" + member.getName(),
-                                                lore1
-                                        ),
-                                        transferPlayerClickEvent -> {
-                                            InventoryGUI confirmTransferGUI = new InventoryGUI(
-                                                    1,
-                                                    "¿Transferir a " + member.getName() + "?"
-                                            );
+                                    List<String> lore1 = new ArrayList<>(member.getLore(false));
+                                    lore1.add(" ");
+                                    lore1.add("§e[➡]§7 Haz click para transferir");
 
-                                            confirmTransferGUI.setItem(
-                                                    ItemBuilder.head(
-                                                            ItemBuilder.CONFIRM_HEAD,
-                                                            "§aConfirmar",
-                                                            null
-                                                    ),
-                                                    3
-                                            );
-                                            confirmTransferGUI.setLCAction(
-                                                    transferConfirmClickEvent -> {
-                                                        try {
-                                                            project.transfer(memberUUID).execute();
-                                                            player.sendMessage(getPrefix() + "Has transferido el proyecto §a" + project.getDisplayName() + "§f a §a" + member.getName() + "§f.");
-                                                            this.openManageInventory(player, id);
-                                                        } catch (SQLException | IOException e) {
-                                                            transferConfirmClickEvent.closeGUI();
-                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error con la base de datos.");
-                                                            this.openManageInventory(player, id);
-                                                        }
-                                                    },
-                                                    3
-                                            );
+                                    transferGUI.addPaginated(
+                                            ItemBuilder.head(
+                                                    memberUUID,
+                                                    "§a" + member.getName(),
+                                                    lore1
+                                            ),
+                                            transferPlayerClickEvent -> {
+                                                InventoryGUI confirmTransferGUI = new InventoryGUI(
+                                                        1,
+                                                        "¿Transferir a " + member.getName() + "?"
+                                                );
 
-                                            confirmTransferGUI.setItem(
-                                                    ItemBuilder.head(
-                                                            ItemBuilder.CANCEL_HEAD,
-                                                            "§cCancelar",
-                                                            null
-                                                    ),
-                                                    5
-                                            );
-                                            confirmTransferGUI.setLCAction(
-                                                    transferCancelClickEvent -> {
-                                                        transferGUI.openTo(player, plugin);
-                                                    },
-                                                    5
-                                            );
-                                        },
-                                        null, null, null
-                                );
+                                                confirmTransferGUI.setItem(
+                                                        ItemBuilder.head(
+                                                                ItemBuilder.CONFIRM_HEAD,
+                                                                "§aConfirmar",
+                                                                null
+                                                        ),
+                                                        3
+                                                );
+                                                confirmTransferGUI.setLCAction(
+                                                        transferConfirmClickEvent -> {
+                                                            try {
+                                                                project.transfer(memberUUID).execute();
+                                                                player.sendMessage(getPrefix() + "Has transferido el proyecto §a" + project.getDisplayName() + "§f a §a" + member.getName() + "§f.");
+                                                                this.openManageInventory(player, id);
+                                                            } catch (SQLException | IOException e) {
+                                                                transferConfirmClickEvent.closeGUI();
+                                                                player.sendMessage(getPrefix() + "Ha ocurrido un error con la base de datos.");
+                                                                this.openManageInventory(player, id);
+                                                            }
+                                                        },
+                                                        3
+                                                );
 
+                                                confirmTransferGUI.setItem(
+                                                        ItemBuilder.head(
+                                                                ItemBuilder.CANCEL_HEAD,
+                                                                "§cCancelar",
+                                                                null
+                                                        ),
+                                                        5
+                                                );
+                                                confirmTransferGUI.setLCAction(
+                                                        transferCancelClickEvent -> transferGUI.openTo(player, plugin),
+                                                        5
+                                                );
+                                                plugin.getInventoryHandler().open(player, confirmTransferGUI);
+                                            },
+                                            null, null, null
+                                    );
+
+                                }
                             }
-                        }
 
-                        transferGUI.openTo(player, plugin);
-                    };
+                            transferGUI.openTo(player, plugin);
+                        };
 
-                } // ACTION
-                lore.add("§e[➡] §7Haz click para transferir el proyecto");
+                    } // ACTION
+                    lore.add("§e[➡] §7Haz click para transferir el proyecto");
+                }
             } else {
                 action = null;
                 lore.add("§8[➡] Solo el líder puede transferir el proyecto");
             }
 
             gui.setStatic(
-                    10,
+                    11,
                     ItemBuilder.head(
                             project.getOwner(),
                             "§a§lLíder: §a" + owner.getName(),
@@ -895,50 +972,447 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
         {
 
             if (isLeader) {
-                try {
-                    ResultSet requestsSet = plugin.getSqlManager().select(
-                            "project_join_requests",
-                            new SQLColumnSet(
-                                    "target"
-                            ),
-                            new SQLANDConditionSet(
-                                    new SQLOperatorCondition(
-                                            "project_id", "=", id
-                                    )
+
+                if (isPending) {
+                    gui.setStatic(
+                            28,
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                                    "§6§lSolicitudes de unión",
+                                    Collections.singletonList("§8[+] No puedes agregar miembros mientras el proyecto está pendiente de revisión.")
                             )
-                    ).retrieve();
+                    );
+                } else {
+                    try {
+                        ResultSet requestsSet = plugin.getSqlManager().select(
+                                "project_join_requests",
+                                new SQLColumnSet(
+                                        "target"
+                                ),
+                                new SQLANDConditionSet(
+                                        new SQLOperatorCondition(
+                                                "project_id", "=", id
+                                        )
+                                )
+                        ).retrieve();
 
-                    int total = 0;
+                        int total = 0;
 
-                    while (requestsSet.next()) {
-                        total++;
+                        while (requestsSet.next()) {
+                            total++;
+                        }
+
+                        ItemStack item = ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                                "§6§lSolicitudes de unión (" + total + ")",
+                                Collections.singletonList("§a[+]§7 Haz click para ver las solicitudes")
+                        );
+
+                        InventoryAction action = requestsClickEvent -> {
+                            Runnable openRequestsGUI = new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        ResultSet requestsSet1 = plugin.getSqlManager().select(
+                                                "project_join_requests",
+                                                new SQLColumnSet(
+                                                        "target"
+                                                ),
+                                                new SQLANDConditionSet(
+                                                        new SQLOperatorCondition(
+                                                                "project_id", "=", id
+                                                        )
+                                                )
+                                        ).retrieve();
+
+                                        CustomSlotsPaginatedGUI requestsGUI = new CustomSlotsPaginatedGUI(
+                                                "Solicitudes de unión",
+                                                5,
+                                                new Integer[]{
+                                                        9, 10, 11, 12, 13, 14, 15, 16, 17,
+                                                        18, 19, 20, 21, 22, 23, 24, 25, 26,
+                                                        27, 28, 29, 30, 31, 32, 33, 34, 35
+                                                },
+                                                0,
+                                                8
+                                        );
+
+                                        requestsGUI.setStatic(
+                                                36,
+                                                ItemBuilder.head(
+                                                        ItemBuilder.LEFT_DOWN_CORNER_ARROW_HEAD,
+                                                        "Volver",
+                                                        null
+                                                ),
+                                                event -> openManageInventory(player, id)
+                                        );
+
+                                        while (requestsSet1.next()) {
+
+                                            UUID targetUUID = plugin.getSqlManager().getUUID(requestsSet1, "target");
+                                            ServerPlayer target = plugin.getPlayerRegistry().get(targetUUID);
+
+                                            List<String> lore = new ArrayList<>(target.getLore(false));
+                                            lore.add(" ");
+                                            lore.add("§a[+]§7 Haz click izquierdo para aceptar la solicitud");
+                                            lore.add("§c[✕]§7 Haz click derecho para rechazar la solicitud");
+
+                                            requestsGUI.addPaginated(
+                                                    ItemBuilder.head(
+                                                            targetUUID,
+                                                            "§a" + target.getName(),
+                                                            lore
+                                                    ),
+                                                    requestAcceptClickEvent -> {
+                                                        try {
+                                                            project.addMember(targetUUID).execute();
+                                                            player.sendMessage(getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                            target.sendNotification(
+                                                                    getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
+                                                                    "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
+                                                            );
+                                                            plugin.getSqlManager().delete(
+                                                                    "project_join_requests",
+                                                                    new SQLANDConditionSet(
+                                                                            new SQLOperatorCondition(
+                                                                                    "target", "=", targetUUID
+                                                                            ),
+                                                                            new SQLOperatorCondition(
+                                                                                    "project_id", "=", id
+                                                                            )
+                                                                    )
+                                                            ).execute();
+                                                            this.run();
+                                                        } catch (SQLException | IOException e) {
+                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                            requestAcceptClickEvent.closeGUI();
+                                                        }
+                                                    },
+                                                    null,
+                                                    requestRejectClickEvent -> {
+                                                        try {
+                                                            player.sendMessage(getPrefix() + "Has rechazado la solicitud de unión de §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                            target.sendNotification(
+                                                                    getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
+                                                                    "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
+                                                            );
+                                                            plugin.getSqlManager().delete(
+                                                                    "project_join_requests",
+                                                                    new SQLANDConditionSet(
+                                                                            new SQLOperatorCondition(
+                                                                                    "target", "=", targetUUID
+                                                                            ),
+                                                                            new SQLOperatorCondition(
+                                                                                    "project_id", "=", id
+                                                                            )
+                                                                    )
+                                                            ).execute();
+                                                            this.run();
+                                                        } catch (SQLException e) {
+                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                            requestRejectClickEvent.closeGUI();
+                                                        }
+                                                    },
+                                                    null
+                                            );
+
+                                        }
+
+                                        requestsGUI.openTo(player, plugin);
+
+                                    } catch (SQLException | IOException e) {
+                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                        requestsClickEvent.closeGUI();
+                                    }
+                                }
+                            };
+                            openRequestsGUI.run();
+                        };
+
+                        gui.setStatic(
+                                28,
+                                item,
+                                action
+                        );
+                    } catch (SQLException e) {
+                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        return;
                     }
+                }
+            } else {
+                gui.setStatic(
+                        28,
+                        ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                                "§6§lSolicitudes de unión",
+                                Collections.singletonList("§8[+] Solo el líder puede manejar las solicitudes.")
+                        )
+                );
+            }
 
-                    ItemStack item = ItemBuilder.head(
-                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
-                            "§6§lSolicitudes de unión (" + total + ")",
-                            Collections.singletonList("§a[+]§7 Haz click para ver las solicitudes")
+        } // REQUESTS
+
+        {
+
+            if (isLeader) {
+
+                if (isPending) {
+                    gui.setStatic(
+                            29,
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZiMTkzMmM0MmNkN2FmNjIxYjhlNTJmZGY0OWE0YTdmYTZmNDgwOTViYjYwOGUwNTgwNTVhZjM4YjNmMWZjNCJ9fX0=",
+                                    "§e§lTerminar proyecto",
+                                    Collections.singletonList("§8[✔] El proyecto ya está marcado como finalizado.")
+                            )
+                    );
+                } else {
+                    gui.setStatic(
+                            29,
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZiMTkzMmM0MmNkN2FmNjIxYjhlNTJmZGY0OWE0YTdmYTZmNDgwOTViYjYwOGUwNTgwNTVhZjM4YjNmMWZjNCJ9fX0=",
+                                    "§e§lTerminar proyecto",
+                                    Collections.singletonList("§e[✔]§f Haz click para finalizar el proyecto.")
+                            ),
+                            finishClickEvent -> {
+                                InventoryGUI finishConfirmGUI = new InventoryGUI(
+                                        1,
+                                        "¿Confirmas finalizar el proyecto?"
+                                );
+                                finishConfirmGUI.setItem(
+                                        ItemBuilder.head(
+                                                ItemBuilder.CONFIRM_HEAD,
+                                                "§aConfirmar",
+                                                Collections.singletonList("§cEsta acción es irreversible.")
+                                        ),
+                                        3
+                                );
+                                finishConfirmGUI.setLCAction(
+                                        finishConfirmClickEvent -> {
+                                            project.setPending(true);
+                                            player.sendMessage(getPrefix() + "Has marcado el proyecto §a" + project.getDisplayName() + "§f como terminado.");
+                                            this.openManageInventory(player, id);
+                                        },
+                                        3
+                                );
+
+                                finishConfirmGUI.setItem(
+                                        ItemBuilder.head(
+                                                ItemBuilder.CANCEL_HEAD,
+                                                "§cCancelar",
+                                                null
+                                        ),
+                                        5
+                                );
+                                finishConfirmGUI.setLCAction(
+                                        finishCancelClickEvent -> gui.openTo(player, plugin),
+                                        5
+                                );
+
+                                plugin.getInventoryHandler().open(player, finishConfirmGUI);
+                            }
+                    );
+                }
+
+            } else {
+                gui.setStatic(
+                        29,
+                        ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZiMTkzMmM0MmNkN2FmNjIxYjhlNTJmZGY0OWE0YTdmYTZmNDgwOTViYjYwOGUwNTgwNTVhZjM4YjNmMWZjNCJ9fX0=",
+                                "§e§lTerminar proyecto",
+                                Collections.singletonList("§8[✔] Solo el líder puede finalizar el proyecto.")
+                        )
+                );
+            }
+
+        } // FINISH
+
+        {
+            if (project.getOwner().equals(player.getUniqueId())) {
+
+                ItemStack item = ItemBuilder.head(
+                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDcyZjg5MTVlNmJlYjM3YWRjNTQ5MWRkZTU1ZDhlNGJhZGU3Nzg2MTgwNWI5NDdiNTgzYWU2NTQ3MDU0OGJkYyJ9fX0=",
+                        "§c§lAbandonar proyecto",
+                        Collections.singletonList("§c[⬅]§7 Haz click para abandonar el proyecto.")
+                );
+
+                InventoryAction action = leaveClickEvent -> {
+                    InventoryGUI leaveConfirmGUI = new InventoryGUI(
+                            1,
+                            "¿Confirmas abandonar el proyecto?"
                     );
 
-                    InventoryAction action = requestsClickEvent -> {
-                        Runnable openRequestsGUI = new Runnable() {
-                            @Override
-                            public void run() {
+                    leaveConfirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CONFIRM_HEAD,
+                                    "§aConfirmar",
+                                    Collections.singletonList("§cEres el líder de este proyecto, si abandonas, todos los miembros serán removidos del proyecto y este quedará libre para reclamar.")
+                            ),
+                            3
+                    );
+                    leaveConfirmGUI.setLCAction(
+                            leaveConfirmClickEvent -> {
                                 try {
-                                    ResultSet requestsSet1 = plugin.getSqlManager().select(
-                                            "project_join_requests",
-                                            new SQLColumnSet(
-                                                    "target"
-                                            ),
-                                            new SQLANDConditionSet(
-                                                    new SQLOperatorCondition(
-                                                            "project_id", "=", id
-                                                    )
-                                            )
-                                    ).retrieve();
+                                    player.sendMessage(getPrefix() + "Has abandonado el proyecto §a" + project.getDisplayName() + "§f.");
+                                    for (UUID memberUUID : project.getMembers()) {
+                                        ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+                                        member.sendNotification(
+                                                getPrefix() + "El líder de tu proyecto §a" + project.getDisplayName() + "§f ha abandonado el proyecto y con él todos los miembros han sido removidos. EL proyecto está disponible para reclamar de nuevo.",
+                                                "**[PROYECTO]** » El líder de tu proyecto **" + project.getDisplayName() + "** ha abandonado el proyecto y con él todos los miembros han sido removidos. EL proyecto está disponible para reclamar de nuevo."
+                                        );
+                                    }
+                                    project.emptyProject().execute();
+                                } catch (SQLException | IOException e) {
+                                    leaveConfirmClickEvent.closeGUI();
+                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
 
-                                    CustomSlotsPaginatedGUI requestsGUI = new CustomSlotsPaginatedGUI(
-                                            "Solicitudes de unión",
+                            },
+                            3
+                    );
+
+                    leaveConfirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CANCEL_HEAD,
+                                    "§cCancelar",
+                                    null
+                            ),
+                            5
+                    );
+                    leaveConfirmGUI.setLCAction(
+                            leaveCancelClickEvent -> openManageInventory(player, id),
+                            5
+                    );
+
+                    plugin.getInventoryHandler().open(player, leaveConfirmGUI);
+                };
+
+                gui.setStatic(
+                        37,
+                        item,
+                        action
+                );
+
+            } else if (project.getMembers().contains(player.getUniqueId())) {
+
+                ItemStack item = ItemBuilder.head(
+                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDcyZjg5MTVlNmJlYjM3YWRjNTQ5MWRkZTU1ZDhlNGJhZGU3Nzg2MTgwNWI5NDdiNTgzYWU2NTQ3MDU0OGJkYyJ9fX0=",
+                        "§c§lAbandonar proyecto",
+                        Collections.singletonList("§c[⬅]§7 Haz click para abandonar el proyecto.")
+                );
+
+                InventoryAction action = leaveClickEvent -> {
+                    InventoryGUI leaveConfirmGUI = new InventoryGUI(
+                            1,
+                            "¿Confirmas abandonar el proyecto?"
+                    );
+
+                    leaveConfirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CONFIRM_HEAD,
+                                    "§aConfirmar",
+                                    null
+                            ),
+                            3
+                    );
+                    leaveConfirmGUI.setLCAction(
+                            leaveConfirmClickEvent -> {
+
+                                try {
+                                    project.memberLeave(player.getUniqueId()).execute();
+                                    plugin.getPlayerRegistry().get(project.getOwner()).sendNotification(
+                                            getPrefix() + "§a" + s.getName() + "§f ha abandonado tu proyecto §a" + project.getDisplayName() + "§f.",
+                                            "**[PROYECTO]** » **" + s.getName() + "** ha abandonado tu proyecto **" + project.getDisplayName() + "**."
+                                    );
+                                    player.sendMessage(getPrefix() + "Has abandonado el proyecto §a" + project.getDisplayName() + "§f.");
+                                } catch (SQLException | IOException e) {
+                                    leaveConfirmClickEvent.closeGUI();
+                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+
+                            },
+                            3
+                    );
+
+                    leaveConfirmGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CANCEL_HEAD,
+                                    "§cCancelar",
+                                    null
+                            ),
+                            5
+                    );
+                    leaveConfirmGUI.setLCAction(
+                            leaveCancelClickEvent -> openManageInventory(player, id),
+                            5
+                    );
+
+                    plugin.getInventoryHandler().open(player, leaveConfirmGUI);
+                };
+
+                gui.setStatic(
+                        37,
+                        item,
+                        action
+                );
+
+            } else {
+                gui.setStatic(
+                        37,
+                        ItemBuilder.head(
+                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDcyZjg5MTVlNmJlYjM3YWRjNTQ5MWRkZTU1ZDhlNGJhZGU3Nzg2MTgwNWI5NDdiNTgzYWU2NTQ3MDU0OGJkYyJ9fX0=",
+                                "§c§lAbandonar proyecto",
+                                Collections.singletonList("§8[⬅] No eres miembro de este proyecto.")
+                        )
+                );
+            }
+        } // LEAVE
+
+        for (UUID memberUUID : project.getMembers()) {
+            ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+
+            List<String> lore = new ArrayList<>(member.getLore(false));
+            lore.add(" ");
+            lore.add("§c[-]§7 Haz §fShift + Click Derecho§7 para remover a §f" + member.getName() + "§7.");
+
+            gui.addPaginated(
+                    ItemBuilder.head(
+                            memberUUID,
+                            "§a§l" + member.getName(),
+                            lore
+                    ),
+                    null,
+                    null,
+                    null,
+                    removeClickEvent -> {
+                        try {
+                            project.removeMember(memberUUID).execute();
+                            player.sendMessage(getPrefix() + "Has removido a §a" + member.getName() + "§f del proyecto.");
+                            member.sendNotification(
+                                    getPrefix() + "Has sido removido del proyecto §a" + project.getDisplayName() + "§f.",
+                                    "**[PROYECTO]** » Has sido removido del proyecto **" + project.getDisplayName() + "**."
+                            );
+                            this.openManageInventory(player, id);
+                        } catch (SQLException | IOException e) {
+                            removeClickEvent.closeGUI();
+                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        }
+                    }
+            );
+        } // MIEMBROS
+
+        {
+            if (isLeader) {
+                if (!isPending) {
+                    if (project.getAllMembers().size() < project.getType().getMaxMembers()) {
+                        gui.addPaginated(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19",
+                                        "§a§lAgregar miembros",
+                                        Collections.singletonList("§a[+]§f Haz click para agregar miembros")
+                                ),
+                                addEventClick -> {
+                                    CustomSlotsPaginatedGUI addGUI = new CustomSlotsPaginatedGUI(
+                                            "Elige un jugador para agregar",
                                             5,
                                             new Integer[]{
                                                     9, 10, 11, 12, 13, 14, 15, 16, 17,
@@ -949,112 +1423,87 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                             8
                                     );
 
-                                    requestsGUI.setStatic(
-                                            40,
+                                    addGUI.setStatic(
+                                            4,
                                             ItemBuilder.head(
-                                                    ItemBuilder.BACK_HEAD,
+                                                    ItemBuilder.INFO_HEAD,
+                                                    "Solo puedes agregar jugadores que estén en línea",
+                                                    null
+                                            )
+                                    );
+
+                                    addGUI.setStatic(
+                                            36,
+                                            ItemBuilder.head(
+                                                    ItemBuilder.LEFT_DOWN_CORNER_ARROW_HEAD,
                                                     "Volver",
                                                     null
                                             ),
-                                            event -> gui.openTo(player, plugin)
+                                            event -> {
+                                                this.openManageInventory(player, id);
+                                            }
                                     );
 
-                                    while (requestsSet1.next()) {
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        if (!project.isMember(p.getUniqueId())) {
+                                            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(p.getUniqueId());
 
-                                        UUID targetUUID = plugin.getSqlManager().getUUID(requestsSet1, "target");
-                                        ServerPlayer target = plugin.getPlayerRegistry().get(targetUUID);
+                                            List<String> lore = new ArrayList<>(serverPlayer.getLore(false));
+                                            lore.add(" ");
+                                            lore.add("§a[+] §7Haz click para agregar a §f" + serverPlayer.getName() + "§7.");
 
-                                        List<String> lore = new ArrayList<>(target.getLore(false));
-                                        lore.add(" ");
-                                        lore.add("§a[+]§7 Haz click izquierdo para aceptar la solicitud");
-                                        lore.add("§c[✕]§7 Haz click derecho para rechazar la solicitud");
-
-                                        requestsGUI.addPaginated(
-                                                ItemBuilder.head(
-                                                        targetUUID,
-                                                        "§a" + target.getName(),
-                                                        lore
-                                                ),
-                                                requestAcceptClickEvent -> {
-                                                    try {
-                                                        project.addMember(targetUUID).execute();
-                                                        player.sendMessage(getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                                                        target.sendNotification(
-                                                                getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
-                                                                "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
-                                                        );
-                                                        plugin.getSqlManager().delete(
-                                                                "project_join_requests",
-                                                                new SQLANDConditionSet(
-                                                                        new SQLOperatorCondition(
-                                                                                "target", "=", targetUUID
-                                                                        ),
-                                                                        new SQLOperatorCondition(
-                                                                                "project_id", "=", id
-                                                                        )
-                                                                )
-                                                        ).execute();
-                                                        this.run();
-                                                    } catch (SQLException | IOException e) {
-                                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                                        requestAcceptClickEvent.closeGUI();
-                                                    }
-                                                },
-                                                null,
-                                                requestRejectClickEvent -> {
-                                                    try {
-                                                        player.sendMessage(getPrefix() + "Has rechazado la solicitud de unión de §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                                                        target.sendNotification(
-                                                                getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
-                                                                "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
-                                                        );
-                                                        plugin.getSqlManager().delete(
-                                                                "project_join_requests",
-                                                                new SQLANDConditionSet(
-                                                                        new SQLOperatorCondition(
-                                                                                "target", "=", targetUUID
-                                                                        ),
-                                                                        new SQLOperatorCondition(
-                                                                                "project_id", "=", id
-                                                                        )
-                                                                )
-                                                        ).execute();
-                                                        this.run();
-                                                    } catch (SQLException e) {
-                                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                                        requestRejectClickEvent.closeGUI();
-                                                    }
-                                                },
-                                                null
-                                        );
-
+                                            addGUI.addPaginated(
+                                                    ItemBuilder.head(
+                                                            p.getUniqueId(),
+                                                            "§a§l" + serverPlayer.getName(),
+                                                            lore
+                                                    ),
+                                                    addPlayerClickEvent -> {
+                                                        try {
+                                                            project.addMember(p.getUniqueId()).execute();
+                                                            player.sendMessage(getPrefix() + "Has agregado a §a" + serverPlayer.getName() + "§f al proyecto.");
+                                                            serverPlayer.sendNotification(
+                                                                    getPrefix() + "Has sido agregado al proyecto §a" + project.getDisplayName() + "§f.",
+                                                                    "**[PROYECTO]** » Has sido agregado al proyecto **" + project.getDisplayName() + "**."
+                                                            );
+                                                            this.openManageInventory(player, id);
+                                                        } catch (SQLException | IOException e) {
+                                                            addPlayerClickEvent.closeGUI();
+                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                        }
+                                                    },
+                                                    null, null, null
+                                            );
+                                        }
                                     }
-
-                                } catch (SQLException | IOException e) {
-                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                    requestsClickEvent.closeGUI();
-                                }
-                            }
-                        };
-                        openRequestsGUI.run();
-                    };
-
-                } catch (SQLException e) {
-                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                    return;
+                                    addGUI.openTo(player, plugin);
+                                },
+                                null, null, null
+                        );
+                    } else {
+                        gui.addPaginated(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19",
+                                        "§a§lAgregar miembros",
+                                        Collections.singletonList("§8[+] El proyecto ya alcanzó el máximo de miembros.")
+                                ),
+                                null, null, null, null
+                        );
+                    }
+                } else {
+                    gui.addPaginated(
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19",
+                                    "§a§lAgregar miembros",
+                                    Collections.singletonList("§8[+] No puedes agregar miembros mientras el proyecto está pendiente de revisión.")
+                            ),
+                            null, null, null, null
+                    );
                 }
-            } else {
-                gui.setStatic(
-                        19,
-                        ItemBuilder.head(
-                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
-                                "§6§lSolicitudes de unión",
-                                Collections.singletonList("§8[+] Solo el líder puede manejar las solicitudes")
-                        )
-                );
             }
+        } // ADD
 
-        } // REQUESTS
+        gui.openTo(player, plugin);
 
     }
 

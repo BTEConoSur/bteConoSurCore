@@ -118,7 +118,7 @@ public class CustomSlotsPaginatedGUI {
         for (List<PaginatedInventoryGUI.InventoryGUISlot> slots : lists) {
             InventoryGUI gui = new InventoryGUI(
                     this.rows,
-                    this.title + "(" + counter + "/" + total + ")",
+                    this.title + " (" + counter + "/" + total + ")",
                     null
             );
 

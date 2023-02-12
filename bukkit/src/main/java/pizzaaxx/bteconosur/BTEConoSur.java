@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.Chat.*;
+import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
 import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
@@ -348,7 +349,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
         getCommand("project").setExecutor(new ProjectsCommand(this));
-        getCommand("chat").setExecutor(new pizzaaxx.bteconosur.chat.commands.ChatCommand(this));
+        getCommand("chat").setExecutor(new ChatCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

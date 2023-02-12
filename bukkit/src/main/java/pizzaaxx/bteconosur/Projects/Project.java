@@ -145,6 +145,10 @@ public class Project implements JSONParsable, Prefixable {
         return owner != null;
     }
 
+    public boolean isMember(UUID uuid) {
+        return (owner.equals(uuid) || members.contains(uuid));
+    }
+
     public ProjectTag getTag() {
         return tag;
     }
@@ -279,5 +283,13 @@ public class Project implements JSONParsable, Prefixable {
 
     public TransferProjectAction transfer(UUID uuid) {
         return new TransferProjectAction(plugin, this, uuid);
+    }
+
+    public MemberLeaveProjectAction memberLeave(UUID uuid) {
+        return new MemberLeaveProjectAction(plugin, this, uuid);
+    }
+
+    public EmptyProjectAction emptyProject() {
+        return new EmptyProjectAction(plugin, this);
     }
 }

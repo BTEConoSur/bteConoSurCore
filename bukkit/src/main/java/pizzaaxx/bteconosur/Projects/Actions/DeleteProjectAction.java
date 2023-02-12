@@ -6,6 +6,7 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -22,7 +23,7 @@ public class DeleteProjectAction {
         this.moderatorUUID = moderatorUUID;
     }
 
-    public void exec() throws SQLException {
+    public void exec() throws SQLException, IOException {
 
         plugin.getRegionManager().removeRegion("project_" + project.getId());
 
@@ -34,6 +35,8 @@ public class DeleteProjectAction {
             );
             serverPlayer.getProjectManager().removeProject(project);
         }
+
+        plugin.getTerramapHandler().deletePolygon(project.getId());
 
         plugin.getSqlManager().delete(
                 "projects",
