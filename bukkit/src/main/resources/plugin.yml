@@ -86,3 +86,7 @@ commands:
     description: Chats.
     aliases:
       - c
+  nickname:
+    description: Establece tu nickname.
+    aliases:
+      - nick

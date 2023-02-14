@@ -51,17 +51,19 @@ public class ServerPlayer {
     }
 
     public enum SecondaryRoles implements PrefixHolder {
-        ADMIN("§f[§cADMIN§f] §r", "[:crown:] "),
-        MOD("§f[§5MOD§f] §r", "[:shield:] "),
-        STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] "),
-        DONADOR("§f[§dDONADOR§f] §r", "[:gem:] ");
+        ADMIN("§f[§cADMIN§f] §r", "[:crown:] ", "§6§l"),
+        MOD("§f[§5MOD§f] §r", "[:shield:] ", "§5§l"),
+        STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] ", null),
+        DONADOR("§f[§dDONADOR§f] §r", "[:gem:] ", null);
 
         private final String prefix;
         private final String discordPrefix;
+        private final String chatColor;
 
-        SecondaryRoles(String prefix, String discordPrefix) {
+        SecondaryRoles(String prefix, String discordPrefix, String chatColor) {
             this.prefix = prefix;
             this.discordPrefix = discordPrefix;
+            this.chatColor = chatColor;
         }
 
         @Override
@@ -72,6 +74,10 @@ public class ServerPlayer {
         @Override
         public String getDiscordPrefix() {
             return discordPrefix;
+        }
+
+        public String getChatColor() {
+            return chatColor;
         }
     }
 
@@ -165,6 +171,15 @@ public class ServerPlayer {
         } else {
             lore.add("§aDiscord: §fN/A");
         }
+
+        /*
+        String[][] values = new String[4][0];
+        values[0][0] = "País";
+        values[0][1] = "Puntos";
+        values[0][2] = "P. Activos";
+        values[0][3] = "P. Terminados";
+        */
+
         return lore;
     }
 

@@ -15,6 +15,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class ChatManager {
 
@@ -167,6 +168,31 @@ public class ChatManager {
         return nickname;
     }
 
+    public String setNickname(@NotNull String nickname) throws SQLException {
+
+         if (nickname.equals(serverPlayer.getName())) {
+             this.nickname = null;
+         } else {
+             this.nickname = nickname;
+         }
+
+        plugin.getSqlManager().update(
+                "chat_managers",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "nickname", this.nickname
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", serverPlayer.getUUID()
+                        )
+                )
+        ).execute();
+
+         return this.nickname;
+    }
+
     public boolean hasCountryPrefix() {
         return countryPrefix != null;
     }
@@ -175,5 +201,18 @@ public class ChatManager {
         return countryPrefix;
     }
 
+    public String getDisplayName() {
 
+        String chatColor = null;
+        List<ServerPlayer.SecondaryRoles> roles = serverPlayer.getSecondaryRoles();
+        if (!roles.isEmpty()) {
+            chatColor = roles.get(0).getChatColor();
+        }
+
+        if (nickname == null) {
+            return (chatColor == null ? "§f" : chatColor) + serverPlayer.getName();
+        } else {
+            return (chatColor == null ? "§e" : chatColor) + this.nickname;
+        }
+    }
 }

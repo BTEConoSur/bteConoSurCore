@@ -105,4 +105,4 @@
 * ✔️ `/chat default [(global|<país>|<idProyecto>)]`
 * ✔️ `/chat invite <nombre>`
 * ✔️ `/chat <código>`
-* 🕙 `/nickname <nickname>`
+* ✔️ `/nickname <nickname>`

@@ -59,7 +59,7 @@ public class StringUtils {
 
     @NotNull
     @Contract(pure = true)
-    public static StringBuilder[] getASCIITable(@NotNull String[][] values) {
+    public static StringBuilder[] getASCIITableDiscord(@NotNull String[][] values) {
 
         StringBuilder[] result = new StringBuilder[values[0].length + 3];
 
@@ -96,9 +96,18 @@ public class StringUtils {
                     }
                     result[i].append("+");
                 } else {
-                    result[i].append(" ").append(column[valuesCounter]);
-                    for (int j = 0; j < maxLengths[columnCounter] - column[valuesCounter].length(); j++) {
-                        result[i].append(" ");
+
+                    try {
+                        int number = Integer.parseInt(column[valuesCounter]);
+                        for (int j = 0; j < maxLengths[columnCounter] - column[valuesCounter].length(); j++) {
+                            result[i].append(" ");
+                        }
+                        result[i].append(number).append(" ");
+                    } catch (NumberFormatException e) {
+                        result[i].append(" ").append(column[valuesCounter]);
+                        for (int j = 0; j < maxLengths[columnCounter] - column[valuesCounter].length(); j++) {
+                            result[i].append(" ");
+                        }
                     }
                     result[i].append(" |");
                     valuesCounter++;
