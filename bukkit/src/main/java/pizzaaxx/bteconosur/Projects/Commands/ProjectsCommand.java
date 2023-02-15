@@ -854,7 +854,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
         boolean isPending = project.isPending();
 
         Integer[] slots;
-        if (project.getMembers().size() > 0) {
+        if (project.getMembers().size() > 29) {
             slots = new Integer[]{
                     4,  5,  6,  7,  8,
                     13, 14, 15, 16, 17,
