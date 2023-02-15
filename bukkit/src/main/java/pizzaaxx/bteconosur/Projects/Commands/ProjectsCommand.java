@@ -767,6 +767,79 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
 
                 break;
             }
+            case "request": {
+
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new NonMemberProjectSelector(p.getUniqueId()));
+
+                if (projectIDs.size() == 0) {
+
+                    p.sendMessage(getPrefix() + "No hay proyectos (de los que no seas miembro ya) aquí.");
+
+                } else if (projectIDs.size() == 1) {
+
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+
+                    if (project.isFull()) {
+                        p.sendMessage(getPrefix() + "Este proyecto ya alcanzó el límite de miembros.");
+                        return true;
+                    }
+
+                    if (!project.isClaimed()) {
+                        p.sendMessage(getPrefix() + "Este proyecto aún no está reclamado. Reclámalo usando §a/p claim§f.");
+                        return true;
+                    }
+
+                    try {
+                        if (project.request(p.getUniqueId())) {
+                            p.sendMessage(getPrefix() + "Solicitud enviada al líder del proyecto §a" + project.getDisplayName() + "§f.");
+                        } else {
+                            p.sendMessage(getPrefix() + "Ya tienes una solicitud activa en este proyecto.");
+                        }
+                    } catch (SQLException e) {
+                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    }
+
+                } else {
+
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto para solicitar"
+                    );
+
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+
+                        gui.add(
+                                project.getItem(),
+                                event -> {
+                                    if (project.isFull()) {
+                                        p.sendMessage(getPrefix() + "Este proyecto ya alcanzó el límite de miembros.");
+                                        return;
+                                    }
+
+                                    if (!project.isClaimed()) {
+                                        p.sendMessage(getPrefix() + "Este proyecto aún no está reclamado. Reclámalo usando §a/p claim§f.");
+                                        return;
+                                    }
+
+                                    try {
+                                        if (project.request(p.getUniqueId())) {
+                                            p.sendMessage(getPrefix() + "Solicitud enviada al líder del proyecto §a" + project.getDisplayName() + "§f.");
+                                        } else {
+                                            p.sendMessage(getPrefix() + "Ya tienes una solicitud activa en este proyecto.");
+                                        }
+                                    } catch (SQLException e) {
+                                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                    }
+                                },
+                                null, null, null
+                        );
+                    }
+
+                }
+
+                break;
+            }
         }
         return true;
     }
@@ -868,7 +941,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                     4,
                                     ItemBuilder.head(
                                             ItemBuilder.INFO_HEAD,
-                                            "§aSolo puedes transferir un proyecto a miembros que estén en línea",
+                                            "§aSolo puedes transferir un proyecto a miembros que estén en línea, que hayan desbloqueado el tipo de proyecto y no hayan alcanzado el máximo de proyectos.",
                                             null
                                     )
                             );
@@ -887,6 +960,16 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 if (Bukkit.getOfflinePlayer(memberUUID).isOnline()) {
 
                                     ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+
+                                    try {
+                                        if (!project.getType().isUnlocked(member.getProjectManager()) || member.getProjectManager().getProjects(new OwnerSQLSelector(memberUUID)).size() >= MAX_PROJECTS_PER_PLAYER) {
+                                            continue;
+                                        }
+                                    } catch (SQLException e) {
+                                        transferClickEvent.closeGUI();
+                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                        break;
+                                    }
 
                                     List<String> lore1 = new ArrayList<>(member.getLore(false));
                                     lore1.add(" ");
@@ -983,161 +1066,121 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                             )
                     );
                 } else {
-                    try {
-                        ResultSet requestsSet = plugin.getSqlManager().select(
-                                "project_join_requests",
-                                new SQLColumnSet(
-                                        "target"
-                                ),
-                                new SQLANDConditionSet(
-                                        new SQLOperatorCondition(
-                                                "project_id", "=", id
-                                        )
-                                )
-                        ).retrieve();
+                    int total = project.getRequests().size();
 
-                        int total = 0;
+                    ItemStack item = ItemBuilder.head(
+                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
+                            "§6§lSolicitudes de unión (" + total + ")",
+                            Collections.singletonList("§a[+]§7 Haz click para ver las solicitudes")
+                    );
 
-                        while (requestsSet.next()) {
-                            total++;
-                        }
+                    InventoryAction action = requestsClickEvent -> {
+                        Runnable openRequestsGUI = new Runnable() {
+                            @Override
+                            public void run() {
+                                CustomSlotsPaginatedGUI requestsGUI = new CustomSlotsPaginatedGUI(
+                                        "Solicitudes de unión",
+                                        5,
+                                        new Integer[]{
+                                                9, 10, 11, 12, 13, 14, 15, 16, 17,
+                                                18, 19, 20, 21, 22, 23, 24, 25, 26,
+                                                27, 28, 29, 30, 31, 32, 33, 34, 35
+                                        },
+                                        0,
+                                        8
+                                );
 
-                        ItemStack item = ItemBuilder.head(
-                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZiMGNlNjczYjNmMjhjNDYxMGNlYTdjZTA0MmM4NTBlMzRjYzk4OGNiMGQ3YzgwMzk3OWY1MGRkMGYxNTczMSJ9fX0=",
-                                "§6§lSolicitudes de unión (" + total + ")",
-                                Collections.singletonList("§a[+]§7 Haz click para ver las solicitudes")
-                        );
+                                requestsGUI.setStatic(
+                                        36,
+                                        ItemBuilder.head(
+                                                ItemBuilder.LEFT_DOWN_CORNER_ARROW_HEAD,
+                                                "Volver",
+                                                null
+                                        ),
+                                        event -> openManageInventory(player, id)
+                                );
 
-                        InventoryAction action = requestsClickEvent -> {
-                            Runnable openRequestsGUI = new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        ResultSet requestsSet1 = plugin.getSqlManager().select(
-                                                "project_join_requests",
-                                                new SQLColumnSet(
-                                                        "target"
-                                                ),
-                                                new SQLANDConditionSet(
-                                                        new SQLOperatorCondition(
-                                                                "project_id", "=", id
-                                                        )
-                                                )
-                                        ).retrieve();
+                                for (UUID targetUUID : project.getRequests()) {
 
-                                        CustomSlotsPaginatedGUI requestsGUI = new CustomSlotsPaginatedGUI(
-                                                "Solicitudes de unión",
-                                                5,
-                                                new Integer[]{
-                                                        9, 10, 11, 12, 13, 14, 15, 16, 17,
-                                                        18, 19, 20, 21, 22, 23, 24, 25, 26,
-                                                        27, 28, 29, 30, 31, 32, 33, 34, 35
-                                                },
-                                                0,
-                                                8
-                                        );
+                                    ServerPlayer target = plugin.getPlayerRegistry().get(targetUUID);
 
-                                        requestsGUI.setStatic(
-                                                36,
-                                                ItemBuilder.head(
-                                                        ItemBuilder.LEFT_DOWN_CORNER_ARROW_HEAD,
-                                                        "Volver",
-                                                        null
-                                                ),
-                                                event -> openManageInventory(player, id)
-                                        );
+                                    List<String> lore = new ArrayList<>(target.getLore(false));
+                                    lore.add(" ");
+                                    lore.add("§a[+]§7 Haz click izquierdo para aceptar la solicitud");
+                                    lore.add("§c[✕]§7 Haz click derecho para rechazar la solicitud");
 
-                                        while (requestsSet1.next()) {
-
-                                            UUID targetUUID = plugin.getSqlManager().getUUID(requestsSet1, "target");
-                                            ServerPlayer target = plugin.getPlayerRegistry().get(targetUUID);
-
-                                            List<String> lore = new ArrayList<>(target.getLore(false));
-                                            lore.add(" ");
-                                            lore.add("§a[+]§7 Haz click izquierdo para aceptar la solicitud");
-                                            lore.add("§c[✕]§7 Haz click derecho para rechazar la solicitud");
-
-                                            requestsGUI.addPaginated(
-                                                    ItemBuilder.head(
-                                                            targetUUID,
-                                                            "§a" + target.getName(),
-                                                            lore
-                                                    ),
-                                                    requestAcceptClickEvent -> {
-                                                        try {
-                                                            project.addMember(targetUUID).execute();
-                                                            player.sendMessage(getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                                                            target.sendNotification(
-                                                                    getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
-                                                                    "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
-                                                            );
-                                                            plugin.getSqlManager().delete(
-                                                                    "project_join_requests",
-                                                                    new SQLANDConditionSet(
-                                                                            new SQLOperatorCondition(
-                                                                                    "target", "=", targetUUID
-                                                                            ),
-                                                                            new SQLOperatorCondition(
-                                                                                    "project_id", "=", id
-                                                                            )
+                                    requestsGUI.addPaginated(
+                                            ItemBuilder.head(
+                                                    targetUUID,
+                                                    "§a" + target.getName(),
+                                                    lore
+                                            ),
+                                            requestAcceptClickEvent -> {
+                                                try {
+                                                    project.addMember(targetUUID).execute();
+                                                    player.sendMessage(getPrefix() + "Has agregado a §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                    target.sendNotification(
+                                                            getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
+                                                            "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
+                                                    );
+                                                    plugin.getSqlManager().delete(
+                                                            "project_join_requests",
+                                                            new SQLANDConditionSet(
+                                                                    new SQLOperatorCondition(
+                                                                            "target", "=", targetUUID
+                                                                    ),
+                                                                    new SQLOperatorCondition(
+                                                                            "project_id", "=", id
                                                                     )
-                                                            ).execute();
-                                                            this.run();
-                                                        } catch (SQLException | IOException e) {
-                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                                            requestAcceptClickEvent.closeGUI();
-                                                        }
-                                                    },
-                                                    null,
-                                                    requestRejectClickEvent -> {
-                                                        try {
-                                                            player.sendMessage(getPrefix() + "Has rechazado la solicitud de unión de §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
-                                                            target.sendNotification(
-                                                                    getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
-                                                                    "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
-                                                            );
-                                                            plugin.getSqlManager().delete(
-                                                                    "project_join_requests",
-                                                                    new SQLANDConditionSet(
-                                                                            new SQLOperatorCondition(
-                                                                                    "target", "=", targetUUID
-                                                                            ),
-                                                                            new SQLOperatorCondition(
-                                                                                    "project_id", "=", id
-                                                                            )
+                                                            )
+                                                    ).execute();
+                                                    this.run();
+                                                } catch (SQLException | IOException e) {
+                                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                    requestAcceptClickEvent.closeGUI();
+                                                }
+                                            },
+                                            null,
+                                            requestRejectClickEvent -> {
+                                                try {
+                                                    player.sendMessage(getPrefix() + "Has rechazado la solicitud de unión de §a" + target.getName() + "§f al proyecto §a" + project.getDisplayName() + "§f.");
+                                                    target.sendNotification(
+                                                            getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
+                                                            "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
+                                                    );
+                                                    plugin.getSqlManager().delete(
+                                                            "project_join_requests",
+                                                            new SQLANDConditionSet(
+                                                                    new SQLOperatorCondition(
+                                                                            "target", "=", targetUUID
+                                                                    ),
+                                                                    new SQLOperatorCondition(
+                                                                            "project_id", "=", id
                                                                     )
-                                                            ).execute();
-                                                            this.run();
-                                                        } catch (SQLException e) {
-                                                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                                            requestRejectClickEvent.closeGUI();
-                                                        }
-                                                    },
-                                                    null
-                                            );
+                                                            )
+                                                    ).execute();
+                                                    this.run();
+                                                } catch (SQLException e) {
+                                                    player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                    requestRejectClickEvent.closeGUI();
+                                                }
+                                            },
+                                            null
+                                    );
 
-                                        }
-
-                                        requestsGUI.openTo(player, plugin);
-
-                                    } catch (SQLException | IOException e) {
-                                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                        requestsClickEvent.closeGUI();
-                                    }
                                 }
-                            };
-                            openRequestsGUI.run();
-                        };
 
-                        gui.setStatic(
-                                28,
-                                item,
-                                action
-                        );
-                    } catch (SQLException e) {
-                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                        return;
-                    }
+                                requestsGUI.openTo(player, plugin);
+                            }
+                        };
+                        openRequestsGUI.run();
+                    };
+
+                    gui.setStatic(
+                            28,
+                            item,
+                            action
+                    );
                 }
             } else {
                 gui.setStatic(
@@ -1439,9 +1482,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                                     "Volver",
                                                     null
                                             ),
-                                            event -> {
-                                                this.openManageInventory(player, id);
-                                            }
+                                            event -> this.openManageInventory(player, id)
                                     );
 
                                     for (Player p : Bukkit.getOnlinePlayers()) {

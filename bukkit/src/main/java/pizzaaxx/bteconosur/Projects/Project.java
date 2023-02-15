@@ -15,6 +15,8 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import javax.annotation.CheckReturnValue;
 import java.io.IOException;
@@ -39,6 +41,7 @@ public class Project implements JSONParsable, Prefixable {
     public UUID owner;
     private ProjectTag tag;
     private final ProtectedPolygonalRegion region;
+    private final Set<UUID> requests;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -82,6 +85,24 @@ public class Project implements JSONParsable, Prefixable {
             String tag = set.getString("tag");
 
             this.tag = tag == null ? null : ProjectTag.valueOf(tag);
+
+            ResultSet requestsSet = plugin.getSqlManager().select(
+                    "project_join_requests",
+                    new SQLColumnSet(
+                            "target"
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "project_id", "=", this.id
+                            )
+                    )
+            ).retrieve();
+
+            requests = new HashSet<>();
+
+            while (set.next()) {
+                requests.add(plugin.getSqlManager().getUUID(set, "target"));
+            }
 
         } else {
             throw new IllegalArgumentException();
@@ -147,6 +168,10 @@ public class Project implements JSONParsable, Prefixable {
 
     public boolean isMember(UUID uuid) {
         return (owner.equals(uuid) || members.contains(uuid));
+    }
+
+    public boolean isFull() {
+        return members.size() >= type.getMaxMembers();
     }
 
     public ProjectTag getTag() {
@@ -219,6 +244,29 @@ public class Project implements JSONParsable, Prefixable {
         } else {
             return ProjectRole.GUEST;
         }
+    }
+
+    public Set<UUID> getRequests() {
+        return requests;
+    }
+
+    public boolean request(UUID target) throws SQLException {
+        if (!requests.contains(target)) {
+            requests.add(target);
+            plugin.getSqlManager().insert(
+                    "project_join_requests",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "project_id", this.id
+                            ),
+                            new SQLValue(
+                                    "target", target
+                            )
+                    )
+            ).execute();
+            return true;
+        }
+        return false;
     }
 
     public void update() throws SQLException, IOException {
