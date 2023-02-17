@@ -26,20 +26,27 @@ public class InventoryHandler implements Listener {
         this.plugin = plugin;
     }
 
-    public void open(@NotNull Player p, InventoryGUI inventoryGUI) {
-        openedInventories.put(p.getUniqueId(), inventoryGUI);
+    public void open(@NotNull Player p, @NotNull InventoryGUI inventoryGUI) {
+
         p.openInventory(inventoryGUI.buildInventory());
+        openedInventories.put(p.getUniqueId(), inventoryGUI);
+
     }
 
     @EventHandler
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
         if (openedInventories.containsKey(event.getWhoClicked().getUniqueId())) {
+            plugin.log("b");
             InventoryGUI gui = openedInventories.get(event.getWhoClicked().getUniqueId());
             if (event.getClickedInventory() == null) {
+                plugin.log("b1");
                 return;
             }
+            plugin.log("c");
             if (event.getClickedInventory().getName().equals(gui.getTitle())) {
+                plugin.log("d");
                 if (event.getClick().isKeyboardClick() && !event.isShiftClick()) {
+                    plugin.log("d1");
                     if (!gui.isDraggable(event.getSlot())) {
                         event.setCancelled(true);
                     }
@@ -69,7 +76,9 @@ public class InventoryHandler implements Listener {
                         action = gui.getRCAction(event.getSlot());
                     }
                 }
+                plugin.log("e");
                 if (action != null) {
+                    plugin.log("f");
                     InventoryGUIClickEvent clickEvent = new InventoryGUIClickEvent(
                             (Player) event.getWhoClicked(),
                             gui,
@@ -83,12 +92,7 @@ public class InventoryHandler implements Listener {
 
     @EventHandler
     public void onInventoryClose(@NotNull InventoryCloseEvent event) {
-        if (openedInventories.containsKey(event.getPlayer().getUniqueId())) {
-            InventoryGUI gui = openedInventories.get(event.getPlayer().getUniqueId());
-            if (event.getInventory().getName().equals(gui.getTitle())) {
-                openedInventories.remove(event.getPlayer().getUniqueId());
-            }
-        }
+        openedInventories.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
