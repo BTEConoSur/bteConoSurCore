@@ -8,6 +8,7 @@ import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.JSONParsable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectType {
+public class ProjectType implements JSONParsable {
 
     private final BTEConoSur plugin;
     private final Country country;
@@ -101,5 +102,10 @@ public class ProjectType {
             }
         }
         return unlocked;
+    }
+
+    @Override
+    public String getJSON(boolean insideJSON) {
+        return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
     }
 }

@@ -36,17 +36,12 @@ public class InventoryHandler implements Listener {
     @EventHandler
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
         if (openedInventories.containsKey(event.getWhoClicked().getUniqueId())) {
-            plugin.log("b");
             InventoryGUI gui = openedInventories.get(event.getWhoClicked().getUniqueId());
             if (event.getClickedInventory() == null) {
-                plugin.log("b1");
                 return;
             }
-            plugin.log("c");
             if (event.getClickedInventory().getName().equals(gui.getTitle())) {
-                plugin.log("d");
                 if (event.getClick().isKeyboardClick() && !event.isShiftClick()) {
-                    plugin.log("d1");
                     if (!gui.isDraggable(event.getSlot())) {
                         event.setCancelled(true);
                     }
@@ -76,9 +71,7 @@ public class InventoryHandler implements Listener {
                         action = gui.getRCAction(event.getSlot());
                     }
                 }
-                plugin.log("e");
                 if (action != null) {
-                    plugin.log("f");
                     InventoryGUIClickEvent clickEvent = new InventoryGUIClickEvent(
                             (Player) event.getWhoClicked(),
                             gui,

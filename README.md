@@ -97,7 +97,7 @@
 * ✔️ `/project claim`
 * 🕙 `/project find`
 * 🕙 `/project review <(accept|continue|deny)>`
-* 🕙 `/project request`
+* ✔️ `/project request`
 * 🕙 `/project tutorial`
 ## Chat
 * ✔️ `/chat [nombre]`

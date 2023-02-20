@@ -6,6 +6,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.*;
+import pizzaaxx.bteconosur.Cities.Showcases.Showcase;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -18,15 +19,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class City implements JSONParsable {
 
     private final BTEConoSur plugin;
     private final String name;
     private final String displayName;
-    private final Set<String> showcaseIDs;
     private final Country country;
+    private List<Showcase> showcases = null;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
 
@@ -47,7 +47,6 @@ public class City implements JSONParsable {
         if (set.next()) {
             this.name = set.getString("name");
             this.displayName = set.getString("display_name");
-            this.showcaseIDs = plugin.getJSONMapper().readValue(set.getString("showcase_ids"), HashSet.class);
             this.country = plugin.getCountryManager().get(set.getString("country"));
             if (plugin.getRegionManager().hasRegion("city_" + this.name + "_urban")) {
                 this.urbanRegion = plugin.getRegionManager().getRegion("city_" + this.name + "_urban");
@@ -56,6 +55,29 @@ public class City implements JSONParsable {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public List<Showcase> getShowcases() throws SQLException {
+
+        if (showcases == null) {
+            ResultSet set = plugin.getSqlManager().select(
+                    "showcases",
+                    new SQLColumnSet(
+                            "message_id",
+                            "project_id"
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLJSONArrayCondition("cities", this.name)
+                    )
+            ).retrieve();
+
+            showcases = new ArrayList<>();
+            while (set.next()) {
+                showcases.add(new Showcase(set.getString("message_id"), set.getString("project_id")));
+            }
+            return showcases;
+        }
+        return showcases;
     }
 
     public BTEConoSur getPlugin() {
@@ -68,10 +90,6 @@ public class City implements JSONParsable {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public Set<String> getShowcaseIDs() {
-        return showcaseIDs;
     }
 
     public Country getCountry() {
@@ -162,5 +180,16 @@ public class City implements JSONParsable {
     @Override
     public String getJSON(boolean insideJSON) {
         return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        City city = (City) obj;
+        return this.name.equals(city.name);
     }
 }

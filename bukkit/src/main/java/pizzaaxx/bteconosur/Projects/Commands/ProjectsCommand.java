@@ -13,15 +13,24 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
@@ -31,6 +40,7 @@ import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.NonMemberProjectSelector;
@@ -39,8 +49,7 @@ import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.RegionUtils;
@@ -57,7 +66,7 @@ import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
 
-public class ProjectsCommand implements CommandExecutor, Prefixable {
+public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
     private final BTEConoSur plugin;
 
@@ -835,10 +844,205 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                                 null, null, null
                         );
                     }
+                    gui.openTo(p, plugin);
 
                 }
 
                 break;
+            }
+            case "tag": {
+
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
+
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos aquí.");
+                } else if (projectIDs.size() == 1) {
+
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+
+                    InventoryGUI tagGUI = new InventoryGUI(
+                            4,
+                            "Elige una etiqueta"
+                    );
+
+                    tagGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CANCEL_HEAD,
+                                    "§cEliminar etiqueta",
+                                    null
+                            ),
+                            13
+                    );
+                    tagGUI.setLCAction(
+                            deleteTagGUIClickAction -> {
+                                try {
+                                    if (project.setTag(null)) {
+                                        p.sendMessage(getPrefix() + "Etiqueta del proyecto §a" + project.getDisplayName() + "§f eliminada.");
+                                    } else {
+                                        p.sendMessage(getPrefix() + "El proyecto §a" + project.getDisplayName() + "§f no tiene etiqueta.");
+                                    }
+                                } catch (SQLException e) {
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+                                deleteTagGUIClickAction.closeGUI();
+                            },
+                            13
+                    );
+
+                    int i = 10;
+                    for (ProjectTag tag : ProjectTag.values()) {
+                        tagGUI.setItem(
+                                ItemBuilder.head(
+                                        tag.getHeadValue(),
+                                        "§a" + StringUtils.capitalize(tag.toString()),
+                                        null
+                                ),
+                                i
+                        );
+
+                        tagGUI.setLCAction(
+                                tagClickEvent -> {
+                                    try {
+                                        if (project.setTag(tag)) {
+                                            p.sendMessage(getPrefix() + "Etiqueta del proyecto §a" + project.getDisplayName() + "§f establecida en §a" + StringUtils.capitalize(tag.toString()) + "§f.");
+                                        } else {
+                                            p.sendMessage(getPrefix() + "El proyecto §a" + project.getDisplayName() + "§f ya tiene esta etiqueta.");
+                                        }
+                                    } catch (SQLException e) {
+                                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                    }
+                                    tagClickEvent.closeGUI();
+                                },
+                                i
+                        );
+
+                        i++;
+                    }
+
+                    plugin.getInventoryHandler().open(p, tagGUI);
+
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto"
+                    );
+
+                    for (String id : projectIDs) {
+
+                        Project project = plugin.getProjectRegistry().get(id);
+
+                        gui.add(
+                                project.getItem(),
+                                event -> {
+                                    InventoryGUI tagGUI = new InventoryGUI(
+                                            4,
+                                            "Elige una etiqueta"
+                                    );
+
+                                    tagGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.CANCEL_HEAD,
+                                                    "§cEliminar etiqueta",
+                                                    null
+                                            ),
+                                            13
+                                    );
+                                    tagGUI.setLCAction(
+                                            deleteTagGUIClickAction -> {
+                                                try {
+                                                    if (project.setTag(null)) {
+                                                        p.sendMessage(getPrefix() + "Etiqueta del proyecto §a" + project.getDisplayName() + "§f eliminada.");
+                                                    } else {
+                                                        p.sendMessage(getPrefix() + "El proyecto §a" + project.getDisplayName() + "§f no tiene etiqueta.");
+                                                    }
+                                                } catch (SQLException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                                deleteTagGUIClickAction.closeGUI();
+                                            },
+                                            13
+                                    );
+
+                                    int i = 10;
+                                    for (ProjectTag tag : ProjectTag.values()) {
+                                        tagGUI.setItem(
+                                                ItemBuilder.head(
+                                                        tag.getHeadValue(),
+                                                        "§a" + StringUtils.capitalize(tag.toString()),
+                                                        null
+                                                ),
+                                                i
+                                        );
+
+                                        tagGUI.setLCAction(
+                                                tagClickEvent -> {
+                                                    try {
+                                                        if (project.setTag(tag)) {
+                                                            p.sendMessage(getPrefix() + "Etiqueta del proyecto §a" + project.getDisplayName() + "§f establecida en §a" + StringUtils.capitalize(tag.toString()) + "§f.");
+                                                        } else {
+                                                            p.sendMessage(getPrefix() + "El proyecto §a" + project.getDisplayName() + "§f ya tiene esta etiqueta.");
+                                                        }
+                                                    } catch (SQLException e) {
+                                                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                    }
+                                                    tagClickEvent.closeGUI();
+                                                },
+                                                i
+                                        );
+
+                                        i++;
+                                    }
+
+                                    plugin.getInventoryHandler().open(p, tagGUI);
+                                },
+                                null, null, null
+                        );
+
+                    }
+
+                    gui.openTo(p, plugin);
+                }
+                break;
+            }
+            case "find": {
+
+                for (int i = 0; i < 9; i++) {
+                    p.getInventory().clear(i);
+                }
+
+                p.getInventory().setItem(
+                        4,
+                        ItemBuilder.of(Material.COMPASS)
+                                .name("§a§lEncontrar proyectos")
+                                .build()
+                );
+
+                UUID uuid = p.getUniqueId();
+
+                City city;
+                if (cityMap.containsKey(uuid)) {
+                    city = cityMap.get(uuid);
+                } else {
+                    city = plugin.getCityManager().getCityAt(p.getLocation());
+                    if (city == null) {
+                        Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+                        if (country == null) {
+                            country = plugin.getCountryManager().getSortedCountries().get(0);
+                        }
+                        List<String> cities = new ArrayList<>(country.getCities());
+                        Collections.sort(cities);
+                        city = plugin.getCityManager().get(cities.get(0));
+                    }
+                }
+
+                openFindInventory(
+                        p,
+                        notClaimedMap.getOrDefault(uuid, true),
+                        city,
+                        tagMap.getOrDefault(uuid, null),
+                        typeMap.getOrDefault(uuid, null)
+                );
+
             }
         }
         return true;
@@ -1203,7 +1407,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     gui.setStatic(
                             29,
                             ItemBuilder.head(
-                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZiMTkzMmM0MmNkN2FmNjIxYjhlNTJmZGY0OWE0YTdmYTZmNDgwOTViYjYwOGUwNTgwNTVhZjM4YjNmMWZjNCJ9fX0=",
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmVjYjYyYzYzYjI1NzVlYzhkYjc3MWM1N2M4YjU2MDUxNWJiNTA0MTkwMjM4YTk2MWU2ZTI0M2VmNTYwMmVkNCJ9fX0=",
                                     "§e§lTerminar proyecto",
                                     Collections.singletonList("§8[✔] El proyecto ya está marcado como finalizado.")
                             )
@@ -1212,7 +1416,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
                     gui.setStatic(
                             29,
                             ItemBuilder.head(
-                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZiMTkzMmM0MmNkN2FmNjIxYjhlNTJmZGY0OWE0YTdmYTZmNDgwOTViYjYwOGUwNTgwNTVhZjM4YjNmMWZjNCJ9fX0=",
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTRkNjFlYmMyOWM2MDk3MjQwNTNlNDJmNjE1YmM3NDJhMTZlZjY4Njk2MTgyOWE2ZDAxMjcwNDUyOWIxMzA4NSJ9fX0=",
                                     "§e§lTerminar proyecto",
                                     Collections.singletonList("§e[✔]§f Haz click para finalizar el proyecto.")
                             ),
@@ -1545,6 +1749,554 @@ public class ProjectsCommand implements CommandExecutor, Prefixable {
         } // ADD
 
         gui.openTo(player, plugin);
+
+    }
+
+    private final Map<UUID, Boolean> notClaimedMap = new HashMap<>();
+    private final Map<UUID, City> cityMap = new HashMap<>();
+    private final Map<UUID, ProjectType> typeMap = new HashMap<>();
+    private final Map<UUID, ProjectTag> tagMap = new HashMap<>();
+
+    @EventHandler
+    public void onClick(@NotNull PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (event.getItem() != null && event.getItem().getType() == Material.COMPASS) {
+                ItemStack item = event.getItem();
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().equals("§a§lEncontrar proyectos")) {
+                    UUID uuid = event.getPlayer().getUniqueId();
+
+                    City city;
+                    if (cityMap.containsKey(uuid)) {
+                        city = cityMap.get(uuid);
+                    } else {
+                        city = plugin.getCityManager().getCityAt(event.getPlayer().getLocation());
+                        if (city == null) {
+                            Country country = plugin.getCountryManager().getCountryAt(event.getPlayer().getLocation());
+                            if (country == null) {
+                                country = plugin.getCountryManager().getSortedCountries().get(0);
+                            }
+                            List<String> cities = new ArrayList<>(country.getCities());
+                            Collections.sort(cities);
+                            city = plugin.getCityManager().get(cities.get(0));
+                        }
+                    }
+
+                    openFindInventory(
+                            event.getPlayer(),
+                            notClaimedMap.getOrDefault(uuid, true),
+                            city,
+                            tagMap.getOrDefault(uuid, null),
+                            typeMap.getOrDefault(uuid, null)
+                    );
+                }
+            }
+        }
+    }
+
+    private final Random random = new Random();
+
+    // PAIS
+    // CIUDAD
+    // ETIQUETA*
+    // DIFICULTAD*
+    private void openFindInventory(@NotNull Player p, boolean notClaimed, @NotNull City city, @Nullable ProjectTag tag, @Nullable ProjectType type) {
+        try {
+
+            notClaimedMap.put(p.getUniqueId(), notClaimed);
+            cityMap.put(p.getUniqueId(), city);
+            tagMap.put(p.getUniqueId(), tag);
+            typeMap.put(p.getUniqueId(), type);
+
+            List<String> projectIDs = new ArrayList<>();
+
+            SQLANDConditionSet conditionSet = new SQLANDConditionSet(
+                    new SQLJSONArrayCondition("cities", city),
+                    new SQLNOTCondition(
+                            new SQLJSONArrayCondition("members", p.getUniqueId())
+                    )
+            );
+            if (notClaimed) {
+                conditionSet.addCondition(
+                        new SQLNullCondition(
+                                "owner", true
+                        )
+                );
+            } else {
+                conditionSet.addCondition(
+                        new SQLORConditionSet(
+                                new SQLNullCondition(
+                                        "owner", true
+                                ),
+                                new SQLOperatorCondition("owner", "!=", p.getUniqueId())
+                        )
+                );
+            }
+
+            if (tag != null) {
+                conditionSet.addCondition(
+                        new SQLOperatorCondition(
+                                "tag", "=", tag
+                        )
+                );
+            }
+            if (type != null) {
+                conditionSet.addCondition(
+                        new SQLOperatorCondition(
+                                "type", "=", type
+                        )
+                );
+            }
+
+
+            ResultSet set = plugin.getSqlManager().select(
+                    "projects",
+                    new SQLColumnSet("id"),
+                    conditionSet
+            ).retrieve();
+
+            while (set.next()) {
+                projectIDs.add(set.getString("id"));
+            }
+
+            Integer[] slots;
+            if (projectIDs.size() > 29) {
+                slots = new Integer[]{
+                        4,  5,  6,  7,  8,
+                        13, 14, 15, 16, 17,
+                        22, 23, 24, 25, 26,
+                        31, 32, 33, 34, 35,
+                        40, 41, 42, 43, 44
+                };
+            } else {
+                slots = new Integer[]{
+                        4,  5,  6,  7,  8,
+                        13, 14, 15, 16, 17,
+                        22, 23, 24, 25, 26,
+                        31, 32, 33, 34, 35,
+                        40, 41, 42, 43, 44,
+                        49, 50, 51, 52, 53
+                };
+            }
+
+            CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                    "Elige un proyecto",
+                    6,
+                    slots,
+                    50, 52
+            );
+
+            {
+
+                {
+                    if (notClaimed) {
+
+                        gui.setStatic(
+                                10,
+                                ItemBuilder.of(Material.INK_SACK, 1, 10)
+                                        .name("§a§lMostrando solo proyectos sin reclamar")
+                                        .lore("§a[•]§7 Haz click para mostrar todos los proyectos")
+                                        .build(),
+                                availableClickEvent -> openFindInventory(
+                                        p,
+                                        false,
+                                        city,
+                                        tag,
+                                        type
+                                )
+                        );
+
+                    } else {
+                        gui.setStatic(
+                                10,
+                                ItemBuilder.of(Material.INK_SACK, 1, 8)
+                                        .name("§a§lMostrando todos los proyectos")
+                                        .lore(
+                                                "§8Los proyectos que hayan alcanzado el límite de miembros no se muestran aquí.",
+                                                "§a[•]§7 Haz click para mostrar solo los proyectos sin reclamar"
+                                        )
+                                        .build(),
+                                availableClickEvent -> openFindInventory(
+                                        p,
+                                        true,
+                                        city,
+                                        tag,
+                                        type
+
+                                )
+                        );
+                    }
+                } // AVAILABLE
+
+                {
+
+                    gui.setStatic(
+                            19,
+                            ItemBuilder.head(
+                                    city.getCountry().getHeadValue(),
+                                    "§a§l" + city.getDisplayName() + ", " + city.getCountry().getDisplayName(),
+                                    Collections.singletonList(
+                                            "§a[•]§7 Haz click para cambiar de ciudad"
+                                    )
+                            ),
+                            cityClickEvent -> openCitySelector(
+                                    p,
+                                    notClaimed,
+                                    tag,
+                                    type,
+                                    city.getCountry()
+                            )
+                    );
+
+                } // CITY
+
+                {
+
+                    InventoryAction action = typeClickEvent -> {
+                        PaginatedInventoryGUI typeGUI = new PaginatedInventoryGUI(
+                                3,
+                                "Elige un tipo de proyecto"
+                        );
+
+                        typeGUI.add(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjAxY2JmYjQxNDc2MGVmZTUwNGQ0YWY3Mzk3MDhhMThiODliNjE0NWQ3NjU5YmNmNTI2ZjFlNDJkN2JlZGIzNyJ9fX0=",
+                                        "§a§lNinguno",
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para elegir"
+                                        )
+                                ),
+                                typeSelectClickEvent -> openFindInventory(
+                                        p,
+                                        notClaimed,
+                                        city,
+                                        tag,
+                                        null
+                                ),
+                                null, null, null
+                        );
+
+                        for (ProjectType t : city.getCountry().getProjectTypes()) {
+                            typeGUI.add(
+                                    ItemBuilder.head(
+                                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzYxODQ2MTBjNTBjMmVmYjcyODViYzJkMjBmMzk0MzY0ZTgzNjdiYjMxNDg0MWMyMzhhNmE1MjFhMWVlMTJiZiJ9fX0=",
+                                            "§a§l" + t.getDisplayName(),
+                                            Collections.singletonList(
+                                                    "§a[•]§7 Haz click para elegir"
+                                            )
+                                    ),
+                                    typeSelectClickEvent -> openFindInventory(
+                                            p,
+                                            notClaimed,
+                                            city,
+                                            tag,
+                                            t
+                                    ),
+                                    null, null, null
+                            );
+                        }
+                        typeGUI.openTo(p, plugin);
+                    };
+
+                    if (type != null) {
+                        gui.setStatic(
+                                28,
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzYxODQ2MTBjNTBjMmVmYjcyODViYzJkMjBmMzk0MzY0ZTgzNjdiYjMxNDg0MWMyMzhhNmE1MjFhMWVlMTJiZiJ9fX0=",
+                                        "§a§lTipo: " + type.getDisplayName(),
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para cambiar el tipo de proyecto"
+                                        )
+                                ),
+                                action
+                        );
+                    } else {
+                        gui.setStatic(
+                                28,
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjAxY2JmYjQxNDc2MGVmZTUwNGQ0YWY3Mzk3MDhhMThiODliNjE0NWQ3NjU5YmNmNTI2ZjFlNDJkN2JlZGIzNyJ9fX0=",
+                                        "§a§lTipo: Ninguno",
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para cambiar el tipo de proyecto"
+                                        )
+                                ),
+                                action
+                        );
+                    }
+
+                } // TYPE
+
+                {
+
+                    InventoryAction action = tagClickEvent -> {
+
+                        InventoryGUI tagGUI = new InventoryGUI(
+                                4,
+                                "Elige una etiqueta"
+                        );
+
+                        int counter = 10;
+                        for (ProjectTag t : ProjectTag.values()) {
+                            tagGUI.setItem(
+                                    ItemBuilder.head(
+                                            t.getHeadValue(),
+                                            "§a§l" + StringUtils.capitalize(t.toString()),
+                                            Collections.singletonList(
+                                                    "§a[•]§7 Haz click para elegir"
+                                            )
+                                    ),
+                                    counter
+                            );
+                            tagGUI.setLCAction(
+                                    tagSelectClickEvent -> openFindInventory(
+                                            p,
+                                            notClaimed,
+                                            city,
+                                            t,
+                                            type
+                                    ),
+                                    counter
+                            );
+                            counter++;
+                        }
+
+                        tagGUI.setItem(
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmMyNzEwNTI3MTllZjY0MDc5ZWU4YzE0OTg5NTEyMzhhNzRkYWM0YzI3Yjk1NjQwZGI2ZmJkZGMyZDZiNWI2ZSJ9fX0=",
+                                        "§a§lNinguna",
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para elegir"
+                                        )
+                                ),
+                                22
+                        );
+                        tagGUI.setLCAction(
+                                tagSelectClickAction -> openFindInventory(
+                                        p,
+                                        notClaimed,
+                                        city,
+                                        null,
+                                        type
+                                ),
+                                22
+                        );
+
+                        plugin.getInventoryHandler().open(p, tagGUI);
+                    };
+
+                    if (tag != null) {
+
+                        gui.setStatic(
+                                37,
+                                ItemBuilder.head(
+                                        tag.getHeadValue(),
+                                        "§a§lEtiqueta: " + StringUtils.capitalize(tag.toString()),
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para cambiar la etiqueta"
+                                        )
+                                ),
+                                action
+                        );
+
+                    } else {
+
+                        gui.setStatic(
+                                37,
+                                ItemBuilder.head(
+                                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmMyNzEwNTI3MTllZjY0MDc5ZWU4YzE0OTg5NTEyMzhhNzRkYWM0YzI3Yjk1NjQwZGI2ZmJkZGMyZDZiNWI2ZSJ9fX0=",
+                                        "§a§lEtiqueta: Ninguna",
+                                        Collections.singletonList(
+                                                "§a[•]§7 Haz click para cambiar la etiqueta"
+                                        )
+                                ),
+                                action
+                        );
+
+                    }
+
+                } // TAG
+
+            } // STATIC
+
+            {
+
+                if (projectIDs.size() > 0) {
+                    gui.addPaginated(
+                            ItemBuilder.head(
+                                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzg4MWNjMjc0N2JhNzJjYmNiMDZjM2NjMzMxNzQyY2Q5ZGUyNzFhNWJiZmZkMGVjYjE0ZjFjNmE4YjY5YmM5ZSJ9fX0=",
+                                    "§a§lAleatorio",
+                                    Collections.singletonList(
+                                            "§a[•]§7 Haz click para elegir un proyecto aleatorio"
+                                    )
+                            ),
+                            randomClickEvent -> {
+                                String id = projectIDs.get(random.nextInt(projectIDs.size()));
+
+                                Project project = plugin.getProjectRegistry().get(id);
+
+                                p.teleport(project.getTeleportLocation());
+
+                                p.sendMessage(getPrefix() + "Teletransportándote al proyecto §a" + project.getDisplayName() + "§f.");
+                                p.sendMessage(
+                                        BookUtil.TextBuilder.of(getPrefix() + "Usa ").build(),
+                                        BookUtil.TextBuilder.of("/p claim").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para usar")).onClick(BookUtil.ClickAction.runCommand("/project claim")).build(),
+                                        BookUtil.TextBuilder.of(" para reclamar el proyecto.").color(ChatColor.WHITE).build()
+                                );
+                                p.sendMessage(
+                                        BookUtil.TextBuilder.of(getPrefix() + "Usa ").build(),
+                                        BookUtil.TextBuilder.of("/p borders").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para usar")).onClick(BookUtil.ClickAction.runCommand("/project borders")).build(),
+                                        BookUtil.TextBuilder.of(" para ver los bordes del proyecto.").color(ChatColor.WHITE).build()
+                                );
+                            },
+                            null, null, null
+                    );
+                }
+
+                for (String id : projectIDs) {
+
+                    Project project = plugin.getProjectRegistry().get(id);
+
+                    ItemStack item = new ItemStack(project.getItem());
+                    ItemMeta meta = item.getItemMeta();
+                    List<String> lore = meta.getLore();
+                    lore.add(" ");
+                    lore.add("§a[•]§7 Haz click para ir");
+                    meta.setLore(lore);
+                    item.setItemMeta(meta);
+
+                    gui.addPaginated(
+                            item,
+                            projectClickEvent -> {
+
+                                p.teleport(project.getTeleportLocation());
+
+                                p.sendMessage(getPrefix() + "Teletransportándote al proyecto §a" + project.getDisplayName() + "§f.");
+                                p.sendMessage(
+                                        BookUtil.TextBuilder.of(getPrefix() + "Usa ").build(),
+                                        BookUtil.TextBuilder.of("/p claim").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para usar")).onClick(BookUtil.ClickAction.runCommand("/project claim")).build(),
+                                        BookUtil.TextBuilder.of(" para reclamar el proyecto.").color(ChatColor.WHITE).build()
+                                );
+                                p.sendMessage(
+                                        BookUtil.TextBuilder.of(getPrefix() + "Usa ").build(),
+                                        BookUtil.TextBuilder.of("/p borders").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para usar")).onClick(BookUtil.ClickAction.runCommand("/project borders")).build(),
+                                        BookUtil.TextBuilder.of(" para ver los bordes del proyecto.").color(ChatColor.WHITE).build()
+                                );
+
+                            },
+                            null, null, null
+                    );
+
+                }
+
+            } // PAGINATED
+
+            gui.openTo(p, plugin);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+        }
+    }
+
+    public void openCitySelector(Player p, boolean notClaimed, @Nullable ProjectTag tag, @Nullable ProjectType type, @NotNull Country country) {
+
+        CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                "Elige una ciudad",
+                6,
+                new Integer[]{
+                        18, 19, 20, 21, 22, 23, 24, 25, 26,
+                        27, 28, 29, 30, 31, 32, 33, 34, 35,
+                        36, 37, 38, 39, 40, 41, 42, 43, 44,
+                        45, 46, 47, 48, 49, 50, 51, 52, 53
+                },
+                9, 17
+        );
+
+        gui.setStatic(
+                4,
+                ItemBuilder.head(
+                        country.getHeadValue(),
+                        "§a§l" + country.getDisplayName(),
+                        null
+                )
+        );
+
+        List<Country> countries = plugin.getCountryManager().getSortedCountries();
+
+        int currentIndex = countries.indexOf(country);
+
+        Country lastCountry = countries.get(currentIndex == 0 ? countries.size() - 1 : currentIndex - 1);
+        Country nextCountry = countries.get(currentIndex == countries.size() - 1 ? 0 : currentIndex + 1);
+
+        gui.setStatic(
+                3,
+                ItemBuilder.head(
+                        ItemBuilder.BACK_HEAD,
+                        "§fPaís anterior: " + lastCountry.getDisplayName(),
+                        null
+                ),
+                lastCountryClickEvent -> openCitySelector(
+                        p,
+                        notClaimed,
+                        tag,
+                        type,
+                        lastCountry
+                )
+        );
+
+        gui.setStatic(
+                5,
+                ItemBuilder.head(
+                        ItemBuilder.NEXT_HEAD,
+                        "§fPaís siguiente: " + nextCountry.getDisplayName(),
+                        null
+                ),
+                nextCountryClickEvent -> openCitySelector(
+                        p,
+                        notClaimed,
+                        tag,
+                        type,
+                        nextCountry
+                )
+        );
+
+        List<String> cityNames = new ArrayList<>(country.getCities());
+        Collections.sort(cityNames);
+
+        for (String cityName : cityNames) {
+
+            gui.addPaginated(
+                    ItemBuilder.head(
+                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTFjOGE4YzEzODUxZDM2NzNkNTgyNTgyNWU3ZjJkZDQxOGZmYWZlYWZkNWZkMTU5ODNlYjhhNjJkZWZkM2NkNSJ9fX0=",
+                            "§a§l" + plugin.getCityManager().getDisplayName(cityName) + ", " + country.getDisplayName(),
+                            Collections.singletonList("§a[+]§7 Haz click para ver los proyectos de esta ciudad")
+                    ),
+                    cityClickEvent -> {
+
+                        City city = plugin.getCityManager().get(cityName);
+
+                        ProjectType finalType = null;
+                        if (type != null) {
+                            if (city.getCountry() != type.getCountry()) {
+                                finalType = city.getCountry().getProjectTypes().get(0);
+                            } else {
+                                finalType = type;
+                            }
+                        }
+
+                        openFindInventory(
+                                p,
+                                notClaimed,
+                                city,
+                                tag,
+                                finalType
+                        );
+                    },
+                     null, null, null
+            );
+
+        }
+
+        gui.openTo(p, plugin);
 
     }
 

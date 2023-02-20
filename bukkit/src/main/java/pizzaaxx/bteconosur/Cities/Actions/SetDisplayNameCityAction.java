@@ -41,6 +41,7 @@ public class SetDisplayNameCityAction {
                 )
         ).execute();
 
+        plugin.getCityManager().displayNames.put(name, displayName);
         plugin.getCityManager().reloadCity(name);
     }
 }

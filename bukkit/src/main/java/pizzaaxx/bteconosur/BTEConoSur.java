@@ -32,6 +32,8 @@ import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
+import pizzaaxx.bteconosur.Discord.SlashCommands.CreateCityCommand;
+import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
@@ -242,6 +244,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
         GetCommand getCommand = new GetCommand(this);
 
+        ProjectsCommand projectsCommand = new ProjectsCommand(this);
+
         this.registerListeners(
                 this,
                 regionListenersHandler,
@@ -256,7 +260,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new AssetInventoryListener(this),
                 new PresetsListener(this),
                 this.selUndoRedoCommand,
-                chatHandler
+                chatHandler,
+                projectsCommand
         );
 
         this.log("Starting chats...");
@@ -313,13 +318,21 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         jdaBuilder.addEventListeners(
                 linkCommand,
                 new ProjectCreationRequestListener(this),
-                chatHandler
+                chatHandler,
+                new CreateCityCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
 
         try  {
             bot = jdaBuilder.build().awaitReady();
+
+            for (Object obj : bot.getRegisteredListeners()) {
+                if (obj instanceof SlashCommandContainer) {
+                    SlashCommandContainer container = (SlashCommandContainer) obj;
+                    container.checkCommand();
+                }
+            }
         } catch (InterruptedException e) {
             this.error("Plugin starting stopped. Bot startup failed.");
             return;
@@ -349,7 +362,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         getCommand("/selundo").setExecutor(this.selUndoRedoCommand);
         getCommand("nightvision").setExecutor(new NightVisionCommand());
         getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
-        getCommand("project").setExecutor(new ProjectsCommand(this));
+        getCommand("project").setExecutor(projectsCommand);
         getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NicknameCommand(this));
 

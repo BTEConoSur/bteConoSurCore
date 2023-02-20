@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -33,6 +34,7 @@ public class Country implements JSONParsable {
     private final Location spawnPoint;
     public final Set<String> cities;
     public final LinkedHashMap<String, ProjectType> projectTypes;
+    public final String headValue;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -71,6 +73,7 @@ public class Country implements JSONParsable {
         for (String projectTypeID : projectTypeIDs) {
             this.projectTypes.put(projectTypeID, new ProjectType(plugin, this, projectTypeID));
         }
+        this.headValue = set.getString("head_value");
     }
 
     public BTEConoSur getPlugin() {
@@ -141,6 +144,10 @@ public class Country implements JSONParsable {
         return new ArrayList<>(projectTypes.values());
     }
 
+    public String getHeadValue() {
+        return headValue;
+    }
+
     public List<ProjectType> getUnlockedProjectTypes(ProjectManager manager) {
         List<ProjectType> result = new ArrayList<>();
         for (ProjectType type : projectTypes.values()) {
@@ -179,5 +186,16 @@ public class Country implements JSONParsable {
     @Override
     public String getJSON(boolean insideJSON) {
         return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Country country = (Country) obj;
+        return this.name.equals(country.name);
     }
 }

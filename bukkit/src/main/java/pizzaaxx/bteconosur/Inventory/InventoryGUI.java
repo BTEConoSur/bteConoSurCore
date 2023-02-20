@@ -317,4 +317,47 @@ public class InventoryGUI {
     public static int[] getIntInRange(int from, int to) {
         return IntStream.rangeClosed(from, to).toArray();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        InventoryGUI gui = (InventoryGUI) obj;
+
+        if (!this.title.equals(gui.title)) {
+            return false;
+        }
+
+        if (this.background != gui.background) {
+            return false;
+        }
+
+        if (this.draggableSlots != gui.draggableSlots) {
+            return false;
+        }
+
+        if (!this.items.equals(gui.items)) {
+            return false;
+        }
+
+        if (!this.leftClickActions.equals(gui.leftClickActions)) {
+            return false;
+        }
+
+        if (!this.shiftLeftClickActions.equals(gui.shiftLeftClickActions)) {
+            return false;
+        }
+
+        if (!this.rightClickActions.equals(gui.rightClickActions)) {
+            return false;
+        }
+
+        if (!this.shiftRightClickActions.equals(gui.shiftRightClickActions)) {
+            return false;
+        }
+
+        return true;
+    }
 }

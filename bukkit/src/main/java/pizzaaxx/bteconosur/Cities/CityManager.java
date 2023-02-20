@@ -2,6 +2,8 @@ package pizzaaxx.bteconosur.Cities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.CreateCityAction;
@@ -18,6 +20,7 @@ public class CityManager {
     private final Map<String, City> citiesCache = new HashMap<>();
     private final Map<String, Long> deletionCache = new HashMap<>();
     private final Set<String> names = new HashSet<>();
+    public final Map<String, String> displayNames = new HashMap<>();
 
     private final BTEConoSur plugin;
 
@@ -29,13 +32,15 @@ public class CityManager {
         ResultSet set = plugin.getSqlManager().select(
                 "cities",
                 new SQLColumnSet(
-                        "name"
+                        "name",
+                        "display_name"
                 ),
                 new SQLANDConditionSet()
         ).retrieve();
 
         while (set.next()) {
             names.add(set.getString("name"));
+            displayNames.put(set.getString("name"), set.getString("display_name"));
         }
     }
 
@@ -70,8 +75,22 @@ public class CityManager {
         return citiesCache.get(name);
     }
 
+    public City getCityAt(Location loc) {
+        for (ProtectedRegion region : plugin.getRegionManager().getApplicableRegions(loc)) {
+            if (region.getId().startsWith("city_")) {
+                String name = region.getId().replace("city_", "").replace("_urban", "");
+                return this.get(name);
+            }
+        }
+        return null;
+    }
+
     public Collection<String> getNames() {
         return names;
+    }
+
+    public String getDisplayName(String name) {
+        return displayNames.get(name);
     }
 
     public void registerName(String name) {

@@ -52,16 +52,8 @@ public class CreateCityAction {
                                 this.displayName
                         ),
                         new SQLValue(
-                                "showcase_ids",
-                                "[]"
-                        ),
-                        new SQLValue(
                                 "country",
                                 this.country.getName()
-                        ),
-                        new SQLValue(
-                                "urban_area",
-                                false
                         )
                 )
         ).execute();

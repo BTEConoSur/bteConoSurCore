@@ -1,6 +1,8 @@
 package pizzaaxx.bteconosur.Projects;
 
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +19,10 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.RegionUtils;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -182,6 +186,11 @@ public class Project implements JSONParsable, Prefixable {
         return region;
     }
 
+    public Location getTeleportLocation() {
+        BlockVector2D averageCoord = RegionUtils.getAveragePoint(region);
+        return plugin.getWorld().getHighestBlockAt(averageCoord.getBlockX(), averageCoord.getBlockZ()).getLocation();
+    }
+
     public ItemStack getItem() {
         List<String> lore = new ArrayList<>();
         lore.add("§f• ID: §7" + id);
@@ -196,10 +205,18 @@ public class Project implements JSONParsable, Prefixable {
                 lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
             }
         }
-        return ItemBuilder.of(Material.MAP)
-                .name("§aProyecto " + this.getDisplayName())
-                .lore(lore)
-                .build();
+        if (tag != null) {
+            return ItemBuilder.head(
+                    tag.getHeadValue(),
+                    "§aProyecto " + this.getDisplayName(),
+                    lore
+            );
+        } else {
+            return ItemBuilder.of(Material.MAP)
+                    .name("§aProyecto " + this.getDisplayName())
+                    .lore(lore)
+                    .build();
+        }
     }
 
     @Override
@@ -261,6 +278,27 @@ public class Project implements JSONParsable, Prefixable {
                             ),
                             new SQLValue(
                                     "target", target
+                            )
+                    )
+            ).execute();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean setTag(@Nullable ProjectTag tag) throws SQLException {
+        if (tag != this.tag) {
+            this.tag = tag;
+            plugin.getSqlManager().update(
+                    "projects",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "tag", tag
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "id", "=", this.id
                             )
                     )
             ).execute();
@@ -339,5 +377,16 @@ public class Project implements JSONParsable, Prefixable {
 
     public EmptyProjectAction emptyProject() {
         return new EmptyProjectAction(plugin, this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Project project = (Project) obj;
+        return this.id.equals(project.id);
     }
 }
