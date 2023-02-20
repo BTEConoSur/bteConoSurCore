@@ -82,6 +82,9 @@ public class DeleteCityAction {
                             )
                     )
             ).execute();
+
+        plugin.getCityManager().unregisterName(city.getName());
+        city.getCountry().removeCity(city.getName());
     }
 
 }

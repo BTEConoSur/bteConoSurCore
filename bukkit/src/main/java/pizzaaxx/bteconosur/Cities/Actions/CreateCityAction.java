@@ -58,5 +58,6 @@ public class CreateCityAction {
                 )
         ).execute();
         plugin.getCityManager().registerName(this.name);
+        country.addCity(this.name);
     }
 }

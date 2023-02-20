@@ -198,4 +198,12 @@ public class Country implements JSONParsable {
         Country country = (Country) obj;
         return this.name.equals(country.name);
     }
+
+    public void addCity(String name) {
+        this.cities.add(name);
+    }
+
+    public void removeCity(String name) {
+        this.cities.remove(name);
+    }
 }
