@@ -1508,6 +1508,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                                         );
                                     }
                                     project.emptyProject().execute();
+                                    leaveConfirmClickEvent.closeGUI();
                                 } catch (SQLException | IOException e) {
                                     leaveConfirmClickEvent.closeGUI();
                                     player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
@@ -1571,6 +1572,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                                             "**[PROYECTO]** » **" + s.getName() + "** ha abandonado tu proyecto **" + project.getDisplayName() + "**."
                                     );
                                     player.sendMessage(getPrefix() + "Has abandonado el proyecto §a" + project.getDisplayName() + "§f.");
+                                    leaveConfirmClickEvent.closeGUI();
                                 } catch (SQLException | IOException e) {
                                     leaveConfirmClickEvent.closeGUI();
                                     player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
