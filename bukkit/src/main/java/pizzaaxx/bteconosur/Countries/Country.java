@@ -11,8 +11,12 @@ import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLNOTCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLNullCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
+import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
+import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -167,11 +171,14 @@ public class Country implements JSONParsable {
                             "id"
                     ),
                     new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "pending", "=", true
-                            ),
+                            new SQLNullCondition("pending", false),
                             new SQLOperatorCondition(
                                     "country", "=", this.name
+                            )
+                    ),
+                    new SQLOrderSet(
+                            new SQLOrderExpression(
+                                    "pending", SQLOrderExpression.Order.ASC
                             )
                     )
             ).retrieve();

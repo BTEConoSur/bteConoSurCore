@@ -4,6 +4,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Values.SQLExpression;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
@@ -29,7 +30,7 @@ public class SetPendingProjectAction {
                 "projects",
                 new SQLValuesSet(
                         new SQLValue(
-                                "pending", pending
+                                "pending", (pending ? new SQLExpression("CURRENT_TIMESTAMP") : null)
                         )
                 ),
                 new SQLANDConditionSet(

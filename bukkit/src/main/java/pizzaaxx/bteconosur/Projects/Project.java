@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class Project implements JSONParsable, Prefixable {
@@ -38,7 +39,7 @@ public class Project implements JSONParsable, Prefixable {
     private String displayName;
     private final Country country;
     private Set<String> cities;
-    private boolean pending;
+    private Date pending;
     private final ProjectType type;
     private int points;
     public Set<UUID> members;
@@ -72,7 +73,9 @@ public class Project implements JSONParsable, Prefixable {
 
             this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
 
-            this.pending = set.getBoolean("pending");
+            Timestamp timestamp = set.getTimestamp("pending");
+
+            this.pending = (timestamp == null ? null : new Date(timestamp.getTime()));
 
             this.type = country.getProjectType(set.getString("type"));
 
@@ -141,7 +144,7 @@ public class Project implements JSONParsable, Prefixable {
     }
 
     public boolean isPending() {
-        return pending;
+        return pending != null;
     }
 
     public ProjectType getType() {
@@ -329,7 +332,11 @@ public class Project implements JSONParsable, Prefixable {
         if (set.next()) {
 
             this.displayName = set.getString("name");
-            this.pending = set.getBoolean("pending");
+
+            Timestamp timestamp = set.getTimestamp("pending");
+
+            this.pending = (timestamp == null ? null : new Date(timestamp.getTime()));
+
             this.points = set.getInt("points");
             this.owner = plugin.getSqlManager().getUUID(set, "owner");
             String tag = set.getString("tag");

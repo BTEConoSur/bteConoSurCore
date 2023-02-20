@@ -52,6 +52,7 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
 import pizzaaxx.bteconosur.Utils.RegionUtils;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import xyz.upperlevel.spigot.book.BookUtil;
@@ -827,7 +828,11 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                                     }
 
                                     if (!project.isClaimed()) {
-                                        p.sendMessage(getPrefix() + "Este proyecto aún no está reclamado. Reclámalo usando §a/p claim§f.");
+                                        p.sendMessage(
+                                                BookUtil.TextBuilder.of(getPrefix() + "Este proyecto aún no está reclamado. Reclámalo usando ").build(),
+                                                BookUtil.TextBuilder.of("/p claim").color(ChatColor.GREEN).onHover(BookUtil.HoverAction.showText("Haz click para usar")).onClick(BookUtil.ClickAction.runCommand("/project claim")).build(),
+                                                BookUtil.TextBuilder.of(".").color(ChatColor.WHITE).build()
+                                        );
                                         return;
                                     }
 
@@ -1042,7 +1047,45 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                         tagMap.getOrDefault(uuid, null),
                         typeMap.getOrDefault(uuid, null)
                 );
+                break;
+            }
+            case "pending": {
 
+                Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                if (country == null) {
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún país.");
+                    return true;
+                }
+
+                if (!s.getProjectManager().hasAdminPermission(country)) {
+                    p.sendMessage(getPrefix() + "No tienes permisos para administrar proyectos en §a" + country.getDisplayName() + "§f.");
+                    return true;
+                }
+
+                PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                        6,
+                        "Elige un proyecto para revisar"
+                );
+
+                for (String id : country.getPendingProjectsIDs()) {
+
+                    Project project = plugin.getProjectRegistry().get(id);
+
+                    gui.add(
+                            project.getItem(),
+                            event -> {
+                                event.closeGUI();
+                                p.teleport(CoordinatesUtils.blockVector2DtoLocation(plugin, RegionUtils.getAveragePoint(project.getRegion())));
+                                p.sendMessage(getPrefix() + "Teletransportándote al proyecto §a" + project.getDisplayName() + "§f.");
+                            },
+                            null, null, null
+                    );
+
+                }
+
+                gui.openTo(p, plugin);
+                break;
             }
         }
         return true;
@@ -1435,9 +1478,14 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                                 );
                                 finishConfirmGUI.setLCAction(
                                         finishConfirmClickEvent -> {
-                                            project.setPending(true);
-                                            player.sendMessage(getPrefix() + "Has marcado el proyecto §a" + project.getDisplayName() + "§f como terminado.");
-                                            this.openManageInventory(player, id);
+                                            try {
+                                                project.setPending(true).execute();
+                                                player.sendMessage(getPrefix() + "Has marcado el proyecto §a" + project.getDisplayName() + "§f como terminado.");
+                                                this.openManageInventory(player, id);
+                                            } catch (SQLException | IOException e) {
+                                                player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                finishConfirmClickEvent.closeGUI();
+                                            }
                                         },
                                         3
                                 );
@@ -1797,10 +1845,6 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
     private final Random random = new Random();
 
-    // PAIS
-    // CIUDAD
-    // ETIQUETA*
-    // DIFICULTAD*
     private void openFindInventory(@NotNull Player p, boolean notClaimed, @NotNull City city, @Nullable ProjectTag tag, @Nullable ProjectType type) {
         try {
 
@@ -1815,7 +1859,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                     new SQLJSONArrayCondition("cities", city),
                     new SQLNOTCondition(
                             new SQLJSONArrayCondition("members", p.getUniqueId())
-                    )
+                    ),
+                    new SQLNullCondition("pending", true)
             );
             if (notClaimed) {
                 conditionSet.addCondition(

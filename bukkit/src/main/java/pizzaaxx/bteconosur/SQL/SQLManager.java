@@ -10,6 +10,7 @@ import pizzaaxx.bteconosur.SQL.Actions.UpdateAction;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLConditionSet;
+import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.UUIDUtils;
 
@@ -63,7 +64,12 @@ public class SQLManager {
 
     @CheckReturnValue
     public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions) {
-        return new SelectAction(plugin, tableName, columns, conditions);
+        return new SelectAction(plugin, tableName, columns, conditions, null);
+    }
+
+    @CheckReturnValue
+    public SelectAction select(String tableName, SQLColumnSet columns, SQLConditionSet conditions, SQLOrderSet order) {
+        return new SelectAction(plugin, tableName, columns, conditions, order);
     }
 
     @CheckReturnValue
