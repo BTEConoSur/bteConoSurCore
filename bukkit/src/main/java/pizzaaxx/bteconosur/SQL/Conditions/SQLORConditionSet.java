@@ -26,6 +26,7 @@ public class SQLORConditionSet implements SQLCondition, SQLConditionSet {
         conditions.add(condition);
     }
 
+    @Override
     public String getString() {
         StringBuilder builder = new StringBuilder("(");
 

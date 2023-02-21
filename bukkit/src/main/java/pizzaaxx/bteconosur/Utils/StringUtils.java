@@ -57,63 +57,11 @@ public class StringUtils {
         return "§f[§" + color + name + "§f] §7>> §f";
     }
 
-    @NotNull
-    @Contract(pure = true)
-    public static StringBuilder[] getASCIITableDiscord(@NotNull String[][] values) {
-
-        StringBuilder[] result = new StringBuilder[values[0].length + 3];
-
-        int[] maxLengths = new int[values.length];
-        int counter = 0;
-        for (String[] column : values) {
-            int maxLength = 0;
-            for (String value : column) {
-                if (value.length() > maxLength) {
-                    maxLength = value.length();
-                }
-            }
-            maxLengths[counter] = maxLength;
-            counter++;
-        }
-
-        int lastLineIndex = values[0].length + 2;
-
-        for (int i = 0; i < result.length; i++) {
-            if (i == 0 || i == 2 || i == lastLineIndex) {
-                result[i] = new StringBuilder("+");
-            } else {
-                result[i] = new StringBuilder("|");
-            }
-        }
-
-        int columnCounter = 0;
-        for (String[] column : values) {
-            int valuesCounter = 0;
-            for (int i = 0; i < result.length; i++) {
-                if (i == 0 || i == 2 || i == lastLineIndex) {
-                    for (int j = 0; j < maxLengths[columnCounter] + 2; j++) {
-                        result[i].append("-");
-                    }
-                    result[i].append("+");
-                } else {
-
-                    try {
-                        int number = Integer.parseInt(column[valuesCounter]);
-                        for (int j = 0; j < maxLengths[columnCounter] - column[valuesCounter].length(); j++) {
-                            result[i].append(" ");
-                        }
-                        result[i].append(number).append(" ");
-                    } catch (NumberFormatException e) {
-                        result[i].append(" ").append(column[valuesCounter]);
-                        for (int j = 0; j < maxLengths[columnCounter] - column[valuesCounter].length(); j++) {
-                            result[i].append(" ");
-                        }
-                    }
-                    result[i].append(" |");
-                    valuesCounter++;
-                }
-            }
-            columnCounter++;
+    public static Map<String, String> getQuery(String query) {
+        Map<String, String> result = new HashMap<>();
+        for (String section : query.split("&")) {
+            String[] subsections = section.split("=");
+            result.put(subsections[0], subsections[1]);
         }
         return result;
     }

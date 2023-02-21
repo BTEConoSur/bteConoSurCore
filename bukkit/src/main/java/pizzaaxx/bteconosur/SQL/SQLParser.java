@@ -7,10 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.Project;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class SQLParser {
 
@@ -89,6 +87,11 @@ public class SQLParser {
             return (insideJSON?"\"":"'") + object + (insideJSON?"\"":"'");
         } else if (object == null) {
             return (insideJSON?"{}":"NULL");
+        } else if (object instanceof Date) {
+            Date date = (Date) object;
+            SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateText = df2.format(date);
+            return SQLParser.getString(dateText, insideJSON);
         }
         return object.toString();
     }

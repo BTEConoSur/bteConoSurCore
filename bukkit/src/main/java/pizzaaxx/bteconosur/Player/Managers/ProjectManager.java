@@ -27,7 +27,7 @@ public class ProjectManager {
     private final Set<Country> adminPermission;
     private final Set<String> ids;
     private final Map<Country, Map<ProjectType, Integer>> finished;
-    private final Map<Country, Integer> points;
+    private final Map<Country, Double> points;
 
     public ProjectManager(@NotNull BTEConoSur plugin, @NotNull ServerPlayer serverPlayer) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -101,7 +101,7 @@ public class ProjectManager {
             points = new HashMap<>();
             Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(set.getString("points"), HashMap.class);
             for (Map.Entry<String, Object> entry : pointsRaw.entrySet()) {
-                points.put(plugin.getCountryManager().get(entry.getKey()), (Integer) entry.getValue());
+                points.put(plugin.getCountryManager().get(entry.getKey()), (Double) entry.getValue());
             }
         } else {
             plugin.getSqlManager().insert(
@@ -179,16 +179,16 @@ public class ProjectManager {
         return countryMap.getOrDefault(type, 0);
     }
 
-    public int getPoints(Country country) {
-        return points.getOrDefault(country, 0);
+    public double getPoints(Country country) {
+        return points.getOrDefault(country, 0.0);
     }
 
     public boolean hasAdminPermission(Country country) {
         return adminPermission.contains(country);
     }
 
-    public void addPoints(Country country, int points) throws SQLException {
-        int actual = this.points.getOrDefault(country, 0);
+    public void addPoints(Country country, double points) throws SQLException {
+        double actual = this.points.getOrDefault(country, 0.0);
         this.points.put(country, actual + points);
         plugin.getSqlManager().update(
                 "project_managers",

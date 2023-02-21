@@ -6,7 +6,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.*;
-import pizzaaxx.bteconosur.Cities.Showcases.Showcase;
+import pizzaaxx.bteconosur.Showcases.Showcase;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -17,7 +17,6 @@ import pizzaaxx.bteconosur.SQL.JSONParsable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class City implements JSONParsable {

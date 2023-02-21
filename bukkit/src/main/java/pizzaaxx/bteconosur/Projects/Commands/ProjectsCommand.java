@@ -39,13 +39,11 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.*;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
+import pizzaaxx.bteconosur.Projects.Actions.ReviewProjectAction;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
-import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
-import pizzaaxx.bteconosur.Projects.RegionSelectors.NonMemberProjectSelector;
-import pizzaaxx.bteconosur.Projects.RegionSelectors.NotClaimedProjectSelector;
-import pizzaaxx.bteconosur.Projects.RegionSelectors.OwnerProjectSelector;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.*;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -1086,6 +1084,192 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
                 gui.openTo(p, plugin);
                 break;
+            }
+            case "review": {
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(
+                        p.getLocation(),
+                        new PendingProjectSelector(true)
+                );
+
+                if (projectIDs.size() == 0) {
+                    p.sendMessage(getPrefix() + "No hay proyectos para revisar aquí.");
+                } else if (projectIDs.size() == 1) {
+
+                    Project project = plugin.getProjectRegistry().get(projectIDs.get(0));
+
+                    if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
+                        p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
+                    }
+
+                    InventoryGUI actionGUI = new InventoryGUI(
+                            1,
+                            "Elige una acción"
+                    );
+
+                    actionGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CONFIRM_HEAD,
+                                    "§aAceptar",
+                                    null
+                            ),
+                            2
+                    );
+
+                    actionGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.NEXT_HEAD,
+                                    "§eContinuar",
+                                    null
+                            ),
+                            4
+                    );
+
+                    actionGUI.setItem(
+                            ItemBuilder.head(
+                                    ItemBuilder.CANCEL_HEAD,
+                                    "§cRechazar",
+                                    null
+                            ),
+                            6
+                    );
+
+                    actionGUI.setLCAction(
+                            event -> {
+                                try {
+                                    project.review(ReviewProjectAction.ReviewAction.ACCEPT, p.getUniqueId()).execute();
+                                    p.sendMessage(getPrefix() + "Has aceptado el proyecto §a" + project.getDisplayName() + "§f.");
+                                } catch (SQLException | IOException e) {
+                                    e.printStackTrace();
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+                                event.closeGUI();
+                            },
+                            2
+                    );
+
+                    actionGUI.setLCAction(
+                            event -> {
+                                try {
+                                    project.review(ReviewProjectAction.ReviewAction.CONTINUE, p.getUniqueId()).execute();
+                                    p.sendMessage(getPrefix() + "Has continuado el proyecto §a" + project.getDisplayName() + "§f.");
+                                } catch (SQLException | IOException e) {
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+                                event.closeGUI();
+                            },
+                            4
+                    );
+
+                    actionGUI.setLCAction(
+                            event -> {
+                                try {
+                                    project.review(ReviewProjectAction.ReviewAction.DENY, p.getUniqueId()).execute();
+                                    p.sendMessage(getPrefix() + "Has rechazado el proyecto §a" + project.getDisplayName() + "§f.");
+                                } catch (SQLException | IOException e) {
+                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                }
+                                event.closeGUI();
+                            },
+                            6
+                    );
+
+                    plugin.getInventoryHandler().open(p, actionGUI);
+
+                } else {
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elige un proyecto para revisar"
+                    );
+
+                    for (String id : projectIDs) {
+                        Project project = plugin.getProjectRegistry().get(id);
+
+                        if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
+                            p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
+                        }
+
+                        gui.add(
+                                project.getItem(),
+                                projectClickEvent -> {
+                                    InventoryGUI actionGUI = new InventoryGUI(
+                                            1,
+                                            "Elige una acción"
+                                    );
+
+                                    actionGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.CONFIRM_HEAD,
+                                                    "§aAceptar",
+                                                    null
+                                            ),
+                                            2
+                                    );
+
+                                    actionGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.NEXT_HEAD,
+                                                    "§eContinuar",
+                                                    null
+                                            ),
+                                            4
+                                    );
+
+                                    actionGUI.setItem(
+                                            ItemBuilder.head(
+                                                    ItemBuilder.CANCEL_HEAD,
+                                                    "§cRechazar",
+                                                    null
+                                            ),
+                                            6
+                                    );
+
+                                    actionGUI.setLCAction(
+                                            event -> {
+                                                try {
+                                                    project.review(ReviewProjectAction.ReviewAction.ACCEPT, p.getUniqueId()).execute();
+                                                    p.sendMessage(getPrefix() + "Has aceptado el proyecto §a" + project.getDisplayName() + "§f.");
+                                                } catch (SQLException | IOException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                                event.closeGUI();
+                                            },
+                                            2
+                                    );
+
+                                    actionGUI.setLCAction(
+                                            event -> {
+                                                try {
+                                                    project.review(ReviewProjectAction.ReviewAction.CONTINUE, p.getUniqueId()).execute();
+                                                    p.sendMessage(getPrefix() + "Has continuado el proyecto §a" + project.getDisplayName() + "§f.");
+                                                } catch (SQLException | IOException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                                event.closeGUI();
+                                            },
+                                            4
+                                    );
+
+                                    actionGUI.setLCAction(
+                                            event -> {
+                                                try {
+                                                    project.review(ReviewProjectAction.ReviewAction.DENY, p.getUniqueId()).execute();
+                                                    p.sendMessage(getPrefix() + "Has rechazado el proyecto §a" + project.getDisplayName() + "§f.");
+                                                } catch (SQLException | IOException e) {
+                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                }
+                                                event.closeGUI();
+                                            },
+                                            6
+                                    );
+
+                                    plugin.getInventoryHandler().open(p, actionGUI);
+                                },
+                                null, null, null
+                        );
+                    }
+
+                    gui.openTo(p, plugin);
+                }
             }
         }
         return true;

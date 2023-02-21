@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Countries;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ public class Country implements JSONParsable {
     private final String showcaseID;
     private final String globalChatID;
     private final String countryChatID;
+    private final String projectsForumChannelID;
     private final String logsID;
     private final String requestsID;
     private final String iconURL;
@@ -49,6 +51,7 @@ public class Country implements JSONParsable {
         this.showcaseID = set.getString("showcase_id");
         this.globalChatID = set.getString("global_chat_id");
         this.countryChatID = set.getString("country_chat_id");
+        this.projectsForumChannelID = set.getString("projects_forum_channel_id");
         this.logsID = set.getString("logs_id");
         this.requestsID = set.getString("requests_id");
         this.iconURL = set.getString("icon_url");
@@ -212,5 +215,13 @@ public class Country implements JSONParsable {
 
     public void removeCity(String name) {
         this.cities.remove(name);
+    }
+
+    public String getProjectsForumChannelID() {
+        return projectsForumChannelID;
+    }
+
+    public ForumChannel getProjectsForumChannel() {
+        return plugin.getBot().getForumChannelById(projectsForumChannelID);
     }
 }

@@ -2,6 +2,8 @@ package pizzaaxx.bteconosur.Projects;
 
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -17,8 +19,11 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
+import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
+import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Showcases.Showcase;
 import pizzaaxx.bteconosur.Utils.RegionUtils;
 
 import javax.annotation.CheckReturnValue;
@@ -39,7 +44,7 @@ public class Project implements JSONParsable, Prefixable {
     private String displayName;
     private final Country country;
     private Set<String> cities;
-    private Date pending;
+    private Long pending;
     private final ProjectType type;
     private int points;
     public Set<UUID> members;
@@ -47,6 +52,7 @@ public class Project implements JSONParsable, Prefixable {
     private ProjectTag tag;
     private final ProtectedPolygonalRegion region;
     private final Set<UUID> requests;
+    private final List<Showcase> showcases;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -75,7 +81,7 @@ public class Project implements JSONParsable, Prefixable {
 
             Timestamp timestamp = set.getTimestamp("pending");
 
-            this.pending = (timestamp == null ? null : new Date(timestamp.getTime()));
+            this.pending = (timestamp == null ? null : timestamp.getTime());
 
             this.type = country.getProjectType(set.getString("type"));
 
@@ -111,6 +117,28 @@ public class Project implements JSONParsable, Prefixable {
                 requests.add(plugin.getSqlManager().getUUID(set, "target"));
             }
 
+            this.showcases = new ArrayList<>();
+            ResultSet showcaseSet = plugin.getSqlManager().select(
+                    "showcases",
+                    new SQLColumnSet(
+                            "message_id"
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "project_id", "=", this.id
+                            )
+                    ),
+                    new SQLOrderSet(
+                            new SQLOrderExpression(
+                                    "date", SQLOrderExpression.Order.ASC
+                            )
+                    )
+            ).retrieve();
+
+            while (showcaseSet.next()) {
+                this.showcases.add(new Showcase(showcaseSet.getString("message_id"), this.id));
+            }
+
         } else {
             throw new IllegalArgumentException();
         }
@@ -131,8 +159,37 @@ public class Project implements JSONParsable, Prefixable {
         return displayName;
     }
 
+    public String getName() {
+        return displayName;
+    }
+
     public Country getCountry() {
         return country;
+    }
+
+    public List<Showcase> getShowcases() {
+        return showcases;
+    }
+
+    public void addShowcase(String messageID, long time) throws SQLException {
+        plugin.getSqlManager().insert(
+                "showcases",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "message_id", messageID
+                        ),
+                        new SQLValue(
+                                "project_id", this.id
+                        ),
+                        new SQLValue(
+                                "cities", cities
+                        ),
+                        new SQLValue(
+                                "date", new Date(time)
+                        )
+                )
+        ).execute();
+        this.showcases.add(new Showcase(messageID, this.id));
     }
 
     public Set<City> getCities() {
@@ -145,6 +202,10 @@ public class Project implements JSONParsable, Prefixable {
 
     public boolean isPending() {
         return pending != null;
+    }
+
+    public Long getPending() {
+        return pending;
     }
 
     public ProjectType getType() {
@@ -335,7 +396,7 @@ public class Project implements JSONParsable, Prefixable {
 
             Timestamp timestamp = set.getTimestamp("pending");
 
-            this.pending = (timestamp == null ? null : new Date(timestamp.getTime()));
+            this.pending = (timestamp == null ? null : timestamp.getTime());
 
             this.points = set.getInt("points");
             this.owner = plugin.getSqlManager().getUUID(set, "owner");
@@ -384,6 +445,15 @@ public class Project implements JSONParsable, Prefixable {
 
     public EmptyProjectAction emptyProject() {
         return new EmptyProjectAction(plugin, this);
+    }
+
+    public ReviewProjectAction review(ReviewProjectAction.ReviewAction reviewAction, UUID moderator) {
+        return new ReviewProjectAction(
+                plugin,
+                reviewAction,
+                this,
+                moderator
+        );
     }
 
     @Override

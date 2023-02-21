@@ -1,6 +1,10 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.RegionGroup;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -12,10 +16,11 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
-import java.io.IOException;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,6 +52,14 @@ public class CreateProjectAction {
         String id = StringUtils.generateCode(6, plugin.getProjectRegistry().getIds(), LOWER_CASE);
 
         ProtectedPolygonalRegion protectedPolygonalRegion = new ProtectedPolygonalRegion("project_" + id, region, -100, 8000);
+        protectedPolygonalRegion.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
+        protectedPolygonalRegion.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
+        protectedPolygonalRegion.setPriority(1);
+
+        FlagRegistry registry = plugin.getWorldGuard().getFlagRegistry();
+
+        protectedPolygonalRegion.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
+        protectedPolygonalRegion.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
 
         Set<ProtectedRegion> cityRegions = new HashSet<>();
         for (String cityName : country.getCities()) {
@@ -93,6 +106,28 @@ public class CreateProjectAction {
         }
 
         plugin.getTerramapHandler().drawPolygon(coords, new Color(78, 255, 71), id);
+
+        InputStream is = plugin.getSatMapHandler().getMapStream(
+                new SatMapHandler.SatMapPolygon(
+                        plugin,
+                        region,
+                        "3068ff"
+                )
+        );
+
+        File file = new File(plugin.getDataFolder(), "projects/images/" + id + ".png");
+        file.createNewFile();
+        OutputStream os = new FileOutputStream(file);
+
+        byte[] b = new byte[2048];
+        int length;
+
+        while ((length = is.read(b)) != -1) {
+            os.write(b, 0, length);
+        }
+
+        is.close();
+        os.close();
 
         country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + "` y puntaje `" + points + "` creado con la ID `" + id + "`.").queue();
 

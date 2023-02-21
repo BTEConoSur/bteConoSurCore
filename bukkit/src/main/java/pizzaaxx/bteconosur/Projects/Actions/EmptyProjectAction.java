@@ -1,6 +1,9 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -10,6 +13,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class EmptyProjectAction {
 
@@ -23,6 +27,11 @@ public class EmptyProjectAction {
 
     public void execute() throws SQLException, IOException {
 
+        for (UUID memberUUID : project.getAllMembers()) {
+            ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
+            member.getProjectManager().removeProject(project);
+        }
+
         plugin.getSqlManager().update(
                 "projects",
                 new SQLValuesSet(
@@ -33,10 +42,7 @@ public class EmptyProjectAction {
                                 "members", new HashSet<>()
                         ),
                         new SQLValue(
-                                "pending", false
-                        ),
-                        new SQLValue(
-                                "showcase_ids", new HashSet<>()
+                                "pending", null
                         ),
                         new SQLValue(
                                 "name", null
@@ -50,6 +56,10 @@ public class EmptyProjectAction {
         ).execute();
 
         project.update();
+
+        ProtectedRegion region = project.getRegion();
+        region.setMembers(new DefaultDomain());
+        plugin.getRegionManager().addRegion(region);
 
         project.getCountry().getLogsChannel().sendMessage(":book: El proyecto `" + project.getId() + "` está disponible de nuevo.").queue();
     }

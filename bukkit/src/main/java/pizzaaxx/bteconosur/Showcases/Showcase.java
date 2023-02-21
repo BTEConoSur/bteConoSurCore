@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.Cities.Showcases;
+package pizzaaxx.bteconosur.Showcases;
 
 public class Showcase {
 

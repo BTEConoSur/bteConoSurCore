@@ -10,6 +10,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 
+import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class ProjectType implements JSONParsable {
     private final int maxMembers;
     private final List<Integer> pointsOptions;
     private final Map<String, Integer> unlockProjects;
+    private final Color color;
 
     public ProjectType(@NotNull BTEConoSur plugin, Country country, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -55,6 +57,7 @@ public class ProjectType implements JSONParsable {
 
             this.unlockProjects = plugin.getJSONMapper().readValue(set.getString("unlock_projects"), HashMap.class);
 
+            this.color = Color.decode("#" + set.getString("color"));
         } else {
             throw new IllegalArgumentException();
         }
@@ -107,5 +110,9 @@ public class ProjectType implements JSONParsable {
     @Override
     public String getJSON(boolean insideJSON) {
         return (insideJSON?"\"":"'") + this.name + (insideJSON?"\"":"'");
+    }
+
+    public Color getColor() {
+        return color;
     }
 }

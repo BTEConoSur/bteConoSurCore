@@ -6,6 +6,7 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -47,7 +48,9 @@ public class DeleteProjectAction {
                 )
         ).execute();
 
-        // TODO ADD EMBED
+        File file = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
+        file.delete();
+
         project.getCountry().getLogsChannel().sendMessage(
                 ":wastebasket: **" + plugin.getPlayerRegistry().get(moderatorUUID).getName() + "** ha eliminado el proyecto `" + project.getId() + "`."
         ).queue();

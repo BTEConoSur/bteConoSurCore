@@ -44,6 +44,7 @@ import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
+import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
 import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
@@ -154,6 +155,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
     public ProjectRegistry getProjectRegistry() {
         return projectRegistry;
+    }
+
+    private final FinishedProjectsRegistry finishedProjectsRegistry = new FinishedProjectsRegistry(this);
+
+    public FinishedProjectsRegistry getFinishedProjectsRegistry() {
+        return finishedProjectsRegistry;
     }
 
     private final WorldEditHandler worldEditHandler = new WorldEditHandler(this);
@@ -301,6 +308,15 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
             projectRegistry.init();
         } catch (SQLException e) {
             this.error("Plugin starting stopped. Project registry startup failed.");
+            return;
+        }
+
+        // --- PROJECTS ---
+        this.log("Starting finished projects registry...");
+        try {
+            finishedProjectsRegistry.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. Finished projects registry startup failed.");
             return;
         }
 
