@@ -82,12 +82,12 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Pre
             }
             case "unlink": {
                 try {
-                    if (!DiscordManager.isLinked(plugin, event.getUser().getId())) {
+                    if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
                         DiscordUtils.respondError(event, "Tu cuenta de Discord no está conectada a ninguna cuenta de Minecraft.");
                         return;
                     }
 
-                    ServerPlayer s = plugin.getPlayerRegistry().get(DiscordManager.getUUID(plugin, event.getUser().getId()));
+                    ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
                     DiscordManager discordManager = s.getDiscordManager();
                     discordManager.unlink();
 
@@ -95,8 +95,6 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Pre
 
                 } catch (SQLException e) {
                     DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
-                } catch (IOException e) {
-                    DiscordUtils.respondError(event, "Ha ocurrido un error.");
                 }
                 break;
             }

@@ -20,6 +20,7 @@ public class CountryManager {
     public final Map<String, Country> countryChannels = new HashMap<>();
     public final Map<String, Country> guilds = new HashMap<>();
     public final Set<String> globalChannels = new HashSet<>();
+    public final Set<String> projectForumChannels = new HashSet<>();
 
     public CountryManager(BTEConoSur plugin) {
         this.plugin = plugin;
@@ -41,6 +42,7 @@ public class CountryManager {
             countryChannels.put(set.getString("country_chat_id"), country);
             guilds.put(set.getString("guild_id"), country);
             globalChannels.add(set.getString("global_chat_id"));
+            projectForumChannels.add(set.getString("projects_forum_channel_id"));
         }
     }
 

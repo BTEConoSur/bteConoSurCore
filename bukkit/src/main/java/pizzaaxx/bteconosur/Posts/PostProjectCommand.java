@@ -63,34 +63,27 @@ public class PostProjectCommand extends ListenerAdapter implements SlashCommandC
             assert idMapping != null;
             String id = idMapping.getAsString();
 
-            try {
+            if (!plugin.getProjectRegistry().exists(id)) {
+                DiscordUtils.respondError(event, "El proyecto introducido no existe.");
+                return;
+            }
 
-                if (!plugin.getProjectRegistry().exists(id)) {
-                    DiscordUtils.respondError(event, "El proyecto introducido no existe.");
-                    return;
-                }
+            Project project = plugin.getProjectRegistry().get(id);
 
-                Project project = plugin.getProjectRegistry().get(id);
+            if (project.hasPost()) {
+                Post post = project.getPost();
+            }
 
-                if (project.hasPost()) {
-                    Post post = project.getPost();
-                }
+            if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Debes conectar tu cuenta de Minecraft para usar este comando.");
+                return;
+            }
 
-                if (!DiscordManager.isLinked(plugin, event.getUser().getId())) {
-                    DiscordUtils.respondError(event, "Debes conectar tu cuenta de Minecraft para usar este comando.");
-                    return;
-                }
+            ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
 
-                ServerPlayer s = plugin.getPlayerRegistry().get(DiscordManager.getUUID(plugin, event.getUser().getId()));
-
-                if (!project.getOwner().equals(s.getUUID())) {
-                    DiscordUtils.respondError(event, "Solo el líder de un proyecto puede publicarlo.");
-                    return;
-                }
-
-            } catch (SQLException | IOException e) {
-                e.printStackTrace();
-                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            if (!project.getOwner().equals(s.getUUID())) {
+                DiscordUtils.respondError(event, "Solo el líder de un proyecto puede publicarlo.");
+                return;
             }
 
         }

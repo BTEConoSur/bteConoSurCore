@@ -18,44 +18,6 @@ import java.util.UUID;
 
 public class DiscordManager {
 
-    // --- STATIC ---
-
-    public static boolean isLinked(@NotNull BTEConoSur plugin, String id) throws SQLException {
-        ResultSet set = plugin.getSqlManager().select(
-                "discord_managers",
-                new SQLColumnSet(
-                        "id"
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "id", "=", id
-                        )
-                )
-        ).retrieve();
-
-        return set.next();
-    }
-
-    @Nullable
-    public static UUID getUUID(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
-        ResultSet set = plugin.getSqlManager().select(
-                "discord_managers",
-                new SQLColumnSet(
-                        "uuid"
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "id", "=", id
-                        )
-                )
-        ).retrieve();
-
-        if (set.next()) {
-            return plugin.getSqlManager().getUUID(set, "uuid");
-        }
-        return null;
-    }
-
     // --- CLASS ---
 
     private final BTEConoSur plugin;
@@ -116,6 +78,8 @@ public class DiscordManager {
                     this.name = user.getName();
                     this.discriminator = user.getDiscriminator();
 
+                    plugin.getLinksRegistry().uuidFromID.put(this.id, this.serverPlayer.getUUID());
+
                     SQLValuesSet valuesSet = new SQLValuesSet(
                             new SQLValue(
                                     "id", this.id
@@ -164,6 +128,7 @@ public class DiscordManager {
                         );
 
                     } catch (SQLException e) {
+                        plugin.getLinksRegistry().uuidFromID.remove(this.id);
                         this.id = null;
                         this.name = null;
                         this.discriminator = null;
@@ -182,6 +147,8 @@ public class DiscordManager {
                             )
                     )
             ).execute();
+
+            plugin.getLinksRegistry().uuidFromID.remove(this.id);
 
             this.id = null;
             this.name = null;

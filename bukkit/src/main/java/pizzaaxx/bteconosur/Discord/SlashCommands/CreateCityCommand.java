@@ -63,54 +63,50 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
         }
 
         if (event.getName().equals("createcity")) {
-            try {
-                if (DiscordManager.isLinked(plugin, event.getUser().getId())) {
-                    ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(DiscordManager.getUUID(plugin, event.getUser().getId()));
+            if (plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
+                ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
 
-                    if (serverPlayer.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.ADMIN)) {
+                if (serverPlayer.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.ADMIN)) {
 
-                        assert event.getGuild() != null;
-                        Country country = plugin.getCountryManager().guilds.get(event.getGuild().getId());
+                    assert event.getGuild() != null;
+                    Country country = plugin.getCountryManager().guilds.get(event.getGuild().getId());
 
-                        Modal modal = Modal.create(
-                                "createCity",
-                                "Crear ciudad en " + country.getDisplayName()
-                        )
-                                .addActionRow(
-                                        TextInput.create(
-                                                "createCityName",
-                                                "Nombre (ID)",
-                                                TextInputStyle.SHORT
-                                        ).setRequired(true).build()
-                                )
-                                .addActionRow(
-                                        TextInput.create(
-                                                "createCityDisplay",
-                                                "Nombre a mostrar",
-                                                TextInputStyle.SHORT
-                                        ).setRequired(true).build()
-                                )
-                                .addActionRow(
-                                        TextInput.create(
-                                                "createCityRegion",
-                                                "Coordenadas",
-                                                TextInputStyle.PARAGRAPH
-                                        ).setRequired(true).setPlaceholder(
-                                                "Formato: [ [ XX.XXXXX, YY.YYYYY ], ... ]"
-                                        ).build()
-                                )
-                                .build();
+                    Modal modal = Modal.create(
+                            "createCity",
+                            "Crear ciudad en " + country.getDisplayName()
+                    )
+                            .addActionRow(
+                                    TextInput.create(
+                                            "createCityName",
+                                            "Nombre (ID)",
+                                            TextInputStyle.SHORT
+                                    ).setRequired(true).build()
+                            )
+                            .addActionRow(
+                                    TextInput.create(
+                                            "createCityDisplay",
+                                            "Nombre a mostrar",
+                                            TextInputStyle.SHORT
+                                    ).setRequired(true).build()
+                            )
+                            .addActionRow(
+                                    TextInput.create(
+                                            "createCityRegion",
+                                            "Coordenadas",
+                                            TextInputStyle.PARAGRAPH
+                                    ).setRequired(true).setPlaceholder(
+                                            "Formato: [ [ XX.XXXXX, YY.YYYYY ], ... ]"
+                                    ).build()
+                            )
+                            .build();
 
-                        event.replyModal(modal).queue();
+                    event.replyModal(modal).queue();
 
-                    } else {
-                        DiscordUtils.respondError(event, "No puedes hacer esto.");
-                    }
                 } else {
-                    DiscordUtils.respondError(event, "Conecta tus cuentas para usar este comando.");
+                    DiscordUtils.respondError(event, "No puedes hacer esto.");
                 }
-            } catch (SQLException | IOException e) {
-                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            } else {
+                DiscordUtils.respondError(event, "Conecta tus cuentas para usar este comando.");
             }
         }
     }

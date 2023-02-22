@@ -80,15 +80,10 @@ public class PlayerCommand extends ListenerAdapter {
 
                 User user = userMapping.getAsUser();
 
-                try {
-                    if (DiscordManager.isLinked(plugin, user.getId())) {
-                        target = plugin.getPlayerRegistry().get(DiscordManager.getUUID(plugin, user.getId()));
-                    } else {
-                        DiscordUtils.respondError(event, "El usuario introducido no tiene una cuenta de Minecraft conectada.");
-                        return;
-                    }
-                } catch (SQLException | IOException e) {
-                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                if (plugin.getLinksRegistry().isLinked(user.getId())) {
+                    target = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(user.getId()));
+                } else {
+                    DiscordUtils.respondError(event, "El usuario introducido no tiene una cuenta de Minecraft conectada.");
                     return;
                 }
 

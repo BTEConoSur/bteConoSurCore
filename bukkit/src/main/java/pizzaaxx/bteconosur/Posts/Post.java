@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.ForumPostAction;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -87,6 +88,14 @@ public class Post {
                                                 project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
                                                 true
                                         )
+                                        .addField(
+                                                ":speech_balloon: Descripción:",
+                                                description,
+                                                false
+                                        )
+                                        .setImage(
+                                                "attachment://image.png"
+                                        )
                                         .build()
                         )
                         .addFiles(
@@ -115,7 +124,50 @@ public class Post {
 
         action.setTags(appliedTags);
 
+        action.queue(
+                post -> {
+                    post.getMessage().addReaction(Emoji.fromUnicode("U+1F48E")).queue();
 
+                    try {
+                        plugin.getSqlManager().insert(
+                                "posts",
+                                new SQLValuesSet(
+                                        new SQLValue(
+                                                "project_id", project.getId()
+                                        ),
+                                        new SQLValue(
+                                                "channel_id", post.getThreadChannel().getId()
+                                        ),
+                                        new SQLValue(
+                                                "country", project.getCountry().getName()
+                                        ),
+                                        new SQLValue(
+                                                "cities", project.getCities()
+                                        ),
+                                        new SQLValue(
+                                                "name", name
+                                        ),
+                                        new SQLValue(
+                                                "description", description
+                                        ),
+                                        new SQLValue(
+                                                "image_url", imageURL.toString()
+                                        )
+                                )
+                        ).execute();
+                        project.updatePost();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        post.getThreadChannel().delete().queue();
+                    } catch (JsonProcessingException e) {
+                        if (project instanceof Project) {
+                            plugin.getProjectRegistry().unload(project.getId());
+                        } else {
+                            plugin.getFinishedProjectsRegistry().unload(project.getId());
+                        }
+                    }
+                }
+        );
 
     }
 

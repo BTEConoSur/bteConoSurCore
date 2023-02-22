@@ -32,6 +32,7 @@ import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
+import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
 import pizzaaxx.bteconosur.Discord.SlashCommands.CreateCityCommand;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Events.JoinEvent;
@@ -42,6 +43,7 @@ import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Posts.PostsRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
@@ -208,6 +210,18 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         return chatHandler;
     }
 
+    private final PostsRegistry postsRegistry = new PostsRegistry(this);
+
+    public PostsRegistry getPostsRegistry() {
+        return postsRegistry;
+    }
+
+    private final LinksRegistry linksRegistry = new LinksRegistry(this);
+
+    public LinksRegistry getLinksRegistry() {
+        return linksRegistry;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -312,12 +326,30 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
             return;
         }
 
-        // --- PROJECTS ---
+        // --- FINISHED PROJECTS ---
         this.log("Starting finished projects registry...");
         try {
             finishedProjectsRegistry.init();
         } catch (SQLException e) {
             this.error("Plugin starting stopped. Finished projects registry startup failed.");
+            return;
+        }
+
+        // --- POSTS ---
+        this.log("Starting posts registry...");
+        try {
+            postsRegistry.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. Posts registry startup failed.");
+            return;
+        }
+
+        // --- LINKS ---
+        this.log("Starting links registry...");
+        try {
+            linksRegistry.init();
+        } catch (SQLException | IOException e) {
+            this.error("Plugin starting stopped. Links registry startup failed.");
             return;
         }
 
