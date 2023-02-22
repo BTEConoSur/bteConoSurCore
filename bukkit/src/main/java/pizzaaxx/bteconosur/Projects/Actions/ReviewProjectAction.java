@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
@@ -17,10 +16,8 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
@@ -111,7 +108,7 @@ public class ReviewProjectAction {
                                         "country", project.getCountry().getName()
                                 ),
                                 new SQLValue(
-                                        "cities", project.getCities()
+                                        "cities", project.getCitiesResolved()
                                 ),
                                 new SQLValue(
                                         "type", project.getType().getName()
@@ -261,6 +258,7 @@ public class ReviewProjectAction {
 
                 plugin.getProjectRegistry().unload(project.getId());
                 plugin.getProjectRegistry().unregisterID(project.getId());
+                plugin.getFinishedProjectsRegistry().registerID(id);
 
                 break;
             }

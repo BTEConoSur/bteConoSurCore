@@ -1317,8 +1317,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
             List<String> lore = new ArrayList<>();
             lore.add("§aPaís: §f" + project.getCountry().getDisplayName());
 
-            if (!project.getCities().isEmpty()) {
-                lore.add("§aCiudad(es): §f" + project.getCities().stream().map(City::getDisplayName).collect(Collectors.joining(", ")));
+            if (!project.getCitiesResolved().isEmpty()) {
+                lore.add("§aCiudad(es): §f" + project.getCitiesResolved().stream().map(City::getDisplayName).collect(Collectors.joining(", ")));
             }
 
             lore.add("§aTipo: §f" + project.getType().getDisplayName());

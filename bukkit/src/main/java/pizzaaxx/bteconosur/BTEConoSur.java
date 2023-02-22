@@ -46,6 +46,7 @@ import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestLis
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
 import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
+import pizzaaxx.bteconosur.Projects.Listeners.ProjectFormListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
@@ -335,7 +336,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 linkCommand,
                 new ProjectCreationRequestListener(this),
                 chatHandler,
-                new CreateCityCommand(this)
+                new CreateCityCommand(this),
+                new ProjectFormListener(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
