@@ -19,6 +19,15 @@ public class DiscordUtils {
                         .setColor(Color.RED)
                         .setTitle(error)
                         .build()
+        ).setEphemeral(true).queue();
+    }
+
+    public static void respondErrorNonEphemeral(@NotNull IReplyCallback event, String error) {
+        event.replyEmbeds(
+                new EmbedBuilder()
+                        .setColor(Color.RED)
+                        .setTitle(error)
+                        .build()
         ).queue(
                 msg -> msg.deleteOriginal().queueAfter(20, TimeUnit.SECONDS)
         );
@@ -31,6 +40,15 @@ public class DiscordUtils {
                         .setTitle(success)
                         .build()
         ).queue();
+    }
+
+    public static void respondSuccessEphemeral(@NotNull IReplyCallback event, String success) {
+        event.replyEmbeds(
+                new EmbedBuilder()
+                        .setColor(Color.GREEN)
+                        .setTitle(success)
+                        .build()
+        ).setEphemeral(true).queue();
     }
 
     public static void respondSuccess(@NotNull IReplyCallback event, String success, int deleteAfter) {

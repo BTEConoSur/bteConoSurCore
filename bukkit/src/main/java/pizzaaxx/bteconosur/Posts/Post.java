@@ -1,32 +1,31 @@
 package pizzaaxx.bteconosur.Posts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sk89q.worldguard.util.net.HttpRequest;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
-import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.ForumPostAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectTag;
+import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
 import java.io.IOException;
-import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -34,20 +33,18 @@ import java.util.*;
 public class Post {
 
     private final BTEConoSur plugin;
-    private final String projectID;
+    private String projectID;
     private final String channelID;
     private final Country country;
     private final Set<String> cities;
-    private final String name;
-    private final String description;
-    private final String imageURL;
+    private String name;
+    private String description;
 
     public static void createPost(
             BTEConoSur plugin,
             @NotNull ProjectWrapper project,
             String name,
-            String description,
-            URL imageURL
+            String description
     ) throws IOException {
 
         List<String> cityNames = new ArrayList<>();
@@ -62,6 +59,12 @@ public class Post {
             members.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
         }
 
+        SatMapHandler.SatMapPolygon polygon = new SatMapHandler.SatMapPolygon(
+                plugin,
+                project.getRegionPoints(),
+                "3068ff"
+        );
+
         ForumPostAction action = channel.createForumPost(
                 name + (cityNames.isEmpty() ? "" : " - " + String.join(", ", cityNames)),
                 new MessageCreateBuilder()
@@ -75,31 +78,21 @@ public class Post {
                                                 true
                                         )
                                         .addField(
-                                                (members.isEmpty() ?
-                                                        null :
-                                                        new MessageEmbed.Field(
-                                                                ":busts_in_silhouette: Miembros:",
-                                                                String.join(", ", members),
-                                                                true
-                                                        ))
+                                                ":busts_in_silhouette: Miembros:",
+                                                (members.isEmpty() ? "Sin miembros." : String.join(", ", members)),
+                                                true
                                         )
                                         .addField(
                                                 ":game_die: Tipo:",
                                                 project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
                                                 true
                                         )
-                                        .addField(
-                                                ":speech_balloon: Descripción:",
-                                                description,
-                                                false
-                                        )
-                                        .setImage(
-                                                "attachment://image.png"
-                                        )
                                         .build()
                         )
                         .addFiles(
-                                FileUpload.fromData(HttpRequest.get(imageURL).execute().getInputStream(), "image.png")
+                                FileUpload.fromData(plugin.getSatMapHandler().getMapStream(
+                                        polygon
+                                ), "projectMap.png")
                         )
                         .build()
         );
@@ -149,9 +142,6 @@ public class Post {
                                         ),
                                         new SQLValue(
                                                 "description", description
-                                        ),
-                                        new SQLValue(
-                                                "image_url", imageURL.toString()
                                         )
                                 )
                         ).execute();
@@ -168,13 +158,6 @@ public class Post {
                     }
                 }
         );
-
-    }
-
-    public static void deletePost(String projectID) {
-
-
-
     }
 
     public Post(@NotNull BTEConoSur plugin, String projectID) throws SQLException, JsonProcessingException {
@@ -201,7 +184,6 @@ public class Post {
             this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
             this.name = set.getString("name");
             this.description = set.getString("description");
-            this.imageURL = set.getString("imageURL");
 
         } else {
             throw new IllegalArgumentException();
@@ -211,6 +193,14 @@ public class Post {
 
     public String getProjectID() {
         return projectID;
+    }
+
+    public ProjectWrapper getProject() {
+        if (projectID.length() == 6) {
+            return plugin.getProjectRegistry().get(projectID);
+        } else {
+            return plugin.getFinishedProjectsRegistry().get(projectID);
+        }
     }
 
     public ThreadChannel getChannel() {
@@ -233,8 +223,227 @@ public class Post {
         return description;
     }
 
-    public String getImageURL() {
-        return imageURL;
+    public void addImage(Message.Attachment attachment) {
+        this.getMessage().queue(
+                message -> {
+                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
+                    if (attachments.get(0).getFileName().equals("projectMap")) {
+                        attachments = new ArrayList<>();
+                    }
+                    attachments.add(attachment);
+                    message.editMessageAttachments(attachments).queue();
+                }
+        );
     }
 
+    public void addImage(Message.Attachment attachment, int index) {
+        this.getMessage().queue(
+                message -> {
+                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
+                    if (attachments.get(0).getFileName().equals("projectMap")) {
+                        attachments = new ArrayList<>();
+                    }
+                    attachments.add(Math.min(Math.max(index, 0), attachments.size()), attachment);
+                    message.editMessageAttachments(attachments).queue();
+                }
+        );
+    }
+
+    public void removeImage(int index) {
+        this.getMessage().queue(
+                message -> {
+                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
+                    attachments.remove(index);
+
+                    if (!attachments.isEmpty()) {
+                        message.editMessageAttachments(attachments).queue();
+                    } else {
+                        SatMapHandler.SatMapPolygon polygon = new SatMapHandler.SatMapPolygon(
+                                plugin,
+                                this.getProject().getRegionPoints(),
+                                "3068ff"
+                        );
+                        try {
+                            message.editMessageAttachments(
+                                    FileUpload.fromData(
+                                            plugin.getSatMapHandler().getMapStream(polygon), "projectMap.png"
+                                    )
+                            ).queue();
+                        } catch (IOException e) {
+                            plugin.log("Failed project map InputStream.");
+                        }
+                    }
+                }
+        );
+    }
+
+    public void setName(String name) throws SQLException {
+        if (!this.name.equals(name)) {
+            plugin.getSqlManager().update(
+                    "posts",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "name", name
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition("project_id", "=", projectID)
+                    )
+            ).execute();
+            this.name = name;
+
+            List<String> cityNames = new ArrayList<>();
+            for (String city : this.getProject().getCities()) {
+                cityNames.add(plugin.getCityManager().getDisplayName(city));
+            }
+
+            this.getChannel().getManager().setName(
+                    this.name + (cityNames.isEmpty() ? "" : " - " + String.join(", ", cityNames))
+            ).queue();
+        }
+    }
+
+    public void setDescription(String description) throws SQLException {
+        if (!this.description.equals(description)) {
+
+            plugin.getSqlManager().update(
+                    "posts",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "description", description
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition("project_id", "=", projectID)
+                    )
+            ).execute();
+            this.description = description;
+
+            this.getMessage().queue(
+                    message -> {
+                        message.editMessage(":speech_balloon: **Descripción:** " + description).queue();
+                    }
+            );
+
+        }
+    }
+
+    public void updateOwner() {
+        this.getMessage().queue(
+                message -> {
+                    ProjectWrapper project = this.getProject();
+
+                    MessageEmbed embed = message.getEmbeds().get(0);
+                    EmbedBuilder builder = new EmbedBuilder(embed);
+                    builder.getFields().add(0, new MessageEmbed.Field(
+                            ":crown: Líder:",
+                            plugin.getPlayerRegistry().get(project.getOwner()).getName(),
+                            true
+                    ));
+
+                    message.editMessageEmbeds(builder.build()).queue();
+                }
+        );
+    }
+
+    public void updateMembers() {
+        this.getMessage().queue(
+                message -> {
+                    ProjectWrapper project = this.getProject();
+
+                    MessageEmbed embed = message.getEmbeds().get(0);
+                    EmbedBuilder builder = new EmbedBuilder(embed);
+
+                    List<String> members = new ArrayList<>();
+                    for (UUID memberUUID : project.getMembers()) {
+                        members.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
+                    }
+
+                    builder.getFields().add(1, new MessageEmbed.Field(
+                            ":busts_in_silhouette: Miembros:",
+                            (members.isEmpty() ? "Sin miembros." : String.join(", ", members)),
+                            true
+                    ));
+
+                    message.editMessageEmbeds(builder.build()).queue();
+                }
+        );
+    }
+
+    public void updateType() {
+        this.getMessage().queue(
+                message -> {
+                    ProjectWrapper project = this.getProject();
+                    ProjectType type = project.getType();
+
+                    MessageEmbed embed = message.getEmbeds().get(0);
+                    EmbedBuilder builder = new EmbedBuilder(embed);
+                    builder.setColor(type.getColor());
+
+                    builder.getFields().add(2, new MessageEmbed.Field(
+                            ":game_die: Tipo:",
+                            type.getDisplayName() + " (" + project.getPoints() + " puntos)",
+                            true
+                    ));
+
+                    message.editMessageEmbeds(builder.build()).queue();
+                }
+        );
+    }
+
+    public void updateTags() {
+
+        ForumChannel forum = this.getChannel().getParentChannel().asForumChannel();
+        List<ForumTag> tags = new ArrayList<>();
+
+        if (projectID.length() == 6) {
+            tags.add(
+                    forum.getAvailableTagsByName("En construcción", true).get(0)
+            );
+        } else {
+            tags.add(
+                    forum.getAvailableTagsByName("Terminado", true).get(0)
+            );
+        }
+
+        ProjectTag tag = this.getProject().getTag();
+        if (tag != null) {
+            tags.add(
+                    forum.getAvailableTagsByName(tag.toString(), true).get(0)
+            );
+        }
+
+        this.getChannel().getManager().setAppliedTags(
+                tags
+        ).queue();
+    }
+
+    public void setProjectID(String projectID) throws SQLException {
+
+        if (!this.projectID.equals(projectID)) {
+            plugin.getSqlManager().update(
+                    "posts",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "project_id", projectID
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "project_id", "=", this.projectID
+                            )
+                    )
+            ).execute();
+            this.projectID = projectID;
+        }
+
+    }
+
+    public void sendMessage(String message) {
+        this.getChannel().sendMessage(message).queue();
+    }
+
+    public void close() {
+        this.getChannel().getManager().setLocked(true).queue();
+    }
 }

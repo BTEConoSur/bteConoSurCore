@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
+import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
@@ -216,19 +217,26 @@ public class ReviewProjectAction {
 
                 ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
                 boolean sent;
-                if (owner.getDiscordManager().isLinked()) {
+                if (project.hasPost()) {
                     sent = true;
-                    plugin.getBot().retrieveUserById(owner.getDiscordManager().getId()).queue(
-                            user -> user.openPrivateChannel().queue(
-                                    channel -> channel.sendMessage(
-                                            "**[PROYECTOS]** » Felicidades por haber completado el proyecto **" + project.getDisplayName() + "**. Por favor, completa el siguiente formulario para que tu proyecto aparezca en <#" + project.getCountry().getProjectsForumChannelID() + "> y otros lugares."
-                                    ).addActionRow(
-                                            Button.of(ButtonStyle.SUCCESS, "projectForm?id=" + id, "Formulario", Emoji.fromUnicode("U+1F4D1"))
-                                    ).queue()
-                            )
-                    );
+                    Post post = project.getPost();
+                    post.setProjectID(id);
+                    post.updateTags();
                 } else {
-                    sent = false;
+                    if (owner.getDiscordManager().isLinked()) {
+                        sent = true;
+                        plugin.getBot().retrieveUserById(owner.getDiscordManager().getId()).queue(
+                                user -> user.openPrivateChannel().queue(
+                                        channel -> channel.sendMessage(
+                                                "**[PROYECTOS]** » Felicidades por haber completado el proyecto **" + project.getDisplayName() + "**. Por favor, completa el siguiente formulario para que tu proyecto aparezca en <#" + project.getCountry().getProjectsForumChannelID() + "> y otros lugares."
+                                        ).addActionRow(
+                                                Button.of(ButtonStyle.SUCCESS, "projectForm?id=" + id, "Formulario", Emoji.fromUnicode("U+1F4D1"))
+                                        ).queue()
+                                )
+                        );
+                    } else {
+                        sent = false;
+                    }
                 }
 
                 plugin.getSqlManager().update(

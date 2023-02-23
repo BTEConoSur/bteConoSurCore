@@ -1,11 +1,13 @@
 package pizzaaxx.bteconosur.Posts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sk89q.worldedit.BlockVector2D;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +28,10 @@ public interface ProjectWrapper {
     ProjectType getType();
 
     int getPoints();
+
+    List<BlockVector2D> getRegionPoints();
+
+    String getDisplayName();
 
     boolean hasPost();
 

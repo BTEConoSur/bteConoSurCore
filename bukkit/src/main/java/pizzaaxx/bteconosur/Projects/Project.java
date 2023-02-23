@@ -274,6 +274,11 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper {
         }
     }
 
+    @Override
+    public List<BlockVector2D> getRegionPoints() {
+        return region.getPoints();
+    }
+
     public enum ProjectRole implements PrefixHolder {
         LEADER("§f[§6LÍDER§f] §r", ""),
         MEMBER("§f[§9MIEMBRO§f] §r", ""),

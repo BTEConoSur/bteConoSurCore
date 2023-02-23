@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.Utils;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.util.net.HttpRequest;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -81,6 +82,6 @@ public class SatMapHandler {
 
     public InputStream getMapStream(@NotNull Iterable<SatMapPolygon> polygons) throws IOException {
         URL url = new URL(this.getMap(polygons));
-        return url.openStream();
+        return HttpRequest.get(url).execute().getInputStream();
     }
 }

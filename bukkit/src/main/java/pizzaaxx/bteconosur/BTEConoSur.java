@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -43,12 +42,13 @@ import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Posts.Commands.ProjectPostCommand;
+import pizzaaxx.bteconosur.Posts.Listener.PostsListener;
 import pizzaaxx.bteconosur.Posts.PostsRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
 import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
-import pizzaaxx.bteconosur.Projects.Listeners.ProjectFormListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
@@ -76,9 +76,6 @@ import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 public class BTEConoSur extends JavaPlugin implements Prefixable {
 
@@ -369,7 +366,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new ProjectCreationRequestListener(this),
                 chatHandler,
                 new CreateCityCommand(this),
-                new ProjectFormListener(this)
+                new PostsListener(this),
+                new ProjectPostCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

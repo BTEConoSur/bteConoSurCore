@@ -25,7 +25,6 @@ public class City implements JSONParsable {
     private final String name;
     private final String displayName;
     private final Country country;
-    private List<Showcase> showcases = null;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
 
@@ -54,29 +53,6 @@ public class City implements JSONParsable {
         } else {
             throw new IllegalArgumentException();
         }
-    }
-
-    public List<Showcase> getShowcases() throws SQLException {
-
-        if (showcases == null) {
-            ResultSet set = plugin.getSqlManager().select(
-                    "showcases",
-                    new SQLColumnSet(
-                            "message_id",
-                            "project_id"
-                    ),
-                    new SQLANDConditionSet(
-                            new SQLJSONArrayCondition("cities", this.name)
-                    )
-            ).retrieve();
-
-            showcases = new ArrayList<>();
-            while (set.next()) {
-                showcases.add(new Showcase(set.getString("message_id"), set.getString("project_id")));
-            }
-            return showcases;
-        }
-        return showcases;
     }
 
     public BTEConoSur getPlugin() {
@@ -148,22 +124,6 @@ public class City implements JSONParsable {
         return new DeleteUrbanAreaCityAction(
                 plugin,
                 name
-        );
-    }
-
-    public AddShowcaseIDCityAction addShowcaseID(String id) {
-        return new AddShowcaseIDCityAction(
-                plugin,
-                name,
-                id
-        );
-    }
-
-    public RemoveShowcaseIDCityAction removeShowcaseID(String id) {
-        return new RemoveShowcaseIDCityAction(
-                plugin,
-                name,
-                id
         );
     }
 
