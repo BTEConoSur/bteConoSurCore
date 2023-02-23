@@ -1,6 +1,12 @@
 package pizzaaxx.bteconosur.Cities;
 
+import clipper2.Clipper;
+import clipper2.core.FillRule;
+import clipper2.core.Path64;
+import clipper2.core.Paths64;
+import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mysql.cj.protocol.ResultStreamer;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
@@ -15,11 +21,14 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class City implements JSONParsable {
 
@@ -29,6 +38,7 @@ public class City implements JSONParsable {
     private final Country country;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
+    private int finishedArea;
 
     public City(@NotNull BTEConoSur plugin, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -52,6 +62,7 @@ public class City implements JSONParsable {
                 this.urbanRegion = plugin.getRegionManager().getRegion("city_" + this.name + "_urban");
             }
             this.region = plugin.getRegionManager().getRegion("city_" + this.name);
+            this.finishedArea = set.getInt("finished_area");
         } else {
             throw new IllegalArgumentException();
         }
@@ -135,6 +146,88 @@ public class City implements JSONParsable {
                 name,
                 points
         );
+    }
+
+    public int getFinishedArea() {
+        return finishedArea;
+    }
+
+    public void updateFinishedArea() throws SQLException, JsonProcessingException {
+
+        ResultSet set = plugin.getSqlManager().select(
+                "finished_projects",
+                new SQLColumnSet(
+                        "region_points"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition(
+                                "cities", this.name
+                        )
+                )
+        ).retrieve();
+
+        Paths64 polygons = new Paths64();
+        while (set.next()) {
+
+            Path64 polygon = new Path64();
+
+            List<BlockVector2D> vectors = new ArrayList<>();
+            List<Object> coordsRaw = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
+            for (Object obj : coordsRaw) {
+                Map<String, Integer> coords = (Map<String, Integer>) obj;
+                vectors.add(new BlockVector2D(coords.get("x"), coords.get("z")));
+            }
+
+            vectors.forEach(vector -> {
+                Point64 point = new Point64();
+                point.x = (long) vector.getX();
+                point.y = (long) vector.getZ();
+                polygon.add(point);
+            });
+
+            BlockVector2D vector = vectors.get(0);
+            Point64 point = new Point64();
+            point.x = (long) vector.getX();
+            point.y = (long) vector.getZ();
+            polygon.add(point);
+
+            polygons.add(polygon);
+        }
+        Paths64 result = Clipper.Union(polygons, FillRule.EvenOdd);
+
+        Paths64 cityPoly = new Paths64();
+        Path64 poly = new Path64();
+        for (BlockVector2D vector : this.region.getPoints()) {
+            Point64 point = new Point64();
+            point.x = (long) vector.getX();
+            point.y = (long) vector.getZ();
+            poly.add(point);
+        }
+
+        BlockVector2D vector = this.getRegion().getPoints().get(0);
+        Point64 point = new Point64();
+        point.x = (long) vector.getX();
+        point.y = (long) vector.getZ();
+        poly.add(point);
+        cityPoly.add(poly);
+
+        Paths64 finalResult = Clipper.Intersect(result, cityPoly, FillRule.NonZero);
+
+        int area = (int) Clipper.Area(finalResult);
+
+        plugin.getSqlManager().update(
+                "cities",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "finished_area", area
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "name", "=", this.name
+                        )
+                )
+        ).execute();
     }
 
 

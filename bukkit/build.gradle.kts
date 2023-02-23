@@ -28,6 +28,7 @@ dependencies {
     implementation("fr.minuskube:netherboard-bukkit:1.2.3")
     implementation("com.mysql:mysql-connector-j:8.0.31")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
+    implementation("com.github.micycle1:Clipper2-java:1.0.6")
 }
 
 tasks.withType<JavaCompile> {

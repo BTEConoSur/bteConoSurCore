@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Finished;
 
+import clipper2.Clipper;
+import clipper2.core.Paths64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
 import org.jetbrains.annotations.NotNull;
