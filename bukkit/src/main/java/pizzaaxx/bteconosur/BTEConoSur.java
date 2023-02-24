@@ -357,6 +357,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         String token = discordConfig.getString("token");
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
+
         jdaBuilder.enableIntents(
                 GatewayIntent.MESSAGE_CONTENT,
                 GatewayIntent.DIRECT_MESSAGES
@@ -374,6 +375,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
         try  {
             bot = jdaBuilder.build().awaitReady();
+
+            bot.updateCommands().queue();
 
             for (Object obj : bot.getRegisteredListeners()) {
                 if (obj instanceof SlashCommandContainer) {

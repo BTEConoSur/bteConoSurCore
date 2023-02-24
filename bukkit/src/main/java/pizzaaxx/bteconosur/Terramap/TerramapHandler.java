@@ -64,6 +64,9 @@ public class TerramapHandler {
     }
 
     public void drawPolygon(@NotNull List<Coords2D> coordinates, Color color, String id) throws IOException {
+        this.drawPolygon(coordinates, color, 12, id);
+        this.drawPolygon(coordinates, color, 13, id);
+        this.drawPolygon(coordinates, color, 14, id);
         this.drawPolygon(coordinates, color, 15, id);
         this.drawPolygon(coordinates, color, 16, id);
         this.drawPolygon(coordinates, color, 17, id);
@@ -169,6 +172,9 @@ public class TerramapHandler {
     }
 
     public void deletePolygon(String id) throws IOException {
+        this.deletePolygon(id, 12);
+        this.deletePolygon(id, 13);
+        this.deletePolygon(id, 14);
         this.deletePolygon(id, 15);
         this.deletePolygon(id, 16);
         this.deletePolygon(id, 17);

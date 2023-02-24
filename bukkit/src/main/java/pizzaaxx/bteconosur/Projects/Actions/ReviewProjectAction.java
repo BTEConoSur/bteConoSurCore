@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
@@ -131,6 +132,10 @@ public class ReviewProjectAction {
                                 )
                         )
                 ).execute();
+
+                for (City city : project.getCitiesResolved()) {
+                    city.updateFinishedArea();
+                }
 
                 project.getCountry().getLogsChannel().sendMessage(
                         ":mag_right: **" + moderator.getName() + "** ha aceptado el proyecto `" + project.getId() + "`."

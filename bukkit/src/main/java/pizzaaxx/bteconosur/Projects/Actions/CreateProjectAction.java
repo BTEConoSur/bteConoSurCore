@@ -107,28 +107,6 @@ public class CreateProjectAction {
 
         plugin.getTerramapHandler().drawPolygon(coords, new Color(78, 255, 71), id);
 
-        InputStream is = plugin.getSatMapHandler().getMapStream(
-                new SatMapHandler.SatMapPolygon(
-                        plugin,
-                        region,
-                        "3068ff"
-                )
-        );
-
-        File file = new File(plugin.getDataFolder(), "projects/images/" + id + ".png");
-        file.createNewFile();
-        OutputStream os = new FileOutputStream(file);
-
-        byte[] b = new byte[2048];
-        int length;
-
-        while ((length = is.read(b)) != -1) {
-            os.write(b, 0, length);
-        }
-
-        is.close();
-        os.close();
-
         country.getLogsChannel().sendMessage(":clipboard: Proyecto de tipo `" + type.getDisplayName() + "` y puntaje `" + points + "` creado con la ID `" + id + "`.").queue();
 
         return plugin.getProjectRegistry().get(id);
