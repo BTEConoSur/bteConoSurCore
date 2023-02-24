@@ -21,12 +21,12 @@ public class PostsRegistry {
     public void init() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "posts",
-                new SQLColumnSet("id", "channel_id"),
+                new SQLColumnSet("project_id", "channel_id"),
                 new SQLANDConditionSet()
         ).retrieve();
 
         while (set.next()) {
-            idsFromChannelID.put(set.getString("channel_id"), set.getString("id"));
+            idsFromChannelID.put(set.getString("channel_id"), set.getString("project_id"));
         }
     }
 }

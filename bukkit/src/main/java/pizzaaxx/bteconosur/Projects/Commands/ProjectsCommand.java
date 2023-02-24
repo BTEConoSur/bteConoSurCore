@@ -1,6 +1,6 @@
 package pizzaaxx.bteconosur.Projects.Commands;
 
-import com.sk89q.worldedit.BlockVector2D;
+import com.google.common.collect.Lists;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
@@ -44,7 +44,6 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.*;
-import pizzaaxx.bteconosur.Projects.SQLSelectors.NotOwnerSQLSelector;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.OwnerSQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
@@ -505,77 +504,71 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
             }
             case "list": {
 
-                try {
-                    BookUtil.BookBuilder builder = BookUtil.writtenBook();
-                    List<BaseComponent[]> pages = new ArrayList<>();
+                List<String> projectIDs = new ArrayList<>(projectManager.getAllProjectIDs());
 
-                    List<String> ownerIDs = new ArrayList<>(projectManager.getProjects(new OwnerSQLSelector(p.getUniqueId())));
-                    Collections.sort(ownerIDs);
-                    List<String> memberIDs = new ArrayList<>(projectManager.getProjects(new NotOwnerSQLSelector(p.getUniqueId())));
-                    Collections.sort(memberIDs);
-                    List<String> ids = new ArrayList<>(ownerIDs);
-                    ids.addAll(memberIDs);
-
-                    for (String id : ids) {
-                        Project project = plugin.getProjectRegistry().get(id);
-                        BlockVector2D avgPoint = RegionUtils.getAveragePoint(project.getRegion());
-
-                        BookUtil.PageBuilder pageBuilder = BookUtil.PageBuilder.of(BookUtil.TextBuilder.of("§7\"§0" + project.getDisplayName() + "§7\"").build());
-                        pageBuilder.newLine();
-                        pageBuilder.newLine();
-                        pageBuilder.add("• ID: §8" + project.getId());
-                        pageBuilder.newLine();
-                        pageBuilder.add("• País: §8" + project.getCountry().getDisplayName());
-                        pageBuilder.newLine();
-                        pageBuilder.add("• Tipo: §8" + project.getType().getDisplayName());
-                        pageBuilder.newLine();
-                        pageBuilder.add("• Ptje.: §8" + project.getPoints());
-                        pageBuilder.newLine();
-                        pageBuilder.add("• Coord.: §8");
-                        pageBuilder.add(
-                                BookUtil.TextBuilder.of(
-                                        avgPoint.getBlockX() + " " + plugin.getWorld().getHighestBlockAt(avgPoint.getBlockX(), avgPoint.getBlockZ()).getLocation().getBlockY() + " " + avgPoint.getBlockZ())
-                                        .onClick(BookUtil.ClickAction.runCommand("/tp " + avgPoint.getBlockX() + " " + plugin.getWorld().getHighestBlockAt(avgPoint.getBlockX(), avgPoint.getBlockZ()).getLocation().getBlockY() + " " + avgPoint.getBlockZ()))
-                                        .onHover(BookUtil.HoverAction.showText("Haz click para ir"))
-                                        .build());
-                        pageBuilder.newLine();
-                        if (project.isClaimed()) {
-                            pageBuilder.add("• Líder: §8");
-                            ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
-                            pageBuilder.add(
-                                    BookUtil.TextBuilder.of(owner.getName())
-                                            .onHover(BookUtil.HoverAction.showText(String.join("\n", owner.getLore(true))))
-                                            .build()
-                            );
-                            if (project.getMembers().size() > 0) {
-                                pageBuilder.add("• Mmbrs.: §8");
-                                int counter = 0;
-                                for (UUID memberUUID : project.getMembers()) {
-                                    ServerPlayer member = plugin.getPlayerRegistry().get(memberUUID);
-                                    pageBuilder.add(
-                                            BookUtil.TextBuilder.of(member.getName())
-                                                    .onHover(BookUtil.HoverAction.showText(String.join(", ", member.getLore(true))))
-                                                    .build()
-                                    );
-                                    if (counter < project.getMembers().size() - 1) {
-                                        pageBuilder.add(", ");
-                                    }
-                                    counter++;
-                                }
-                            }
-                        }
-                        pages.add(pageBuilder.build());
-                    }
-
-                    builder.pages(pages);
-
-                    BookUtil.openPlayer(p, builder.build());
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                if (projectIDs.isEmpty()) {
+                    p.sendMessage(getPrefix() + "No eres miembro de ningún proyecto.");
+                    return true;
                 }
 
-                break;
+                Collections.sort(projectIDs);
+                projectIDs.add("a");
+                projectIDs.add("b");
+
+                List<List<String>> idLists = Lists.partition(projectIDs, 14);
+
+                BookUtil.BookBuilder builder = BookUtil.writtenBook();
+                List<BaseComponent[]> pages = new ArrayList<>();
+
+                for (List<String> idList : idLists) {
+                    BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+
+                    for (String id : idList) {
+
+                        if (id.equals("a")) {
+                            page.add(
+                                    BookUtil.TextBuilder.of("§7-[ §aTUS PROYECTOS§7 ]-").build()
+                            );
+                            page.newLine();
+                        } else if (id.equals("b")) {
+                            page.newLine();
+                            page.newLine();
+                        } else {
+
+                            Project project = plugin.getProjectRegistry().get(id);
+
+                            page.add(
+                                    BookUtil.TextBuilder.of("• ").color(ChatColor.DARK_GRAY).build()
+                            );
+
+                            String name;
+                            if (project.getDisplayName().length() > 17) {
+                                name = project.getDisplayName().substring(0, 16) + "...";
+                            } else {
+                                name = project.getDisplayName();
+                            }
+
+                            Location tp = project.getTeleportLocation();
+
+                            page.add(
+                                    BookUtil.TextBuilder.of(
+                                            name
+                                    )
+                                            .onClick(BookUtil.ClickAction.runCommand("/tp " + tp.getBlockX() + " " + tp.getBlockY() + " " + tp.getBlockZ()))
+                                            .build()
+                            );
+
+                            page.newLine();
+
+                        }
+
+                    }
+                    pages.add(page.build());
+                }
+
+                builder.pages(pages);
+                BookUtil.openPlayer(p, builder.build());
+
             }
             case "claim": {
                 try {
