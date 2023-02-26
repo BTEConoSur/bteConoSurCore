@@ -183,7 +183,7 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                         coords
                 ).execute();
 
-                DiscordUtils.respondSuccess(event, "Ciudad " + display + " en " + country.getDisplayName() + " con éxito.", 120);
+                DiscordUtils.respondSuccess(event, "Ciudad " + display + " en " + country.getDisplayName() + " creada con éxito.", 120);
             } catch (CityActionException | JsonProcessingException | SQLException e) {
                 e.printStackTrace();
                 DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");

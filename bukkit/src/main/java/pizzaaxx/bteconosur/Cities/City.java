@@ -105,6 +105,48 @@ public class City implements JSONParsable {
         return ids;
     }
 
+    public List<String> getFinishedProjects() throws SQLException {
+        List<String> ids = new ArrayList<>();
+        ResultSet set = plugin.getSqlManager().select(
+                "finished_projects",
+                new SQLColumnSet(
+                        "id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition(
+                                "cities", this.name
+                        )
+                )
+        ).retrieve();
+
+        while (set.next()) {
+            ids.add(set.getString("id"));
+        }
+
+        return ids;
+    }
+
+    public List<String> getPosts() throws SQLException {
+        List<String> ids = new ArrayList<>();
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition(
+                                "cities", this.name
+                        )
+                )
+        ).retrieve();
+
+        while (set.next()) {
+            ids.add(set.getString("id"));
+        }
+
+        return ids;
+    }
+
     public boolean hasUrbanArea() {
         return urbanRegion != null;
     }
@@ -174,7 +216,7 @@ public class City implements JSONParsable {
             List<BlockVector2D> vectors = new ArrayList<>();
             List<Object> coordsRaw = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
             for (Object obj : coordsRaw) {
-                Map<String, Integer> coords = (Map<String, Integer>) obj;
+                Map<String, Double> coords = (Map<String, Double>) obj;
                 vectors.add(new BlockVector2D(coords.get("x"), coords.get("z")));
             }
 
@@ -228,6 +270,8 @@ public class City implements JSONParsable {
                         )
                 )
         ).execute();
+
+        this.finishedArea = area;
     }
 
 

@@ -85,7 +85,7 @@ public class CreateProjectAction {
                                 "cities", cities
                         ),
                         new SQLValue(
-                                "pending", false
+                                "pending", null
                         ),
                         new SQLValue(
                                 "type", type.getName()

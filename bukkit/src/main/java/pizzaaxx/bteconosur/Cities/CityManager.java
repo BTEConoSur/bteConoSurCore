@@ -5,6 +5,7 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.Actions.CreateCityAction;
 import pizzaaxx.bteconosur.Countries.Country;
@@ -14,6 +15,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CityManager {
 
@@ -93,8 +95,9 @@ public class CityManager {
         return displayNames.get(name);
     }
 
-    public void registerName(String name) {
+    public void registerName(String name, String displayName) {
         names.add(name);
+        displayNames.put(name, displayName);
     }
 
     public void unregisterName(String name) {
@@ -137,5 +140,31 @@ public class CityManager {
             };
             runnable.runTaskLaterAsynchronously(plugin, 12000);
         }
+    }
+
+    public List<String> getCloseMatches(@NotNull String input, int limit) {
+
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>();
+
+        String i = input.toLowerCase();
+        for (String name : displayNames.keySet()) {
+
+            int distance  = plugin.getFuzzyMatcher().getDistance(i, displayNames.get(name).toLowerCase());
+
+            if (distance <= limit) {
+                entries.add(
+                        new AbstractMap.SimpleEntry<>(
+                                name,
+                                distance
+                        )
+                );
+            }
+
+        }
+
+        entries.sort(Map.Entry.comparingByValue());
+
+        return entries.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+
     }
 }

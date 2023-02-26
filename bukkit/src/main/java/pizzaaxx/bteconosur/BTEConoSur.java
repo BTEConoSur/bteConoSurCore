@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
@@ -375,8 +376,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
         try  {
             bot = jdaBuilder.build().awaitReady();
-
-            bot.updateCommands().queue();
 
             for (Object obj : bot.getRegisteredListeners()) {
                 if (obj instanceof SlashCommandContainer) {

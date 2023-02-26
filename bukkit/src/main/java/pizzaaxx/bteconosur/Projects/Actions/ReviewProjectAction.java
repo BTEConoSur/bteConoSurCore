@@ -1,10 +1,12 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
+import com.sk89q.worldedit.BlockVector2D;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
@@ -15,10 +17,13 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
@@ -56,6 +61,11 @@ public class ReviewProjectAction {
                 project.getCountry().getLogsChannel().sendMessage(
                         ":mag_right: **" + moderator.getName() + "** ha rechazado el proyecto `" + project.getId() + "`."
                 ).queue();
+
+                if (project.hasPost()) {
+                    Post post = project.getPost();
+                    post.close();
+                }
 
                 project.emptyProject().execute();
 
@@ -104,7 +114,7 @@ public class ReviewProjectAction {
                                         "id", id
                                 ),
                                 new SQLValue(
-                                        "original_name", project.getDisplayName()
+                                        "name", project.getDisplayName()
                                 ),
                                 new SQLValue(
                                         "country", project.getCountry().getName()
@@ -225,8 +235,9 @@ public class ReviewProjectAction {
                 if (project.hasPost()) {
                     sent = true;
                     Post post = project.getPost();
+                    post.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!");
                     post.setProjectID(id);
-                    post.updateTags();
+                    post.updateTags(project.getTag());
                 } else {
                     if (owner.getDiscordManager().isLinked()) {
                         sent = true;
@@ -267,6 +278,12 @@ public class ReviewProjectAction {
                         )
                 ).execute();
 
+                plugin.getTerramapHandler().deletePolygon(project.getId());
+                List<Coords2D> coords = new ArrayList<>();
+                for (BlockVector2D vector2D : project.getRegion().getPoints()) {
+                    coords.add(new Coords2D(plugin, vector2D));
+                }
+                plugin.getTerramapHandler().drawPolygon(coords, new Color(51, 60, 232), id);
                 plugin.getRegionManager().removeRegion("project_" + project.getId());
 
                 plugin.getProjectRegistry().unload(project.getId());

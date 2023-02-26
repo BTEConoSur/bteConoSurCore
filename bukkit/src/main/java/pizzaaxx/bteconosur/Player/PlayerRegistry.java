@@ -130,4 +130,14 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         runnable.runTaskLaterAsynchronously(plugin, 12000);
     }
 
+    public List<String> getNames(@NotNull Collection<UUID> names) {
+        List<String> result = new ArrayList<>();
+
+        for (UUID uuid : names) {
+            result.add(this.get(uuid).getName());
+        }
+
+        return result;
+    }
+
 }

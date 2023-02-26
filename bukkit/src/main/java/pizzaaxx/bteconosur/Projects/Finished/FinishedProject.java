@@ -134,7 +134,7 @@ public class FinishedProject implements ProjectWrapper {
 
     @Override
     public String getDisplayName() {
-        return (this.hasPost() ? this.getPost().getName() : this.id.toUpperCase());
+        return (this.hasPost() ? this.getPost().getName() : this.getName());
     }
 
     @Override

@@ -23,11 +23,16 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ProjectPostCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
+    private final Set<String> ALLOWED_IMAGE_EXTENSIONS = new HashSet<>(Arrays.asList("png", "jpg", "jpeg"));
 
     public ProjectPostCommand(BTEConoSur plugin) {
         this.plugin = plugin;
@@ -65,8 +70,8 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                         "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
                                 ),
                                 new SubcommandData(
-                                        "addImage",
-                                        "Agrega una imagen de portada a la publicación de un proyecto. Debe usarse en el canal de la publicación."
+                                        "addimage",
+                                        "Agrega una imagen de portada a la publicación. Debe usarse en el canal de la publicación."
                                 )
                                         .addOption(
                                                 OptionType.ATTACHMENT,
@@ -81,8 +86,8 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                                 false
                                         ),
                                 new SubcommandData(
-                                        "removeImage",
-                                        "Quita una imagen de portada de la publicación de un proyecto. Debe usarse en el canal de la publicación."
+                                        "removeimage",
+                                        "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
                                 )
                                         .addOption(
                                                 OptionType.INTEGER,
@@ -237,13 +242,14 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                     }
                     break;
                 }
-                case "addImage": {
+                case "addimage": {
                     Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
 
                     if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {
                         runnable.run();
                         return;
                     }
+
 
                     ThreadChannel channel = event.getChannel().asThreadChannel();
 
@@ -271,23 +277,37 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         assert imageMapping != null;
                         Message.Attachment attachment = imageMapping.getAsAttachment();
 
-                        Post post = project.getPost();
-
-                        OptionMapping indexMapping = event.getOption("lugar");
-                        if (indexMapping == null) {
-                            post.addImage(attachment);
-                        } else {
-                            post.addImage(attachment, indexMapping.getAsInt() - 1);
+                        if (!ALLOWED_IMAGE_EXTENSIONS.contains(attachment.getFileExtension())) {
+                            DiscordUtils.respondError(event, "Solo se permiten archivos de tipo " + String.join(", ", ALLOWED_IMAGE_EXTENSIONS));
+                            return;
                         }
 
-                        DiscordUtils.respondSuccessEphemeral(event, "Imagen agregada correctamente.");
+                        Post post = project.getPost();
 
+                        post.getMessage().queue(
+                                message -> {
+                                    if (message.getAttachments().size() >= 10) {
+                                        DiscordUtils.respondError(event, "La publicación ya alcanzó el límite de imágenes de portada.");
+                                        return;
+                                    }
+
+
+                                    OptionMapping indexMapping = event.getOption("lugar");
+                                    if (indexMapping == null) {
+                                        post.addImage(attachment);
+                                    } else {
+                                        post.addImage(attachment, indexMapping.getAsInt() - 1);
+                                    }
+
+                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen agregada correctamente.");
+                                }
+                        );
                     } else {
                         DiscordUtils.respondError(event, "Esta publicación está cerrada y no puede ser editada.");
                     }
                     break;
                 }
-                case "removeImage": {
+                case "removeimage": {
                     Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
 
                     if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {

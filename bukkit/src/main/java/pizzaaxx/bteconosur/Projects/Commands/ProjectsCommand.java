@@ -512,8 +512,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                 }
 
                 Collections.sort(projectIDs);
-                projectIDs.add("a");
-                projectIDs.add("b");
+                projectIDs.add(0, "a");
+                projectIDs.add(1, "b");
 
                 List<List<String>> idLists = Lists.partition(projectIDs, 14);
 
@@ -550,11 +550,34 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
                             Location tp = project.getTeleportLocation();
 
+                            List<String> lore = new ArrayList<>(
+                                    project.getLore(
+                                            true,
+                                            Project.ProjectLoreField.OWNER,
+                                            Project.ProjectLoreField.MEMBER_IGNORE,
+                                            Project.ProjectLoreField.COUNTRY,
+                                            Project.ProjectLoreField.CITIES,
+                                            Project.ProjectLoreField.TYPE,
+                                            Project.ProjectLoreField.POINTS,
+                                            Project.ProjectLoreField.TAG_IGNORE,
+                                            Project.ProjectLoreField.TELEPORT
+                                    )
+                            );
+
+                            lore.add(" ");
+                            lore.add("§a[➡]§7 Haz click para ir.");
+
                             page.add(
                                     BookUtil.TextBuilder.of(
                                             name
                                     )
                                             .onClick(BookUtil.ClickAction.runCommand("/tp " + tp.getBlockX() + " " + tp.getBlockY() + " " + tp.getBlockZ()))
+                                            .onHover(BookUtil.HoverAction.showText(
+                                                    String.join(
+                                                            "\n",
+                                                            lore
+                                                    )
+                                            ))
                                             .build()
                             );
 
@@ -569,6 +592,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                 builder.pages(pages);
                 BookUtil.openPlayer(p, builder.build());
 
+                break;
             }
             case "claim": {
                 try {

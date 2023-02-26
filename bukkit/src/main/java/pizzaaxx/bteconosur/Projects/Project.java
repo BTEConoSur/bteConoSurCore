@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Projects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Project implements JSONParsable, Prefixable, ProjectWrapper {
 
@@ -217,20 +219,150 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper {
         return plugin.getWorld().getHighestBlockAt(averageCoord.getBlockX(), averageCoord.getBlockZ()).getLocation();
     }
 
-    public ItemStack getItem() {
+    public enum ProjectLoreField {
+
+        ID, ID_UPPERCASE, DISPLAY_NAME, OWNER, MEMBER_IGNORE, MEMBER, MEMBER_COUNT, CITIES, COUNTRY, PENDING, TYPE, POINTS, TELEPORT, TAG, TAG_IGNORE
+
+    }
+
+    public List<String> getLore(boolean includeName, ProjectLoreField... fields) {
+        return this.getLore(includeName, "§f• %f: §7%v", fields);
+    }
+
+    public List<String> getLore(boolean includeName, String format, ProjectLoreField... fields) {
+
         List<String> lore = new ArrayList<>();
-        lore.add("§f• ID: §7" + id);
-        lore.add("§f• Tipo: §7" + this.getType().getDisplayName());
-        if (this.isClaimed()) {
-            lore.add("§f• Líder: §7" + plugin.getPlayerRegistry().get(this.getOwner()).getName());
-            if (this.getMembers().size() > 0) {
-                List<String> memberNames = new ArrayList<>();
-                for (UUID memberUUID : this.getMembers()) {
-                    memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName());
-                }
-                lore.add("§f• Miembros: §7" + String.join(", ", memberNames));
-            }
+
+        if (includeName) {
+            lore.add("§a§l" + this.getDisplayName());
         }
+
+        for (ProjectLoreField field : fields) {
+
+            switch (field) {
+                case ID: {
+                    lore.add(
+                            format.replace("%f", "ID").replace("%v", this.id)
+                    );
+                    break;
+                }
+                case ID_UPPERCASE: {
+                    lore.add(
+                            format.replace("%f", "ID").replace("%v", this.id.toUpperCase())
+                    );
+                    break;
+                }
+                case DISPLAY_NAME: {
+                    lore.add(
+                            format.replace("%f", "Nombre").replace("%v", this.getDisplayName())
+                    );
+                    break;
+                }
+                case OWNER: {
+                    if (this.owner != null) {
+                        lore.add(
+                                format.replace("%f", "Líder").replace("%v", plugin.getPlayerRegistry().get(this.owner).getName())
+                        );
+                    }
+                    break;
+                }
+                case MEMBER: {
+                    if (members.isEmpty()) {
+                        lore.add(
+                                format.replace("%f", "Miembros").replace("%v", "Sin miembros")
+                        );
+                    } else {
+                        lore.add(
+                                format.replace("%f", "Miembros").replace("%v", String.join(", ", plugin.getPlayerRegistry().getNames(this.members)))
+                        );
+                    }
+                    break;
+                }
+                case MEMBER_IGNORE: {
+                    if (!members.isEmpty()) {
+                        lore.add(
+                                format.replace("%f", "Miembros").replace("%v", String.join(", ", plugin.getPlayerRegistry().getNames(this.members)))
+                        );
+                    }
+                    break;
+                }
+                case MEMBER_COUNT: {
+                    lore.add(
+                            format.replace("%f", "Miembros").replace("%v", Integer.toString(members.size()))
+                    );
+                    break;
+                }
+                case CITIES: {
+                    lore.add(
+                            format.replace("%f", "Ciudad(es)").replace("%v", (this.cities.isEmpty() ? "Ninguna" : this.getCitiesResolved().stream().map(City::getDisplayName).collect(Collectors.joining(", "))))
+                    );
+                    break;
+                }
+                case COUNTRY: {
+                    lore.add(
+                            format.replace("%f", "País").replace("%v", this.country.getDisplayName())
+                    );
+                    break;
+                }
+                case PENDING: {
+                    lore.add(
+                            format.replace("%f", "Pendiente").replace("%v", (pending != null ? "Si" : "No"))
+                    );
+                    break;
+                }
+                case TYPE: {
+                    lore.add(
+                            format.replace("%f", "Tipo").replace("%v", this.type.getDisplayName())
+                    );
+                    break;
+                }
+                case POINTS: {
+                    lore.add(
+                            format.replace("%f", "Puntos").replace("%v", Integer.toString(this.points))
+                    );
+                    break;
+                }
+                case TELEPORT: {
+                    Location loc = this.getTeleportLocation();
+                    lore.add(
+                            format.replace("%f", "Coordenadas").replace("%v", loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ())
+                    );
+                    break;
+                }
+                case TAG: {
+                    lore.add(
+                            format.replace("%f", "Etiqueta").replace("%v", (tag != null ? StringUtils.capitalize(this.tag.toString()) : "Ninguna"))
+                    );
+                    break;
+                }
+                case TAG_IGNORE: {
+                    if (tag != null) {
+                        lore.add(
+                                format.replace("%f", "Etiqueta").replace("%v", StringUtils.capitalize(this.tag.toString()))
+                        );
+                    }
+                    break;
+                }
+            }
+
+        }
+
+        return lore;
+
+    }
+
+    public ItemStack getItem() {
+        List<String> lore = this.getLore(
+                false,
+                ProjectLoreField.DISPLAY_NAME,
+                ProjectLoreField.OWNER,
+                ProjectLoreField.MEMBER_IGNORE,
+                ProjectLoreField.COUNTRY,
+                ProjectLoreField.CITIES,
+                ProjectLoreField.TYPE,
+                ProjectLoreField.POINTS,
+                ProjectLoreField.TAG_IGNORE
+        );
         if (tag != null) {
             return ItemBuilder.head(
                     tag.getHeadValue(),
