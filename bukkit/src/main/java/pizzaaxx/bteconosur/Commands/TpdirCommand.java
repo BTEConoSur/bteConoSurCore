@@ -50,6 +50,7 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
 
             List<String> nameOptions = new ArrayList<>();
             List<Coords2D> coordOptions = new ArrayList<>();
+            List<Location> locations = new ArrayList<>();
 
             for (Map<String, Object> option : options) {
                 Coords2D coords = new Coords2D(
@@ -59,8 +60,27 @@ public class TpdirCommand implements CommandExecutor, Prefixable {
                 );
 
                 if (plugin.getCountryManager().isInsideCountry(coords.toHighestLocation())) {
-                    nameOptions.add(option.get("display_name").toString());
-                    coordOptions.add(coords);
+                    boolean near = false;
+                    Location h = coords.toHighestLocation();
+                    for (Location loc : locations) {
+                        int xDif = Math.abs(loc.getBlockX() - h.getBlockX());
+                        int zDif = Math.abs(loc.getBlockZ() - h.getBlockZ());
+
+                        if (xDif > 100 || zDif > 100) {
+                            continue;
+                        }
+
+                        if (Math.pow(xDif, 2) + Math.pow(zDif, 2) < 10000) {
+                            near = true;
+                            break;
+                        }
+                    }
+
+                    if (!near) {
+                        nameOptions.add(option.get("display_name").toString());
+                        coordOptions.add(coords);
+                        locations.add(h);
+                    }
                 }
             }
 

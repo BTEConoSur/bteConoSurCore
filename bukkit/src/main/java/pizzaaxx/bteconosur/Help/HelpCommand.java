@@ -511,7 +511,6 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                     interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
             );
         }
-
     }
 
 

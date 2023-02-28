@@ -14,7 +14,7 @@
 * ✔️ `/googlemaps`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * ✔️ `/get`
-* 🕙 `/help [comando]`
+* ⏳ `/help [comando]`
 * 🕙 `/scoreboard [<tipo>|auto]`
 * 🕙 `/streaming <link>`
 * 🕙 `/prefix`

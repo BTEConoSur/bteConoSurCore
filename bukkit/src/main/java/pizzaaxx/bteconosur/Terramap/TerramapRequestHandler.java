@@ -49,7 +49,7 @@ public class TerramapRequestHandler implements HttpHandler {
                     return;
                 }
 
-                if (zoom < 15) {
+                if (zoom < 12) {
                     exchange.getResponseHeaders().set("Location", "https://" + osmServers[random.nextInt(3)] + ".tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png");
                     exchange.sendResponseHeaders(301, 0);
                     exchange.close();

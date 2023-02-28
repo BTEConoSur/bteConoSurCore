@@ -43,7 +43,7 @@ public class TerramapHandler {
             throw new IllegalArgumentException();
         }
 
-        if (zoom < 15) {
+        if (zoom < 12) {
             HttpRequest request = HttpRequest.get(new URL("https://" + osmServers[random.nextInt(3)] + ".tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png"));
             return request.execute().getInputStream();
         } else {
