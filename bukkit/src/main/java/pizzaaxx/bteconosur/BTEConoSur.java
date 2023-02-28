@@ -12,6 +12,12 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -77,6 +83,10 @@ import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BTEConoSur extends JavaPlugin implements Prefixable {
 
@@ -467,6 +477,11 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
             country.getCountryChatChannel().sendMessageEmbeds(embed).queue();
         }
+
+        for (InteractionHook hook : messagesToDelete) {
+            hook.deleteOriginal().queue();
+        }
+
         bot.shutdown();
     }
 
@@ -497,6 +512,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         }
         return null;
     }
+
+    public final Set<InteractionHook> messagesToDelete = new HashSet<>();
 
     @Override
     public String getPrefix() {

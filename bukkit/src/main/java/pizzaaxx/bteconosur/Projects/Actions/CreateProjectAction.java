@@ -21,6 +21,8 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -104,6 +106,18 @@ public class CreateProjectAction {
         for (BlockVector2D vector2D : region) {
             coords.add(new Coords2D(plugin, vector2D));
         }
+
+        InputStream is = plugin.getSatMapHandler().getMapStream(
+                new SatMapHandler.SatMapPolygon(
+                        plugin,
+                        region,
+                        "3068ff"
+                )
+        );
+
+        File file = new File(plugin.getDataFolder(), "projects/images/" + id + ".png");
+        file.createNewFile();
+        Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         plugin.getTerramapHandler().drawPolygon(coords, new Color(78, 255, 71), id);
 

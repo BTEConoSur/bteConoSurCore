@@ -18,6 +18,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -142,6 +143,11 @@ public class ReviewProjectAction {
                                 )
                         )
                 ).execute();
+
+                File source = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
+                File target = new File(plugin.getDataFolder(), "projects/images/" + id + ".png");
+
+                source.renameTo(target);
 
                 for (City city : project.getCitiesResolved()) {
                     city.updateFinishedArea();

@@ -37,8 +37,9 @@ public class SelectAction {
         this.columns.addColumn(column);
     }
 
-    public void addText(String text) {
+    public SelectAction addText(String text) {
         additionalText.append(text);
+        return this;
     }
 
     public ResultSet retrieve() throws SQLException {

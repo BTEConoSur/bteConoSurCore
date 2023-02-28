@@ -50,7 +50,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         }
                     }
 
-                    if (!found){
+                    if (found){
                         plugin.getBot().upsertCommand(
                                 "post",
                                 "Publica tu proyecto en Discord"
@@ -70,7 +70,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                         "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
                                 ),
                                 new SubcommandData(
-                                        "addimage",
+                                        "setimage",
                                         "Agrega una imagen de portada a la publicación. Debe usarse en el canal de la publicación."
                                 )
                                         .addOption(
@@ -78,23 +78,11 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                                 "imagen",
                                                 "La imagen a agregar a la portada",
                                                 true
-                                        )
-                                        .addOption(
-                                                OptionType.INTEGER,
-                                                "lugar",
-                                                "El lugar en el orden en que debe ir la imagen. El primero es 1.",
-                                                false
                                         ),
                                 new SubcommandData(
                                         "removeimage",
                                         "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
                                 )
-                                        .addOption(
-                                                OptionType.INTEGER,
-                                                "número",
-                                                "El número en el orden de las imágenes de la imagen a quitar. La primera imagen es 1.",
-                                                true
-                                        )
                         ).queue();
                     }
 
@@ -242,7 +230,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                     }
                     break;
                 }
-                case "addimage": {
+                case "setimage": {
                     Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
 
                     if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {
@@ -284,22 +272,16 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                         Post post = project.getPost();
 
+                        if (attachment.getSize() > post.getChannel().getGuild().getMaxFileSize()) {
+                            DiscordUtils.respondError(event, "El archivo es demasiado grande para subir.");
+                            return;
+                        }
+
                         post.getMessage().queue(
                                 message -> {
-                                    if (message.getAttachments().size() >= 10) {
-                                        DiscordUtils.respondError(event, "La publicación ya alcanzó el límite de imágenes de portada.");
-                                        return;
-                                    }
+                                    post.addImage(attachment);
 
-
-                                    OptionMapping indexMapping = event.getOption("lugar");
-                                    if (indexMapping == null) {
-                                        post.addImage(attachment);
-                                    } else {
-                                        post.addImage(attachment, indexMapping.getAsInt() - 1);
-                                    }
-
-                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen agregada correctamente.");
+                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen de portada establecida correctamente.");
                                 }
                         );
                     } else {
@@ -337,21 +319,12 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                             return;
                         }
 
-                        OptionMapping indexMapping = event.getOption("número");
-                        assert indexMapping != null;
-                        int index = indexMapping.getAsInt();
-
                         Post post = project.getPost();
 
                         post.getMessage().queue(
                                 message -> {
-                                    if (index < 1 || index > message.getAttachments().size()) {
-                                        DiscordUtils.respondError(event, "Número de imagen inválido.");
-                                        return;
-                                    }
-
-                                    post.removeImage(index - 1);
-                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen quitada correctamente.");
+                                    post.removeImage();
+                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen de portada quitada correctamente.");
                                 }
                         );
 

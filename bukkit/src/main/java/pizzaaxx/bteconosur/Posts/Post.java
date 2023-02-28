@@ -30,6 +30,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -66,13 +67,9 @@ public class Post {
             members.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
         }
 
-        SatMapHandler.SatMapPolygon polygon = new SatMapHandler.SatMapPolygon(
-                plugin,
-                project.getRegionPoints(),
-                "3068ff"
-        );
-
         String finalName = name + (cityNames.isEmpty() ? "" : " - " + String.join(", ", cityNames));
+
+        File file = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
 
         ForumPostAction action = channel.createForumPost(
                         finalName.substring(0, Math.min(finalName.length(), 99)),
@@ -99,9 +96,7 @@ public class Post {
                                 .build()
                 )
                 .setFiles(
-                        FileUpload.fromData(plugin.getSatMapHandler().getMapStream(
-                                polygon
-                        ), "projectMap.png")
+                        FileUpload.fromData(file, "projectMap.png")
                 );
 
         List<ForumTag> appliedTags = new ArrayList<>();
@@ -126,8 +121,6 @@ public class Post {
 
         action.queue(
                 post -> {
-                    post.getMessage().addReaction(Emoji.fromUnicode("U+1F48E")).queue();
-
                     try {
                         plugin.getSqlManager().insert(
                                 "posts",
@@ -239,66 +232,28 @@ public class Post {
     public void addImage(Message.Attachment attachment) {
         this.getMessage().queue(
                 message -> {
-                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
-                    if (attachments.get(0).getFileName().equals("projectMap.png")) {
-                        attachments = new ArrayList<>();
-                    }
-
-                    List<AttachedFile> files = new ArrayList<>();
-                    for (Message.Attachment a : attachments) {
-                        files.add(AttachmentUpdate.fromAttachment(a));
-                    }
-
                     try {
                         URL url = new URL(attachment.getUrl());
-
-                        message.editMessageAttachments(files).queue(
-                                msg -> plugin.log("d")
-                        );
-                    } catch (Exception e) {
+                        message.editMessageAttachments(
+                                FileUpload.fromData(HttpRequest.get(url).execute().getInputStream(), attachment.getFileName())
+                        ).queue();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                 }
         );
     }
 
-    public void addImage(Message.Attachment attachment, int index) {
+    public void removeImage() {
         this.getMessage().queue(
                 message -> {
-                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
-                    if (attachments.get(0).getFileName().equals("projectMap")) {
-                        attachments = new ArrayList<>();
-                    }
-                    attachments.add(Math.min(Math.max(index, 0), attachments.size()), attachment);
-                    message.editMessageAttachments(attachments).queue();
-                }
-        );
-    }
-
-    public void removeImage(int index) {
-        this.getMessage().queue(
-                message -> {
-                    List<Message.Attachment> attachments = new ArrayList<>(message.getAttachments());
-                    attachments.remove(index);
-
-                    if (!attachments.isEmpty()) {
-                        message.editMessageAttachments(attachments).queue();
-                    } else {
-                        SatMapHandler.SatMapPolygon polygon = new SatMapHandler.SatMapPolygon(
-                                plugin,
-                                this.getProject().getRegionPoints(),
-                                "3068ff"
-                        );
-                        try {
-                            message.editMessageAttachments(
-                                    FileUpload.fromData(
-                                            plugin.getSatMapHandler().getMapStream(polygon), "projectMap.png"
-                                    )
-                            ).queue();
-                        } catch (IOException e) {
-                            plugin.log("Failed project map InputStream.");
-                        }
-                    }
+                    File file = new File(plugin.getDataFolder(), "projects/images/" + this.getProjectID() + ".png");
+                    message.editMessageAttachments(
+                            FileUpload.fromData(
+                                    file, "projectMap.png"
+                            )
+                    ).queue();
                 }
         );
     }
