@@ -45,6 +45,7 @@ import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
 import pizzaaxx.bteconosur.Events.TeleportEvent;
+import pizzaaxx.bteconosur.Help.HelpCommand;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
@@ -368,6 +369,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         String token = discordConfig.getString("token");
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
+        HelpCommand helpCommand = new HelpCommand(this);
 
         jdaBuilder.enableIntents(
                 GatewayIntent.MESSAGE_CONTENT,
@@ -379,7 +381,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 chatHandler,
                 new CreateCityCommand(this),
                 new PostsListener(this),
-                new ProjectPostCommand(this)
+                new ProjectPostCommand(this),
+                helpCommand
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

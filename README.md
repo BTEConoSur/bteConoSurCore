@@ -88,15 +88,16 @@
 * 🕙 `/city delete <nombre>`
 ## Proyectos
 * ✔️ *Action Bar*
+* ✔️ Publicaciones
 * ✔️ `/project create [<tipo> <puntos>]`
 * ✔️ `/project delete`
 * ✔️ `/project name [nombre]`
 * ✔️ `/project borders`
-* ⏳ `/project manage`
-* 🕙 `/project tag <etiqueta>|delete`
+* ✔️ `/project manage`
+* ✔️ `/project tag`
 * ✔️ `/project claim`
-* 🕙 `/project find`
-* 🕙 `/project review <(accept|continue|deny)>`
+* ✔️ `/project find`
+* ✔️ `/project review`
 * ✔️ `/project request`
 * 🕙 `/project tutorial`
 ## Chat

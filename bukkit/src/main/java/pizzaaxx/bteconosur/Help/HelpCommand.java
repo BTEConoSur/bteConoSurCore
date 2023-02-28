@@ -1,19 +1,28 @@
 package pizzaaxx.bteconosur.Help;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +40,10 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class HelpCommand extends ListenerAdapter implements SlashCommandContainer, CommandExecutor {
 
@@ -57,7 +65,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                         }
                     }
 
-                    if (found) {
+                    if (!found) {
                         plugin.getBot().upsertCommand(
                                 "help",
                                 "Obtén información sobre alguno de los comandos."
@@ -91,12 +99,25 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
 
         if (event.getName().equals("help")) {
 
-            OptionMapping mapping = event.getOption("comando");
-            if (mapping != null) {
-                String path = mapping.getAsString();
+            OptionMapping pathMapping = event.getOption("comando");
+            HelpRecord.Platform platform = HelpRecord.Platform.valueOf(event.getSubcommandName().toUpperCase());
+            if (pathMapping != null) {
+                String path = pathMapping.getAsString();
+
+                try {
+                    this.replyHelpEmbed(event, path, platform);
+                } catch (SQLException | JsonProcessingException e) {
+                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                } catch (IllegalArgumentException e) {
+                    DiscordUtils.respondError(event, "No se ha encontrado ese comando.");
+                }
             } else {
-
-
+                try {
+                    this.replyHelpListEmbed(event, platform, 1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                }
 
             }
 
@@ -105,7 +126,6 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     public void replyHelpListEmbed(IReplyCallback event, @NotNull HelpRecord.Platform platform, int pageNumber) throws SQLException {
-
         ResultSet countSet = plugin.getSqlManager().select(
                 "commands",
                 new SQLColumnSet("COUNT(path) AS count"),
@@ -140,10 +160,10 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                 SQLOrderExpression.Order.ASC
                         )
                 )
-        ).addText("LIMIT 10 OFFSET " + ((pageNumber - 1) * 10)).retrieve();
+        ).addText(" LIMIT 10 OFFSET " + ((pageNumber - 1) * 10)).retrieve();
 
         Map<String, String> descriptions = new HashMap<>();
-        Map<Character, List<String>> fields = new HashMap<>();
+        LinkedHashMap<Character, List<String>> fields = new LinkedHashMap<>();
         while (set.next()) {
 
             String path = set.getString("path");
@@ -157,7 +177,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(Color.GREEN);
-        builder.setTitle("Ayuda de comandos de " + platform.toString().toLowerCase());
+        builder.setTitle("Ayuda de comandos de " + org.apache.commons.lang.StringUtils.capitalize(platform.toString().toLowerCase()));
         builder.setDescription("Usa `/help [comando]` para obtener más información de cada comando.");
 
         for (Character character : fields.keySet()) {
@@ -212,8 +232,8 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
 
         }
 
-        String nextID = "helpListNext?platform=" + platform.toString().toLowerCase() + "?currentPage=" + pageNumber;
-        String previousID = "helpListPrevious?platform=" + platform.toString().toLowerCase() + "?currentPage=" + pageNumber;
+        String nextID = "helpListNext?platform=" + platform.toString().toLowerCase() + "&currentPage=" + pageNumber + "&user=" + event.getUser().getId();
+        String previousID = "helpListPrevious?platform=" + platform.toString().toLowerCase() + "&currentPage=" + pageNumber + "&user=" + event.getUser().getId();
         if (event instanceof SlashCommandInteractionEvent) {
             event.replyEmbeds(
                             builder.build()
@@ -230,13 +250,19 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                             ButtonStyle.SECONDARY,
                                             "counter",
                                             pageNumber + "/" + (Math.floorDiv(size, 10) + 1)
-                                    ),
+                                    ).withDisabled(true),
                                     Button.of(
                                             ButtonStyle.PRIMARY,
                                             nextID,
                                             "Pág. siguiente",
                                             Emoji.fromUnicode("U+27A1")
-                                    ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1))
+                                    ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1)),
+                                    Button.of(
+                                            ButtonStyle.DANGER,
+                                            "helpCommandDelete?user=" + event.getUser().getId(),
+                                            "Eliminar",
+                                            Emoji.fromUnicode("U+1F5D1")
+                                    )
                             )
                     )
                     .queue(
@@ -245,9 +271,9 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                 plugin.messagesToDelete.add(interaction);
                             }
                     );
-        } else if (event instanceof ButtonInteractionEvent) {
-            ButtonInteractionEvent buttonEvent = (ButtonInteractionEvent) event;
-            buttonEvent.editMessageEmbeds(
+        } else if (event instanceof IMessageEditCallback) {
+            IMessageEditCallback editCallback = (IMessageEditCallback) event;
+            editCallback.editMessageEmbeds(
                     builder.build()
             ).setComponents(
                     ActionRow.of(
@@ -261,13 +287,19 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                     ButtonStyle.SECONDARY,
                                     "counter",
                                     pageNumber + "/" + (Math.floorDiv(size, 10) + 1)
-                            ),
+                            ).withDisabled(true),
                             Button.of(
                                     ButtonStyle.PRIMARY,
                                     nextID,
                                     "Pág. siguiente",
                                     Emoji.fromUnicode("U+27A1")
-                            ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1))
+                            ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1)),
+                            Button.of(
+                                    ButtonStyle.DANGER,
+                                    "helpCommandDelete?user=" + event.getUser().getId(),
+                                    "Eliminar",
+                                    Emoji.fromUnicode("U+1F5D1")
+                            )
                     )
             ).queue(
                     interaction -> {
@@ -280,20 +312,21 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        assert event.getButton().getId() != null;
-        if (event.getButton().getId().startsWith("helpListNext") || event.getButton().getId().startsWith("helpListPrevious")) {
-            assert event.getMessage().getInteraction() != null;
-            if (!event.getMessage().getInteraction().getUser().getId().equals(event.getUser().getId())) {
+        String id = event.getButton().getId();
+        assert id != null;
+        if (id.startsWith("helpListNext") || id.startsWith("helpListPrevious")) {
+            Map<String, String> query = StringUtils.getQuery(id.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
                 DiscordUtils.respondError(event, "Solo quien usó este comando puede usar los botones.");
                 return;
             }
 
-            Map<String, String> query = StringUtils.getQuery(event.getButton().getId().split("\\?")[1]);
             HelpRecord.Platform platform = HelpRecord.Platform.valueOf(query.get("platform").toUpperCase());
             int currentPage = Integer.parseInt(query.get("currentPage"));
 
             int targetPage;
-            if (event.getButton().getId().startsWith("helpListNext")) {
+            if (id.startsWith("helpListNext")) {
                 targetPage = currentPage + 1;
             } else {
                 targetPage = currentPage - 1;
@@ -305,11 +338,179 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                 DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
             }
         }
+        if (id.startsWith("helpCommandSearch")) {
+            Map<String, String> query = StringUtils.getQuery(id.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quien usó este comando puede usar los botones.");
+                return;
+            }
+
+            Modal modal = Modal.create(
+                    "helpSearchModal?platform=" + query.get("platform"),
+                    "Buscar comando"
+            ).addActionRows(
+                    ActionRow.of(
+                            TextInput.create(
+                                    "path",
+                                    "Comando",
+                                    TextInputStyle.SHORT
+                            ).setRequired(true).build()
+                    )
+            ).build();
+
+            event.replyModal(modal).queue();
+        }
+        if (id.startsWith("helpCommandDelete")) {
+            Map<String, String> query = StringUtils.getQuery(id.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quien usó este comando puede usar los botones.");
+                return;
+            }
+
+            event.getMessage().delete().queue();
+        }
     }
 
-    public void replyHelpEmbed(IReplyCallback event, String path, HelpRecord.Platform platform) {
+    @Override
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
 
+        if (event.getModalId().startsWith("helpSearchModal")) {
 
+            Map<String, String> query = StringUtils.getQuery(event.getModalId().split("\\?")[1]);
+
+            ModalMapping pathMapping = event.getValue("path");
+            assert pathMapping != null;
+            String path = pathMapping.getAsString();
+
+            HelpRecord.Platform platform = HelpRecord.Platform.valueOf(query.get("platform").toUpperCase());
+
+            try {
+                this.replyHelpEmbed(event, path, platform);
+            } catch (SQLException | JsonProcessingException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            } catch (IllegalArgumentException e) {
+                DiscordUtils.respondError(event, "No se ha encontrado ese comando.");
+            }
+
+        }
+
+    }
+
+    public void replyHelpEmbed(IReplyCallback event, String path, HelpRecord.Platform platform) throws IllegalArgumentException, SQLException, JsonProcessingException {
+
+        HelpRecord record = HelpRecord.from(plugin, path, platform);
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(Color.GREEN);
+
+        builder.setTitle(record.getCommandUsage());
+
+        builder.addField(
+                ":open_file_folder: Descripción:",
+                record.getDescription(),
+                false
+        );
+
+        builder.addField(
+                ":label: Tiene(n) permisos:",
+                record.getPermission(),
+                true
+        );
+
+        if (record.getAliases() != null) {
+            builder.addField(
+                    ":paperclip: Aliases:",
+                    record.getAliases().stream().collect(Collectors.joining("`\n• `/", "• `/", "`")),
+                    true
+            );
+        }
+
+        if (record.getExamples() != null)  {
+            builder.addField(
+                    ":placard: Ejemplos:",
+                    record.getExamples().stream().collect(Collectors.joining("`\n• `", "• `", "`")),
+                    true
+            );
+        }
+
+        if (record.getNote() != null) {
+            builder.addField(
+                    ":notepad_spiral: Nota:",
+                    record.getNote(),
+                    false
+            );
+        }
+
+        if (record.getParameters() != null) {
+            List<String> lines = new ArrayList<>();
+            for (String key : record.getParameters().keySet()) {
+                lines.add("• **" + key + ":** " + record.getParameters().get(key));
+            }
+
+            builder.addField(
+                    ":ledger: Parámetros:",
+                    String.join("\n", lines),
+                    false
+            );
+        }
+
+        if (record.getSubcommands() != null) {
+            builder.addField(
+                    ":notebook_with_decorative_cover: Subcomandos:",
+                    record.getSubcommandsWithParameters().stream().collect(Collectors.joining("`\n• `", "• `", "`")),
+                    false
+            );
+        }
+
+        if (event instanceof SlashCommandInteractionEvent) {
+
+            event.replyEmbeds(
+                    builder.build()
+            ).addComponents(
+                    ActionRow.of(
+                            Button.of(
+                                    ButtonStyle.PRIMARY,
+                                    "helpCommandSearch?platform=" + platform.toString().toLowerCase() + "&user=" + event.getUser().getId(),
+                                    "Buscar otro comando",
+                                    Emoji.fromUnicode("U+1F50E")
+                            ),
+                            Button.of(
+                                    ButtonStyle.DANGER,
+                                    "helpCommandDelete?user=" + event.getUser().getId(),
+                                    "Eliminar",
+                                    Emoji.fromUnicode("U+1F5D1")
+                            )
+                    )
+            ).queue(
+                    interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+            );
+
+        } else if (event instanceof IMessageEditCallback) {
+            IMessageEditCallback editCallback = (IMessageEditCallback) event;
+
+            editCallback.editMessageEmbeds(
+                    builder.build()
+            ).setComponents(
+                    ActionRow.of(
+                            Button.of(
+                                    ButtonStyle.PRIMARY,
+                                    "helpCommandSearch?platform=" + platform.toString().toLowerCase() + "&user=" + event.getUser().getId(),
+                                    "Buscar otro comando",
+                                    Emoji.fromUnicode("U+1F50E")
+                            ),
+                            Button.of(
+                                    ButtonStyle.DANGER,
+                                    "helpCommandDelete?user=" + event.getUser().getId(),
+                                    "Eliminar",
+                                    Emoji.fromUnicode("U+1F5D1")
+                            )
+                    )
+            ).queue(
+                    interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+            );
+        }
 
     }
 

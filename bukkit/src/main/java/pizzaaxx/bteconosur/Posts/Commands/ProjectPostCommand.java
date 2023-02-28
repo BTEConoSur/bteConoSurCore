@@ -50,7 +50,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         }
                     }
 
-                    if (found){
+                    if (!found){
                         plugin.getBot().upsertCommand(
                                 "post",
                                 "Publica tu proyecto en Discord"
