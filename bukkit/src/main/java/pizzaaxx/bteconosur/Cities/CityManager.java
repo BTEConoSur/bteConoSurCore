@@ -149,7 +149,11 @@ public class CityManager {
         String i = input.toLowerCase();
         for (String name : displayNames.keySet()) {
 
-            int distance  = plugin.getFuzzyMatcher().getDistance(i, displayNames.get(name).toLowerCase());
+            int distance = plugin.getFuzzyMatcher().getDistance(i, displayNames.get(name).toLowerCase());
+
+            if (distance == 0) {
+                return new ArrayList<>(Collections.singleton("name"));
+            }
 
             if (distance <= limit) {
                 entries.add(
@@ -159,6 +163,7 @@ public class CityManager {
                         )
                 );
             }
+
 
         }
 

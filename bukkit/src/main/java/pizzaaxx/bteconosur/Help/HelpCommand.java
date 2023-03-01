@@ -11,12 +11,10 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -40,8 +38,8 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -257,12 +255,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                             "Pág. siguiente",
                                             Emoji.fromUnicode("U+27A1")
                                     ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1)),
-                                    Button.of(
-                                            ButtonStyle.DANGER,
-                                            "helpCommandDelete?user=" + event.getUser().getId(),
-                                            "Eliminar",
-                                            Emoji.fromUnicode("U+1F5D1")
-                                    )
+                                    plugin.getDiscordHandler().getDeleteButton(event.getUser())
                             )
                     )
                     .queue(
@@ -294,12 +287,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                     "Pág. siguiente",
                                     Emoji.fromUnicode("U+27A1")
                             ).withDisabled(pageNumber >= (Math.floorDiv(size, 10) + 1)),
-                            Button.of(
-                                    ButtonStyle.DANGER,
-                                    "helpCommandDelete?user=" + event.getUser().getId(),
-                                    "Eliminar",
-                                    Emoji.fromUnicode("U+1F5D1")
-                            )
+                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
                     )
             ).queue(
                     interaction -> {
@@ -360,16 +348,6 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
             ).build();
 
             event.replyModal(modal).queue();
-        }
-        if (id.startsWith("helpCommandDelete")) {
-            Map<String, String> query = StringUtils.getQuery(id.split("\\?")[1]);
-
-            if (!query.get("user").equals(event.getUser().getId())) {
-                DiscordUtils.respondError(event, "Solo quien usó este comando puede usar los botones.");
-                return;
-            }
-
-            event.getMessage().delete().queue();
         }
     }
 
@@ -476,12 +454,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                     "Buscar otro comando",
                                     Emoji.fromUnicode("U+1F50E")
                             ),
-                            Button.of(
-                                    ButtonStyle.DANGER,
-                                    "helpCommandDelete?user=" + event.getUser().getId(),
-                                    "Eliminar",
-                                    Emoji.fromUnicode("U+1F5D1")
-                            )
+                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
                     )
             ).queue(
                     interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
@@ -500,12 +473,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                                     "Buscar otro comando",
                                     Emoji.fromUnicode("U+1F50E")
                             ),
-                            Button.of(
-                                    ButtonStyle.DANGER,
-                                    "helpCommandDelete?user=" + event.getUser().getId(),
-                                    "Eliminar",
-                                    Emoji.fromUnicode("U+1F5D1")
-                            )
+                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
                     )
             ).queue(
                     interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)

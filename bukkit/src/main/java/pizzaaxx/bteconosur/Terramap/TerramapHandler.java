@@ -2,10 +2,13 @@ package pizzaaxx.bteconosur.Terramap;
 
 import com.sk89q.worldguard.util.net.HttpRequest;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Utils.NumberUtils;
+import pizzaaxx.bteconosur.Utils.Pair;
+import pizzaaxx.bteconosur.Utils.Trio;
 import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 
 import javax.imageio.ImageIO;
@@ -37,15 +40,23 @@ public class TerramapHandler {
     // terramap/final/Z/X,Y.png
     // terramap/layers/Z/X,Y.png
 
-    public InputStream getTileStream(int x, int y, int zoom) throws IOException, IllegalArgumentException {
+    private final Map<String, BufferedImage> cache = new HashMap<>();
+    private final Map<String, Long> deletionCache = new HashMap<>();
+
+    public BufferedImage getTile(int x, int y, int zoom) throws IOException, IllegalArgumentException {
+
+        String key = Integer.toString(x) + y + zoom;
+        if (cache.containsKey(key)) {
+            return cache.get(key);
+        }
 
         if (zoom > 19) {
             throw new IllegalArgumentException();
         }
 
+        InputStream stream;
         if (zoom < 12) {
-            HttpRequest request = HttpRequest.get(new URL("https://" + osmServers[random.nextInt(3)] + ".tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png"));
-            return request.execute().getInputStream();
+            stream = HttpRequest.get(new URL("https://" + osmServers[random.nextInt(3)] + ".tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png")).execute().getInputStream();
         } else {
             double tiles = Math.pow(2, zoom);
             if (x < 0 || y < 0 || x >= tiles || y >= tiles) {
@@ -54,13 +65,29 @@ public class TerramapHandler {
 
             File image = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
             if (image.exists()) {
-                return Files.newInputStream(image.toPath());
+                stream = Files.newInputStream(image.toPath());
             } else {
                 HttpRequest request = HttpRequest.get(new URL("https://" + osmServers[random.nextInt(3)] + ".tile.openstreetmap.org/" + zoom + "/" + x + "/" + y + ".png"));
-                return request.execute().getInputStream();
+                stream = request.execute().getInputStream();
             }
         }
+        BufferedImage image = ImageIO.read(stream);
+        cache.put(key, image);
+        this.scheduleUnload(key);
+        return image;
+    }
 
+    private void scheduleUnload(String key) {
+        deletionCache.put(key, System.currentTimeMillis());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (deletionCache.containsKey(key) && System.currentTimeMillis() - deletionCache.get(key) > 540000) {
+                    deletionCache.remove(key);
+                    cache.remove(key);
+                }
+            }
+        }.runTaskLaterAsynchronously(plugin, 12000);
     }
 
     public void drawPolygon(@NotNull List<Coords2D> coordinates, Color color, String id) throws IOException {

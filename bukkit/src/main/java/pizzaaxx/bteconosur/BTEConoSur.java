@@ -37,8 +37,10 @@ import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
+import pizzaaxx.bteconosur.Discord.DiscordHandler;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
+import pizzaaxx.bteconosur.Discord.SlashCommands.CityCommand;
 import pizzaaxx.bteconosur.Discord.SlashCommands.CreateCityCommand;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Events.JoinEvent;
@@ -213,6 +215,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
     TerramapServer terramapServer = new TerramapServer(this);
 
+    private final DiscordHandler discordHandler = new DiscordHandler();
+
+    public DiscordHandler getDiscordHandler() {
+        return discordHandler;
+    }
+
     private final ChatHandler chatHandler = new ChatHandler(this);
 
     public ChatHandler getChatHandler() {
@@ -382,7 +390,9 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new CreateCityCommand(this),
                 new PostsListener(this),
                 new ProjectPostCommand(this),
-                helpCommand
+                helpCommand,
+                discordHandler,
+                new CityCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

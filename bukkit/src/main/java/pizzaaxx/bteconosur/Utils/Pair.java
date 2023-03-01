@@ -17,4 +17,15 @@ public class Pair<K, V> {
     public V getValue() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Pair<?,?> pair = (Pair<?, ?>) obj;
+
+        return key.equals(pair.key) && value.equals(pair.value);
+    }
 }
