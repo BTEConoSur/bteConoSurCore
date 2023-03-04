@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -41,6 +42,8 @@ public class Country implements JSONParsable {
     public final Set<String> cities;
     public final LinkedHashMap<String, ProjectType> projectTypes;
     public final String headValue;
+
+    private final Emoji emoji;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -81,6 +84,7 @@ public class Country implements JSONParsable {
             this.projectTypes.put(projectTypeID, new ProjectType(plugin, this, projectTypeID));
         }
         this.headValue = set.getString("head_value");
+        this.emoji = Emoji.fromFormatted(set.getString("emoji"));
     }
 
     public BTEConoSur getPlugin() {
@@ -153,6 +157,10 @@ public class Country implements JSONParsable {
 
     public String getHeadValue() {
         return headValue;
+    }
+
+    public Emoji getEmoji() {
+        return emoji;
     }
 
     public List<ProjectType> getUnlockedProjectTypes(ProjectManager manager) {

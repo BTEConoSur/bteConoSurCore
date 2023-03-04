@@ -42,6 +42,8 @@ import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -159,7 +161,8 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
             City city = plugin.getCityManager().get(name);
             builder.addOption(
                     city.getDisplayName(),
-                    city.getName()
+                    city.getName(),
+                    city.getCountry().getEmoji()
             );
         }
 
@@ -229,7 +232,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
 
         builder.addField(
                 ":art: Colores:",
-                ":green_circle: Disponible / :yellow_circle: En construcción / :blue_circle: Terminado",
+                "```\uD83D\uDFE2 Disponible```\n```\uD83D\uDFE1 En construcción```\n```\uD83D\uDD35 Terminado```",
                 false
         );
 
@@ -287,12 +290,38 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
              int xDif = Math.abs(maxTileX - minTileX);
              int yDif = Math.abs(maxTileY - minTileY);
 
+             int xSize = 256 * (xDif + 1);
+             int ySize = 256 * (yDif + 1);
+
              BufferedImage image = new BufferedImage(
-                     256 * (xDif + 1),
-                     256 * (yDif + 1),
+                     xSize,
+                     ySize,
                      BufferedImage.TYPE_INT_ARGB
              );
              Graphics2D g = image.createGraphics();
+
+             double minImageLon = WebMercatorUtils.getLongitudeFromX(minTileX * 256, zoom);
+             double maxImageLon = WebMercatorUtils.getLongitudeFromX((maxTileX + 1) * 256, zoom);
+             double minImageLat = WebMercatorUtils.getLatitudeFromY(minTileY * 256, zoom);
+             double maxImageLat = WebMercatorUtils.getLatitudeFromY((maxTileY + 1) * 256, zoom);
+
+             GeneralPath clip = new GeneralPath();
+             int counter = 0;
+             for (Coords2D coord : coords) {
+
+                 double x = NumberUtils.getInNewRange(minImageLon, maxImageLon, 0, xSize, coord.getLon());
+                 double y = NumberUtils.getInNewRange(minImageLat, maxImageLat, 0, ySize, coord.getLat());
+
+                 if (counter == 0) {
+                     clip.moveTo(x, y);
+                 } else {
+                     clip.lineTo(x, y);
+                 }
+                 counter++;
+             }
+             clip.closePath();
+
+             g.setClip(clip);
 
              for (int x = minTileX; x <= maxTileX; x++) {
                  for (int y = minTileY; y <= maxTileY; y++) {
@@ -303,6 +332,8 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
 
                  }
              }
+
+             g.dispose();
 
              ByteArrayOutputStream os = new ByteArrayOutputStream();
              ImageIO.write(image, "png", os);
@@ -368,16 +399,17 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
     @Override
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
 
-        if (event.getInteraction().getId().startsWith("cityCommandSelector")) {
+        assert event.getSelectMenu().getId() != null;
+        if (event.getSelectMenu().getId().startsWith("cityCommandSelector")) {
 
-            Map<String, String> query = StringUtils.getQuery(event.getInteraction().getId().split("\\?")[1]);
+            Map<String, String> query = StringUtils.getQuery(event.getSelectMenu().getId().split("\\?")[1]);
 
-            if (!query.get("id").equals(event.getUser().getId())) {
+            if (!query.get("user").equals(event.getUser().getId())) {
                 DiscordUtils.respondError(event, "Solo quién usó el comando puede seleccionar una ciudad.");
                 return;
             }
 
-            String city = event.getSelectedOptions().get(0).getValue();
+            String city = event.getValues().get(0);
 
             try {
                 this.respondCityEmbed(event, city);
