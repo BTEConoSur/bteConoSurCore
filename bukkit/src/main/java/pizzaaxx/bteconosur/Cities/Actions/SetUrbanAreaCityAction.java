@@ -25,10 +25,7 @@ public class SetUrbanAreaCityAction {
         this.points = points;
     }
 
-    public void execute() throws CityActionException, SQLException {
-        if (!plugin.getCityManager().exists(name)) {
-            throw new CityActionException();
-        }
+    public void execute() {
 
         ProtectedRegion urbanRegion = new ProtectedPolygonalRegion(
                 "city_" + name + "_urban",

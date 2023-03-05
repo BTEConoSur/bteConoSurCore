@@ -189,14 +189,8 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                     return true;
                 }
 
-                try {
-                    city.setUrbanArea(points).execute();
-                    p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f establecida.");
-                } catch (CityActionException | SQLException e) {
-                    p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
-                    e.printStackTrace();
-                    return true;
-                }
+                city.setUrbanArea(points).execute();
+                p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f establecida.");
                 break;
             }
             case "deleteUrban": {
@@ -223,14 +217,8 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                     return true;
                 }
 
-                try {
-                    city.deleteUrbanArea().execute();
-                    p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f eliminada.");
-                } catch (CityActionException | SQLException e) {
-                    p.sendMessage(this.getPrefix() + "Ha ocurrido un error.");
-                    e.printStackTrace();
-                    return true;
-                }
+                city.deleteUrbanArea().execute();
+                p.sendMessage(getPrefix() + "Área urbana de §a" + city.getDisplayName() + "§f eliminada.");
                 break;
             }
             case "redefine": {

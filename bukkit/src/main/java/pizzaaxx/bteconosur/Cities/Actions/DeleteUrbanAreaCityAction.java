@@ -19,11 +19,7 @@ public class DeleteUrbanAreaCityAction {
         this.name = name;
     }
 
-    public void execute() throws CityActionException, SQLException {
-        if (!plugin.getCityManager().exists(name)) {
-            throw new CityActionException();
-        }
-
+    public void execute() {
         if (plugin.getRegionManager().hasRegion("city_" + name + "_urban")) {
             plugin.getRegionManager().removeRegion("city_" + name + "_urban");
             plugin.getCityManager().reloadCity(name);

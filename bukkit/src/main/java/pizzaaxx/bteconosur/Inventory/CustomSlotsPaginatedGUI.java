@@ -170,7 +170,7 @@ public class CustomSlotsPaginatedGUI {
             }
 
             int paginatedCounter = 0;
-            for (PaginatedInventoryGUI.InventoryGUISlot slot : this.paginatedSlots) {
+            for (PaginatedInventoryGUI.InventoryGUISlot slot : slots) {
                 int slotIndex = this.paginatedSlotIndexes[paginatedCounter];
 
                 gui.setItem(

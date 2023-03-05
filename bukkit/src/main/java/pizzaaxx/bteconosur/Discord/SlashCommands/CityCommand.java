@@ -232,7 +232,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
 
         builder.addField(
                 ":art: Colores:",
-                "```\uD83D\uDFE2 Disponible```\n```\uD83D\uDFE1 En construcción```\n```\uD83D\uDD35 Terminado```",
+                "```\uD83D\uDFE2 Disponible``````\uD83D\uDFE1 En construcción``````\uD83D\uDD35 Terminado```",
                 false
         );
 
@@ -353,6 +353,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
             event.getHook().sendMessageEmbeds(
                             builder.build()
                     )
+                    .setContent(null)
                     .addFiles(file)
                     .addComponents(
                             ActionRow.of(
@@ -377,6 +378,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
             editCallback.getHook().editOriginalEmbeds(
                     builder.build()
             )
+                    .setContent(null)
                     .setFiles(file)
                     .setComponents(ActionRow.of(
                             Button.of(
@@ -527,7 +529,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                                     ),
                                     plugin.getDiscordHandler().getDeleteButton(event.getUser())
                             )
-                    ).queue();
+                    ).setContent(null).queue();
 
                 } catch (SQLException e) {
                     DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
