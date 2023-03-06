@@ -15,10 +15,7 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ProjectManager {
 
@@ -27,7 +24,7 @@ public class ProjectManager {
     private final Set<Country> adminPermission;
     private final Set<String> ids;
     private final Map<Country, Map<ProjectType, Integer>> finished;
-    private final Map<Country, Double> points;
+    private final Map<Country, Map<ProjectType, Double>> points;
 
     public ProjectManager(@NotNull BTEConoSur plugin, @NotNull ServerPlayer serverPlayer) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -101,7 +98,21 @@ public class ProjectManager {
             points = new HashMap<>();
             Map<String, Object> pointsRaw = plugin.getJSONMapper().readValue(set.getString("points"), HashMap.class);
             for (Map.Entry<String, Object> entry : pointsRaw.entrySet()) {
-                points.put(plugin.getCountryManager().get(entry.getKey()), (Double) entry.getValue());
+
+                Country country = plugin.getCountryManager().get(entry.getKey());
+
+                Map<String, Double> rawTypes = (Map<String, Double>) entry.getValue();
+                Map<ProjectType, Double> types = new HashMap<>();
+                for (String key : rawTypes.keySet()) {
+
+                    types.put(
+                          country.getProjectType(key),
+                          rawTypes.get(key)
+                    );
+
+                }
+
+                points.put(country, types);
             }
         } else {
             plugin.getSqlManager().insert(
@@ -180,16 +191,31 @@ public class ProjectManager {
     }
 
     public double getPoints(Country country) {
-        return points.getOrDefault(country, 0.0);
+        int result = 0;
+        for (Double p : points.get(country).values()) {
+            result += p;
+        }
+        return result;
+    }
+
+    public double getPoints(@NotNull ProjectType type) {
+
+        if (!points.containsKey(type.getCountry())) {
+            return 0;
+        }
+
+        return points.get(type.getCountry()).getOrDefault(type, 0.0);
     }
 
     public boolean hasAdminPermission(Country country) {
         return adminPermission.contains(country);
     }
 
-    public void addPoints(Country country, double points) throws SQLException {
-        double actual = this.points.getOrDefault(country, 0.0);
-        this.points.put(country, actual + points);
+    public void addPoints(@NotNull ProjectType type, double points) throws SQLException {
+        double actual = this.getPoints(type);
+        Map<ProjectType, Double> types = this.points.getOrDefault(type.getCountry(), new HashMap<>());
+        types.put(type, actual + points);
+        this.points.put(type.getCountry(), types);
         plugin.getSqlManager().update(
                 "project_managers",
                 new SQLValuesSet(
@@ -203,7 +229,7 @@ public class ProjectManager {
                         )
                 )
         ).execute();
-        country.getLogsChannel().sendMessage(
+        type.getCountry().getLogsChannel().sendMessage(
                 ":chart_with_upwards_trend: Se han añadido **" + points + "** puntos a **" + serverPlayer.getName() + "**."
         ).queue();
     }
@@ -217,11 +243,27 @@ public class ProjectManager {
     }
 
     public void addFinished(@NotNull Project project) {
+        List<ProjectType> beforeTypes = new ArrayList<>();
+        for (ProjectType type : project.getCountry().getProjectTypes()) {
+            if (type.isUnlocked(this)) {
+                beforeTypes.add(type);
+            }
+        }
         Map<ProjectType, Integer> countryMap = finished.getOrDefault(project.getCountry(), new HashMap<>());
         Integer amount = countryMap.getOrDefault(project.getType(), 0);
         amount++;
         countryMap.put(project.getType(), amount);
         finished.put(project.getCountry(), countryMap);
+        for (ProjectType type : project.getCountry().getProjectTypes()) {
+            if (type.isUnlocked(this) && !beforeTypes.contains(type)) {
+
+                serverPlayer.sendNotification(
+                        project.getPrefix() + "¡Has desbloqueado los proyectos de tipo §a" + type.getDisplayName() + "§f!",
+                        "**[PROYECTOS]** » ¡Has desbloqueado los proyectos de tipo **" + type.getDisplayName() + "**!"
+                );
+
+            }
+        }
     }
 
 }

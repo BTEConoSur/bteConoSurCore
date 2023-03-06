@@ -29,6 +29,7 @@ dependencies {
     implementation("com.mysql:mysql-connector-j:8.0.31")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")
+    implementation("com.github.FreshLlamanade:polylabel-java:7639b75b53")
 }
 
 tasks.withType<JavaCompile> {

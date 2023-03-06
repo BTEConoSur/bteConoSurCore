@@ -33,6 +33,7 @@ import pizzaaxx.bteconosur.Cities.CityManager;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Commands.*;
+import pizzaaxx.bteconosur.Commands.Custom.CustomCommandsManager;
 import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
@@ -239,6 +240,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         return linksRegistry;
     }
 
+    private CustomCommandsManager customCommandsManager = new CustomCommandsManager(this);
+
+    public CustomCommandsManager getCustomCommandsManager() {
+        return customCommandsManager;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -438,6 +445,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         getCommand("project").setExecutor(projectsCommand);
         getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NicknameCommand(this));
+        getCommand("runnableCommand").setExecutor(customCommandsManager);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

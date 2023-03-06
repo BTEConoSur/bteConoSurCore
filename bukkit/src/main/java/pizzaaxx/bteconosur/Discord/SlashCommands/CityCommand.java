@@ -220,13 +220,13 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
 
         builder.addField(
                 ":hammer_pick: Proy. en construcción",
-                "`" + city.getProjects().size() + "`",
+                "`" + city.getClaimedProjectsAmount() + "`",
                 true
         );
 
         builder.addField(
                 ":white_check_mark: Proy. terminados",
-                "`" + city.getFinishedProjects().size() + "`",
+                "`" + city.getFinishedProjectsAmount() + "`",
                 true
         );
 

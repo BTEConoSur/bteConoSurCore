@@ -134,7 +134,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         );
                     }
 
-                    if (!project.getOwner().equals(s.getUUID())) {
+                    if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
                         DiscordUtils.respondError(event, "Solo el líder de un proyecto puede publicarlo.");
                         return;
                     }
@@ -188,7 +188,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                             project = plugin.getFinishedProjectsRegistry().get(id);
                         }
 
-                        if (!project.getOwner().equals(s.getUUID())) {
+                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
                             DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
                             return;
                         }
@@ -256,7 +256,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                             project = plugin.getFinishedProjectsRegistry().get(id);
                         }
 
-                        if (!project.getOwner().equals(s.getUUID())) {
+                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
                             DiscordUtils.respondError(event, "Solo el líder del proyecto puede agregar imágenes");
                             return;
                         }
@@ -314,7 +314,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                             project = plugin.getFinishedProjectsRegistry().get(id);
                         }
 
-                        if (!project.getOwner().equals(s.getUUID())) {
+                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
                             DiscordUtils.respondError(event, "Solo el líder del proyecto puede quitar imágenes.");
                             return;
                         }

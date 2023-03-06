@@ -19,6 +19,7 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLNullCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
@@ -84,33 +85,31 @@ public class City implements JSONParsable {
         return country;
     }
 
-    public List<String> getProjects() throws SQLException {
-        List<String> ids = new ArrayList<>();
+    public int getClaimedProjectsAmount() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "projects",
                 new SQLColumnSet(
-                        "id"
+                        "COUNT(id) as count"
                 ),
                 new SQLANDConditionSet(
                         new SQLJSONArrayCondition(
                                 "cities", this.name
+                        ),
+                        new SQLNullCondition(
+                                "owner", false
                         )
                 )
         ).retrieve();
 
-        while (set.next()) {
-            ids.add(set.getString("id"));
-        }
-
-        return ids;
+        set.next();
+        return set.getInt("count");
     }
 
-    public List<String> getFinishedProjects() throws SQLException {
-        List<String> ids = new ArrayList<>();
+    public int getFinishedProjectsAmount() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "finished_projects",
                 new SQLColumnSet(
-                        "id"
+                        "COUNT(id) as count"
                 ),
                 new SQLANDConditionSet(
                         new SQLJSONArrayCondition(
@@ -119,11 +118,8 @@ public class City implements JSONParsable {
                 )
         ).retrieve();
 
-        while (set.next()) {
-            ids.add(set.getString("id"));
-        }
-
-        return ids;
+        set.next();
+        return set.getInt("count");
     }
 
     public List<String> getPosts() throws SQLException {

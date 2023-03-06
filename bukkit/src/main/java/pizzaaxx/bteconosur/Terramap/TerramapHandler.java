@@ -90,6 +90,12 @@ public class TerramapHandler {
         }.runTaskLaterAsynchronously(plugin, 12000);
     }
 
+    private void unload(int x, int y, int zoom) {
+        String key = Integer.toString(x) + y + zoom;
+        deletionCache.remove(key);
+        cache.remove(key);
+    }
+
     public void drawPolygon(@NotNull List<Coords2D> coordinates, Color color, String id) throws IOException {
         this.drawPolygon(coordinates, color, 12, id);
         this.drawPolygon(coordinates, color, 13, id);
@@ -233,7 +239,9 @@ public class TerramapHandler {
             File finalTileFile = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
             if (finalTileFile.exists()) {
                 finalTileFile.delete();
+                this.unload(x, y, zoom);
             }
+            return;
         }
 
         BufferedImage base = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
@@ -265,6 +273,7 @@ public class TerramapHandler {
 
         File tile = new File(plugin.getDataFolder(), "terramap/final/" + zoom + "/" + x + "_" + y + ".png");
         ImageIO.write(base, "png", tile);
+        this.unload(x, y, zoom);
     }
 
 }

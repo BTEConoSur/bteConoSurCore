@@ -88,6 +88,11 @@ public class FinishedProject implements ProjectWrapper {
         }
     }
 
+    @Override
+    public boolean isClaimed() {
+        return true;
+    }
+
     public long getFinishedDate() {
         return finishedDate;
     }

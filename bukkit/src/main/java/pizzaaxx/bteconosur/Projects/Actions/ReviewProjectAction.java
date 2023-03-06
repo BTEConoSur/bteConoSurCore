@@ -11,6 +11,7 @@ import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
@@ -197,7 +198,7 @@ public class ReviewProjectAction {
 
                     ResultSet futureProjectsSet = plugin.getSqlManager().select(
                             "finished_projects",
-                            new SQLColumnSet("points"),
+                            new SQLColumnSet("points", "type", "country"),
                             new SQLANDConditionSet(
                                     new SQLORConditionSet(
                                             new SQLOperatorCondition(
@@ -219,12 +220,17 @@ public class ReviewProjectAction {
                     ).retrieve();
 
                     while (futureProjectsSet.next()) {
+
+                        ProjectType type = plugin.getCountryManager().get(futureProjectsSet.getString("country")).getProjectType(futureProjectsSet.getString("type"));
+
+                        manager.addPoints(type, futureProjectsSet.getInt("points") * 0.05);
+
                         futureBoosts += futureProjectsSet.getInt("points") * 0.05;
                     }
 
                     double total = base + boost + futureBoosts;
 
-                    manager.addPoints(project.getCountry(), total);
+                    manager.addPoints(project.getType(), base + boost);
                     s.sendNotification(
                             project.getPrefix() + "Tu proyecto §a" + project.getDisplayName() + "§f ha sido aceptado.",
                             "**[PROYECTOS]** » Tu proyecto **" + project.getDisplayName() + "** ha sido aceptado."
@@ -234,6 +240,8 @@ public class ReviewProjectAction {
                             project.getPrefix() + "Has obtenido §a" + (int) total + "§f puntos. §7(Proyecto: " + (int) base + " / Boost (x" + boostPercentage + "): " + boost + (futureBoosts > 0 ? " / Boost futuro: " + futureBoosts : "") + ")",
                             "**[PROYECTOS]** » Has obtenido **" + (int) total + "** puntos. **(Proyecto: " + (int) base + " / Boost (x" + boostPercentage + "): " + boost + (futureBoosts > 0 ? " / Boost futuro: " + futureBoosts : "") + ")**"
                     );
+
+                    manager.addFinished(project);
                 }
 
                 ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());

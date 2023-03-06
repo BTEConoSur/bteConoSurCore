@@ -100,6 +100,9 @@
 * ✔️ `/project find`
 * ✔️ `/project review`
 * ✔️ `/project request`
+* ✔️ `/project progress`  
+**Subcomando nuevo:**
+  * Muestra tu progreso en los tipos de proyecto. Cuáles has desbloqueado y cuáles no.
 * 🕙 `/project tutorial`
 ## Chat
 * ✔️ `/chat [nombre]`

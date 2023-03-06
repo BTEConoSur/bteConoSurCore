@@ -39,4 +39,5 @@ public interface ProjectWrapper {
 
     void updatePost() throws SQLException, JsonProcessingException;
 
+    boolean isClaimed();
 }

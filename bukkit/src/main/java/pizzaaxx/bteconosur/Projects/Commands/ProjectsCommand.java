@@ -1288,6 +1288,74 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                     gui.openTo(p, plugin);
                 }
             }
+            case "progress": {
+
+                Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                if (country == null) {
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún país.");
+                    return true;
+                }
+
+                BookUtil.BookBuilder builder = BookUtil.writtenBook();
+
+                List<BaseComponent[]> pages = new ArrayList<>();
+
+                for (ProjectType type : country.getProjectTypes()) {
+
+                    BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+
+                    if (type.isUnlocked(projectManager)) {
+
+                        page.add("    §a[DESBLOQUEADO]");
+                        page.newLine();
+                        page.add("§7-------------------");
+                        page.newLine();
+                        page.add("§l" + type.getDisplayName());
+                        page.newLine();
+                        page.newLine();
+                        page.add("§8§l" + projectManager.getFinishedProjects(country, type) + " §8proy. terminados");
+                        page.add("§8§l" + projectManager.getPoints(type) + " §8pts. obtenidos");
+
+                    } else {
+
+                        page.add("      §c[BLOQUEADO]");
+                        page.newLine();
+                        page.add("§7-------------------");
+                        page.newLine();
+                        page.add("§l" + type.getDisplayName());
+                        page.newLine();
+
+                        for (String key : type.getUnlocks().keySet()) {
+
+                            page.newLine();
+
+                            ProjectType target = country.getProjectType(key);
+
+                            int actual = projectManager.getFinishedProjects(country, target);
+                            int goal = type.getUnlocks().get(key);
+
+                            if (actual >= goal) {
+                                page.add("§a(" + actual + "/" + goal + ") §8" + target.getDisplayName());
+                            } else {
+                                page.add("§c(" + actual + "/" + goal + ") §8" + target.getDisplayName());
+                            }
+
+                        }
+
+                    }
+
+                    page.newLine();
+                    page.newLine();
+                    page.add("§7\"" + type.getDescription() + "\"");
+
+                    pages.add(page.build());
+                }
+
+                builder.pages(pages);
+                BookUtil.openPlayer(p, builder.build());
+
+            }
         }
         return true;
     }
@@ -2447,104 +2515,105 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
     public void openCitySelector(Player p, boolean notClaimed, @Nullable ProjectTag tag, @Nullable ProjectType type, @NotNull Country country) {
 
-        CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
-                "Elige una ciudad",
-                6,
-                new Integer[]{
-                        18, 19, 20, 21, 22, 23, 24, 25, 26,
-                        27, 28, 29, 30, 31, 32, 33, 34, 35,
-                        36, 37, 38, 39, 40, 41, 42, 43, 44,
-                        45, 46, 47, 48, 49, 50, 51, 52, 53
-                },
-                9, 17
-        );
+        BookUtil.BookBuilder builder = BookUtil.writtenBook();
 
-        gui.setStatic(
-                4,
-                ItemBuilder.head(
-                        country.getHeadValue(),
-                        "§a§l" + country.getDisplayName(),
-                        null
-                )
-        );
-
-        List<Country> countries = plugin.getCountryManager().getSortedCountries();
-
-        int currentIndex = countries.indexOf(country);
-
-        Country lastCountry = countries.get(currentIndex == 0 ? countries.size() - 1 : currentIndex - 1);
-        Country nextCountry = countries.get(currentIndex == countries.size() - 1 ? 0 : currentIndex + 1);
-
-        gui.setStatic(
-                3,
-                ItemBuilder.head(
-                        ItemBuilder.BACK_HEAD,
-                        "§fPaís anterior: " + lastCountry.getDisplayName(),
-                        null
-                ),
-                lastCountryClickEvent -> openCitySelector(
-                        p,
-                        notClaimed,
-                        tag,
-                        type,
-                        lastCountry
-                )
-        );
-
-        gui.setStatic(
-                5,
-                ItemBuilder.head(
-                        ItemBuilder.NEXT_HEAD,
-                        "§fPaís siguiente: " + nextCountry.getDisplayName(),
-                        null
-                ),
-                nextCountryClickEvent -> openCitySelector(
-                        p,
-                        notClaimed,
-                        tag,
-                        type,
-                        nextCountry
-                )
-        );
+        List<BaseComponent[]> pages = new ArrayList<>();
 
         List<String> cityNames = new ArrayList<>(country.getCities());
         Collections.sort(cityNames);
 
-        for (String cityName : cityNames) {
+        List<List<String>> namesLists = Lists.partition(cityNames, 10);
 
-            gui.addPaginated(
-                    ItemBuilder.head(
-                            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTFjOGE4YzEzODUxZDM2NzNkNTgyNTgyNWU3ZjJkZDQxOGZmYWZlYWZkNWZkMTU5ODNlYjhhNjJkZWZkM2NkNSJ9fX0=",
-                            "§a§l" + plugin.getCityManager().getDisplayName(cityName) + ", " + country.getDisplayName(),
-                            Collections.singletonList("§a[+]§7 Haz click para ver los proyectos de esta ciudad")
-                    ),
-                    cityClickEvent -> {
+        for (List<String> namesList : namesLists) {
 
-                        City city = plugin.getCityManager().get(cityName);
+            BookUtil.PageBuilder page = new BookUtil.PageBuilder();
+            page.add("§a§lElige una ciudad");
+            page.newLine();
+            page.newLine();
 
-                        ProjectType finalType = null;
-                        if (type != null) {
-                            if (city.getCountry() != type.getCountry()) {
-                                finalType = city.getCountry().getProjectTypes().get(0);
-                            } else {
-                                finalType = type;
-                            }
-                        }
+            int counter = 11;
+            for (String name : namesList) {
 
-                        openFindInventory(
-                                p,
-                                notClaimed,
-                                city,
-                                tag,
-                                finalType
-                        );
-                    },
-                     null, null, null
+                String displayName = plugin.getCityManager().getDisplayName(name);
+
+                page.add("§7• §r");
+                page.add(
+                        BookUtil.TextBuilder.of(displayName)
+                                .onHover(BookUtil.HoverAction.showText("Haz click para elegir"))
+                                .onClick(BookUtil.ClickAction.runCommand(
+                                        "/runnableCommand " + plugin.getCustomCommandsManager().get(
+                                                event -> {
+                                                    City city = plugin.getCityManager().get(name);
+                                                    this.openFindInventory(
+                                                            event.getPlayer(),
+                                                            notClaimed,
+                                                            city,
+                                                            tag,
+                                                            type
+                                                    );
+                                                }
+                                        )
+                                ))
+                                .build()
+                );
+                page.newLine();
+
+                counter--;
+            }
+
+            while (counter > 0) {
+                page.newLine();
+                counter--;
+            }
+
+            page.add(
+                    BookUtil.TextBuilder.of("§8§nCambiar país")
+                            .onHover(BookUtil.HoverAction.showText("Haz click para elegir otro país"))
+                            .onClick(BookUtil.ClickAction.runCommand(
+                                    "/runnableCommand " + plugin.getCustomCommandsManager().get(
+                                            event -> {
+                                                CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                                                        "Elige un país",
+                                                        3,
+                                                        new Integer[] {
+                                                                10, 11, 12, 13, 14, 15, 16
+                                                        },
+                                                        18,
+                                                        26
+                                                );
+
+                                                for (Country c : plugin.getCountryManager().getAllCountries()) {
+                                                    gui.addPaginated(
+                                                            ItemBuilder.head(
+                                                                    c.getHeadValue(),
+                                                                    "§a§l" + c.getDisplayName(),
+                                                                    null
+                                                            ),
+                                                            countryClickEvent -> this.openCitySelector(
+                                                                    event.getPlayer(),
+                                                                    notClaimed,
+                                                                    tag,
+                                                                    type,
+                                                                    c
+                                                            ),
+                                                            null, null, null
+                                                    );
+                                                }
+
+                                                gui.openTo(event.getPlayer(), plugin);
+                                            }
+                                    )
+                            ))
+                            .build()
             );
+
+            pages.add(page.build());
 
         }
 
-        gui.openTo(p, plugin);
+        builder.pages(pages);
+
+        BookUtil.openPlayer(p, builder.build());
 
     }
 

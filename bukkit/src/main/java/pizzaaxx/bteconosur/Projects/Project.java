@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.Projects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.apache.commons.lang.StringUtils;
@@ -215,8 +216,19 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper {
     }
 
     public Location getTeleportLocation() {
-        BlockVector2D averageCoord = RegionUtils.getAveragePoint(region);
-        return plugin.getWorld().getHighestBlockAt(averageCoord.getBlockX(), averageCoord.getBlockZ()).getLocation();
+
+        Double[][][] points = new Double[1][region.getPoints().size()][2];
+
+        int counter = 0;
+        for (BlockVector2D vector : region.getPoints()) {
+            Double[] coords = new Double[] {vector.getX(), vector.getZ()};
+            points[0][counter] = coords;
+            counter++;
+        }
+
+        PolyLabel.Result result = PolyLabel.polyLabel(points, 1);
+
+        return plugin.getWorld().getHighestBlockAt((int) Math.floor(result.getX()), (int) Math.floor(result.getY())).getLocation();
     }
 
     public enum ProjectLoreField {

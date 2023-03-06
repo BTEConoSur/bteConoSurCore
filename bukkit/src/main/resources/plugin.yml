@@ -90,3 +90,5 @@ commands:
     description: Establece tu nickname.
     aliases:
       - nick
+  runnableCommand:
+    description: Custom code commands.
