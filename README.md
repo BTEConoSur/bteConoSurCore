@@ -10,6 +10,7 @@
 * ✔️ `/link [código]` (MC y Discord)
 * ✔️ `/unlink` (MC y Discord)
 * ✔️ `/city`
+* ✔️ `/scoreboard`
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`

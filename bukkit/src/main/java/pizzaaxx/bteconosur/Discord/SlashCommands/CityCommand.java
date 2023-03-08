@@ -4,6 +4,7 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -67,33 +70,23 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     @Override
-    public void checkCommand() {
-        plugin.getBot().retrieveCommands().queue(
-                commands -> {
-                    boolean found = false;
-                    for (Command command : commands) {
-                        if (command.getName().equals("city")) {
-                            found = true;
-                            break;
-                        }
-                    }
+    public CommandData getCommandData() {
+        return Commands.slash(
+                        "city",
+                        "Obtén información sobre una ciudad."
+                )
+                .addOption(
+                        OptionType.STRING,
+                        "nombre",
+                        "El nombre de la ciudad a mostrar.",
+                        true
+                )
+                .setNameLocalization(DiscordLocale.SPANISH, "ciudad");
+    }
 
-                    if (!found){
-                        plugin.getBot().upsertCommand(
-                                "city",
-                                "Obtén información sobre una ciudad."
-                        )
-                                .addOption(
-                                        OptionType.STRING,
-                                        "nombre",
-                                        "El nombre de la ciudad a mostrar.",
-                                        true
-                                )
-                                .setNameLocalization(DiscordLocale.SPANISH, "ciudad")
-                                .queue();
-                    }
-                }
-        );
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 
     @Override

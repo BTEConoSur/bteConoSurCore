@@ -43,6 +43,7 @@ import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
 import pizzaaxx.bteconosur.Discord.SlashCommands.CityCommand;
 import pizzaaxx.bteconosur.Discord.SlashCommands.CreateCityCommand;
+import pizzaaxx.bteconosur.Discord.SlashCommands.ScoreboardCommand;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
@@ -399,7 +400,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new ProjectPostCommand(this),
                 helpCommand,
                 discordHandler,
-                new CityCommand(this)
+                new CityCommand(this),
+                new ScoreboardCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
@@ -410,7 +412,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
             for (Object obj : bot.getRegisteredListeners()) {
                 if (obj instanceof SlashCommandContainer) {
                     SlashCommandContainer container = (SlashCommandContainer) obj;
-                    container.checkCommand();
+                    this.getDiscordHandler().checkCommand(container);
                 }
             }
         } catch (InterruptedException e) {

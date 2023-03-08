@@ -5,6 +5,7 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.util.net.HttpRequest;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -13,6 +14,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -42,33 +45,6 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
 
     public CreateCityCommand(@NotNull BTEConoSur plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public void checkCommand() {
-        plugin.getBot().retrieveCommands().queue(
-                commands -> {
-                    boolean found = false;
-                    for (Command command : commands) {
-                        if (command.getName().equals("createcity")) {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found) {
-                        plugin.getBot().upsertCommand(
-                                "createcity",
-                                "Crea ciudades desde Discord"
-                        ).addOption(
-                                OptionType.ATTACHMENT,
-                                "archivo",
-                                "Un archivo JSON válido.",
-                                true
-                        ).queue();
-                    }
-                }
-        );
     }
 
     @Override
@@ -210,5 +186,23 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
         }
+    }
+
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash(
+                "createcity",
+                "Crea ciudades desde Discord"
+        ).addOption(
+                OptionType.ATTACHMENT,
+                "archivo",
+                "Un archivo JSON válido.",
+                true
+        );
+    }
+
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 }

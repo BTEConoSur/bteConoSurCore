@@ -12,17 +12,17 @@ import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLNOTCondition;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLNullCondition;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
 
 public class Country implements JSONParsable {
 
@@ -189,7 +189,7 @@ public class Country implements JSONParsable {
                     ),
                     new SQLOrderSet(
                             new SQLOrderExpression(
-                                    "pending", SQLOrderExpression.Order.ASC
+                                    "pending", ASC
                             )
                     )
             ).retrieve();
@@ -231,5 +231,31 @@ public class Country implements JSONParsable {
 
     public ForumChannel getProjectsForumChannel() {
         return plugin.getBot().getForumChannelById(projectsForumChannelID);
+    }
+
+    public List<UUID> getTopPlayers() throws SQLException, IOException {
+        List<UUID> result = new ArrayList<>();
+        ResultSet set = plugin.getSqlManager().select(
+                "project_managers",
+                new SQLColumnSet("uuid"),
+                new SQLANDConditionSet(
+                        new SQLJSONContainsPathCondition(
+                                "points",
+                                SQLJSONContainsPathCondition.Quantity.ONE,
+                                "$." + this.name
+                        )
+                ),
+                new SQLOrderSet(
+                        new SQLOrderExpression(
+                                "getcountrypoints(points, '" + this.name + "')", ASC
+                        )
+                )
+        ).addText(" LIMIT 10").retrieve();
+
+        while (set.next()) {
+            result.add(plugin.getSqlManager().getUUID(set, "uuid"));
+        }
+
+        return result;
     }
 }

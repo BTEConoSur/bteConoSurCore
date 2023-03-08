@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Help;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -13,6 +14,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -52,44 +55,35 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     @Override
-    public void checkCommand() {
-        plugin.getBot().retrieveCommands().queue(
-                commands -> {
-                    boolean found = false;
-                    for (Command command : commands) {
-                        if (command.getName().equals("help")) {
-                            found = true;
-                            break;
-                        }
-                    }
+    public CommandData getCommandData() {
+        return Commands.slash(
+                "help",
+                "Obtén información sobre alguno de los comandos."
+        ).addSubcommands(
+                new SubcommandData(
+                        "minecraft",
+                        "Comandos que se pueden usar dentro del servidor de Minecraft."
+                ).addOption(
+                        OptionType.STRING,
+                        "comando",
+                        "El comando a buscar",
+                        false
+                ),
+                new SubcommandData(
+                        "discord",
+                        "Comandos que se pueden usar dentro del servidor de Discord."
+                ).addOption(
+                        OptionType.STRING,
+                        "comando",
+                        "El comando a buscar",
+                        false
+                )
+        ).setNameLocalization(DiscordLocale.SPANISH, "ayuda");
+    }
 
-                    if (!found) {
-                        plugin.getBot().upsertCommand(
-                                "help",
-                                "Obtén información sobre alguno de los comandos."
-                        ).addSubcommands(
-                                new SubcommandData(
-                                        "minecraft",
-                                        "Comandos que se pueden usar dentro del servidor de Minecraft."
-                                ).addOption(
-                                        OptionType.STRING,
-                                        "comando",
-                                        "El comando a buscar",
-                                        false
-                                ),
-                                new SubcommandData(
-                                        "discord",
-                                        "Comandos que se pueden usar dentro del servidor de Discord."
-                                ).addOption(
-                                        OptionType.STRING,
-                                        "comando",
-                                        "El comando a buscar",
-                                        false
-                                )
-                        ).setNameLocalization(DiscordLocale.SPANISH, "ayuda").queue();
-                    }
-                }
-        );
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 
     @Override

@@ -1,7 +1,12 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+
 public interface SlashCommandContainer {
 
-    void checkCommand();
+    CommandData getCommandData();
+
+    JDA getJDA();
 
 }

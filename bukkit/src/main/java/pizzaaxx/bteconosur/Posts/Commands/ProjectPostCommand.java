@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Posts.Commands;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
@@ -8,6 +9,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -39,55 +42,45 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
     }
 
     @Override
-    public void checkCommand() {
-        plugin.getBot().retrieveCommands().queue(
-                commands -> {
-                    boolean found = false;
-                    for (Command command : commands) {
-                        if (command.getName().equals("post")) {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found){
-                        plugin.getBot().upsertCommand(
-                                "post",
-                                "Publica tu proyecto en Discord"
-                        ).addSubcommands(
-                                new SubcommandData(
-                                        "create",
-                                        "Crea un publicación para un proyecto en construcción"
-                                )
-                                        .addOption(
-                                                OptionType.STRING,
-                                                "id",
-                                                "ID del proyecto",
-                                                true
-                                        ),
-                                new SubcommandData(
-                                        "edit",
-                                        "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
-                                ),
-                                new SubcommandData(
-                                        "setimage",
-                                        "Agrega una imagen de portada a la publicación. Debe usarse en el canal de la publicación."
-                                )
-                                        .addOption(
-                                                OptionType.ATTACHMENT,
-                                                "imagen",
-                                                "La imagen a agregar a la portada",
-                                                true
-                                        ),
-                                new SubcommandData(
-                                        "removeimage",
-                                        "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
-                                )
-                        ).queue();
-                    }
-
-                }
+    public CommandData getCommandData() {
+        return Commands.slash(
+                "post",
+                "Publica tu proyecto en Discord"
+        ).addSubcommands(
+                new SubcommandData(
+                        "create",
+                        "Crea un publicación para un proyecto en construcción"
+                )
+                        .addOption(
+                                OptionType.STRING,
+                                "id",
+                                "ID del proyecto",
+                                true
+                        ),
+                new SubcommandData(
+                        "edit",
+                        "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
+                ),
+                new SubcommandData(
+                        "setimage",
+                        "Agrega una imagen de portada a la publicación. Debe usarse en el canal de la publicación."
+                )
+                        .addOption(
+                                OptionType.ATTACHMENT,
+                                "imagen",
+                                "La imagen a agregar a la portada",
+                                true
+                        ),
+                new SubcommandData(
+                        "removeimage",
+                        "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
+                )
         );
+    }
+
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 
     @Override
