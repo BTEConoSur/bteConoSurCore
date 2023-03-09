@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Player;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Player.Managers.*;
@@ -78,6 +79,13 @@ public class ServerPlayer {
 
         public String getChatColor() {
             return chatColor;
+        }
+
+
+        @NotNull
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase();
         }
     }
 
@@ -197,6 +205,25 @@ public class ServerPlayer {
             return BuilderRank.POSTULANTE;
         } else {
             return BuilderRank.VISITA;
+        }
+    }
+
+    @Nullable
+    public long getLastDisconnected() throws SQLException {
+        ResultSet set = plugin.getSqlManager().select(
+                "players",
+                new SQLColumnSet("last_disconnected"),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", uuid
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            return set.getTimestamp("last_disconnected").getTime();
+        } else {
+            throw new SQLException();
         }
     }
 

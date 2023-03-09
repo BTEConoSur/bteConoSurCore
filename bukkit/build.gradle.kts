@@ -30,6 +30,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")
     implementation("com.github.FreshLlamanade:polylabel-java:7639b75b53")
+    implementation("de.vandermeer:asciitable:0.3.2")
 }
 
 tasks.withType<JavaCompile> {

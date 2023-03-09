@@ -1,32 +1,52 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
+import de.vandermeer.asciitable.AT_Renderer;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciithemes.TA_Grid;
+import de.vandermeer.asciithemes.TA_GridThemeOptions;
+import de.vandermeer.asciithemes.TA_GridThemes;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Geo.Coords2D;
+import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
+import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import static net.dv8tion.jda.api.EmbedBuilder.ZERO_WIDTH_SPACE;
-
-public class PlayerCommand extends ListenerAdapter {
+public class PlayerCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
 
@@ -39,29 +59,24 @@ public class PlayerCommand extends ListenerAdapter {
 
         if (event.getName().equals("player")) {
 
-            ServerPlayer target;
-
             String subcommandName = event.getSubcommandName();
 
             if (subcommandName == null) {
-                DiscordUtils.respondError(event, "Ha ocurrido un error.");
                 return;
             }
 
-            if (event.getSubcommandName().equals("name")) {
+            ServerPlayer s;
+            if (subcommandName.equals("name")) {
 
                 OptionMapping nameMapping = event.getOption("nombre");
-
-                if (nameMapping == null) {
-                    DiscordUtils.respondError(event, "Ha ocurrido un error.");
-                    return;
-                }
+                assert nameMapping != null;
+                String name = nameMapping.getAsString();
 
                 try {
-                    if (plugin.getPlayerRegistry().hasPlayedBefore(nameMapping.getAsString())) {
-                        target = plugin.getPlayerRegistry().get(nameMapping.getAsString());
-                    } else {
-                        DiscordUtils.respondError(event, "El jugador introducido jamás ha entrado al servidor.");
+                    s = plugin.getPlayerRegistry().get(name);
+
+                    if (s == null) {
+                        DiscordUtils.respondError(event, "El jugador introducido jamás ha entrado al servidor o no existe.");
                         return;
                     }
                 } catch (SQLException | IOException e) {
@@ -69,167 +84,194 @@ public class PlayerCommand extends ListenerAdapter {
                     return;
                 }
 
-            } else if (event.getSubcommandName().equals("user")) {
+            } else {
 
                 OptionMapping userMapping = event.getOption("usuario");
-
-                if (userMapping == null) {
-                    DiscordUtils.respondError(event, "Ha ocurrido un error.");
-                    return;
-                }
-
+                assert userMapping != null;
                 User user = userMapping.getAsUser();
 
-                if (plugin.getLinksRegistry().isLinked(user.getId())) {
-                    target = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(user.getId()));
-                } else {
+                if (!plugin.getLinksRegistry().isLinked(user.getId())) {
                     DiscordUtils.respondError(event, "El usuario introducido no tiene una cuenta de Minecraft conectada.");
                     return;
                 }
 
-            } else {
-                DiscordUtils.respondError(event, "Ha ocurrido un error.");
-                return;
+                s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(user.getId()));
+
             }
 
-            if (target == null) {
-                DiscordUtils.respondError(event, "Ha ocurrido un error.");
-                return;
-            }
+            OfflinePlayer p = Bukkit.getPlayer(s.getUUID());
 
-            // NAME
+            try {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.setThumbnail("https://mc-heads.net/head/" + s.getUUID());
 
-            // STATUS   CHAT    BLANK
-            // RANK     ROLES   DISCORD
-
-            //
-
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setTitle(target.getName());
-            builder.setThumbnail("https://mc-heads.net/head/" + target.getUUID().toString());
-
-            List<MessageEmbed.Field> fields = new ArrayList<>();
-
-            ServerPlayer.BuilderRank rank = target.getBuilderRank();
-
-            fields.add(new MessageEmbed.Field(
-                    "Rango:",
-                    "**" + rank.getDiscordPrefix() + "**" + StringUtils.capitalize(rank.toString()),
-                    true
-            ));
-
-            List<ServerPlayer.SecondaryRoles> roles = target.getSecondaryRoles();
-
-            if (!roles.isEmpty()) {
-
-                List<String> roleLines = new ArrayList<>();
-                for (ServerPlayer.SecondaryRoles role : roles) {
-                    roleLines.add("• **" + role.getDiscordPrefix() + "**" + StringUtils.capitalize(role.toString()));
-                }
-
-                fields.add(new MessageEmbed.Field(
-                        "Roles:",
-                        String.join("\n", roleLines),
+                builder.addField(
+                        "Rango:",
+                        s.getBuilderRank().getDiscordPrefix() + StringUtils.capitalize(s.getBuilderRank().toString()),
                         true
-                ));
-            } else {
-                fields.add(
-                        new MessageEmbed.Field(
-                                ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, true
-                        )
                 );
-            }
 
-            DiscordManager discordManager = target.getDiscordManager();
-
-            if (discordManager.isLinked()) {
-                fields.add(
-                        new MessageEmbed.Field(
-                                "Discord:",
-                                "<@" + discordManager.getId() + ">",
-                                true
-                        )
-                );
-            } else {
-                fields.add(
-                        new MessageEmbed.Field(
-                                "Discord:",
-                                "No conectado",
-                                true
-                        )
-                );
-            }
-
-            if (Bukkit.getOfflinePlayer(target.getUUID()).isOnline()) {
-
-                Player player = Bukkit.getPlayer(target.getUUID());
-
-                builder.setColor(Color.GREEN);
-                fields.add(0, new MessageEmbed.Field(
-                        "Status:",
-                        "🟢 Online",
-                        true
-                ));
-
-                try {
-                    Chat chat = target.getChatManager().getCurrentChat();
-
-                    fields.add(
-                            1,
-                            new MessageEmbed.Field(
-                                    "Chat:",
-                                    chat.getEmoji() + " " + chat.getDisplayName(),
-                                    true
-                            )
+                if (!s.getSecondaryRoles().isEmpty()) {
+                    List<String> lines = new ArrayList<>();
+                    s.getSecondaryRoles().forEach(
+                            role -> lines.add("• " + role.getDiscordPrefix() + role)
                     );
 
-                } catch (SQLException e) {
-                    DiscordUtils.respondError(event, "Ha ocurrido un error con la base de datos.");
-                    return;
+                    builder.addField(
+                            "Roles:",
+                            String.join("\n", lines),
+                            true
+                    );
+                } else {
+                    builder.addBlankField(true);
                 }
 
-                fields.add(
-                        2,
-                        new MessageEmbed.Field(
-                                ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, true
-                        )
-                );
+                DiscordManager discordManager = s.getDiscordManager();
 
-                Location loc = player.getLocation();
-                Country country = plugin.getCountryManager().getCountryAt(loc);
+                if (discordManager.isLinked()) {
+                    builder.addField(
+                            "Discord:",
+                            "<@" + discordManager.getId() + ">",
+                            true
+                    );
+                } else {
+                    builder.addBlankField(true);
+                }
 
-                fields.add(new MessageEmbed.Field(
-                        "Coordenadas:",
-                        (country == null ? ":globe_with_meridians: " : ":flag_" + country.getAbbreviation() + ": ") + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ(),
+                if (p.isOnline()) {
+
+                    Player player = Bukkit.getPlayer(p.getUniqueId());
+
+                    builder.setColor(Color.GREEN);
+                    builder.setDescription(":green_circle: Online");
+
+                    ChatManager chatManager = s.getChatManager();
+                    Chat chat = chatManager.getCurrentChat();
+                    builder.addField(
+                            "Chat:",
+                            chat.getEmoji() + " " + chat.getDisplayName(),
+                            true
+                    );
+
+                    Location loc = player.getLocation();
+                    Coords2D coords = new Coords2D(plugin, loc);
+
+                    builder.addField(
+                            "Coordenadas:",
+                            ":round_pushpin: [" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "](https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")",
+                            true
+                    );
+
+                } else {
+
+                    builder.setColor(Color.RED);
+                    builder.setDescription(":red_circle: Offline");
+
+                    long lastDisconnected = s.getLastDisconnected();
+
+                    Date date = new java.sql.Date(lastDisconnected);
+
+                    String disconnection;
+                    if (System.currentTimeMillis() - lastDisconnected > 86400000) {
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        disconnection = format.format(date);
+                    } else {
+                        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+                        disconnection = "Hoy a las " + format.format(date);
+                    }
+
+
+                    builder.addField(
+                            "Última vez conectado:",
+                            ":timer:" + disconnection,
+                            false
+                    );
+
+                }
+
+                ProjectManager projectManager = s.getProjectManager();
+
+                AsciiTable table = new AsciiTable();
+                table.addRule();
+                table.addRow("País", "Puntos", "Proy. terminados");
+                table.addRule();
+                for (Country country : plugin.getCountryManager().getAllCountries()) {
+                    int finishedProjects = projectManager.getFinishedProjects(country);
+
+                    if (finishedProjects > 0) {
+                        table.addRow(country.getDisplayName(), projectManager.getPoints(country), finishedProjects);
+                    }
+                }
+                table.addRule();
+
+                builder.addField(
+                        "Proyectos:",
+                        "```\n" + String.join("\n", table.renderAsCollection()) + "\n```",
                         false
-                ));
-
-            } else {
-
-                builder.setColor(Color.RED);
-                fields.add(0, new MessageEmbed.Field(
-                        "Status:",
-                        "🔴 Offline",
-                        true
-                ));
-
-                fields.add(
-                        1,
-                        new MessageEmbed.Field(
-                                ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, true
-                        )
                 );
 
-                fields.add(
-                        2,
-                        new MessageEmbed.Field(
-                                ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, true
+                event.replyEmbeds(builder.build())
+                        .addComponents(
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "playerCommandViewProjects?user=" + event.getUser().getId(),
+                                                "Ver proyectos",
+                                                Emoji.fromUnicode("U+1F5FA")
+                                        ),
+                                        plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                )
                         )
-                );
+                        .queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                        );
 
+            } catch (SQLException e) {
+                e.printStackTrace();
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
             }
-
-            String[][] table = new String[4][4];
         }
+
+    }
+
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash(
+                "player",
+                "Obtén información sobre un jugador."
+        ).setNameLocalization(
+                DiscordLocale.SPANISH,
+                "jugador"
+        ).addSubcommands(
+                new SubcommandData(
+                        "name",
+                        "Encuentra un jugador usando su nombre de Minecraft."
+                ).setNameLocalization(
+                        DiscordLocale.SPANISH,
+                        "nombre"
+                ).addOption(
+                        OptionType.STRING,
+                        "nombre",
+                        "El nombre del jugador.",
+                        true
+                ),
+                new SubcommandData(
+                        "user",
+                        "Encuentra un jugador usando su usuario de Discord."
+                ).setNameLocalization(
+                        DiscordLocale.SPANISH,
+                        "usuario"
+                ).addOption(
+                        OptionType.USER,
+                        "usuario",
+                        "El usuario del jugador.",
+                        true
+                )
+        );
+    }
+
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 }
