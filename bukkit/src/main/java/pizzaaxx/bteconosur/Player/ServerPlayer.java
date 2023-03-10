@@ -1,9 +1,9 @@
 package pizzaaxx.bteconosur.Player;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Player.Managers.*;
@@ -30,7 +30,7 @@ public class ServerPlayer {
     public enum BuilderRank implements PrefixHolder {
         VISITA("§f[VISITA§f] §r", "[:flag_white:] "),
         POSTULANTE("§f[§7POSTULANTE§f] §r", "[:books:] "),
-        BUILDER("§f[§9BUILDER§f] §r", "[:pick_hammer:] ");
+        BUILDER("§f[§9BUILDER§f] §r", "[:hammer_pick:] ");
 
         private final String prefix;
         private final String discordPrefix;
@@ -85,7 +85,7 @@ public class ServerPlayer {
         @NotNull
         @Override
         public String toString() {
-            return super.toString().toLowerCase();
+            return StringUtils.capitalize(super.toString().toLowerCase());
         }
     }
 
@@ -208,7 +208,6 @@ public class ServerPlayer {
         }
     }
 
-    @Nullable
     public long getLastDisconnected() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "players",
@@ -221,7 +220,7 @@ public class ServerPlayer {
         ).retrieve();
 
         if (set.next()) {
-            return set.getTimestamp("last_disconnected").getTime();
+            return set.getLong("last_disconnected");
         } else {
             throw new SQLException();
         }

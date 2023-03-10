@@ -50,6 +50,10 @@ public class SatMapHandler {
     private final BTEConoSur plugin;
     private final String key;
 
+    public String getKey() {
+        return key;
+    }
+
     public SatMapHandler(BTEConoSur plugin) {
         this.plugin = plugin;
         this.key = new Configuration(plugin, "config").getString("mapquestKey");

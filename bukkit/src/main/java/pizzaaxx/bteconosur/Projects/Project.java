@@ -133,6 +133,10 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper {
         return plugin;
     }
 
+    public boolean hasCustomName() {
+        return displayName != null;
+    }
+
     @Override
     public String getId() {
         return id;

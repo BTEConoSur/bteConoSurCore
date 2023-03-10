@@ -41,10 +41,7 @@ import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Discord.DiscordHandler;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
-import pizzaaxx.bteconosur.Discord.SlashCommands.CityCommand;
-import pizzaaxx.bteconosur.Discord.SlashCommands.CreateCityCommand;
-import pizzaaxx.bteconosur.Discord.SlashCommands.ScoreboardCommand;
-import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
+import pizzaaxx.bteconosur.Discord.SlashCommands.*;
 import pizzaaxx.bteconosur.Events.JoinEvent;
 import pizzaaxx.bteconosur.Events.PreLoginEvent;
 import pizzaaxx.bteconosur.Events.QuitEvent;
@@ -398,7 +395,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 helpCommand,
                 discordHandler,
                 new CityCommand(this),
-                new ScoreboardCommand(this)
+                new ScoreboardCommand(this),
+                new PlayerCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

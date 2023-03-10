@@ -1047,7 +1047,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                     if (city == null) {
                         Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
                         if (country == null) {
-                            country = plugin.getCountryManager().getSortedCountries().get(0);
+                            country = plugin.getCountryManager().getAllCountries().get(0);
                         }
                         List<String> cities = new ArrayList<>(country.getCities());
                         Collections.sort(cities);
@@ -2092,7 +2092,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                         if (city == null) {
                             Country country = plugin.getCountryManager().getCountryAt(event.getPlayer().getLocation());
                             if (country == null) {
-                                country = plugin.getCountryManager().getSortedCountries().get(0);
+                                country = plugin.getCountryManager().getAllCountries().get(0);
                             }
                             List<String> cities = new ArrayList<>(country.getCities());
                             Collections.sort(cities);

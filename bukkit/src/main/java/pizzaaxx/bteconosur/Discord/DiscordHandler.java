@@ -13,8 +13,6 @@ import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class DiscordHandler extends ListenerAdapter {
@@ -60,10 +58,8 @@ public class DiscordHandler extends ListenerAdapter {
                     if (!found) {
                         container.getJDA().upsertCommand(data).queue();
                     }
-
                 }
         );
-
     }
 
     public boolean compareCommands(@NotNull Command command, @NotNull CommandData data) {

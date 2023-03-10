@@ -85,11 +85,7 @@ public class CountryManager {
         return null;
     }
 
-    public Collection<Country> getAllCountries() {
-        return countries.values();
-    }
-
-    public List<Country> getSortedCountries() {
+    public List<Country> getAllCountries() {
         List<Map.Entry<String, Country>> entries = new ArrayList<>(countries.entrySet());
         entries.sort(Map.Entry.comparingByKey());
         List<Country> result = new ArrayList<>();
