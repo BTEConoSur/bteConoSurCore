@@ -1287,6 +1287,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
 
                     gui.openTo(p, plugin);
                 }
+                break;
             }
             case "progress": {
 

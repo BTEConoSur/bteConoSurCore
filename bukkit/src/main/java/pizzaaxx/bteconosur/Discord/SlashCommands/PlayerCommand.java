@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
@@ -42,6 +43,7 @@ import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
@@ -51,15 +53,18 @@ import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -70,17 +75,14 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
 
     private final BTEConoSur plugin;
 
-    public PlayerCommand(BTEConoSur plugin) {
+    public PlayerCommand(@NotNull BTEConoSur plugin) {
         this.plugin = plugin;
-        plugin.getBot().upsertCommand(
-                Commands.user("Ver información del jugador")
-        ).queue();
     }
 
     @Override
     public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
 
-        if (event.getName().equals("Ver información del jugador")) {
+        if (event.getName().equals("Ver información")) {
 
             User user = event.getTarget();
 
@@ -92,6 +94,20 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
             ServerPlayer s  = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(user.getId()));
 
             this.respondPlayerInfoEmbed(s, event);
+        }
+
+        if (event.getName().equals("Ver proyectos")) {
+
+            User user = event.getTarget();
+
+            if (!plugin.getLinksRegistry().isLinked(user.getId())) {
+                DiscordUtils.respondError(event, "El usuario introducido no tiene una cuenta de Minecraft conectada.");
+                return;
+            }
+
+            ServerPlayer s  = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(user.getId()));
+
+            this.respondPlayerProjectsEmbed(s, event, 1);
         }
 
     }
@@ -212,8 +228,23 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                         true
                 );
 
-                URL url = new URL("https://open.mapquestapi.com/staticmap/v4/getmap?key=" + plugin.getSatMapHandler().getKey() + "&size=1280,720&type=sat&scalebar=false&imagetype=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&xis=https://cravatar.eu/helmavatar/" + player.getName() + "/64.png,1,c," + coords.getLat() + "," + coords.getLon());
-                is = HttpRequest.get(url).execute().getInputStream();
+                builder.addBlankField(false);
+
+                URL baseURL = new URL("https://www.mapquestapi.com/staticmap/v5/map?key=" + plugin.getSatMapHandler().getKey() + "&size=1280,720&format=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&type=sat");
+                InputStream baseIS = HttpRequest.get(baseURL).execute().getInputStream();
+
+                URL iconURL = new URL("https://cravatar.eu/helmavatar/" + s.getUUID() + "/64.png");
+                InputStream iconIS = HttpRequest.get(iconURL).execute().getInputStream();
+
+                BufferedImage image = ImageIO.read(baseIS);
+                BufferedImage icon = ImageIO.read(iconIS);
+
+                Graphics2D g = image.createGraphics();
+                g.drawImage(icon, 608, 328, null);
+
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", os);
+                is = new ByteArrayInputStream(os.toByteArray());
 
                 builder.setImage("attachment://map.png");
 
@@ -230,41 +261,35 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                         false
                 );
 
+                builder.addBlankField(false);
+
             }
 
             ProjectManager projectManager = s.getProjectManager();
-
-            AsciiTable table = new AsciiTable();
-            table.addRule();
-            table.addRow("País", "Puntos", "Proy. terminados");
-            table.addRule();
             for (Country country : plugin.getCountryManager().getAllCountries()) {
                 int finishedProjects = projectManager.getFinishedProjects(country);
 
+
                 if (finishedProjects > 0) {
-                    table.addRow(country.getDisplayName(), projectManager.getPoints(country), finishedProjects);
+                    builder.addField(
+                            ":flag_" + country.getAbbreviation() + ": " + country.getDisplayName(),
+                            "• `" + projectManager.getPoints(country) + "` puntos obtenidos\n• `" + projectManager.getFinishedProjects(country) + "` proyectos terminados\n• `" + projectManager.getProjects(new CountrySQLSelector(country)).size() + "` proyectos activos",
+                            true
+                    );
                 }
             }
-            table.addRule();
-            table.setPaddingLeft(1);
 
-            builder.addField(
-                    "Proyectos:",
-                    "```\n" + String.join("\n", table.renderAsCollection(40)) + "\n```",
-                    false
-            );
-
-            if (event instanceof SlashCommandInteractionEvent) {
+            if (event instanceof SlashCommandInteractionEvent || event instanceof UserContextInteractionEvent) {
 
                 ReplyCallbackAction action = event.replyEmbeds(builder.build())
                         .addComponents(
                                 ActionRow.of(
                                         Button.of(
                                                 ButtonStyle.SUCCESS,
-                                                "playerCommandViewProjects?user=" + event.getUser().getId(),
+                                                "playerCommandViewProjects?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
                                                 "Ver proyectos",
                                                 Emoji.fromUnicode("U+1F5FA")
-                                        ),
+                                        ).withDisabled(projectManager.getAllProjectIDs().isEmpty()),
                                         plugin.getDiscordHandler().getDeleteButton(event.getUser())
                                 )
                         );
@@ -287,10 +312,10 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                 ActionRow.of(
                                         Button.of(
                                                 ButtonStyle.SUCCESS,
-                                                "playerCommandViewProjects?user=" + event.getUser().getId(),
+                                                "playerCommandViewProjects?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
                                                 "Ver proyectos",
                                                 Emoji.fromUnicode("U+1F5FA")
-                                        ),
+                                        ).withDisabled(projectManager.getAllProjectIDs().isEmpty()),
                                         plugin.getDiscordHandler().getDeleteButton(event.getUser())
                                 )
                         );
@@ -333,8 +358,59 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
             countSet.next();
             int count = countSet.getInt("count");
 
+            if (count == 0) {
+
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.setColor(Color.RED);
+                builder.setTitle(s.getName() + " no tiene proyectos.");
+
+                if (event instanceof SlashCommandInteractionEvent || event instanceof UserContextInteractionEvent) {
+
+                    event.replyEmbeds(builder.build())
+                            .setFiles()
+                            .addComponents(
+                                    ActionRow.of(
+                                            Button.of(
+                                                    ButtonStyle.SUCCESS,
+                                                    "playerCommandViewInfo?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
+                                                    "Ver información del jugador",
+                                                    Emoji.fromUnicode("U+2139")
+                                            ),
+                                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                    )
+                            ).queue(
+                                    msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                            );
+
+
+                } else if (event instanceof IMessageEditCallback) {
+
+                    IMessageEditCallback editCallback = (IMessageEditCallback) event;
+
+                    editCallback.editMessageEmbeds(builder.build())
+                            .setFiles()
+                            .setComponents(
+                                    ActionRow.of(
+                                            Button.of(
+                                                    ButtonStyle.SUCCESS,
+                                                    "playerCommandViewInfo?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
+                                                    "Ver información del jugador",
+                                                    Emoji.fromUnicode("U+2139")
+                                            ),
+                                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                    )
+                            ).queue(
+                                    msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                            );
+                }
+
+                return;
+
+            }
+
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle("Proyectos de " + s.getName());
+            builder.setColor(Color.GREEN);
 
             ResultSet set = plugin.getSqlManager().select(
                     "projects",
@@ -349,7 +425,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                     ),
                     new SQLOrderSet(
                             new SQLOrderExpression(
-                                    "(owner == null)", DESC
+                                    "(owner = null)", DESC
                             ),
                             new SQLOrderExpression(
                                     "points", DESC
@@ -365,20 +441,20 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                 List<String> lines = new ArrayList<>();
 
                 if (project.hasCustomName()) {
-                    lines.add("**• ID:** `" + project.getId() + "`");
+                    lines.add("> :hash: `" + project.getId() + "`");
                 }
 
-                lines.add("**• País:** :flag_" + project.getCountry().getAbbreviation() + ": " + project.getCountry().getDisplayName());
+                lines.add("> :flag_" + project.getCountry().getAbbreviation() + ": " + project.getCountry().getDisplayName());
 
                 lines.add(
-                        "**• Tipo:** " + project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)"
+                        "> :game_die: " + project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)"
                 );
 
                 lines.add(
-                        "**• Líder:** " + plugin.getPlayerRegistry().get(project.getOwner()).getName()
+                        "> :crown: " + plugin.getPlayerRegistry().get(project.getOwner()).getName()
                 );
 
-                lines.add("**• Miembros:** " + project.getMembers().size());
+                lines.add("> :busts_in_silhouette: " + (project.getMembers().isEmpty() ? "Sin miembros." : String.join(", ", plugin.getPlayerRegistry().getNames(project.getMembers()))));
 
                 builder.addField(
                         "Proyecto " + project.getDisplayName(),
@@ -387,7 +463,83 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                 );
             }
 
+            if (event instanceof SlashCommandInteractionEvent || event instanceof UserContextInteractionEvent) {
 
+                event.replyEmbeds(builder.build())
+                        .setFiles()
+                        .addComponents(
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.PRIMARY,
+                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "Pág. anterior",
+                                                Emoji.fromUnicode("U+2B05")
+                                        ).withDisabled(page <= 1),
+                                        Button.of(
+                                                ButtonStyle.SECONDARY,
+                                                "counter",
+                                                page + "/" + (Math.floorDiv(count, 25) + 1)
+                                        ).withDisabled(true),
+                                        Button.of(
+                                                ButtonStyle.PRIMARY,
+                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "Pág. siguiente",
+                                                Emoji.fromUnicode("U+27A1")
+                                        ).withDisabled(page >= ((Math.floorDiv(count, 25) + 1)))
+                                ),
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "playerCommandViewInfo?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
+                                                "Ver información del jugador",
+                                                Emoji.fromUnicode("U+2139")
+                                        ),
+                                        plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                )
+                        ).queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                        );
+
+
+            } else if (event instanceof IMessageEditCallback) {
+
+                IMessageEditCallback editCallback = (IMessageEditCallback) event;
+
+                editCallback.editMessageEmbeds(builder.build())
+                        .setFiles()
+                        .setComponents(
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.PRIMARY,
+                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "Pág. anterior",
+                                                Emoji.fromUnicode("U+2B05")
+                                        ).withDisabled(page <= 1),
+                                        Button.of(
+                                                ButtonStyle.SECONDARY,
+                                                "counter",
+                                                page + "/" + (Math.floorDiv(count, 25) + 1)
+                                        ).withDisabled(true),
+                                        Button.of(
+                                                ButtonStyle.PRIMARY,
+                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "Pág. siguiente",
+                                                Emoji.fromUnicode("U+27A1")
+                                        ).withDisabled(page >= ((Math.floorDiv(count, 25) + 1)))
+                                ),
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "playerCommandViewInfo?user=" + event.getUser().getId() + "&uuid=" + s.getUUID().toString(),
+                                                "Ver información del jugador",
+                                                Emoji.fromUnicode("U+2139")
+                                        ),
+                                        plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                )
+                        ).queue(
+                                msg -> msg.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
+                        );
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -395,6 +547,61 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
         }
 
 
+    }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        String id = event.getButton().getId();
+
+        if (id == null) {
+            return;
+        }
+
+        if (id.startsWith("playerCommand")) {
+
+            Map<String, String> query = pizzaaxx.bteconosur.Utils.StringUtils.getQuery(id.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quién usó el comando puede usar los botones.");
+                return;
+            }
+
+            UUID uuid = UUID.fromString(query.get("uuid"));
+            ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+
+            switch (id.split("\\?")[0]) {
+
+                case "playerCommandViewProjects": {
+
+                    this.respondPlayerProjectsEmbed(s, event, 1);
+
+                    break;
+                }
+                case "playerCommandViewInfo": {
+
+                    this.respondPlayerInfoEmbed(s, event);
+
+                    break;
+                }
+                case "playerCommandProjectsBack": {
+
+                    int currentPage = Integer.parseInt(query.get("page"));
+
+                    this.respondPlayerProjectsEmbed(s, event, currentPage - 1);
+
+                    break;
+                }
+                case "playerCommandProjectsNext": {
+                    int currentPage = Integer.parseInt(query.get("page"));
+
+                    this.respondPlayerProjectsEmbed(s, event, currentPage + 1);
+
+                    break;
+                }
+
+            }
+
+        }
     }
 
     @Override
