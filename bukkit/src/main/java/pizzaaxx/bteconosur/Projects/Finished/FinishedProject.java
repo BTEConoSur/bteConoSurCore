@@ -1,12 +1,14 @@
 package pizzaaxx.bteconosur.Projects.Finished;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Posts.Post;
-import pizzaaxx.bteconosur.Posts.ProjectWrapper;
+import pizzaaxx.bteconosur.Projects.ProjectWrapper;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -150,6 +152,24 @@ public class FinishedProject implements ProjectWrapper {
     @Override
     public Post getPost() {
         return post;
+    }
+
+    @Override
+    public Location getTeleportLocation() {
+
+        Double[][][] points = new Double[1][regionPoints.size()][2];
+
+        int counter = 0;
+        for (BlockVector2D vector : regionPoints) {
+            Double[] coords = new Double[] {vector.getX(), vector.getZ()};
+            points[0][counter] = coords;
+            counter++;
+        }
+
+        PolyLabel.Result result = PolyLabel.polyLabel(points, 1);
+
+        return plugin.getWorld().getHighestBlockAt((int) Math.floor(result.getX()), (int) Math.floor(result.getY())).getLocation();
+
     }
 
     @Override

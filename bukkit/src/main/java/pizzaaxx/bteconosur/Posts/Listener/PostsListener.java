@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Posts.Post;
-import pizzaaxx.bteconosur.Posts.ProjectWrapper;
+import pizzaaxx.bteconosur.Projects.ProjectWrapper;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProject;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import pizzaaxx.bteconosur.Utils.StringUtils;

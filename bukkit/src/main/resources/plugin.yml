@@ -92,3 +92,5 @@ commands:
       - nick
   runnableCommand:
     description: Custom code commands.
+  tour:
+    description: Visita proyectos terminados en una ciudad.

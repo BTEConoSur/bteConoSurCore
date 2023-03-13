@@ -16,7 +16,6 @@ import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Posts.Post;
-import pizzaaxx.bteconosur.Posts.ProjectWrapper;
 import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -24,7 +23,7 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
-import pizzaaxx.bteconosur.Utils.RegionUtils;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
@@ -35,7 +34,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Project implements JSONParsable, Prefixable, ProjectWrapper {
+public class Project implements JSONParsable, Prefixable, ProjectWrapper, ScoreboardDisplay {
 
     public static int MAX_PROJECTS_PER_PLAYER = 15;
 
@@ -587,6 +586,20 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper {
                 reviewAction,
                 this,
                 moderator
+        );
+    }
+
+    @Override
+    public String getScoreboardTitle() {
+        return "§a§l" + this.getDisplayName();
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+        return this.getLore(
+                false,
+                "§f%f: §7%v",
+                ProjectLoreField.COUNTRY, ProjectLoreField.TYPE, ProjectLoreField.POINTS, ProjectLoreField.OWNER, ProjectLoreField.MEMBER_COUNT, ProjectLoreField.TAG_IGNORE
         );
     }
 

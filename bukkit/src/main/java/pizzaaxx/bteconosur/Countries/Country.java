@@ -10,12 +10,14 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -24,7 +26,7 @@ import java.util.*;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
 
-public class Country implements JSONParsable {
+public class Country implements JSONParsable, ScoreboardDisplay {
 
     private final BTEConoSur plugin;
     private final String name;
@@ -257,5 +259,31 @@ public class Country implements JSONParsable {
         }
 
         return result;
+    }
+
+    @Override
+    public String getScoreboardTitle() {
+        return "§a§lTop de " + displayName;
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+        List<String> lines = new ArrayList<>();
+
+        int counter = 1;
+        try {
+            for (UUID uuid : this.getTopPlayers()) {
+
+                ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+
+                lines.add("§7#" + counter + " §8|§a " + s.getProjectManager().getPoints(this) + " §8-§f " + s.getName());
+
+                counter++;
+            }
+        } catch (SQLException | IOException e) {
+            return new ArrayList<>();
+        }
+
+        return lines;
     }
 }

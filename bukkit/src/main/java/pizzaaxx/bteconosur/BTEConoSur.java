@@ -5,21 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -63,6 +56,7 @@ import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
 import pizzaaxx.bteconosur.Terramap.TerramapServer;
 import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
@@ -74,7 +68,10 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
-import pizzaaxx.bteconosur.WorldEdit.Commands.*;
+import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
+import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
+import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
+import pizzaaxx.bteconosur.WorldEdit.Commands.TerraformCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsListener;
 import pizzaaxx.bteconosur.WorldEdit.Selection.SelUndoRedoCommand;
@@ -84,14 +81,10 @@ import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
-import static net.dv8tion.jda.api.interactions.commands.Command.Type.USER;
-
-public class BTEConoSur extends JavaPlugin implements Prefixable {
+public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisplay {
 
     private World mainWorld;
 
@@ -291,6 +284,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
 
         ProjectsCommand projectsCommand = new ProjectsCommand(this);
 
+        TourCommand tourCommand = new TourCommand(this);
+
         this.registerListeners(
                 this,
                 regionListenersHandler,
@@ -306,7 +301,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 new PresetsListener(this),
                 this.selUndoRedoCommand,
                 chatHandler,
-                projectsCommand
+                projectsCommand,
+                tourCommand
         );
 
         this.log("Starting chats...");
@@ -447,6 +443,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
         getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NicknameCommand(this));
         getCommand("runnableCommand").setExecutor(customCommandsManager);
+        getCommand("tour").setExecutor(tourCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
@@ -481,6 +478,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
                 this.warn("Problem with Chat Manager: " + player.getUniqueId());
             }
         }
+
+
     }
 
     @Override
@@ -540,5 +539,31 @@ public class BTEConoSur extends JavaPlugin implements Prefixable {
     @Override
     public String getPrefix() {
         return "§f[§2CONO §aSUR§f] §7>> §f";
+    }
+
+    @Override
+    public String getScoreboardTitle() {
+        return "§2§lBTE §aCono Sur";
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+        List<String> lines = new ArrayList<>();
+        lines.add("Online: " + Bukkit.getOnlinePlayers().size());
+        lines.add(" ");
+
+        Map<Country, Integer> playersPerCountry = new HashMap<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Country c = countryManager.getCountryAt(p.getLocation());
+            int count = playersPerCountry.getOrDefault(c, 0);
+            count++;
+            playersPerCountry.put(c, count);
+        }
+
+        for (Country country : this.getCountryManager().getAllCountries()) {
+            lines.add("§a" + country.getDisplayName() + ": §f" + playersPerCountry.getOrDefault(country, 0));
+        }
+
+        return lines;
     }
 }

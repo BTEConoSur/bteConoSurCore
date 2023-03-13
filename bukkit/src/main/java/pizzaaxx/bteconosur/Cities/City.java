@@ -8,6 +8,7 @@ import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mysql.cj.protocol.ResultStreamer;
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -24,14 +25,16 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class City implements JSONParsable {
+public class City implements JSONParsable, ScoreboardDisplay {
 
     private final BTEConoSur plugin;
     private final String name;
@@ -285,5 +288,26 @@ public class City implements JSONParsable {
 
         City city = (City) obj;
         return this.name.equals(city.name);
+    }
+
+    @Override
+    public String getScoreboardTitle() {
+        return "§a§l" + this.displayName;
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+
+        List<String> lines = new ArrayList<>();
+
+        double finishedArea = this.finishedArea / 1000000.0;
+        double totalArea = new Polygonal2DRegion(plugin.getWorldEditWorld(), region.getPoints(), 100, 100).getArea() / 1000000.0;
+        double percentage = (finishedArea / totalArea) * 100;
+
+        DecimalFormat format = new DecimalFormat("#.##");
+
+        lines.add("§fÁrea terminada:§7 " + format.format(finishedArea) + "km² (" + format.format(Math.min(percentage, 100)) + "%)");
+
+        return lines;
     }
 }

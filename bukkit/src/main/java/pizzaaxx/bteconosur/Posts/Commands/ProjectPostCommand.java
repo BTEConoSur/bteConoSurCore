@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -21,14 +20,13 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
-import pizzaaxx.bteconosur.Posts.ProjectWrapper;
+import pizzaaxx.bteconosur.Projects.ProjectWrapper;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 

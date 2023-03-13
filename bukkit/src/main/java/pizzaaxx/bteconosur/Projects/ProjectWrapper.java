@@ -1,8 +1,10 @@
-package pizzaaxx.bteconosur.Posts;
+package pizzaaxx.bteconosur.Projects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.BlockVector2D;
+import org.bukkit.Location;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 
@@ -36,6 +38,8 @@ public interface ProjectWrapper {
     boolean hasPost();
 
     Post getPost();
+
+    Location getTeleportLocation();
 
     void updatePost() throws SQLException, JsonProcessingException;
 

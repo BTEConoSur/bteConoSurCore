@@ -14,6 +14,7 @@
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
+* 🕙 `/tour [ciudad]`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * ✔️ `/get`
 * ⏳ `/help [comando]`
