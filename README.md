@@ -14,11 +14,11 @@
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
-* 🕙 `/tour [ciudad]`
+* ✔️ `/tour [ciudad]`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * ✔️ `/get`
 * ⏳ `/help [comando]`
-* 🕙 `/scoreboard [<tipo>|auto]`
+* ✔️ `/scoreboard [<tipo>|auto]`
 * 🕙 `/streaming <link>`
 * 🕙 `/prefix`
 * ✔️ `/nightvision`
