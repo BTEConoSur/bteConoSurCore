@@ -604,6 +604,11 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     }
 
     @Override
+    public String getScoreboardType() {
+        return "project";
+    }
+
+    @Override
     public boolean equals(Object obj) {
 
         if (getClass() != obj.getClass()) {

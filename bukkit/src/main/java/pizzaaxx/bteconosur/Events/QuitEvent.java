@@ -39,6 +39,9 @@ public class QuitEvent implements Listener {
         for (Country country : plugin.getCountryManager().getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
         }
+
+        plugin.getScoreboardHandler().unregisterAuto(serverPlayer.getUUID());
+        plugin.getScoreboardHandler().unregisterDisplay(serverPlayer.getUUID());
     }
 
 }

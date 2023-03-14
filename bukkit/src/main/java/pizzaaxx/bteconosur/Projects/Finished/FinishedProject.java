@@ -14,13 +14,16 @@ import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class FinishedProject implements ProjectWrapper {
+public class FinishedProject implements ProjectWrapper, ScoreboardDisplay {
 
     private final BTEConoSur plugin;
     private final String id;
@@ -184,5 +187,29 @@ public class FinishedProject implements ProjectWrapper {
         } catch (IllegalArgumentException e) {
             post = null;
         }
+    }
+
+    @Override
+    public String getScoreboardTitle() {
+        return "§a§l" + this.getDisplayName();
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+
+        List<String> lines = new ArrayList<>();
+
+        lines.add("§fTipo: " + type.getDisplayName() + " (" + points + " puntos)");
+        lines.add("§fLíder: " + plugin.getPlayerRegistry().get(owner).getName());
+        lines.add("§fMiembros: " + members.size());
+        lines.add(" ");
+        lines.add("§8Terminado el " + new SimpleDateFormat("dd/MM/yy").format(new Date(finishedDate)));
+
+        return lines;
+    }
+
+    @Override
+    public String getScoreboardType() {
+        return "tour";
     }
 }

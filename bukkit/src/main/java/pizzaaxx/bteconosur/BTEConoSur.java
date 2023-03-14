@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import fr.minuskube.netherboard.Netherboard;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -25,6 +25,7 @@ import pizzaaxx.bteconosur.Chat.*;
 import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
 import pizzaaxx.bteconosur.Chat.Commands.NicknameCommand;
 import pizzaaxx.bteconosur.Cities.CityManager;
+import pizzaaxx.bteconosur.Cities.CityScoreboardRegionListener;
 import pizzaaxx.bteconosur.Cities.Commands.CitiesCommand;
 import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Commands.*;
@@ -33,6 +34,7 @@ import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
+import pizzaaxx.bteconosur.Countries.CountryScoreboardRegionListener;
 import pizzaaxx.bteconosur.Discord.DiscordHandler;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
@@ -52,11 +54,12 @@ import pizzaaxx.bteconosur.Posts.PostsRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
-import pizzaaxx.bteconosur.Projects.Listeners.ActionBarListener;
+import pizzaaxx.bteconosur.Projects.Listeners.ProjectRegionListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardHandler;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
 import pizzaaxx.bteconosur.Terramap.TerramapServer;
 import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
@@ -81,8 +84,8 @@ import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisplay {
 
@@ -102,6 +105,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
     public FuzzyMatcher getFuzzyMatcher() {
         return fuzzyMatcher;
+    }
+
+    private final Netherboard netherboard = Netherboard.instance();
+
+    public Netherboard getNetherboard() {
+        return netherboard;
     }
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -232,10 +241,16 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return linksRegistry;
     }
 
-    private CustomCommandsManager customCommandsManager = new CustomCommandsManager(this);
+    private final CustomCommandsManager customCommandsManager = new CustomCommandsManager(this);
 
     public CustomCommandsManager getCustomCommandsManager() {
         return customCommandsManager;
+    }
+
+    public final ScoreboardHandler scoreboardHandler = new ScoreboardHandler(this);
+
+    public ScoreboardHandler getScoreboardHandler() {
+        return scoreboardHandler;
     }
 
     @Override
@@ -277,7 +292,15 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         );
         regionListenersHandler.registerEnter(
                 input -> input.matches("project_[a-z]{6}"),
-                new ActionBarListener(this)
+                new ProjectRegionListener(this)
+        );
+        regionListenersHandler.registerBoth(
+                input -> input.matches("city_([a-z]{1,32})(?!_urban)"),
+                new CityScoreboardRegionListener(this)
+        );
+        regionListenersHandler.registerBoth(
+                input -> input.startsWith("country_"),
+                new CountryScoreboardRegionListener(this)
         );
 
         GetCommand getCommand = new GetCommand(this);
@@ -371,6 +394,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             this.error("Plugin starting stopped. Links registry startup failed.");
             return;
         }
+
 
         LinkCommand linkCommand = new LinkCommand(this);
 
@@ -479,7 +503,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             }
         }
 
-
+        this.scoreboardHandler.init();
     }
 
     @Override
@@ -565,5 +589,10 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         }
 
         return lines;
+    }
+
+    @Override
+    public String getScoreboardType() {
+        return "server";
     }
 }

@@ -286,4 +286,9 @@ public class Country implements JSONParsable, ScoreboardDisplay {
 
         return lines;
     }
+
+    @Override
+    public String getScoreboardType() {
+        return "top";
+    }
 }

@@ -88,6 +88,26 @@ public class City implements JSONParsable, ScoreboardDisplay {
         return country;
     }
 
+    public int getAvailableProjectsAmount() throws SQLException {
+        ResultSet set = plugin.getSqlManager().select(
+                "projects",
+                new SQLColumnSet(
+                        "COUNT(id) as count"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition(
+                                "cities", this.name
+                        ),
+                        new SQLNullCondition(
+                                "owner", true
+                        )
+                )
+        ).retrieve();
+
+        set.next();
+        return set.getInt("count");
+    }
+
     public int getClaimedProjectsAmount() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "projects",
@@ -308,6 +328,22 @@ public class City implements JSONParsable, ScoreboardDisplay {
 
         lines.add("§fÁrea terminada:§7 " + format.format(finishedArea) + "km² (" + format.format(Math.min(percentage, 100)) + "%)");
 
+        try {
+            lines.add("§fProyectos terminados: §7" + this.getFinishedProjectsAmount());
+
+            lines.add("§fProyectos activos: §7" + this.getClaimedProjectsAmount());
+
+            lines.add("§fProyectos disponibles: §7" + this.getAvailableProjectsAmount());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
         return lines;
+    }
+
+    @Override
+    public String getScoreboardType() {
+        return "city";
     }
 }

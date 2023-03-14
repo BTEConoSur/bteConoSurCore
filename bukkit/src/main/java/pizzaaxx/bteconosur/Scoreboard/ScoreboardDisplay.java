@@ -8,4 +8,6 @@ public interface ScoreboardDisplay {
 
     List<String> getScoreboardLines();
 
+    String getScoreboardType();
+
 }

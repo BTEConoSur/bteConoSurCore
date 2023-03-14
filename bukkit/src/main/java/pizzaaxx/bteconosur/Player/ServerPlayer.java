@@ -10,12 +10,13 @@ import pizzaaxx.bteconosur.Player.Managers.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class ServerPlayer {
+public class ServerPlayer implements ScoreboardDisplay {
 
     private final BTEConoSur plugin;
     private final UUID uuid;
@@ -25,7 +26,23 @@ public class ServerPlayer {
     private final DiscordManager discordManager;
     private final MiscManager miscManager;
     private final ProjectManager projectManager;
+    private final ScoreboardManager scoreboardManager;
     private final List<SecondaryRoles> secondaryRoles;
+
+    @Override
+    public String getScoreboardTitle() {
+        return null;
+    }
+
+    @Override
+    public List<String> getScoreboardLines() {
+        return null;
+    }
+
+    @Override
+    public String getScoreboardType() {
+        return "me";
+    }
 
     public enum BuilderRank implements PrefixHolder {
         VISITA("§f[VISITA§f] §r", "[:flag_white:] "),
@@ -120,6 +137,7 @@ public class ServerPlayer {
             this.discordManager = new DiscordManager(plugin, this);
             this.miscManager = new MiscManager(plugin, this, set);
             this.projectManager = new ProjectManager(plugin, this);
+            this.scoreboardManager = new ScoreboardManager(this);
 
         } else {
             plugin.error("Missing player data: " + uuid);
@@ -146,6 +164,10 @@ public class ServerPlayer {
 
     public ProjectManager getProjectManager() {
         return projectManager;
+    }
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 
     public BTEConoSur getPlugin() {

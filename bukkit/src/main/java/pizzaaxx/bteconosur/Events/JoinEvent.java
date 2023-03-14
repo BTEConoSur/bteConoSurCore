@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.awt.*;
@@ -41,6 +42,17 @@ public class JoinEvent implements Listener {
             defaultChat.addPlayer(event.getPlayer().getUniqueId());
         } catch (SQLException e) {
             plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
+        }
+
+        ScoreboardManager scoreboardManager = serverPlayer.getScoreboardManager();
+        scoreboardManager.loadDisplay(); // <- If player was loaded before joining.
+        if (scoreboardManager.isAuto()) {
+            plugin.getScoreboardHandler().registerAuto(serverPlayer.getUUID());
+        }
+        try {
+            scoreboardManager.setDisplay(scoreboardManager.getDisplay());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
