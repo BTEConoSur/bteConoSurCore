@@ -24,7 +24,7 @@ public class CityScoreboardRegionListener extends RegionListener {
         ScoreboardManager manager = s.getScoreboardManager();
         if (manager.getDisplayClass() == City.class) {
             try {
-                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(City.class, s));
+                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(City.class, s, event.getTo()));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -37,7 +37,7 @@ public class CityScoreboardRegionListener extends RegionListener {
         ScoreboardManager manager = s.getScoreboardManager();
         if (manager.getDisplayClass() == City.class) {
             try {
-                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(City.class, s));
+                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(City.class, s, event.getTo()));
             } catch (SQLException e) {
                 e.printStackTrace();
             }

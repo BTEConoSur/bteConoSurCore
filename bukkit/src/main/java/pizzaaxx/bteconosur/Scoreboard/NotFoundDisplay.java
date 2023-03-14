@@ -5,11 +5,13 @@ import java.util.List;
 
 public class NotFoundDisplay implements ScoreboardDisplay {
 
+    private final Class<? extends ScoreboardDisplay> clazz;
     private final String type;
     private final String title;
     private final String error;
 
-    public NotFoundDisplay(String type, String title, String error) {
+    public NotFoundDisplay(Class<? extends ScoreboardDisplay> clazz, String type, String title, String error) {
+        this.clazz = clazz;
         this.type = type;
         this.title = title;
         this.error = error;
@@ -28,5 +30,9 @@ public class NotFoundDisplay implements ScoreboardDisplay {
     @Override
     public String getScoreboardType() {
         return type;
+    }
+
+    public Class<? extends ScoreboardDisplay> getClazz() {
+        return clazz;
     }
 }

@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.Scoreboard;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -34,11 +34,10 @@ public class ScoreboardHandler {
             public void run() {
                 for (UUID uuid : automaticPlayers) {
                     ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
-                    ScoreboardDisplay display = s.getScoreboardManager().getDisplay();
-                    int index = (AUTO_ORDER.contains(display.getClass()) ? AUTO_ORDER.indexOf(display.getClass()) : -1);
-                    int targetIndex = (index >= AUTO_ORDER.size() ? 0 : index + 1);
+                    int currentIndex = (AUTO_ORDER.contains(s.getScoreboardManager().getDisplayClass()) ? AUTO_ORDER.indexOf(s.getScoreboardManager().getDisplayClass()) : -1);
+                    int targetIndex = (currentIndex >= AUTO_ORDER.size() - 1 ? 0 : currentIndex + 1);
                     try {
-                        s.getScoreboardManager().setDisplay(getDisplay(AUTO_ORDER.get(targetIndex), s));
+                        s.getScoreboardManager().setDisplay(getDisplay(AUTO_ORDER.get(targetIndex), s, Bukkit.getPlayer(uuid).getLocation()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -94,40 +93,41 @@ public class ScoreboardHandler {
     }
 
     @NotNull
-    public ScoreboardDisplay getDisplay(Class<? extends ScoreboardDisplay> clazz, @NotNull ServerPlayer s) {
-
-        Player p = Bukkit.getPlayer(s.getUUID());
+    public ScoreboardDisplay getDisplay(Class<? extends ScoreboardDisplay> clazz, @NotNull ServerPlayer s, Location loc) {
 
         if (clazz == Country.class) {
-            Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+            Country country = plugin.getCountryManager().getCountryAt(loc);
             if (country != null) {
                 return country;
             }
             return new NotFoundDisplay(
+                    Country.class,
                     "top",
                     "§4§lTop",
                     "§cNo estás dentro de un país."
             );
         } else if (clazz == City.class) {
 
-            City city = plugin.getCityManager().getCityAt(p.getLocation());
+            City city = plugin.getCityManager().getCityAt(loc);
             if (city != null) {
                 return city;
             }
             return new NotFoundDisplay(
+                    City.class,
                     "city",
                     "§4§lCiudad",
                     "§cNo estás dentro de una ciudad."
             );
         } else if (clazz == Project.class) {
 
-            List<String> ids = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
+            List<String> ids = plugin.getProjectRegistry().getProjectsAt(loc);
             Collections.sort(ids);
 
             if (!ids.isEmpty()) {
                 return plugin.getProjectRegistry().get(ids.get(0));
             }
             return new NotFoundDisplay(
+                    Project.class,
                     "project",
                     "§4§lProyecto",
                     "§cNo estás dentro de un proyecto."

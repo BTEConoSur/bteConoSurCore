@@ -1,11 +1,6 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
 import com.sk89q.worldguard.util.net.HttpRequest;
-import de.vandermeer.asciitable.AT_Renderer;
-import de.vandermeer.asciitable.AsciiTable;
-import de.vandermeer.asciithemes.TA_Grid;
-import de.vandermeer.asciithemes.TA_GridThemeOptions;
-import de.vandermeer.asciithemes.TA_GridThemes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;

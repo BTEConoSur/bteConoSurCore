@@ -25,7 +25,7 @@ dependencies {
     implementation("net.dv8tion:JDA:5.0.0-beta.2")
     implementation("com.github.BuildTheEarth:terraplusplus:v1.1.0")
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
-    implementation("fr.minuskube:netherboard-bukkit:1.2.3")
+    implementation("fr.minuskube:netherboard-bukkit:1.2.2")
     implementation("com.mysql:mysql-connector-j:8.0.31")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")

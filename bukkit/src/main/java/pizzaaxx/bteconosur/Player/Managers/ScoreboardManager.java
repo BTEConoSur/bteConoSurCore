@@ -12,12 +12,11 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
+import pizzaaxx.bteconosur.Scoreboard.NotFoundDisplay;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 public class ScoreboardManager {
 
@@ -43,26 +42,52 @@ public class ScoreboardManager {
                 )
         ).retrieve();
 
-        set.next();
-
-        this.auto = set.getBoolean("auto");
-        this.hidden = set.getBoolean("hidden");
-        this.displayType = set.getString("type");
-        if (Bukkit.getOfflinePlayer(s.getUUID()).isOnline()) {
-            this.display = plugin.getScoreboardHandler().getDisplay(plugin.getScoreboardHandler().getClass(displayType), s);
+        if (set.next()) {
+            this.auto = set.getBoolean("auto");
+            this.hidden = set.getBoolean("hidden");
+            this.displayType = set.getString("type");
+        } else {
+            plugin.getSqlManager().insert(
+                    "scoreboard_managers",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "uuid", s.getUUID()
+                            )
+                    )
+            ).execute();
+            this.auto = true;
+            this.hidden = false;
+            this.displayType = "server";
         }
 
+        if (Bukkit.getOfflinePlayer(s.getUUID()).isOnline()) {
+            this.display = plugin.getScoreboardHandler().getDisplay(plugin.getScoreboardHandler().getClass(displayType), serverPlayer, Bukkit.getPlayer(serverPlayer.getUUID()).getLocation());
+        }
     }
 
     public void loadDisplay() {
-        this.display = plugin.getScoreboardHandler().getDisplay(plugin.getScoreboardHandler().getClass(displayType), serverPlayer);
+        this.display = plugin.getScoreboardHandler().getDisplay(plugin.getScoreboardHandler().getClass(displayType), serverPlayer, Bukkit.getPlayer(serverPlayer.getUUID()).getLocation());
     }
 
     public boolean isHidden() {
         return hidden;
     }
 
-    public void setHidden(boolean hidden) throws SQLException {
+    public boolean setHidden(boolean hidden) throws SQLException {
+
+        this.hidden = hidden;
+
+        if (Bukkit.getOfflinePlayer(serverPlayer.getUUID()).isOnline()) {
+            Player p = Bukkit.getPlayer(serverPlayer.getUUID());
+            if (hidden) {
+                if (plugin.getNetherboard().hasBoard(p)) {
+                    plugin.getNetherboard().getBoard(p).delete();
+                }
+            } else {
+                this.setDisplay(display);
+            }
+        }
+
 
         plugin.getSqlManager().update(
                 "scoreboard_managers",
@@ -78,21 +103,20 @@ public class ScoreboardManager {
                 )
         ).execute();
 
-        this.hidden = hidden;
-
+        return this.hidden;
     }
 
     public boolean isAuto() {
         return auto;
     }
 
-    public void setAuto(boolean auto) throws SQLException {
+    public boolean setAuto(boolean auto) throws SQLException {
 
         plugin.getSqlManager().update(
                 "scoreboard_managers",
                 new SQLValuesSet(
                         new SQLValue(
-                                "hidden", hidden
+                                "auto", auto
                         )
                 ),
                 new SQLANDConditionSet(
@@ -107,8 +131,9 @@ public class ScoreboardManager {
             plugin.getScoreboardHandler().registerAuto(serverPlayer.getUUID());
         } else {
             plugin.getScoreboardHandler().unregisterAuto(serverPlayer.getUUID());
-
         }
+
+        return this.auto;
     }
 
     public ScoreboardDisplay getDisplay() {
@@ -116,6 +141,10 @@ public class ScoreboardManager {
     }
 
     public Class<? extends ScoreboardDisplay> getDisplayClass() {
+        if (display instanceof NotFoundDisplay) {
+            NotFoundDisplay notFoundDisplay = (NotFoundDisplay) display;
+            return notFoundDisplay.getClazz();
+        }
         return display.getClass();
     }
 
@@ -125,49 +154,19 @@ public class ScoreboardManager {
             Player p = Bukkit.getPlayer(serverPlayer.getUUID());
             Netherboard netherboard = plugin.getNetherboard();
 
+            BPlayerBoard board;
             if (netherboard.hasBoard(p)) {
-
-                BPlayerBoard board = netherboard.getBoard(p);
-
-                List<String> targetLines = display.getScoreboardLines();
-                Map<Integer, String> sourceLines = board.getLines();
-                if (targetLines.size() > sourceLines.size()) {
-
-                    int counter = 15;
-                    for (String line : targetLines) {
-                        if (!sourceLines.containsKey(counter) || !sourceLines.get(counter).equals(line)) {
-                            board.set(line, counter);
-                        }
-                        counter--;
-                    }
-
-                } else {
-
-                    for (int i = 15; i > 15 - sourceLines.size(); i--) {
-
-                        if (i <= 15 - targetLines.size()) {
-                            board.remove(i);
-                            continue;
-                        }
-
-                        if (!targetLines.get(i).equals(sourceLines.get(i))) {
-                            board.set(targetLines.get(i), i);
-                        }
-
-                    }
-
-                }
-
+                board = netherboard.getBoard(p);
+                board.setName(display.getScoreboardTitle());
             } else {
-                BPlayerBoard board = netherboard.createBoard(
+                board = netherboard.createBoard(
                         p,
                         display.getScoreboardTitle()
                 );
-
-                board.setAll(
-                        display.getScoreboardLines().toArray(new String[0])
-                );
             }
+            board.setAll(
+                    display.getScoreboardLines().toArray(new String[0])
+            );
         }
 
         if (!this.display.getScoreboardType().equals(display.getScoreboardType())) {
@@ -189,5 +188,11 @@ public class ScoreboardManager {
         this.display = display;
         this.displayType = display.getScoreboardType();
         plugin.getScoreboardHandler().registerDisplay(serverPlayer.getUUID(), this.display);
+    }
+
+    public void tryUpdate(@NotNull ScoreboardDisplay display) throws SQLException {
+        if (this.getDisplayClass() == display.getClass()) {
+            this.setDisplay(display);
+        }
     }
 }

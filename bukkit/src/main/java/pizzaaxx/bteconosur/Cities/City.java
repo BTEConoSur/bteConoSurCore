@@ -329,11 +329,11 @@ public class City implements JSONParsable, ScoreboardDisplay {
         lines.add("§fÁrea terminada:§7 " + format.format(finishedArea) + "km² (" + format.format(Math.min(percentage, 100)) + "%)");
 
         try {
-            lines.add("§fProyectos terminados: §7" + this.getFinishedProjectsAmount());
+            lines.add("§fProy. terminados: §7" + this.getFinishedProjectsAmount());
 
-            lines.add("§fProyectos activos: §7" + this.getClaimedProjectsAmount());
+            lines.add("§fProy. activos: §7" + this.getClaimedProjectsAmount());
 
-            lines.add("§fProyectos disponibles: §7" + this.getAvailableProjectsAmount());
+            lines.add("§fProy. disponibles: §7" + this.getAvailableProjectsAmount());
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();

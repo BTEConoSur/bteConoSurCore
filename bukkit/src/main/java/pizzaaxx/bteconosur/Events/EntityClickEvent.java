@@ -32,7 +32,7 @@ public class EntityClickEvent implements Listener {
 
             try {
                 manager.setAuto(false);
-                event.getPlayer().sendActionBar("§7Scoreboard automático desactivado.");
+                event.getPlayer().sendActionBar("§7Scoreboard automático desactivado");
                 manager.setDisplay(s);
             } catch (SQLException e) {
                 e.printStackTrace();

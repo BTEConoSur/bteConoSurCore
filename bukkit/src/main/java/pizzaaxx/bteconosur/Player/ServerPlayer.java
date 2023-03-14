@@ -6,7 +6,9 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
+import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.Managers.*;
+import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -31,12 +33,47 @@ public class ServerPlayer implements ScoreboardDisplay {
 
     @Override
     public String getScoreboardTitle() {
-        return null;
+        return "§a§l" + name;
     }
 
     @Override
     public List<String> getScoreboardLines() {
-        return null;
+        List<String> lines = new ArrayList<>();
+
+        lines.add("§aRango: §f" + StringUtils.capitalize(this.getBuilderRank().toString().toLowerCase()));
+
+        if (!this.getSecondaryRoles().isEmpty()) {
+            lines.add("§aRoles: ");
+            for (SecondaryRoles role : this.getSecondaryRoles()) {
+                lines.add("§7• §f" + role);
+            }
+        }
+
+        if (discordManager.isLinked()) {
+            lines.add("§aDiscord: §f" + discordManager.getName() + "#" + discordManager.getDiscriminator());
+        }
+        try {
+            lines.add("§aChat: §f" + chatManager.getCurrentChat().getDisplayName());
+        } catch (SQLException e) {
+            return new ArrayList<>();
+        }
+
+        lines.add(" ");
+
+        boolean wrotePoints = false;
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+            double points = projectManager.getPoints(country);
+            if (points > 0) {
+                if (!wrotePoints) {
+                    lines.add("§aPuntos: ");
+                    wrotePoints = true;
+                }
+
+                lines.add("§7• §f" + country.getDisplayName() + ": §7" + points);
+            }
+        }
+
+        return lines;
     }
 
     @Override

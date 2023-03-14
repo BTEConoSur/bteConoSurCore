@@ -35,7 +35,7 @@ public class ProjectRegionListener extends RegionListener {
         ScoreboardManager manager = s.getScoreboardManager();
         if (manager.getDisplayClass() == Project.class) {
             try {
-                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(Project.class, s));
+                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(Project.class, s, event.getTo()));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -48,7 +48,7 @@ public class ProjectRegionListener extends RegionListener {
         ScoreboardManager manager = s.getScoreboardManager();
         if (manager.getDisplayClass() == Project.class) {
             try {
-                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(Project.class, s));
+                manager.setDisplay(plugin.getScoreboardHandler().getDisplay(Project.class, s, event.getTo()));
             } catch (SQLException e) {
                 e.printStackTrace();
             }

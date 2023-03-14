@@ -199,11 +199,11 @@ public class FinishedProject implements ProjectWrapper, ScoreboardDisplay {
 
         List<String> lines = new ArrayList<>();
 
-        lines.add("§fTipo: " + type.getDisplayName() + " (" + points + " puntos)");
-        lines.add("§fLíder: " + plugin.getPlayerRegistry().get(owner).getName());
-        lines.add("§fMiembros: " + members.size());
+        lines.add("§fTipo: §7" + type.getDisplayName() + " (" + points + " puntos)");
+        lines.add("§fLíder: §7" + plugin.getPlayerRegistry().get(owner).getName());
+        lines.add("§fMiembros: §7" + members.size());
         lines.add(" ");
-        lines.add("§8Terminado el " + new SimpleDateFormat("dd/MM/yy").format(new Date(finishedDate)));
+        lines.add("§7Terminado el " + new SimpleDateFormat("dd/MM/yy").format(new Date(finishedDate)));
 
         return lines;
     }

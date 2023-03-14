@@ -94,3 +94,7 @@ commands:
     description: Custom code commands.
   tour:
     description: Visita proyectos terminados en una ciudad.
+  scoreboard:
+    description: Maneja tu scoreboard.
+    aliases:
+      - sc

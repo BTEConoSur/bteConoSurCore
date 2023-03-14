@@ -276,7 +276,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
 
                 ServerPlayer s = plugin.getPlayerRegistry().get(uuid);
 
-                lines.add("§7#" + counter + " §8|§a " + s.getProjectManager().getPoints(this) + " §8-§f " + s.getName());
+                lines.add("§7#" + counter + "§a " + s.getProjectManager().getPoints(this) + "§f " + s.getName());
 
                 counter++;
             }

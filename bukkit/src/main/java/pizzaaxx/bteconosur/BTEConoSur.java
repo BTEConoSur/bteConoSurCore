@@ -290,7 +290,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 input -> input.startsWith("city_") && !input.endsWith("_urban"),
                 new CityEnterEvent(this)
         );
-        regionListenersHandler.registerEnter(
+        regionListenersHandler.registerBoth(
                 input -> input.matches("project_[a-z]{6}"),
                 new ProjectRegionListener(this)
         );
@@ -468,6 +468,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("nickname").setExecutor(new NicknameCommand(this));
         getCommand("runnableCommand").setExecutor(customCommandsManager);
         getCommand("tour").setExecutor(tourCommand);
+        getCommand("scoreboard").setExecutor(new pizzaaxx.bteconosur.Scoreboard.ScoreboardCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
@@ -567,13 +568,13 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
     @Override
     public String getScoreboardTitle() {
-        return "§2§lBTE §aCono Sur";
+        return "§2§lBTE §a§lCono Sur";
     }
 
     @Override
     public List<String> getScoreboardLines() {
         List<String> lines = new ArrayList<>();
-        lines.add("Online: " + Bukkit.getOnlinePlayers().size());
+        lines.add("§fOnline: §7" + Bukkit.getOnlinePlayers().size());
         lines.add(" ");
 
         Map<Country, Integer> playersPerCountry = new HashMap<>();
@@ -585,7 +586,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         }
 
         for (Country country : this.getCountryManager().getAllCountries()) {
-            lines.add("§a" + country.getDisplayName() + ": §f" + playersPerCountry.getOrDefault(country, 0));
+            lines.add("§f" + country.getDisplayName() + ": §7" + playersPerCountry.getOrDefault(country, 0));
         }
 
         return lines;

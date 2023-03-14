@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProject;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -163,33 +164,14 @@ public class TourCommand implements CommandExecutor, Listener {
             );
 
             p.teleport(project.getTeleportLocation());
-            p.sendMessage(" ");
-            p.sendMessage(" ");
 
-            p.sendMessage("§a§lProyecto " + project.getDisplayName());
-            p.sendMessage("§8" + project.getType().getDisplayName() + " - " + project.getPoints() + " puntos");
-            p.sendMessage(" ");
-
-            p.sendMessage("§aLíder: §f" + plugin.getPlayerRegistry().get(project.getOwner()).getName());
-            if (!project.getMembers().isEmpty()) {
-                p.sendMessage("§aMiembros: §f" + String.join(", ", plugin.getPlayerRegistry().getNames(project.getMembers())));
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+            s.getScoreboardManager().setHidden(false);
+            if (s.getScoreboardManager().isAuto()) {
+                s.getScoreboardManager().setAuto(false);
+                p.sendActionBar("§7Scoreboard automático desactivado");
             }
-            if (project.hasPost()) {
-                p.sendMessage(" ");
-                p.sendMessage(
-                        BookUtil.TextBuilder.of("[Ver publicación en Discord]")
-                                .color(ChatColor.YELLOW)
-                                .onHover(BookUtil.HoverAction.showText("Haz click para abrir"))
-                                .onClick(BookUtil.ClickAction.openUrl(project.getPost().getChannel().getJumpUrl()))
-                                .build()
-                );
-            }
-
-            p.sendMessage(" ");
-            p.sendMessage("§8Terminado el " + new SimpleDateFormat("dd/MM/yy").format(new Date(project.getFinishedDate())));
-
-            p.sendMessage(" ");
-            p.sendMessage(" ");
+            s.getScoreboardManager().setDisplay(project);
 
             tours.put(p.getUniqueId(), new Pair<>(city.getName(), finalCounter));
 
