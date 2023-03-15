@@ -8,15 +8,18 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.Managers.*;
-import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
+import pizzaaxx.bteconosur.Tablist.TablistPrefixHolder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 public class ServerPlayer implements ScoreboardDisplay {
 
@@ -81,17 +84,21 @@ public class ServerPlayer implements ScoreboardDisplay {
         return "me";
     }
 
-    public enum BuilderRank implements PrefixHolder {
-        VISITA("§f[VISITA§f] §r", "[:flag_white:] "),
-        POSTULANTE("§f[§7POSTULANTE§f] §r", "[:books:] "),
-        BUILDER("§f[§9BUILDER§f] §r", "[:hammer_pick:] ");
+    public enum BuilderRank implements PrefixHolder, TablistPrefixHolder {
+        VISITA("§f[VISITA§f] §r", "[:flag_white:] ", "§f[VIS§f]", 6),
+        POSTULANTE("§f[§7POSTULANTE§f] §r", "[:books:] ", "§f[§7POS§f]", 5),
+        BUILDER("§f[§9BUILDER§f] §r", "[:hammer_pick:] ", "§f[§9BUI§f]", 4);
 
         private final String prefix;
         private final String discordPrefix;
+        private final String tablistPrefix;
+        private final int priority;
 
-        BuilderRank(String prefix, String discordPrefix) {
+        BuilderRank(String prefix, String discordPrefix, String tablistPrefix, int priority) {
             this.prefix = prefix;
             this.discordPrefix = discordPrefix;
+            this.tablistPrefix = tablistPrefix;
+            this.priority = priority;
         }
 
         @Override
@@ -103,22 +110,36 @@ public class ServerPlayer implements ScoreboardDisplay {
         public String getDiscordPrefix() {
             return discordPrefix;
         }
+
+        @Override
+        public String getTablistPrefix() {
+            return tablistPrefix;
+        }
+
+        @Override
+        public int getPriority() {
+            return priority;
+        }
     }
 
-    public enum SecondaryRoles implements PrefixHolder {
-        ADMIN("§f[§cADMIN§f] §r", "[:crown:] ", "§6§l"),
-        MOD("§f[§5MOD§f] §r", "[:shield:] ", "§5§l"),
-        STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] ", null),
-        DONADOR("§f[§dDONADOR§f] §r", "[:gem:] ", null);
+    public enum SecondaryRoles implements PrefixHolder, TablistPrefixHolder {
+        ADMIN("§f[§cADMIN§f] §r", "[:crown:] ", "§6§l", "§f[§cADM§f]", 0),
+        MOD("§f[§5MOD§f] §r", "[:shield:] ", "§5§l", "§f[§5MOD§f]", 1),
+        STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] ", null, "§f[§aSTR§f]", 2),
+        DONADOR("§f[§dDONADOR§f] §r", "[:gem:] ", null, "§f[§dDON§f]", 3);
 
         private final String prefix;
         private final String discordPrefix;
         private final String chatColor;
+        private final String tablistPrefix;
+        private final int priority;
 
-        SecondaryRoles(String prefix, String discordPrefix, String chatColor) {
+        SecondaryRoles(String prefix, String discordPrefix, String chatColor, String tablistPrefix, int priority) {
             this.prefix = prefix;
             this.discordPrefix = discordPrefix;
             this.chatColor = chatColor;
+            this.tablistPrefix = tablistPrefix;
+            this.priority = priority;
         }
 
         @Override
@@ -140,6 +161,16 @@ public class ServerPlayer implements ScoreboardDisplay {
         @Override
         public String toString() {
             return StringUtils.capitalize(super.toString().toLowerCase());
+        }
+
+        @Override
+        public String getTablistPrefix() {
+            return tablistPrefix;
+        }
+
+        @Override
+        public int getPriority() {
+            return priority;
         }
     }
 
@@ -181,6 +212,13 @@ public class ServerPlayer implements ScoreboardDisplay {
             throw new SQLException();
         }
 
+    }
+
+    public TablistPrefixHolder getTablistPrefix() {
+        if (secondaryRoles.isEmpty()) {
+            return this.getBuilderRank();
+        }
+        return secondaryRoles.get(0);
     }
 
     public ChatManager getChatManager() {
@@ -238,14 +276,6 @@ public class ServerPlayer implements ScoreboardDisplay {
         } else {
             lore.add("§aDiscord: §fN/A");
         }
-
-        /*
-        String[][] values = new String[4][0];
-        values[0][0] = "País";
-        values[0][1] = "Puntos";
-        values[0][2] = "P. Activos";
-        values[0][3] = "P. Terminados";
-        */
 
         return lore;
     }

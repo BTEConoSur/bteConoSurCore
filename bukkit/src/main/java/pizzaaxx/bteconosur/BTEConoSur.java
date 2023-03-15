@@ -48,6 +48,7 @@ import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Commands.ProjectPostCommand;
 import pizzaaxx.bteconosur.Posts.Listener.PostsListener;
 import pizzaaxx.bteconosur.Posts.PostsRegistry;
@@ -60,6 +61,7 @@ import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
 import pizzaaxx.bteconosur.SQL.SQLManager;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardHandler;
+import pizzaaxx.bteconosur.Tablist.TablistExpansion;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
 import pizzaaxx.bteconosur.Terramap.TerramapServer;
 import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
@@ -495,7 +497,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ChatManager chatManager = this.getPlayerRegistry().get(player.getUniqueId()).getChatManager();
+            ServerPlayer s = this.getPlayerRegistry().get(player.getUniqueId());
+            ChatManager chatManager = s.getChatManager();
             try {
                 Chat chat = chatManager.getCurrentChat();
                 chat.addPlayer(player.getUniqueId());
@@ -505,6 +508,10 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         }
 
         this.scoreboardHandler.init();
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new TablistExpansion(this).register();
+        }
     }
 
     @Override

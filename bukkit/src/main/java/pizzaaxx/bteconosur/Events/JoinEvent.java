@@ -13,7 +13,6 @@ import pizzaaxx.bteconosur.Player.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.awt.*;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
 public class JoinEvent implements Listener {

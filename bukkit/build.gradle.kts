@@ -14,6 +14,7 @@ repositories {
     maven("https://maven.daporkchop.net/")
     maven("https://repo.opencollab.dev/snapshot/")
     maven("https://maven.elmakers.com/repository/")
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
@@ -30,6 +31,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")
     implementation("com.github.FreshLlamanade:polylabel-java:7639b75b53")
+    compileOnly("me.clip:placeholderapi:2.11.2")
 }
 
 tasks.withType<JavaCompile> {

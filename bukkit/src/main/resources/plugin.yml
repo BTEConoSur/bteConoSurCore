@@ -2,9 +2,13 @@ name: bteConoSur
 version: 2.0
 main: pizzaaxx.bteconosur.BTEConoSur
 
+loadbefore:
+  - TAB
+
 depend:
   - WorldEdit
   - WorldGuard
+  - PlaceholderAPI
 
 commands:
   city:
