@@ -26,6 +26,7 @@ public class ChatManager {
     private boolean hidden;
     private String nickname;
     private String countryPrefix;
+    private String countryTabPrefix;
 
     public ChatManager(@NotNull BTEConoSur plugin, @NotNull ServerPlayer serverPlayer) throws SQLException {
         this.plugin = plugin;
@@ -49,6 +50,7 @@ public class ChatManager {
             this.hidden = set.getBoolean("hidden");
             this.nickname = set.getString("nickname");
             this.countryPrefix = set.getString("country_prefix");
+            this.countryTabPrefix = set.getString("country_chat_prefix");
         } else {
             plugin.getSqlManager().insert(
                     "chat_managers",
@@ -61,6 +63,9 @@ public class ChatManager {
             this.currentChat = "global";
             this.defaultChat = "global";
             this.hidden = false;
+            this.nickname = null;
+            this.countryPrefix = null;
+            this.countryTabPrefix = null;
         }
     }
 
@@ -197,8 +202,61 @@ public class ChatManager {
         return countryPrefix != null;
     }
 
+    @NotNull
     public String getCountryPrefix() {
-        return countryPrefix;
+        return (countryPrefix != null ? countryPrefix : "§7[INTERNACIONAL]");
+    }
+
+    public String getCountryTabPrefix() {
+        return (countryTabPrefix != null ? countryTabPrefix : "§7[INT]");
+    }
+
+    public void setCountryPrefix(@NotNull String prefix) throws SQLException {
+
+        if (!this.countryPrefix.equals(prefix)) {
+
+            this.countryPrefix = prefix;
+
+            plugin.getSqlManager().update(
+                    "chat_managers",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "country_prefix", this.countryPrefix
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "uuid", "=", serverPlayer.getUUID()
+                            )
+                    )
+            ).execute();
+
+        }
+
+    }
+
+    public void setCountryTabPrefix(@NotNull String prefix) throws SQLException {
+
+        if (!this.countryTabPrefix.equals(prefix)) {
+
+            this.countryTabPrefix = prefix;
+
+            plugin.getSqlManager().update(
+                    "chat_managers",
+                    new SQLValuesSet(
+                            new SQLValue(
+                                    "country_tab_prefix", this.countryTabPrefix
+                            )
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "uuid", "=", serverPlayer.getUUID()
+                            )
+                    )
+            ).execute();
+
+        }
+
     }
 
     public String getDisplayName() {
@@ -214,5 +272,15 @@ public class ChatManager {
         } else {
             return (chatColor == null ? "§e" : chatColor) + this.nickname;
         }
+    }
+
+    public String getTabColor() {
+        String chatColor = null;
+        List<ServerPlayer.SecondaryRoles> roles = serverPlayer.getSecondaryRoles();
+        if (!roles.isEmpty()) {
+            chatColor = roles.get(0).getChatColor();
+        }
+
+        return (chatColor == null ? "§f" : chatColor);
     }
 }

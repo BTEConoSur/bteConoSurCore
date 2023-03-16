@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.Chat;
 
+import org.bukkit.inventory.ItemStack;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,5 +27,7 @@ public interface Chat {
     void sendMessage(UUID uuid, String message);
 
     void broadcast(String message, boolean ignoreHidden);
+
+    ItemStack getHead();
 
 }

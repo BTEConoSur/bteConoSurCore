@@ -25,7 +25,7 @@ commands:
   unlink:
     description: Desconecta tu cuenta de Minecraft de tu cuenta de Discord.
   tpdir:
-    description: Teletransp´órtate a un lugar por su nombre.
+    description: Teletranspórtate a un lugar por su nombre.
   deletePlayerData:
     description: Elimina el archivo de playerdata de un jugador con su UUID.
     permission: op
@@ -102,3 +102,8 @@ commands:
     description: Maneja tu scoreboard.
     aliases:
       - sc
+
+permissions:
+  streaming:
+    description: "Permite al usuario usar el comando /streaming."
+    default: false

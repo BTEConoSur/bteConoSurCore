@@ -2,8 +2,10 @@ package pizzaaxx.bteconosur.Chat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import xyz.upperlevel.spigot.book.BookUtil;
 
@@ -134,5 +136,16 @@ public class GlobalChat implements Chat {
                 Bukkit.getPlayer(uuid).sendMessage(message);
             }
         }
+    }
+
+    @Override
+    public ItemStack getHead() {
+        return ItemBuilder.head(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOThkYWExZTNlZDk0ZmYzZTMzZTFkNGM2ZTQzZjAyNGM0N2Q3OGE1N2JhNGQzOGU3NWU3YzkyNjQxMDYifX19",
+                "§aChat global",
+                Collections.singletonList(
+                        "Jugadores: §7" + players.size()
+                )
+        );
     }
 }

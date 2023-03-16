@@ -2,14 +2,14 @@ package pizzaaxx.bteconosur.Chat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class CountryChat implements Chat {
 
@@ -121,5 +121,16 @@ public class CountryChat implements Chat {
                 Bukkit.getPlayer(uuid).sendMessage(message);
             }
         }
+    }
+
+    @Override
+    public ItemStack getHead() {
+        return ItemBuilder.head(
+                country.getHeadValue(),
+                "§aChat de " + country.getDisplayName(),
+                Collections.singletonList(
+                        "Jugadores: §7" + players.size()
+                )
+        );
     }
 }

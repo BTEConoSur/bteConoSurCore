@@ -1,7 +1,6 @@
 package pizzaaxx.bteconosur.Tablist;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,10 +33,10 @@ public class TablistExpansion extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
 
-        if (params.equalsIgnoreCase("tabName")) {
+        if (params.equalsIgnoreCase("tabPrefix")) {
 
             ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
-            return s.getTablistPrefix() + " " + s.getChatManager().getDisplayName();
+            return s.getTablistPrefixHolder().getTablistPrefix() + " " + s.getChatManager().getTabColor();
 
         }
 

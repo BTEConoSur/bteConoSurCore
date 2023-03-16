@@ -2,17 +2,18 @@ package pizzaaxx.bteconosur.Chat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-public class ProjectChat implements Chat {
+public class  ProjectChat implements Chat {
 
     private final String prefix = "§f[§aCHAT§f] §7>> §f";
     private final BTEConoSur plugin;
@@ -140,5 +141,23 @@ public class ProjectChat implements Chat {
                 Bukkit.getPlayer(uuid).sendMessage(message);
             }
         }
+    }
+
+    @Override
+    public ItemStack getHead() {
+        Project project = this.getProject();
+
+        ItemStack stack = project.getItem();
+
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("§aChat del proyecto " + project.getDisplayName());
+        meta.setLore(
+                Collections.singletonList(
+                        "Jugadores: §7" + players.size()
+                )
+        );
+        stack.setItemMeta(meta);
+
+        return stack;
     }
 }

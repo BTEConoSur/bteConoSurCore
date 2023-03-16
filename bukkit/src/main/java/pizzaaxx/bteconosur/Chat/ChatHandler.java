@@ -39,6 +39,12 @@ public class ChatHandler extends ListenerAdapter implements Listener, Prefixable
 
     public void registerChat(Chat chat) {
         chats.put(chat.getID(), chat);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                tryUnregister(chat);
+            }
+        }.runTaskLaterAsynchronously(plugin, 6000);
     }
 
     public void tryUnregister(@NotNull Chat chat) {

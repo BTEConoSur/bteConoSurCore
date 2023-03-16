@@ -46,6 +46,8 @@ public class Country implements JSONParsable, ScoreboardDisplay {
     public final String headValue;
 
     private final Emoji emoji;
+    private final String chatPrefix;
+    private final String tabPrefix;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -87,6 +89,8 @@ public class Country implements JSONParsable, ScoreboardDisplay {
         }
         this.headValue = set.getString("head_value");
         this.emoji = Emoji.fromFormatted(set.getString("emoji"));
+        this.chatPrefix = set.getString("chat_prefix");
+        this.tabPrefix = set.getString("tab_prefix");
     }
 
     public BTEConoSur getPlugin() {
@@ -135,6 +139,14 @@ public class Country implements JSONParsable, ScoreboardDisplay {
 
     public String getIconURL() {
         return iconURL;
+    }
+
+    public String getChatPrefix() {
+        return chatPrefix;
+    }
+
+    public String getTabPrefix() {
+        return tabPrefix;
     }
 
     public Location getSpawnPoint() {
