@@ -1,6 +1,9 @@
 package pizzaaxx.bteconosur.Commands;
 
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -13,6 +16,7 @@ import pizzaaxx.bteconosur.Inventory.CustomSlotsPaginatedGUI;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
+import pizzaaxx.bteconosur.Player.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
@@ -27,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ConfigCommand {
+public class ConfigCommand implements CommandExecutor {
 
     // PAIS / CHAT / CHAT DEFAULT / OCULTAR CHAT / VISION NOCTURNA / OCULTAR SCOREBOARD / SCOREBOARD AUTOMATICO
 
@@ -194,7 +198,7 @@ public class ConfigCommand {
                         ItemBuilder.of(
                                         Material.INK_SACK,
                                         1,
-                                        (manager.isHidden() ? 5 : 15)
+                                        (manager.isHidden() ? 5 : 14)
                                 )
                                 .name((manager.isHidden()) ? "§cEl chat está oculto." : "§aEl chat es visible.")
                                 .lore(Collections.singletonList("§6[•]§7 Haz click para " + (manager.isHidden() ? "mostrar" : "ocultar") + " el chat."))
@@ -211,7 +215,7 @@ public class ConfigCommand {
                                         ItemBuilder.of(
                                                         Material.INK_SACK,
                                                         1,
-                                                        (manager.isHidden() ? 5 : 15)
+                                                        (manager.isHidden() ? 5 : 14)
                                                 )
                                                 .name((manager.isHidden()) ? "§cEl chat está oculto." : "§aEl chat es visible.")
                                                 .lore(Collections.singletonList("[•] Haz click para " + (manager.isHidden() ? "mostrar" : "ocultar") + " el chat."))
@@ -233,7 +237,7 @@ public class ConfigCommand {
                         ItemBuilder.of(
                                 Material.INK_SACK,
                                 1,
-                                (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? 5 : 15)
+                                (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? 5 : 14)
                         )
                                 .name((p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? "§aLa visión nocturna está activada." : "La visión nocturna está descativada."))
                                 .lore(Collections.singletonList("[•] Haz click para " + (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? "desactivar" : "activar") + " la visión nocturna."))
@@ -257,7 +261,7 @@ public class ConfigCommand {
                                     ItemBuilder.of(
                                                     Material.INK_SACK,
                                                     1,
-                                                    (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? 5 : 15)
+                                                    (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? 5 : 14)
                                             )
                                             .name((p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? "§aLa visión nocturna está activada." : "La visión nocturna está descativada."))
                                             .lore(Collections.singletonList("[•] Haz click para " + (p.hasPotionEffect(PotionEffectType.NIGHT_VISION) ? "desactivar" : "activar") + " la visión nocturna."))
@@ -268,9 +272,93 @@ public class ConfigCommand {
                 );
             }
 
-            //
+            ScoreboardManager scoreboardManager = s.getScoreboardManager();
+
+            // OCULTAR SCOREBOARD
+            {
+
+                gui.setItem(
+                        ItemBuilder.of(
+                                        Material.INK_SACK,
+                                        1,
+                                        (!scoreboardManager.isHidden() ? 5 : 14)
+                                )
+                                .name((!scoreboardManager.isHidden() ? "§aEl scoreboard está visible." : "§aEl scoreboard está oculto."))
+                                .lore(Collections.singletonList("[•] Haz click para " + (!scoreboardManager.isHidden() ? "ocultar" : "mostrar") + " el scoreboard."))
+                                .build(),
+                        23
+                );
+
+                gui.setLCAction(
+                        event -> {
+                            try {
+                                scoreboardManager.setHidden(!scoreboardManager.isHidden());
+
+                                event.updateSlot(
+                                        ItemBuilder.of(
+                                                        Material.INK_SACK,
+                                                        1,
+                                                        (!scoreboardManager.isHidden() ? 5 : 14)
+                                                )
+                                                .name((!scoreboardManager.isHidden() ? "§aEl scoreboard está visible." : "§aEl scoreboard está oculto."))
+                                                .lore(Collections.singletonList("[•] Haz click para " + (!scoreboardManager.isHidden() ? "ocultar" : "mostrar") + " el scoreboard."))
+                                                .build()
+                                );
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                event.closeGUI();
+                                p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            }
+
+                        },
+                        23
+                );
+            }
+
+            // SCOREBOARD AUTOMÁTICO
+            {
+
+                gui.setItem(
+                        ItemBuilder.of(
+                                        Material.INK_SACK,
+                                        1,
+                                        (!scoreboardManager.isAuto() ? 5 : 14)
+                                )
+                                .name((!scoreboardManager.isAuto() ? "§aEl scoreboard automático está activado." : "§aEl scoreboard automático está desactivado."))
+                                .lore(Collections.singletonList("[•] Haz click para " + (!scoreboardManager.isAuto() ? "desactivar" : "activar") + " el scoreboard automático."))
+                                .build(),
+                        23
+                );
+
+                gui.setLCAction(
+                        event -> {
+                            try {
+                                scoreboardManager.setAuto(!scoreboardManager.isAuto());
+
+                                event.updateSlot(
+                                        ItemBuilder.of(
+                                                        Material.INK_SACK,
+                                                        1,
+                                                        (!scoreboardManager.isAuto() ? 5 : 14)
+                                                )
+                                                .name((!scoreboardManager.isAuto() ? "§aEl scoreboard automático está activado." : "§aEl scoreboard automático está desactivado."))
+                                                .lore(Collections.singletonList("[•] Haz click para " + (!scoreboardManager.isAuto() ? "desactivar" : "activar") + " el scoreboard automático."))
+                                                .build()
+                                );
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                event.closeGUI();
+                                p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            }
+
+                        },
+                        23
+                );
+            }
 
         } // SECOND ROW
+
+        plugin.getInventoryHandler().open(p, gui);
 
     }
 
@@ -641,4 +729,21 @@ public class ConfigCommand {
 
     }
 
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!(sender instanceof Player)) {
+            return true;
+        }
+
+        Player p = (Player) sender;
+        try {
+            this.openConfigMenu(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+        }
+
+        return true;
+    }
 }

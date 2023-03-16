@@ -49,8 +49,8 @@ public class ChatManager {
             this.defaultChat = set.getString("default_chat");
             this.hidden = set.getBoolean("hidden");
             this.nickname = set.getString("nickname");
-            this.countryPrefix = set.getString("country_prefix");
-            this.countryTabPrefix = set.getString("country_chat_prefix");
+            this.countryPrefix = set.getString("country_chat_prefix");
+            this.countryTabPrefix = set.getString("country_tab_prefix");
         } else {
             plugin.getSqlManager().insert(
                     "chat_managers",
@@ -221,7 +221,7 @@ public class ChatManager {
                     "chat_managers",
                     new SQLValuesSet(
                             new SQLValue(
-                                    "country_prefix", this.countryPrefix
+                                    "country_chat_prefix", this.countryPrefix
                             )
                     ),
                     new SQLANDConditionSet(

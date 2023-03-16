@@ -102,6 +102,8 @@ commands:
     description: Maneja tu scoreboard.
     aliases:
       - sc
+  config:
+    description: Abre la configuración.
 
 permissions:
   streaming:

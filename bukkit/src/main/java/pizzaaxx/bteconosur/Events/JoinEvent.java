@@ -53,5 +53,11 @@ public class JoinEvent implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        if (!serverPlayer.getChatManager().hasCountryPrefix()) {
+            try {
+                plugin.getConfigCommand().openConfigMenu(event.getPlayer());
+            } catch (SQLException ignored) {}
+        }
     }
 }
