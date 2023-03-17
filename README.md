@@ -20,7 +20,7 @@
 * ⏳ `/help [comando]`
 * ✔️ `/scoreboard [<tipo>|auto]`
 * 🕙 `/streaming <link>`
-* 🕙 `/prefix`
+* ✔️ `/prefix`
 * ✔️ `/nightvision`
 * 🕙 `/lobby`
 * ✔️ `/tpdir <nombre>`  
@@ -108,8 +108,8 @@
 * 🕙 `/project tutorial`
 ## Chat
 * ✔️ `/chat [nombre]`
-* ✔️ `/chat <(global|<país>|<idProyecto>)>`
-* ✔️ `/chat default [(global|<país>|<idProyecto>)]`
+* ✔️ `/chat set`
+* ✔️ `/chat default [set]`
 * ✔️ `/chat invite <nombre>`
 * ✔️ `/chat <código>`
 * ✔️ `/nickname <nickname>`

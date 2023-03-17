@@ -55,9 +55,7 @@ public class JoinEvent implements Listener {
         }
 
         if (!serverPlayer.getChatManager().hasCountryPrefix()) {
-            try {
-                plugin.getConfigCommand().openConfigMenu(event.getPlayer());
-            } catch (SQLException ignored) {}
+            plugin.getPrefixCommand().openPrefixMenu(event.getPlayer());
         }
     }
 }

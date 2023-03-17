@@ -255,10 +255,10 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return scoreboardHandler;
     }
 
-    private ConfigCommand configCommand = new ConfigCommand(this);
+    private PrefixCommand prefixCommand = new PrefixCommand(this);
 
-    public ConfigCommand getConfigCommand() {
-        return configCommand;
+    public PrefixCommand getPrefixCommand() {
+        return prefixCommand;
     }
 
     @Override
@@ -477,7 +477,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("runnableCommand").setExecutor(customCommandsManager);
         getCommand("tour").setExecutor(tourCommand);
         getCommand("scoreboard").setExecutor(new pizzaaxx.bteconosur.Scoreboard.ScoreboardCommand(this));
-        getCommand("config").setExecutor(configCommand);
+        getCommand("prefix").setExecutor(prefixCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

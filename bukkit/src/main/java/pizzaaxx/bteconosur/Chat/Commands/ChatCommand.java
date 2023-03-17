@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.Chat.Commands;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,14 +10,23 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.*;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Inventory.CustomSlotsPaginatedGUI;
+import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Inventory.PaginatedInventoryGUI;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLORConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,203 +128,20 @@ public class ChatCommand implements CommandExecutor, Prefixable {
                         Chat defaultChat = chatManager.getDefaultChat();
                         chatManager.setCurrentChat(defaultChat);
                         defaultChat.addPlayer(p.getUniqueId());
-                        p.sendMessage(getPrefix() + "Te has unido a tu chat por defecto: §a" + defaultChat.getDisplayName() + "§f.");
+                        p.sendMessage(getPrefix() + "Te has unido a tu chat predeterminado: §a" + defaultChat.getDisplayName() + "§f.");
+                    } else if (args[1].equals("set")) {
+
+                        this.openConfigDefaultChatMenu(p);
+
                     } else {
-                        if (args[1].equals("global")) {
-
-                            if (chatManager.getCurrentChatName().equals("global")) {
-                                p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat §aGlobal§f.");
-                                return true;
-                            }
-
-                            chatManager.setDefaultChat(handler.getChat("global"));
-                            p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en el chat §aGlobal§f.");
-                            return true;
-                        }
-
-                        Country country = plugin.getCountryManager().get(args[1]);
-
-                        if (country != null) {
-
-                            if (chatManager.getCurrentChatName().equals(country.getName())) {
-                                p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de §a" + country.getDisplayName() + "§f.");
-                                return true;
-                            }
-
-                            chatManager.setDefaultChat(handler.getChat(country.getName()));
-                            p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en el chat de §a" + country.getDisplayName() + "§f.");
-                            return true;
-                        }
-
-                        if (args[1].equals("project") || args[1].equals("proyecto")) {
-                            List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
-
-                            if (projectIDs.size() == 0) {
-                                p.sendMessage(getPrefix() + "No hay proyectos de los que seas miembro en este lugar.");
-                            } else if (projectIDs.size() == 1) {
-                                String projectID = projectIDs.get(0);
-
-                                if (chatManager.getCurrentChatName().equals("project_" + projectID)) {
-                                    p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de este proyecto.");
-                                    return true;
-                                }
-
-                                Project project = plugin.getProjectRegistry().get(projectID);
-                                if (!handler.isLoaded("project_" + projectID)) {
-                                    handler.registerChat(new ProjectChat(project, handler));
-                                }
-
-                                Chat chat = handler.getChat("project_" + projectID);
-                                chatManager.setDefaultChat(chat);
-                                p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en chat del proyecto §a" + project.getDisplayName() + "§f.");
-                                return true;
-                            } else {
-                                PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
-                                        6,
-                                        "Elige un proyecto"
-                                );
-                                for (String id : projectIDs) {
-                                    Project project = plugin.getProjectRegistry().get(id);
-                                    gui.add(
-                                            project.getItem(),
-                                            event -> {
-                                                event.closeGUI();
-                                                try {
-                                                    if (chatManager.getCurrentChatName().equals("project_" + id)) {
-                                                        p.sendMessage(getPrefix() + "Tu chat por defecto ya es el chat de este proyecto.");
-                                                        return;
-                                                    }
-
-                                                    if (!handler.isLoaded("project_" + id)) {
-                                                        handler.registerChat(new ProjectChat(project, handler));
-                                                    }
-
-                                                    Chat chat = handler.getChat("project_" + id);
-                                                    chatManager.setDefaultChat(chat);
-                                                    p.sendMessage(getPrefix() + "Has establecido tu chat por defecto en chat del proyecto §a" + project.getDisplayName() + "§f.");
-                                                } catch (SQLException e) {
-                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                                }
-                                            },
-                                            null,
-                                            null,
-                                            null
-                                    );
-                                }
-                                gui.openTo(p, plugin);
-                            }
-                            return true;
-                        }
-
-                        p.sendMessage(getPrefix() + "Introduce un chat válido.");
+                        p.sendMessage(getPrefix() + "Introduce un subcomando válido.");
                     }
                     return true;
                 }
 
-                if (args[0].equals("global")) {
-
-                    if (chatManager.getCurrentChatName().equals("global")) {
-                        p.sendMessage(getPrefix() + "Ya estás en el chat §aGlobal§f.");
-                        return true;
-                    }
-
-                    Chat oldChat = chatManager.getCurrentChat();
-                    oldChat.removePlayer(p.getUniqueId());
-
-                    Chat chat = handler.getChat("global");
-                    chatManager.setCurrentChat(chat);
-                    chat.addPlayer(p.getUniqueId());
-                    p.sendMessage(getPrefix() + "Te has unido al chat §aGlobal§f.");
-                    return true;
+                if (args[0].equals("set")) {
+                    this.openConfigChatMenu(p);
                 }
-
-                Country country = plugin.getCountryManager().get(args[0]);
-
-                if (country != null) {
-
-                    if (chatManager.getCurrentChatName().equals(country.getName())) {
-                        p.sendMessage(getPrefix() + "Ya estás en el chat de §a" + country.getDisplayName() + "§f.");
-                        return true;
-                    }
-
-                    Chat oldChat = chatManager.getCurrentChat();
-                    oldChat.removePlayer(p.getUniqueId());
-
-                    Chat chat = handler.getChat(country.getName());
-                    chatManager.setCurrentChat(chat);
-                    chat.addPlayer(p.getUniqueId());
-                    p.sendMessage(getPrefix() + "Te has unido al chat de §a" + country.getDisplayName() + "§f.");
-                    return true;
-                }
-
-                if (args[0].equals("project") || args[0].equals("proyecto")) {
-                    List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
-
-                    if (projectIDs.size() == 0) {
-                        p.sendMessage(getPrefix() + "No hay proyectos de los que seas miembro en este lugar.");
-                    } else if (projectIDs.size() == 1) {
-                        String projectID = projectIDs.get(0);
-
-                        if (chatManager.getCurrentChatName().equals("project_" + projectID)) {
-                            p.sendMessage(getPrefix() + "Ya estás en el chat de este proyecto.");
-                            return true;
-                        }
-
-                        Project project = plugin.getProjectRegistry().get(projectID);
-                        if (!handler.isLoaded("project_" + projectID)) {
-                            handler.registerChat(new ProjectChat(project, handler));
-                        }
-
-                        Chat oldChat = chatManager.getCurrentChat();
-                        oldChat.removePlayer(p.getUniqueId());
-
-                        Chat chat = handler.getChat("project_" + projectID);
-                        chatManager.setCurrentChat(chat);
-                        chat.addPlayer(p.getUniqueId());
-                        p.sendMessage(getPrefix() + "Te has unido al chat del proyecto §a" + project.getDisplayName() + "§f.");
-                        return true;
-                    } else {
-                        PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
-                                6,
-                                "Elige un proyecto"
-                        );
-                        for (String id : projectIDs) {
-                            Project project = plugin.getProjectRegistry().get(id);
-                            gui.add(
-                                    project.getItem(),
-                                    event -> {
-                                        event.closeGUI();
-                                        try {
-                                            if (chatManager.getCurrentChatName().equals("project_" + id)) {
-                                                p.sendMessage(getPrefix() + "Ya estás en el chat de este proyecto.");
-                                                return;
-                                            }
-
-                                            if (!handler.isLoaded("project_" + id)) {
-                                                handler.registerChat(new ProjectChat(project, handler));
-                                            }
-
-                                            Chat oldChat = chatManager.getCurrentChat();
-                                            oldChat.removePlayer(p.getUniqueId());
-
-                                            Chat chat = handler.getChat("project_" + id);
-                                            chatManager.setCurrentChat(chat);
-                                            chat.addPlayer(p.getUniqueId());
-                                            p.sendMessage(getPrefix() + "Te has unido al chat del proyecto §a" + project.getDisplayName() + "§f.");
-                                        } catch (SQLException e) {
-                                            p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                                        }
-                                    },
-                                    null,
-                                    null,
-                                    null
-                            );
-                        }
-                        gui.openTo(p, plugin);
-                    }
-                    return true;
-                }
-
                 if (args[0].matches("[a-z]{6}")) { // TODO TEST INVITES
                     if (!invites.containsKey(args[0])) {
                         p.sendMessage(getPrefix() + "La invitación introducida no existe.");
@@ -351,6 +178,7 @@ public class ChatCommand implements CommandExecutor, Prefixable {
                 }
 
                 Player target = plugin.getOnlinePlayer(args[0]);
+
                 if (target != null) {
                     ChatManager targetChatManager = plugin.getPlayerRegistry().get(target.getUniqueId()).getChatManager();
                     try {
@@ -367,6 +195,314 @@ public class ChatCommand implements CommandExecutor, Prefixable {
             }
         }
         return true;
+    }
+
+    public void openConfigChatMenu(@NotNull Player p) throws SQLException {
+
+        ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+
+        ChatManager manager = s.getChatManager();
+
+        CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                "Elige un chat",
+                6,
+                new Integer[]{
+                        18, 19, 20, 21, 22, 23, 24, 25, 26,
+                        27, 28, 29, 30, 31, 32, 33, 34, 35,
+                        36, 37, 38, 39, 40, 41, 42, 43, 44,
+                        45, 46, 47, 48, 49, 50, 51, 52, 53
+                },
+                9, 17
+        );
+
+        Chat globalChat = plugin.getChatHandler().getChat("global");
+
+        gui.addPaginated(
+                globalChat.getHead(),
+                event -> {
+                    try {
+                        if (manager.getCurrentChatName().equals("global")) {
+                            event.closeGUI();
+                            return;
+                        }
+
+                        Chat oldChat = manager.getCurrentChat();
+                        oldChat.removePlayer(p.getUniqueId());
+
+                        manager.setCurrentChat(globalChat);
+                        globalChat.addPlayer(p.getUniqueId());
+                        event.closeGUI();
+                        p.sendMessage(plugin.getChatHandler().getPrefix() + "Te has unido al chat §aGlobal§f.");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        event.closeGUI();
+                    }
+                },
+                null, null, null
+        );
+
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+
+            Chat countryChat = plugin.getChatHandler().getChat(country.getName());
+
+            gui.addPaginated(
+                    countryChat.getHead(),
+                    event -> {
+                        try {
+                            if (manager.getCurrentChatName().equals(country.getName())) {
+                                event.closeGUI();
+                                return;
+                            }
+
+                            Chat oldChat = manager.getCurrentChat();
+                            oldChat.removePlayer(p.getUniqueId());
+
+                            manager.setCurrentChat(countryChat);
+                            countryChat.addPlayer(p.getUniqueId());
+                            event.closeGUI();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Te has unido al chat de §a" + country.getDisplayName() + "§f.");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            event.closeGUI();
+                        }
+                    },
+                    null, null, null
+            );
+        }
+
+        ResultSet set = plugin.getSqlManager().select(
+                "projects",
+                new SQLColumnSet(
+                        "id", "name", "tag"
+                ),
+                new SQLORConditionSet(
+                        new SQLOperatorCondition(
+                                "owner", "=", p.getUniqueId()
+                        ),
+                        new SQLJSONArrayCondition(
+                                "members", p.getUniqueId()
+                        )
+                )
+        ).retrieve();
+
+        while (set.next()) {
+
+            String tagString = set.getString("tag");
+            ProjectTag tag = (tagString != null ? ProjectTag.valueOf(tagString) : null);
+
+            String name = set.getString("name");
+
+            String id = set.getString("id");
+
+            List<String> lore = new ArrayList<>();
+            if (plugin.getChatHandler().isLoaded("project_" + id)) {
+                Chat chat = plugin.getChatHandler().getChat("project_" + id);
+                lore.add("Jugadores: §7" + chat.getPlayers().size());
+            } else {
+                lore.add("Jugadores: §70");
+            }
+
+            gui.addPaginated(
+                    (tag != null ?
+                            ItemBuilder.head(
+                                    tag.getHeadValue(),
+                                    "§aProyecto " + (name != null ? name : set.getString("id".toUpperCase())),
+                                    lore
+                            ) :
+                            ItemBuilder.of(Material.MAP)
+                                    .name("§aProyecto " + (name != null ? name : set.getString("id".toUpperCase())))
+                                    .lore(lore)
+                                    .build()
+                    ),
+                    event -> {
+                        try {
+                            if (manager.getCurrentChatName().equals("project_" + id)) {
+                                event.closeGUI();
+                                return;
+                            }
+
+                            Project project = plugin.getProjectRegistry().get(id);
+
+                            if (!plugin.getChatHandler().isLoaded("project_" + id)) {
+                                plugin.getChatHandler().registerChat(
+                                        new ProjectChat(project, plugin.getChatHandler())
+                                );
+                            }
+
+                            Chat projectChat = plugin.getChatHandler().getChat("project_" + id);
+
+                            Chat oldChat = manager.getCurrentChat();
+                            oldChat.removePlayer(p.getUniqueId());
+
+                            manager.setCurrentChat(projectChat);
+                            projectChat.addPlayer(p.getUniqueId());
+                            event.closeGUI();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Te has unido al chat del proyecto §a" + project.getDisplayName() + "§f.");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            event.closeGUI();
+                        }
+                    },
+                    null, null, null
+            );
+
+        }
+
+        gui.openTo(p, plugin);
+
+    }
+
+    public void openConfigDefaultChatMenu(@NotNull Player p) throws SQLException {
+
+        ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+
+        ChatManager manager = s.getChatManager();
+
+        CustomSlotsPaginatedGUI gui = new CustomSlotsPaginatedGUI(
+                "Elige un chat predeterminado",
+                6,
+                new Integer[]{
+                        18, 19, 20, 21, 22, 23, 24, 25, 26,
+                        27, 28, 29, 30, 31, 32, 33, 34, 35,
+                        36, 37, 38, 39, 40, 41, 42, 43, 44,
+                        45, 46, 47, 48, 49, 50, 51, 52, 53
+                },
+                9, 17
+        );
+
+        Chat globalChat = plugin.getChatHandler().getChat("global");
+
+        gui.addPaginated(
+                globalChat.getHead(),
+                event -> {
+                    try {
+                        if (manager.getDefaultChatName().equals("global")) {
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Tu chat predeterminado ya es el chat §aGlobal§f.");
+                            event.closeGUI();
+                            return;
+                        }
+
+                        manager.setDefaultChat(globalChat);
+                        event.closeGUI();
+                        p.sendMessage(plugin.getChatHandler().getPrefix() + "Chat predeterminado cambiado al chat §aGlobal§f.");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        event.closeGUI();
+                    }
+                },
+                null, null, null
+        );
+
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+
+            Chat countryChat = plugin.getChatHandler().getChat(country.getName());
+
+            gui.addPaginated(
+                    countryChat.getHead(),
+                    event -> {
+                        try {
+                            if (manager.getDefaultChatName().equals(country.getName())) {
+                                p.sendMessage(plugin.getChatHandler().getPrefix() + "Tu chat predeterminado ya es el chat de §a" + country.getDisplayName() + "§f.");
+                                event.closeGUI();
+                                return;
+                            }
+
+                            manager.setDefaultChat(countryChat);
+                            event.closeGUI();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Chat predeterminado cambiado al chat de §a" + country.getDisplayName() + "§f.");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            event.closeGUI();
+                        }
+                    },
+                    null, null, null
+            );
+        }
+
+        ResultSet set = plugin.getSqlManager().select(
+                "projects",
+                new SQLColumnSet(
+                        "id", "name", "tag"
+                ),
+                new SQLORConditionSet(
+                        new SQLOperatorCondition(
+                                "owner", "=", p.getUniqueId()
+                        ),
+                        new SQLJSONArrayCondition(
+                                "members", p.getUniqueId()
+                        )
+                )
+        ).retrieve();
+
+        while (set.next()) {
+
+            String tagString = set.getString("tag");
+            ProjectTag tag = (tagString != null ? ProjectTag.valueOf(tagString) : null);
+
+            String name = set.getString("name");
+
+            String id = set.getString("id");
+
+            List<String> lore = new ArrayList<>();
+            if (plugin.getChatHandler().isLoaded("project_" + id)) {
+                Chat chat = plugin.getChatHandler().getChat("project_" + id);
+                lore.add("Jugadores: §7" + chat.getPlayers().size());
+            } else {
+                lore.add("Jugadores: §70");
+            }
+
+            gui.addPaginated(
+                    (tag != null ?
+                            ItemBuilder.head(
+                                    tag.getHeadValue(),
+                                    "§aProyecto " + (name != null ? name : set.getString("id".toUpperCase())),
+                                    lore
+                            ) :
+                            ItemBuilder.of(Material.MAP)
+                                    .name("§aProyecto " + (name != null ? name : set.getString("id".toUpperCase())))
+                                    .lore(lore)
+                                    .build()
+                    ),
+                    event -> {
+                        try {
+                            Project project = plugin.getProjectRegistry().get(id);
+
+                            if (manager.getDefaultChatName().equals("project_" + id)) {
+                                p.sendMessage(plugin.getChatHandler().getPrefix() + "Tu chat predeterminado ya es el chat del proyecto §a" + project.getDisplayName() + "§f.");
+                                event.closeGUI();
+                                return;
+                            }
+
+
+                            if (!plugin.getChatHandler().isLoaded("project_" + id)) {
+                                plugin.getChatHandler().registerChat(
+                                        new ProjectChat(project, plugin.getChatHandler())
+                                );
+                            }
+
+                            Chat projectChat = plugin.getChatHandler().getChat("project_" + id);
+
+                            manager.setDefaultChat(projectChat);
+                            event.closeGUI();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Chat predeterminado cambiado al chat del proyecto §a" + project.getDisplayName() + "§f.");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            p.sendMessage(plugin.getChatHandler().getPrefix() + "Ha ocurrido un error en la base de datos.");
+                            event.closeGUI();
+                        }
+                    },
+                    null, null, null
+            );
+
+        }
+
+        gui.openTo(p, plugin);
+
     }
 
     @Override
