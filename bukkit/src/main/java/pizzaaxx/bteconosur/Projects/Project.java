@@ -45,12 +45,12 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     private final Country country;
     private Set<String> cities;
     private Long pending;
-    private final ProjectType type;
+    private ProjectType type;
     private int points;
     public Set<UUID> members;
     public UUID owner;
     private ProjectTag tag;
-    private final ProtectedPolygonalRegion region;
+    private ProtectedPolygonalRegion region;
     private final Set<UUID> requests;
     private Post post;
 
@@ -510,6 +510,7 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
                 new SQLColumnSet(
                         "name",
                         "pending",
+                        "type",
                         "points",
                         "owner",
                         "tag",
@@ -531,6 +532,7 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
 
             this.pending = (timestamp == null ? null : timestamp.getTime());
 
+            this.type = country.getProjectType(set.getString("type"));
             this.points = set.getInt("points");
             this.owner = plugin.getSqlManager().getUUID(set, "owner");
             String tag = set.getString("tag");
@@ -541,6 +543,8 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
                 members.add(UUID.fromString(uuid));
             }
             this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
+
+            this.region = (ProtectedPolygonalRegion) plugin.getRegionManager().getRegion("project_" + id);
 
         } else {
             throw new IllegalArgumentException();

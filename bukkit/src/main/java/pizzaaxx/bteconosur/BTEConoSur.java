@@ -53,6 +53,7 @@ import pizzaaxx.bteconosur.Posts.Commands.ProjectPostCommand;
 import pizzaaxx.bteconosur.Posts.Listener.PostsListener;
 import pizzaaxx.bteconosur.Posts.PostsRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
+import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectRedefineRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
 import pizzaaxx.bteconosur.Projects.Listeners.ProjectRegionListener;
@@ -420,6 +421,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         jdaBuilder.addEventListeners(
                 linkCommand,
                 new ProjectCreationRequestListener(this),
+                new ProjectRedefineRequestListener(this),
                 chatHandler,
                 new CreateCityCommand(this),
                 new PostsListener(this),

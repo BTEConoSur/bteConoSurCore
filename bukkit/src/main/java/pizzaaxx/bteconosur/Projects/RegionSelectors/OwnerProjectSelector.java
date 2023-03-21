@@ -16,6 +16,6 @@ public class OwnerProjectSelector implements ProjectRegionSelector {
 
     @Override
     public boolean applies(@NotNull Project project) {
-        return project.getOwner().equals(owner);
+        return project.getOwner() != null && project.getOwner().equals(owner);
     }
 }
