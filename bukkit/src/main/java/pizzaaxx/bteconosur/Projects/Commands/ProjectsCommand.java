@@ -6,6 +6,7 @@ import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -56,6 +57,7 @@ import xyz.upperlevel.spigot.book.BookUtil;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -1356,6 +1358,236 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                 builder.pages(pages);
                 BookUtil.openPlayer(p, builder.build());
 
+                break;
+            }
+            case "redefine": {
+
+                Region region;
+                try {
+                    region = plugin.getWorldEdit().getSelection(p);
+                } catch (IncompleteRegionException e) {
+                    p.sendMessage(getPrefix() + "Selecciona un área poligonal completa.");
+                    return true;
+                }
+
+                if (!(region instanceof Polygonal2DRegion)) {
+                    p.sendMessage(getPrefix() + "Selecciona un área poligonal completa.");
+                    return true;
+                }
+
+                Polygonal2DRegion polyRegion = (Polygonal2DRegion) region;
+
+                List<String> ids = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new OwnerProjectSelector(p.getUniqueId()));
+
+                if (ids.isEmpty()) {
+                    p.sendMessage(getPrefix() + "No hay proyectos de los que seas líder aquí.");
+                } if (ids.size() == 1) {
+
+
+
+                } else {
+
+                    PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
+                            6,
+                            "Elije un proyecto para redefinir"
+                    );
+
+                    for (String id : ids) {
+
+                        Project project = plugin.getProjectRegistry().get(id);
+
+                        gui.add(
+                                project.getItem(),
+                                event -> {
+
+                                    try {
+                                        ResultSet set = plugin.getSqlManager().select(
+                                                "project_redefine_requests",
+                                                new SQLColumnSet("message_id", "country"),
+                                                new SQLANDConditionSet(
+                                                        new SQLOperatorCondition(
+                                                                "project_id", "=", project.getId()
+                                                        )
+                                                )
+                                        ).retrieve();
+
+                                        if (set.next()) {
+
+                                            InventoryGUI confirmGUI = new InventoryGUI(
+                                                    1,
+                                                    "¿Reemplazar solicitud actual?"
+                                            );
+
+                                            confirmGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            ItemBuilder.CONFIRM_HEAD,
+                                                            "§aConfirmar",
+                                                            null
+                                                    ),
+                                                    3
+                                            );
+
+                                            confirmGUI.setLCAction(
+                                                    confirmEvent -> {
+                                                        try {
+                                                            project.getCountry().getRequestsChannel().retrieveMessageById(set.getString("message_id")).queue(
+                                                                    message -> message.delete().queue(
+                                                                            v -> {
+                                                                                try {
+                                                                                    plugin.getSqlManager().delete(
+                                                                                            "project_redefine_requests",
+                                                                                            new SQLANDConditionSet(
+                                                                                                    new SQLOperatorCondition(
+                                                                                                            "project_id", "=", project.getId()
+                                                                                                    )
+                                                                                            )
+                                                                                    ).execute();
+
+                                                                                    EmbedBuilder builder = new EmbedBuilder();
+                                                                                    builder.setColor(Color.GREEN);
+                                                                                    builder.setTitle(s.getName() + " quiere redefinir el proyecto " + project.getId().toUpperCase());
+                                                                                    builder.setFooter("🔵 Región original /// 🔴 Región nueva");
+                                                                                    builder.setImage("attachment://map.png");
+
+                                                                                    InputStream is = plugin.getSatMapHandler().getMapStream(
+                                                                                            new SatMapHandler.SatMapPolygon(
+                                                                                                    plugin,
+                                                                                                    project.getRegion().getPoints(),
+                                                                                                    "3068ff"
+                                                                                            ),
+                                                                                            new SatMapHandler.SatMapPolygon(
+                                                                                                    plugin,
+                                                                                                    polyRegion.getPoints(),
+                                                                                                    "ff0000"
+                                                                                            )
+                                                                                    );
+
+                                                                                    StringSelectMenu.Builder typeSelector = StringSelectMenu.create("projectRedefineTypeSelector");
+                                                                                    for (ProjectType type : project.getCountry().getProjectTypes()) {
+                                                                                        typeSelector.addOption(type.getDisplayName(), type.getName());
+                                                                                    }
+                                                                                    typeSelector.setDefaultValues(project.getType().getName());
+
+                                                                                    StringSelectMenu.Builder pointsSelector = StringSelectMenu.create("projectRedefinePointsSelector");
+                                                                                    for (int option : project.getType().getPointsOptions()) {
+                                                                                        pointsSelector.addOption(Integer.toString(option), Integer.toString(option));
+                                                                                    }
+                                                                                    pointsSelector.setDefaultValues(Integer.toString(project.getPoints()));
+
+                                                                                    Button acceptButton = Button.of(
+                                                                                            ButtonStyle.SUCCESS,
+                                                                                            "projectRedefineAccept",
+                                                                                            "Aceptar",
+                                                                                            Emoji.fromCustom(
+                                                                                                    "approve",
+                                                                                                    959984723868913714L,
+                                                                                                    false
+                                                                                            )
+                                                                                    ).withDisabled(true);
+
+                                                                                    Button rejectButton = Button.of(
+                                                                                            ButtonStyle.DANGER,
+                                                                                            "projectRedefineReject",
+                                                                                            "Rechazar",
+                                                                                            Emoji.fromCustom(
+                                                                                                    "reject",
+                                                                                                    959984723789250620L,
+                                                                                                    false
+                                                                                            )
+                                                                                    );
+
+                                                                                    project.getCountry().getRequestsChannel().sendMessageEmbeds(
+                                                                                                    builder.build()
+                                                                                            )
+                                                                                            .setFiles(
+                                                                                                    FileUpload.fromData(is, "map.png")
+                                                                                            )
+                                                                                            .setComponents(
+                                                                                                    ActionRow.of(
+                                                                                                            typeSelector.build()
+                                                                                                    ),
+                                                                                                    ActionRow.of(
+                                                                                                            pointsSelector.build()
+                                                                                                    ),
+                                                                                                    ActionRow.of(
+                                                                                                            acceptButton,
+                                                                                                            rejectButton
+                                                                                                    )
+                                                                                            ).queue(
+                                                                                                    request -> {
+                                                                                                        try {
+                                                                                                            plugin.getSqlManager().insert(
+                                                                                                                    "project_redefine_requests",
+                                                                                                                    new SQLValuesSet(
+                                                                                                                            new SQLValue(
+                                                                                                                                    "project_id", project.getId()
+                                                                                                                            ),
+                                                                                                                            new SQLValue(
+                                                                                                                                    "region_points", polyRegion.getPoints()
+                                                                                                                            ),
+                                                                                                                            new SQLValue(
+                                                                                                                                    "message_id", request.getId()
+                                                                                                                            ),
+                                                                                                                            new SQLValue(
+                                                                                                                                    "original_type", project.getType().getName()
+                                                                                                                            ),
+                                                                                                                            new SQLValue(
+                                                                                                                                    "original_points", project.getPoints()
+                                                                                                                            )
+                                                                                                                    )
+                                                                                                            ).execute();
+
+                                                                                                        } catch (SQLException e) {
+                                                                                                            request.delete().queue();
+                                                                                                        }
+                                                                                                    }
+                                                                                            );
+                                                                                } catch (SQLException | IOException e) {
+                                                                                    p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                                                }
+                                                                            }
+                                                                    )
+                                                            );
+                                                        } catch (SQLException e) {
+                                                            p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                                        }
+                                                    },
+                                                    3
+                                            );
+
+                                            confirmGUI.setItem(
+                                                    ItemBuilder.head(
+                                                            ItemBuilder.CANCEL_HEAD,
+                                                            "§cCancelar",
+                                                            null
+                                                    ),
+                                                    5
+                                            );
+
+                                            confirmGUI.setLCAction(
+                                                    InventoryGUIClickEvent::closeGUI,
+                                                    5
+                                            );
+
+                                        } else {
+
+
+
+                                        }
+
+                                    } catch (SQLException e) {
+                                        p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                                    }
+
+                                },
+                                null, null, null
+                        );
+
+                    }
+
+                }
+
+                break;
             }
         }
         return true;
