@@ -145,6 +145,21 @@ public class ReviewProjectAction {
                         )
                 ).execute();
 
+                plugin.getSqlManager().insert(
+                        "tour_displays",
+                        new SQLValuesSet(
+                                new SQLValue(
+                                        "date", date
+                                ),
+                                new SQLValue(
+                                        "type", "finished_project"
+                                ),
+                                new SQLValue(
+                                        "id", id
+                                )
+                        )
+                ).execute();
+
                 File source = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
                 File target = new File(plugin.getDataFolder(), "projects/images/" + id + ".png");
 
