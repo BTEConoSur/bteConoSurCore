@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -21,6 +22,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pizzaaxx.bteconosur.BuildEvents.BuildEventsRegistry;
+import pizzaaxx.bteconosur.BuildEvents.Commands.BuildEventCommand;
 import pizzaaxx.bteconosur.Chat.*;
 import pizzaaxx.bteconosur.Chat.Commands.ChatCommand;
 import pizzaaxx.bteconosur.Chat.Commands.NicknameCommand;
@@ -262,6 +265,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return prefixCommand;
     }
 
+    private final BuildEventsRegistry buildEventsRegistry = new BuildEventsRegistry(this);
+
+    public BuildEventsRegistry getBuildEventsRegistry() {
+        return buildEventsRegistry;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -404,8 +413,18 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             return;
         }
 
+        // --- LINKS ---
+        this.log("Starting build events registry...");
+        try {
+            buildEventsRegistry.init();
+        } catch (SQLException e) {
+            this.error("Plugin starting stopped. Build events registry startup failed.");
+            return;
+        }
+
 
         LinkCommand linkCommand = new LinkCommand(this);
+        BuildEventCommand buildEventCommand = new BuildEventCommand(this);
 
         // --- DISCORD ---
         Configuration discordConfig = new Configuration(this, "discord/token");
@@ -416,7 +435,11 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         jdaBuilder.enableIntents(
                 GatewayIntent.MESSAGE_CONTENT,
-                GatewayIntent.DIRECT_MESSAGES
+                GatewayIntent.DIRECT_MESSAGES,
+                GatewayIntent.SCHEDULED_EVENTS
+        );
+        jdaBuilder.enableCache(
+                CacheFlag.SCHEDULED_EVENTS
         );
         jdaBuilder.addEventListeners(
                 linkCommand,
@@ -430,7 +453,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 discordHandler,
                 new CityCommand(this),
                 new ScoreboardCommand(this),
-                new PlayerCommand(this)
+                new PlayerCommand(this),
+                buildEventCommand
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
@@ -480,6 +504,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("tour").setExecutor(tourCommand);
         getCommand("scoreboard").setExecutor(new pizzaaxx.bteconosur.Scoreboard.ScoreboardCommand(this));
         getCommand("prefix").setExecutor(prefixCommand);
+        getCommand("buildevent").setExecutor(buildEventCommand);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

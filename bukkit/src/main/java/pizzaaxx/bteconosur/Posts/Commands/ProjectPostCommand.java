@@ -216,8 +216,6 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                         event.replyModal(modal).queue();
 
-                    } else {
-                        DiscordUtils.respondError(event, "Esta publicación está cerrada y no puede ser editada.");
                     }
                     break;
                 }
@@ -275,8 +273,6 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                     DiscordUtils.respondSuccessEphemeral(event, "Imagen de portada establecida correctamente.");
                                 }
                         );
-                    } else {
-                        DiscordUtils.respondError(event, "Esta publicación está cerrada y no puede ser editada.");
                     }
                     break;
                 }
@@ -319,8 +315,6 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                 }
                         );
 
-                    } else {
-                        DiscordUtils.respondError(event, "Esta publicación está cerrada y no puede ser editada.");
                     }
                     break;
                 }

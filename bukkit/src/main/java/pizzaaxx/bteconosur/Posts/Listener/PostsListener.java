@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.BuildEvents.BuildEvent;
 import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.ProjectWrapper;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProject;
@@ -69,6 +70,7 @@ public class PostsListener extends ListenerAdapter {
                                 )
                         ).queue()
                 );
+                return;
             }
 
             UUID uuid = plugin.getLinksRegistry().get(event.getAuthor().getId());
@@ -94,18 +96,42 @@ public class PostsListener extends ListenerAdapter {
                 );
             }
 
+        } else if (plugin.getBuildEventsRegistry().channelIDToEventID.containsKey(event.getChannel().getId())) {
+
+            if (!plugin.getLinksRegistry().isLinked(event.getAuthor().getId())) {
+                event.getMessage().delete().queue();
+                event.getAuthor().openPrivateChannel().queue(
+                        privateChannel -> privateChannel.sendMessageEmbeds(
+                                DiscordUtils.fastEmbed(
+                                        Color.RED,
+                                        "Conecta tu cuenta para poder publicar aquí.",
+                                        "Usa `/link` en Discord para conectar tu cuenta."
+                                )
+                        ).queue()
+                );
+                return;
+            }
+
+            UUID uuid = plugin.getLinksRegistry().get(event.getAuthor().getId());
+
+            String eventID = plugin.getBuildEventsRegistry().channelIDToEventID.get(event.getChannel().getId());
+
+            BuildEvent buildEvent = plugin.getBuildEventsRegistry().get(eventID);
+
+            if (!buildEvent.getMembers().contains(uuid)) {
+                event.getMessage().delete().queue();
+                event.getAuthor().openPrivateChannel().queue(
+                        privateChannel -> privateChannel.sendMessageEmbeds(
+                                DiscordUtils.fastEmbed(
+                                        Color.RED,
+                                        "Debes ser un miembro de este evento para poder publicar aquí."
+                                )
+                        ).queue()
+                );
+            }
+
         } else {
-
             event.getMessage().delete().queue();
-            event.getAuthor().openPrivateChannel().queue(
-                    privateChannel -> privateChannel.sendMessageEmbeds(
-                            DiscordUtils.fastEmbed(
-                                    Color.RED,
-                                    "Esta publicación está cerrada."
-                                    )
-                    ).queue()
-            );
-
         }
     }
 

@@ -18,6 +18,8 @@ import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
 import java.io.IOException;
@@ -49,6 +51,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
     private final Emoji emoji;
     private final String chatPrefix;
     private final String tabPrefix;
+    private String buildEventID;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -92,6 +95,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
         this.emoji = Emoji.fromFormatted(set.getString("emoji"));
         this.chatPrefix = set.getString("chat_prefix");
         this.tabPrefix = set.getString("tab_prefix");
+        this.buildEventID = set.getString("current_build_event_id");
     }
 
     public BTEConoSur getPlugin() {
@@ -176,6 +180,31 @@ public class Country implements JSONParsable, ScoreboardDisplay {
 
     public Emoji getEmoji() {
         return emoji;
+    }
+
+    public void setBuildEventID(String id) throws SQLException {
+        this.buildEventID = id;
+        plugin.getSqlManager().update(
+                "countries",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "current_build_event_id", id
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "name", "=", this.name
+                        )
+                )
+        ).execute();
+    }
+
+    public String getBuildEventID() {
+        return buildEventID;
+    }
+
+    public BuildEvent getBuildEvent() {
+        return plugin.getBuildEventsRegistry().get(buildEventID);
     }
 
     public List<ProjectType> getUnlockedProjectTypes(ProjectManager manager) {
