@@ -30,7 +30,18 @@
 * ✔️ `/pwarp set <nombre>`
 * ✔️ `/pwarp delete <nombre>`
 * ✔️ `/pwarp list`
-* ✔️ `/pwarp <nombre>`
+* ✔️ `/pwarp <nombre>`  
+### Eventos de construcción
+#### Minecraft
+* ✔️ `/buildevent region`
+* ✔️ `/buildevent spawn`
+* ✔️ `/buildevent join`
+* ✔️ `/buildevent leave`
+#### Discord
+* ✔️ Eventos de Discord
+* ✔️ Publicación
+* ✔️ `/buildevent edit`
+* ✔️ `/buildevent post`
 ## WorldEdit
 * ✔️ Atajos
 * ✔️ `//polywalls <patrón> [-l|-last]`
