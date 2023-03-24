@@ -605,12 +605,19 @@ public class BuildEvent implements TourCommand.TourDisplay {
         }
     }
 
-    public void finish() throws SQLException {
+    public void finish() throws SQLException, IOException {
 
         if (status == Status.ACTIVE) {
 
             this.update("status", "FINISHED");
             this.status = FINISHED;
+
+            plugin.getTerramapHandler().drawPolygon(
+                    CoordinatesUtils.getCoords2D(plugin, ((ProtectedPolygonalRegion) region).getPoints()),
+                    new Color(51, 60, 232),
+                    "event" + id.toUpperCase()
+            );
+
             plugin.getRegionManager().removeRegion("event_" + id);
 
             for (UUID member : members) {

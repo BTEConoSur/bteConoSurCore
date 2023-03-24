@@ -114,10 +114,10 @@
 * ✔️ `/project review`
 * ✔️ `/project request`
 * ✔️ `/project progress`  
-* ✔️ `/project redefine`  
 **Subcomando nuevo:**
   * Muestra tu progreso en los tipos de proyecto. Cuáles has desbloqueado y cuáles no.
 * 🕙 `/project tutorial`
+* ✔️ `/project redefine`
 ## Chat
 * ✔️ `/chat [nombre]`
 * ✔️ `/chat set`

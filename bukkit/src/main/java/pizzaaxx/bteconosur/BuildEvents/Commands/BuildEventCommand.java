@@ -640,7 +640,7 @@ public class BuildEventCommand extends ListenerAdapter implements SlashCommandCo
             } else if (event.getNewStatus() == ScheduledEvent.Status.COMPLETED) {
                 try {
                     country.getBuildEvent().finish();
-                } catch (SQLException e) {
+                } catch (SQLException | IOException e) {
                     e.printStackTrace();
                 }
             }
