@@ -10,8 +10,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
@@ -67,6 +70,22 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                 ":game_die: Tipo:",
                 project.getType().getDisplayName() + " (" + project.getPoints() + ")",
                 true
+        );
+        if (project.getTag() != null) {
+            builder.addField(
+                    ":label: Etiqueta:",
+                    StringUtils.capitalize(project.getTag().toString().toLowerCase()),
+                    true
+            );
+        } else {
+            builder.addBlankField(true);
+        }
+        Location loc = project.getTeleportLocation();
+        Coords2D coords = new Coords2D(plugin, loc);
+        builder.addField(
+                ":round_pushpin: Coordenadas:",
+                "[" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "](https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")",
+                false
         );
 
 
