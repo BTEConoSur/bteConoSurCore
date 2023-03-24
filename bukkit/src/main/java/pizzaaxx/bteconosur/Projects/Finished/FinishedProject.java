@@ -6,6 +6,7 @@ import com.sk89q.worldedit.BlockVector2D;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Commands.TourCommand;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.ProjectWrapper;
@@ -23,7 +24,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class FinishedProject implements ProjectWrapper, ScoreboardDisplay {
+public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay {
 
     private final BTEConoSur plugin;
     private final String id;

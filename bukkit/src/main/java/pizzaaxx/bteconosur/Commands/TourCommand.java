@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Commands;
 import com.google.common.collect.Lists;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.BuildEvents.BuildEvent;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -23,13 +25,12 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
+import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.Utils.Pair;
 import xyz.upperlevel.spigot.book.BookUtil;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
@@ -100,30 +101,48 @@ public class TourCommand implements CommandExecutor, Listener {
 
     }
 
+    public interface TourDisplay extends ScoreboardDisplay {
+
+        Location getTeleportLocation();
+
+    }
+
     public void tour(Player p, City city, int counter) {
 
         try {
 
-            int finishedAmount = city.getFinishedProjectsAmount();
+            ResultSet countSet = plugin.getSqlManager().select(
+                    "tour_displays",
+                    new SQLColumnSet(
+                            "COUNT(id) AS count"
+                    ),
+                    new SQLANDConditionSet(
+                            new SQLJSONArrayCondition("cities", city.getName())
+                    )
+            ).retrieve();
+
+            countSet.next();
+
+            int finishedAmount = countSet.getInt("count");
 
             if (finishedAmount == 0) {
-                p.sendMessage(plugin.getPrefix() + "§a" + city.getDisplayName() + "§f no tiene proyectos terminados.");
+                p.sendMessage(plugin.getPrefix() + "§a" + city.getDisplayName() + "§f no tiene proyectos ni eventos terminados.");
                 return;
             }
 
             int finalCounter = (counter >= finishedAmount ? 0 : (counter < 0 ? finishedAmount - 1 : counter));
 
             ResultSet set = plugin.getSqlManager().select(
-                    "finished_projects",
+                    "tour_displays",
                     new SQLColumnSet(
-                            "id"
+                            "id", "type"
                     ),
                     new SQLANDConditionSet(
                             new SQLJSONArrayCondition("cities", city.getName())
                     ),
                     new SQLOrderSet(
                             new SQLOrderExpression(
-                                    "finished_date", ASC
+                                    "date", ASC
                             )
                     )
             ).addText(" LIMIT 1 OFFSET " + finalCounter).retrieve();
@@ -132,7 +151,12 @@ public class TourCommand implements CommandExecutor, Listener {
 
             String id = set.getString("id");
 
-            FinishedProject project = plugin.getFinishedProjectsRegistry().get(id);
+            TourDisplay display;
+            if (set.getString("type").equals("finished_project")) {
+                display = plugin.getFinishedProjectsRegistry().get(id);
+            } else {
+                display = plugin.getBuildEventsRegistry().get(id);
+            }
 
             for (int i = 0; i < 9; i++) {
                 p.getInventory().clear(i);
@@ -163,7 +187,7 @@ public class TourCommand implements CommandExecutor, Listener {
                     )
             );
 
-            p.teleport(project.getTeleportLocation());
+            p.teleport(display.getTeleportLocation());
 
             ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
             s.getScoreboardManager().setHidden(false);
@@ -171,7 +195,7 @@ public class TourCommand implements CommandExecutor, Listener {
                 s.getScoreboardManager().setAuto(false);
                 p.sendActionBar("§7Scoreboard automático desactivado");
             }
-            s.getScoreboardManager().setDisplay(project);
+            s.getScoreboardManager().setDisplay(display);
 
             tours.put(p.getUniqueId(), new Pair<>(city.getName(), finalCounter));
 
@@ -210,25 +234,31 @@ public class TourCommand implements CommandExecutor, Listener {
 
                     try {
                         ResultSet set = plugin.getSqlManager().select(
-                                "finished_projects",
-                                new SQLColumnSet("id"),
+                                "tour_displays",
+                                new SQLColumnSet(
+                                        "id", "type"
+                                ),
                                 new SQLANDConditionSet(
-                                        new SQLJSONArrayCondition(
-                                                "cities", city.getName()
-                                        )
+                                        new SQLJSONArrayCondition("cities", city.getName())
                                 ),
                                 new SQLOrderSet(
                                         new SQLOrderExpression(
-                                                "finished_date", ASC
+                                                "date", ASC
                                         )
                                 )
                         ).retrieve();
 
                         List<String> displayNames = new ArrayList<>();
                         while (set.next()) {
-                            FinishedProject project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
+                            if (set.getString("type").equals("finished_project")) {
+                                FinishedProject project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
 
-                            displayNames.add(project.getDisplayName());
+                                displayNames.add(project.getDisplayName());
+                            } else {
+                                BuildEvent buildEvent = plugin.getBuildEventsRegistry().get(set.getString("id"));
+
+                                displayNames.add("Evento " + buildEvent.getName());
+                            }
                         }
 
                         BookUtil.BookBuilder builder = BookUtil.writtenBook();
@@ -250,7 +280,7 @@ public class TourCommand implements CommandExecutor, Listener {
                                 page.newLine();
                                 page.add("§7• §r");
                                 page.add(
-                                        BookUtil.TextBuilder.of(name)
+                                        BookUtil.TextBuilder.of((name.length() > 16 ? name.substring(0, 16) + "..." : name))
                                                 .color((counter == count ? ChatColor.GREEN : ChatColor.BLACK))
                                                 .onHover(BookUtil.HoverAction.showText("Haz click para ir."))
                                                 .onClick(BookUtil.ClickAction.runCommand("/tour " + city.getName() + " " + counter))

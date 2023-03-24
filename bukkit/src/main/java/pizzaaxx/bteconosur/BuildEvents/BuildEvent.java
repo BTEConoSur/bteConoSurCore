@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
+import pizzaaxx.bteconosur.Commands.TourCommand;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.ProjectType;
@@ -34,6 +35,8 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
+import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
+import pizzaaxx.bteconosur.Utils.RegionUtils;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
@@ -42,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -51,7 +55,7 @@ import java.util.*;
 import static pizzaaxx.bteconosur.BuildEvents.BuildEvent.Status.*;
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
-public class BuildEvent implements ScoreboardDisplay {
+public class BuildEvent implements TourCommand.TourDisplay {
 
     public enum Status {
         EDITED, POSTED, ACTIVE, FINISHED
@@ -105,7 +109,21 @@ public class BuildEvent implements ScoreboardDisplay {
             this.minimumType = (typeString != null ? country.getProjectType(typeString) : null);
             this.pointsGiven = set.getInt("points_given");
             this.image = new File(plugin.getDataFolder(), "buildEvents/" + id + ".png");
-            this.region = plugin.getRegionManager().getRegion("event_" + id);
+            if (status == FINISHED) {
+                List<BlockVector2D> regionPoints = new ArrayList<>();
+                List<Object> rawCoords = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
+                for (Object obj : rawCoords) {
+                    Map<String, Double> coords = (Map<String, Double>) obj;
+                    regionPoints.add(new BlockVector2D(coords.get("x"), coords.get("z")));
+                }
+                this.region = new ProtectedPolygonalRegion(
+                        "event_" + id,
+                        regionPoints,
+                        -100, 8000
+                );
+            } else {
+                this.region = plugin.getRegionManager().getRegion("event_" + id);
+            }
             String spawnString = set.getString("spawn_point");
             if (spawnString != null) {
                 Map<String, Double> spawnPointCoordinates = plugin.getJSONMapper().readValue(spawnString, HashMap.class);
@@ -681,17 +699,30 @@ public class BuildEvent implements ScoreboardDisplay {
 
     @Override
     public String getScoreboardTitle() {
-        return "Evento " + name;
+        return "§a§lEvento " + name;
     }
 
     @Override
     public List<String> getScoreboardLines() {
-        return null;
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        List<String> lines = new ArrayList<>();
+
+        lines.add("§fMiembros: §7" + members.size());
+
+        lines.add(" ");
+        lines.add("§fInicio: §7" + format.format(start));
+        lines.add("§fTérmino: §7" + format.format(end));
+        return lines;
     }
 
     @Override
     public String getScoreboardType() {
         return "event";
+    }
+
+    @Override
+    public Location getTeleportLocation() {
+        return CoordinatesUtils.blockVector2DtoLocation(plugin, RegionUtils.getAveragePoint((ProtectedPolygonalRegion) region));
     }
 
 }
