@@ -55,8 +55,10 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
@@ -200,10 +202,10 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
         ProtectedPolygonalRegion region = (ProtectedPolygonalRegion) (city.hasUrbanArea() ? city.getUrbanRegion() : city.getRegion());
 
         double finishedArea = city.getFinishedArea() / 1000000.0;
-        double totalArea = new Polygonal2DRegion(plugin.getWorldEditWorld(), region.getPoints(), 100, 100).getArea() / 1000000.0;
+        double totalArea = city.getTotalArea() / 1000000.0;
         double percentage = (finishedArea / totalArea) * 100;
 
-        DecimalFormat format = new DecimalFormat("#.##");
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.GERMAN);
 
         builder.addField(
                 ":straight_ruler: Área" + (city.hasUrbanArea() ? " urbana " : " ") + "terminada:",

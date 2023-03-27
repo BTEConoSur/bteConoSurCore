@@ -454,7 +454,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new CityCommand(this),
                 new ScoreboardCommand(this),
                 new PlayerCommand(this),
-                buildEventCommand
+                buildEventCommand,
+                new ProjectCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

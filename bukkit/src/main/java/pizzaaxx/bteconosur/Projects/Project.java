@@ -1,5 +1,8 @@
 package pizzaaxx.bteconosur.Projects;
 
+import clipper2.Clipper;
+import clipper2.core.Path64;
+import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
@@ -216,6 +219,27 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
 
     public ProtectedPolygonalRegion getRegion() {
         return region;
+    }
+
+    public double getTotalArea() {
+        Path64 polygon = new Path64();
+
+        List<BlockVector2D> vectors = region.getPoints();
+
+        vectors.forEach(vector -> {
+            Point64 point = new Point64();
+            point.x = (long) vector.getX();
+            point.y = (long) vector.getZ();
+            polygon.add(point);
+        });
+
+        BlockVector2D vector = vectors.get(0);
+        Point64 point = new Point64();
+        point.x = (long) vector.getX();
+        point.y = (long) vector.getZ();
+        polygon.add(point);
+
+        return Clipper.Area(polygon);
     }
 
     public Location getTeleportLocation() {

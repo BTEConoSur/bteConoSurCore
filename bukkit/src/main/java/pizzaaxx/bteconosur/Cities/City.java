@@ -213,6 +213,27 @@ public class City implements JSONParsable, ScoreboardDisplay {
         return finishedArea;
     }
 
+    public double getTotalArea() {
+        Path64 polygon = new Path64();
+
+        List<BlockVector2D> vectors = region.getPoints();
+
+        vectors.forEach(vector -> {
+            Point64 point = new Point64();
+            point.x = (long) vector.getX();
+            point.y = (long) vector.getZ();
+            polygon.add(point);
+        });
+
+        BlockVector2D vector = vectors.get(0);
+        Point64 point = new Point64();
+        point.x = (long) vector.getX();
+        point.y = (long) vector.getZ();
+        polygon.add(point);
+
+        return Clipper.Area(polygon);
+    }
+
     public void updateFinishedArea() throws SQLException, JsonProcessingException {
 
         ResultSet set = plugin.getSqlManager().select(
