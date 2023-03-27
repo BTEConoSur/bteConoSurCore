@@ -9,8 +9,10 @@
 ## Discord
 * ✔️ `/link [código]` (MC y Discord)
 * ✔️ `/unlink` (MC y Discord)
-* ✔️ `/city`
+* ✔️ `/city <nombre>`
 * ✔️ `/scoreboard`
+* ✔️ `/project <id>`
+* ✔️ `/player (name <nombre>|user <usuario>)`
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
