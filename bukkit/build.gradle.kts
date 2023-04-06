@@ -27,11 +27,13 @@ dependencies {
     implementation("com.github.BuildTheEarth:terraplusplus:v1.1.0")
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
     implementation("fr.minuskube:netherboard-bukkit:1.2.2")
-    implementation("com.mysql:mysql-connector-j:8.0.31")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
+    implementation("com.mysql:mysql-connector-j:8.0.32")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")
     implementation("com.github.FreshLlamanade:polylabel-java:7639b75b53")
     compileOnly("me.clip:placeholderapi:2.11.2")
+    implementation("org.jogamp.gluegen:gluegen-rt-main:2.3.2")
+    implementation("org.jogamp.jogl:jogl-all-main:2.3.2")
 }
 
 tasks.withType<JavaCompile> {

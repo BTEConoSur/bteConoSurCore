@@ -77,6 +77,7 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetGroupCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Rendering.ModelsManager;
 import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
@@ -271,6 +272,12 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return buildEventsRegistry;
     }
 
+    private final ModelsManager modelsManager = new ModelsManager(this);
+
+    public ModelsManager getModelsManager() {
+        return modelsManager;
+    }
+
     @Override
     public void onEnable() {
         this.log("BUILD THE EARTH: CONO SUR");
@@ -419,6 +426,16 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             buildEventsRegistry.init();
         } catch (SQLException e) {
             this.error("Plugin starting stopped. Build events registry startup failed.");
+            return;
+        }
+
+        // --- MODELS ---
+        this.log("Starting models manager...");
+        try {
+            modelsManager.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.error("Plugin starting stopped. Models manager startup failed.");
             return;
         }
 

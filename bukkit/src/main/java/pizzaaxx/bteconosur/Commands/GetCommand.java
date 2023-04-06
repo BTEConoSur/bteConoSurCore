@@ -1,5 +1,8 @@
 package pizzaaxx.bteconosur.Commands;
 
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -12,6 +15,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Redstone;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Inventory.InventoryGUI;
@@ -109,6 +113,13 @@ public class GetCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Location loc = event.getClickedBlock().getLocation();
+            BaseBlock block = plugin.getWorldEditWorld().getBlock(new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+            event.getPlayer().sendMessage(block.getId() + ":" + block.getData());
+            if (block.hasNbtData()) {
+                event.getPlayer().sendMessage(block.getNbtData().toString());
+            }
+            Block b = plugin.getWorld().getBlockAt(loc);
             ItemStack item = event.getItem();
             if (item != null && item.getType() == Material.SKULL_ITEM && item.hasItemMeta()) {
                 ItemMeta meta = item.getItemMeta();
