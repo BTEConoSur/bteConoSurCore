@@ -60,6 +60,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
 
         }
 
+
     }
 
     public void projectEmbed(IReplyCallback event, String id) {

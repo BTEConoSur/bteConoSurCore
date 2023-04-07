@@ -17,18 +17,14 @@ public class RenderableAsset implements GLEventListener {
 
     private final BTEConoSur plugin;
     private final Asset asset;
-    private final RenderableModel[][][] models;
+    private RenderableModel[][][] models;
 
-    public RenderableAsset(BTEConoSur plugin, @NotNull Asset asset) throws IOException {
+    public RenderableAsset(@NotNull BTEConoSur plugin, @NotNull Asset asset) throws IOException {
         this.plugin = plugin;
         this.asset = asset;
         this.asset.loadSchematic();
         Vector dimensions = asset.getClipboard().getDimensions();
-        models = new RenderableModel[dimensions.getBlockX()][dimensions.getBlockY()][dimensions.getBlockZ()];
-    }
-
-    public void loadModels() {
-
+        models = plugin.getModelsManager().getClipboard(asset.getClipboard());
     }
 
     private final GLU glu = new GLU();
@@ -57,17 +53,19 @@ public class RenderableAsset implements GLEventListener {
         gl.glRotatef(35.0f, 1.0f, 0.0f, 0.0f);
         gl.glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
 
-        Clipboard clipboard = asset.getClipboard();
+        gl.glBegin(GL2.GL_QUADS); // Start Drawing The Cube
         Vector dimensions = asset.getClipboard().getDimensions();
         for (int x = 0; x < dimensions.getBlockX(); x++) {
             for (int y = 0; x < dimensions.getBlockY(); y++) {
                 for (int z = 0; x < dimensions.getBlockZ(); z++) {
-
-                    this.insert(clipboard, x, y, z, gl);
-
+                    if (models[x][y][z] != null) {
+                        models[x][y][z].render(gl, new double[] {x, y, z});
+                    }
                 }
             }
         }
+        gl.glEnd();
+        gl.glFlush();
 
     }
 
@@ -85,12 +83,4 @@ public class RenderableAsset implements GLEventListener {
         gl.glMatrixMode( GL2.GL_MODELVIEW );
         gl.glLoadIdentity();
     }
-
-    private void insert(@NotNull Clipboard clipboard, int x, int y, int z, GL2 gl) {
-        BaseBlock block = clipboard.getBlock(new Vector(x,y,z));
-
-        
-    }
-
-
 }

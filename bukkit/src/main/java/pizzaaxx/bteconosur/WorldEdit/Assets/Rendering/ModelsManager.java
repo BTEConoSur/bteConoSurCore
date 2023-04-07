@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Rendering;
 
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -8,10 +9,7 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ModelsManager {
 
@@ -22,6 +20,12 @@ public class ModelsManager {
     private final RenderableModel[][][][][][] fences = new RenderableModel[11][16][2][2][2][2];
 
     private final List<Integer> fencesIDs = Arrays.asList(85, 113, 188, 189, 190, 191, 192, 101, 102, 139, 160);
+    private final List<List<Integer>> fenceConnections = Arrays.asList(
+            Arrays.asList(85, 188, 189, 190, 191, 192),
+            Collections.singletonList(113),
+            Arrays.asList(101, 102, 160),
+            Collections.singletonList(139)
+    );
 
     // ID HALF DIRECTION SHAPE
     private final RenderableModel[][][][] stairs = new RenderableModel[14][2][4][5];
@@ -184,7 +188,7 @@ public class ModelsManager {
             }
         }
 
-        String[][][][] stairs = new String[14][2][4][5];
+        String[][][][] stairs = new String[14][2][4][5]; // TODO
 
         for (int a = 0; a < 14; a++) {
             for (int b = 0; b < 14; b++) {
@@ -235,7 +239,316 @@ public class ModelsManager {
         Vector dimensions = clipboard.getDimensions();
         RenderableModel[][][] result = new RenderableModel[dimensions.getBlockX()][dimensions.getBlockY()][dimensions.getBlockZ()];
 
+        for (int x = 0; x < dimensions.getBlockX(); x++) {
+            for (int y = 0; y < dimensions.getBlockY(); y++) {
+                for (int z = 0; z < dimensions.getBlockZ(); z++) {
 
+                    Vector vector = new Vector(x, y, z);
 
+                    BaseBlock block = clipboard.getBlock(vector);
+
+                    int id = block.getId();
+                    int data = block.getData();
+
+                    if (fencesIDs.contains(id)) {
+
+                        for (List<Integer> connections : fenceConnections) {
+                            if (connections.contains(id)) {
+
+                                int north;
+                                if (vector.getBlockZ() == 0) {
+                                    north = 0;
+                                } else {
+                                    north = connections.contains(clipboard.getBlock(vector.add(0, 0, -1)).getId()) ? 1 : 0;
+                                }
+                                int south;
+                                if (z == dimensions.getBlockZ() - 1) {
+                                    south = 0;
+                                } else {
+                                    south = connections.contains(clipboard.getBlock(vector.add(0, 0, 1)).getId()) ? 1 : 0;
+                                }
+                                int west;
+                                if (x == 0) {
+                                    west = 0;
+                                } else {
+                                    west = connections.contains(clipboard.getBlock(vector.add(-1, 0, 0)).getId()) ? 1 : 0;
+                                }
+                                int east;
+                                if (x == dimensions.getBlockX() - 1) {
+                                    east = 0;
+                                } else {
+                                    east = connections.contains(clipboard.getBlock(vector.add(1, 0, 0)).getId()) ? 1 : 0;
+                                }
+
+                                result[x][y][z] = fences[id][data][north][east][south][west];
+
+                                break;
+                            }
+                        }
+
+                    } else if (stairsIDs.contains(id)) {
+
+                        int half = this.getStairHalf(data);
+                        // 0 - EAST - +X
+                        // 1 - WEST - -X
+                        // 2 - SOUTH - +Z
+                        // 3 - NORTH - -Z
+                        int direction = data % 4;
+
+                        // 0 - STRAIGHT
+                        // 1 - OUTER_RIGHT
+                        // 2 - OUTER_LEFT
+                        // 3 - INNER_RIGHT
+                        // 4 - INNER_LEFT
+                        int shape = 0;
+                        switch (direction) {
+                            case 0: {
+                                if (x == 0) {
+                                    BaseBlock front = clipboard.getBlock(vector.add(1, 0 , 0));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 2) {
+                                                shape = 3;
+                                                break;
+                                            } else if (front.getData() % 4 == 3) {
+                                                shape = 4;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else if (x == dimensions.getBlockX() - 1) {
+                                    BaseBlock back = clipboard.getBlock(vector.add(-1, 0 , 0));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 2) {
+                                                shape = 1;
+                                                break;
+                                            } else if (back.getData() % 4 == 3) {
+                                                shape = 2;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    BaseBlock back = clipboard.getBlock(vector.add(-1, 0, 0));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 2) {
+                                                shape = 1;
+                                                break;
+                                            } else if (back.getData() % 4 == 3) {
+                                                shape = 2;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    BaseBlock front = clipboard.getBlock(vector.add(1, 0 , 0));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 2) {
+                                                shape = 3;
+                                                break;
+                                            } else if (front.getData() % 4 == 3) {
+                                                shape = 4;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 1: {
+                                if (x == 0) {
+                                    BaseBlock back = clipboard.getBlock(vector.add(1, 0 , 0));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 2) {
+                                                shape = 2;
+                                                break;
+                                            } else if (back.getData() % 4 == 3) {
+                                                shape = 1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else if (x == dimensions.getBlockX() - 1) {
+                                    BaseBlock front = clipboard.getBlock(vector.add(-1, 0 , 0));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 2) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 3) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    BaseBlock back = clipboard.getBlock(vector.add(1, 0 , 0));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 2) {
+                                                shape = 2;
+                                                break;
+                                            } else if (back.getData() % 4 == 3) {
+                                                shape = 1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    BaseBlock front = clipboard.getBlock(vector.add(-1, 0 , 0));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 2) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 3) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 2: {
+                                if (z == 0) {
+                                    BaseBlock front = clipboard.getBlock(vector.add(0, 0 , 1));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 0) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 1) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else if (z == dimensions.getBlockZ() - 1) {
+                                    BaseBlock back = clipboard.getBlock(vector.add(0, 0 , -1));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 0) {
+                                                shape = 2;
+                                                break;
+                                            } else if (back.getData() % 4 == 1) {
+                                                shape = 1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    BaseBlock back = clipboard.getBlock(vector.add(0, 0 , -1));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 0) {
+                                                shape = 2;
+                                                break;
+                                            } else if (back.getData() % 4 == 1) {
+                                                shape = 1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    BaseBlock front = clipboard.getBlock(vector.add(0, 0 , 1));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 0) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 1) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 3: {
+                                if (z == 0) {
+                                    BaseBlock back = clipboard.getBlock(vector.add(0, 0 , 1));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 0) {
+                                                shape = 1;
+                                                break;
+                                            } else if (back.getData() % 4 == 1) {
+                                                shape = 2;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else if (z == dimensions.getBlockZ() - 1) {
+                                    BaseBlock front = clipboard.getBlock(vector.add(0, 0 , -1));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 0) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 1) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    BaseBlock back = clipboard.getBlock(vector.add(0, 0 , 1));
+                                    if (stairsIDs.contains(back.getId())) {
+                                        if (this.getStairHalf(back.getData()) == half) {
+                                            if (back.getData() % 4 == 0) {
+                                                shape = 1;
+                                                break;
+                                            } else if (back.getData() % 4 == 1) {
+                                                shape = 2;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    BaseBlock front = clipboard.getBlock(vector.add(0, 0 , -1));
+                                    if (stairsIDs.contains(front.getId())) {
+                                        if (this.getStairHalf(front.getData()) == half) {
+                                            if (front.getData() % 4 == 0) {
+                                                shape = 4;
+                                                break;
+                                            } else if (front.getData() % 4 == 1) {
+                                                shape = 3;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+
+                        result[x][y][z] = stairs[id][half][direction][shape];
+
+                    } else if (normal[id][data] != null) {
+                        result[x][y][z] = normal[id][data];
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private int getStairHalf(int data) {
+        switch (data) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                return 0;
+            default:
+                return 1;
+        }
     }
 }

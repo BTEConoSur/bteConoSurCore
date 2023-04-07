@@ -18,7 +18,7 @@ public class RenderableCube {
         X, Y, Z
     }
 
-    private class Rotation {
+    private static class Rotation {
 
         private final double[] origin;
         private final Axis axis;
@@ -76,7 +76,7 @@ public class RenderableCube {
             Map<String, Object> elementRotation = (Map<String, Object>) properties.get("rotation");
             rotations.add(new Rotation(
                     (double[]) elementRotation.get("origin"),
-                    Axis.valueOf(elementRotation.get("axis").toString().toUpperCase()),
+                    valueOf(elementRotation.get("axis").toString().toUpperCase()),
                     (double) elementRotation.get("angle")
             ));
         }
@@ -101,7 +101,7 @@ public class RenderableCube {
         if (xRotation != 0) {
             rotations.add(
                     new Rotation(
-                            new double[] {8,8,8},
+                            new double[]{8, 8, 8},
                             X,
                             xRotation
                     )
@@ -111,7 +111,7 @@ public class RenderableCube {
         if (yRotation != 0) {
             rotations.add(
                     new Rotation(
-                            new double[] {8,8,8},
+                            new double[]{8, 8, 8},
                             Y,
                             yRotation
                     )
@@ -121,7 +121,7 @@ public class RenderableCube {
         if (zRotation != 0) {
             rotations.add(
                     new Rotation(
-                            new double[] {8,8,8},
+                            new double[]{8, 8, 8},
                             Z,
                             zRotation
                     )
