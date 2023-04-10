@@ -78,6 +78,7 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Rendering.ModelsManager;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Rendering.RenderableAsset;
 import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
@@ -429,6 +430,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             return;
         }
 
+        /*
         // --- MODELS ---
         this.log("Starting models manager...");
         try {
@@ -438,6 +440,15 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             this.error("Plugin starting stopped. Models manager startup failed.");
             return;
         }
+
+
+        try {
+            RenderableAsset renderableAsset = new RenderableAsset(this, assetsRegistry.get("emtfov"));
+            renderableAsset.generateGIF();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+         */
 
 
         LinkCommand linkCommand = new LinkCommand(this);
