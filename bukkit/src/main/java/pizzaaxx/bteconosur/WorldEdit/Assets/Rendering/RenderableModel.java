@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Utils.ImageUtils;
 
@@ -31,7 +32,7 @@ public class RenderableModel {
         this.plugin = plugin;
     }
 
-    public void load(File json, double xRotation, double yRotation, double zRotation) throws IOException {
+    public void load(@NotNull File json, double xRotation, double yRotation, double zRotation) throws IOException {
 
         Map<String, Object> modelData = mapper.readValue(json, HashMap.class);
 
@@ -44,7 +45,7 @@ public class RenderableModel {
                 continue;
             }
 
-            File im = new File(plugin.getDataFolder(), "rendering/textures/block/" + textures.get(key).replace("block/", "") + ".png");
+            File im = new File(plugin.getDataFolder(), "rendering/textures/block/" + textures.get(key).replace("minecraft:block/", "") + ".png");
             BufferedImage image = ImageIO.read(im);
             int w = image.getWidth();
             int h = image.getHeight();
@@ -56,7 +57,7 @@ public class RenderableModel {
                     new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
             after = scaleOp.filter(image, after);
             InputStream is = ImageUtils.getStream(after);
-            Texture t = TextureIO.newTexture(is, true, "png");
+            Texture t = TextureIO.newTexture(TextureIO.newTextureData(plugin.getModelsManager().getProfile(), is, true, "png"));
             this.textures.put(key,t.getTextureObject());
         }
 

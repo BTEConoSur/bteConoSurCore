@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Rendering;
 
+import com.jogamp.opengl.GLProfile;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
@@ -36,12 +37,21 @@ public class ModelsManager {
         this.plugin = plugin;
     }
 
+    private GLProfile profile;
+
+    public GLProfile getProfile() {
+        return profile;
+    }
+
     public void init() throws IOException {
+
+        profile = GLProfile.getDefault();
+
         File file = new File(plugin.getDataFolder(), "rendering/legacy.json");
 
         Map<String, String> legacy = plugin.getJSONMapper().readValue(file, HashMap.class);
 
-        for (int id = 0; id < 253; id++) {
+        for (int id = 1; id < 253; id++) {
             for (int data = 0; data < 16; data++) {
                 if (legacy.containsKey(id + ":" + data)) {
                     String modelPath = legacy.get(id + ":" + data);
@@ -52,6 +62,7 @@ public class ModelsManager {
                     String[] models = modelPath.split("&");
                     RenderableModel renderableModel = new RenderableModel(plugin);
                     for (String model : models) {
+                        plugin.log(model);
 
                         if (model.contains("?")) {
                             String modelString = model.split("\\?")[0];

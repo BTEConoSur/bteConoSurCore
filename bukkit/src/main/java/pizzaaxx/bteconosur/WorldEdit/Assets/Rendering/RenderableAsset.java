@@ -142,7 +142,7 @@ public class RenderableAsset implements GLEventListener {
 
         frameCounter = 0;
 
-        final GLProfile profile = GLProfile.getDefault();
+        final GLProfile profile = asset.getPlugin().getModelsManager().getProfile();
         GLCapabilities capabilities = new GLCapabilities( profile );
 
         // The canvas

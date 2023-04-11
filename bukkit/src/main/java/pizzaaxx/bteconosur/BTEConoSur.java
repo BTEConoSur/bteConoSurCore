@@ -78,7 +78,6 @@ import pizzaaxx.bteconosur.WorldEdit.Assets.Commands.AssetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetInventoryListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Listener.AssetListener;
 import pizzaaxx.bteconosur.WorldEdit.Assets.Rendering.ModelsManager;
-import pizzaaxx.bteconosur.WorldEdit.Assets.Rendering.RenderableAsset;
 import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
@@ -483,7 +482,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new ScoreboardCommand(this),
                 new PlayerCommand(this),
                 buildEventCommand,
-                new ProjectCommand(this)
+                new ProjectCommand(this),
+                new TutorialsCommand(this)
         );
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));

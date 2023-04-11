@@ -82,6 +82,11 @@ public class Asset implements AssetHolder {
 
     // --- GETTER ---
 
+
+    public BTEConoSur getPlugin() {
+        return plugin;
+    }
+
     public String getId() {
         return id;
     }

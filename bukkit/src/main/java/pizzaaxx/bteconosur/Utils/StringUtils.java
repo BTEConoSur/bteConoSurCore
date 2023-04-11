@@ -65,4 +65,9 @@ public class StringUtils {
         }
         return result;
     }
+
+    public static String getQuery(@NotNull String value, String key) {
+        Map<String, String> query = StringUtils.getQuery(value.split("\\?")[1]);
+        return query.get(key);
+    }
 }

@@ -13,6 +13,7 @@
 * ✔️ `/scoreboard`
 * ✔️ `/project <id>`
 * ✔️ `/player (name <nombre>|user <usuario>)`
+* ✔️ `/tutorial`
 ## Utilidades
 * ✔️ `/height`
 * ✔️ `/googlemaps`
