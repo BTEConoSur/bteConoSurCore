@@ -873,6 +873,18 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
             }
             case "tag": {
 
+                Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                if (country == null) {
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún país.");
+                    return true;
+                }
+
+                if (!s.getProjectManager().hasAdminPermission(country)) {
+                    p.sendMessage(getPrefix() + "No tienes permiso para manejar los proyectos de este país.");
+                    return true;
+                }
+
                 List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
 
                 if (projectIDs.size() == 0) {
@@ -910,7 +922,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                             13
                     );
 
-                    int i = 10;
+                    int i = 19;
                     for (ProjectTag tag : ProjectTag.values()) {
                         tagGUI.setItem(
                                 ItemBuilder.head(
@@ -984,7 +996,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
                                             13
                                     );
 
-                                    int i = 10;
+                                    int i = 19;
                                     for (ProjectTag tag : ProjectTag.values()) {
                                         tagGUI.setItem(
                                                 ItemBuilder.head(

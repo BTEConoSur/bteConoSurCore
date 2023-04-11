@@ -113,13 +113,6 @@ public class GetCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Location loc = event.getClickedBlock().getLocation();
-            BaseBlock block = plugin.getWorldEditWorld().getBlock(new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-            event.getPlayer().sendMessage(block.getId() + ":" + block.getData());
-            if (block.hasNbtData()) {
-                event.getPlayer().sendMessage(block.getNbtData().toString());
-            }
-            Block b = plugin.getWorld().getBlockAt(loc);
             ItemStack item = event.getItem();
             if (item != null && item.getType() == Material.SKULL_ITEM && item.hasItemMeta()) {
                 ItemMeta meta = item.getItemMeta();

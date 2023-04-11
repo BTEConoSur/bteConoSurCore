@@ -80,7 +80,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
         // LIDER MIEMBROS
 
         builder.addField(
-                ":globe_with_meridians: País",
+                "País",
                 ":flag_" + project.getCountry().getAbbreviation() + ": " + project.getCountry().getDisplayName(),
                 true
         );
@@ -103,7 +103,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
         builder.addField(
                 ":round_pushpin: Coordenadas:",
                 "[" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "](https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")",
-                true
+                false
         );
         builder.addField(
                 ":city_sunset: Ciudad(es):",

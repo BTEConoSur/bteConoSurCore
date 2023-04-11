@@ -192,7 +192,7 @@ public class ProjectManager {
 
     public double getPoints(Country country) {
         int result = 0;
-        for (Double p : points.get(country).values()) {
+        for (Double p : points.getOrDefault(country, new HashMap<>()).values()) {
             result += p;
         }
         return result;

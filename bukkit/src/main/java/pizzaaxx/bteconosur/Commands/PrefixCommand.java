@@ -73,6 +73,7 @@ public class PrefixCommand implements CommandExecutor {
                     try {
                         manager.setCountryPrefix("§7[INTERNACIONAL]");
                         manager.setCountryTabPrefix("§7[INT]");
+                        p.sendMessage(plugin.getPrefix() + "País cambiado a §7[INTERNACIONAL]§f.");
                         event.closeGUI();
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -97,6 +98,7 @@ public class PrefixCommand implements CommandExecutor {
                         try {
                             manager.setCountryPrefix(country.getChatPrefix());
                             manager.setCountryTabPrefix(country.getTabPrefix());
+                            p.sendMessage(plugin.getPrefix() + "País cambiado a " + country.getChatPrefix() + "§f.");
                             event.closeGUI();
                         } catch (SQLException e) {
                             e.printStackTrace();

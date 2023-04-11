@@ -108,6 +108,7 @@ public class GlobalChat implements Chat {
             prefixHolders.add(builderRank);
         }
 
+        prefixHolders.add(senderPlayer.getChatManager());
 
         for (UUID playerUUID : players) {
             ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(playerUUID);

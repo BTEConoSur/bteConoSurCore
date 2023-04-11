@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Chat.ChatHandler;
+import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Chat.ProjectChat;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
@@ -17,7 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ChatManager {
+public class ChatManager implements PrefixHolder {
 
     private final BTEConoSur plugin;
     private final ServerPlayer serverPlayer;
@@ -213,7 +214,7 @@ public class ChatManager {
 
     public void setCountryPrefix(@NotNull String prefix) throws SQLException {
 
-        if (!this.countryPrefix.equals(prefix)) {
+        if (this.countryPrefix == null || !this.countryPrefix.equals(prefix)) {
 
             this.countryPrefix = prefix;
 
@@ -237,7 +238,7 @@ public class ChatManager {
 
     public void setCountryTabPrefix(@NotNull String prefix) throws SQLException {
 
-        if (!this.countryTabPrefix.equals(prefix)) {
+        if (this.countryTabPrefix == null || !this.countryTabPrefix.equals(prefix)) {
 
             this.countryTabPrefix = prefix;
 
@@ -282,5 +283,15 @@ public class ChatManager {
         }
 
         return (chatColor == null ? "§f" : chatColor);
+    }
+
+    @Override
+    public String getPrefix() {
+        return this.getCountryPrefix() + " §r";
+    }
+
+    @Override
+    public String getDiscordPrefix() {
+        return "";
     }
 }
