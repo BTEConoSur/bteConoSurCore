@@ -153,7 +153,7 @@ public class  ProjectChat implements Chat {
         meta.setDisplayName("§aChat del proyecto " + project.getDisplayName());
         meta.setLore(
                 Collections.singletonList(
-                        "Jugadores: §7" + players.size()
+                        "§fJugadores: §7" + players.size()
                 )
         );
         stack.setItemMeta(meta);

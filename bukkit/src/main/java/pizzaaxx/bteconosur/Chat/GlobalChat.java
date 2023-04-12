@@ -145,7 +145,7 @@ public class GlobalChat implements Chat {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOThkYWExZTNlZDk0ZmYzZTMzZTFkNGM2ZTQzZjAyNGM0N2Q3OGE1N2JhNGQzOGU3NWU3YzkyNjQxMDYifX19",
                 "§aChat global",
                 Collections.singletonList(
-                        "Jugadores: §7" + players.size()
+                        "§fJugadores: §7" + players.size()
                 )
         );
     }

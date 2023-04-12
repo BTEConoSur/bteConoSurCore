@@ -129,7 +129,7 @@ public class CountryChat implements Chat {
                 country.getHeadValue(),
                 "§aChat de " + country.getDisplayName(),
                 Collections.singletonList(
-                        "Jugadores: §7" + players.size()
+                        "§fJugadores: §7" + players.size()
                 )
         );
     }
