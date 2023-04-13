@@ -91,8 +91,8 @@
   * Si se aplica una máscara global, esta determinará **sobre** qué bloques se pegarán _assets_.
     * Ejemplo: `//gmask 2` solo permitirá _assets_ **sobre** bloques de pasto.
 ## Administración
-* 🕙 `/donador <nombre>`
-* 🕙 `/streamer <nombre>`
+* ✔️ `/donador <nombre>`
+* ✔️ `/streamer <nombre>`
 * ✔️ `/deletePlayerData <uuid>`  
 **Nuevo:**
   * Elimina el archivo de `playerdata` de un jugador. Solo ejecutable en la consola.

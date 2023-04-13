@@ -108,8 +108,7 @@ commands:
       - pais
   buildevent:
     description: Comando de eventos de construcción.
-
-permissions:
-  streaming:
-    description: "Permite al usuario usar el comando /streaming."
-    default: false
+  streamer:
+    description: Da el rango de Streamer a alguien.
+  donator:
+    description: Da el rango de Donador a alguien.

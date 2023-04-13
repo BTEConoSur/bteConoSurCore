@@ -35,6 +35,8 @@ import pizzaaxx.bteconosur.Cities.Events.CityEnterEvent;
 import pizzaaxx.bteconosur.Commands.*;
 import pizzaaxx.bteconosur.Commands.Custom.CustomCommandsManager;
 import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
+import pizzaaxx.bteconosur.Commands.Managing.DonatorCommand;
+import pizzaaxx.bteconosur.Commands.Managing.StreamerCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
@@ -535,6 +537,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("scoreboard").setExecutor(new pizzaaxx.bteconosur.Scoreboard.ScoreboardCommand(this));
         getCommand("prefix").setExecutor(prefixCommand);
         getCommand("buildevent").setExecutor(buildEventCommand);
+        getCommand("streamer").setExecutor(new StreamerCommand(this));
+        getCommand("donator").setExecutor(new DonatorCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

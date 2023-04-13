@@ -11,6 +11,9 @@ import pizzaaxx.bteconosur.Player.Managers.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.JSONParsable;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.Tablist.TablistPrefixHolder;
 
@@ -122,7 +125,7 @@ public class ServerPlayer implements ScoreboardDisplay {
         }
     }
 
-    public enum SecondaryRoles implements PrefixHolder, TablistPrefixHolder {
+    public enum SecondaryRoles implements PrefixHolder, TablistPrefixHolder, JSONParsable {
         ADMIN("§f[§cADMIN§f] §r", "[:crown:] ", "§6§l", "§f[§cADM§f]", 0),
         MOD("§f[§5MOD§f] §r", "[:shield:] ", "§5§l", "§f[§5MOD§f]", 1),
         STREAMER("§f[§aSTREAMER§f] §r", "[:video_game:] ", null, "§f[§aSTR§f]", 2),
@@ -171,6 +174,12 @@ public class ServerPlayer implements ScoreboardDisplay {
         @Override
         public int getPriority() {
             return priority;
+        }
+
+        @NotNull
+        @Override
+        public String getJSON(boolean insideJSON) {
+            return (insideJSON ? "\"" : "") + this.toString().toLowerCase() + (insideJSON ? "\"" : "");
         }
     }
 
@@ -321,5 +330,41 @@ public class ServerPlayer implements ScoreboardDisplay {
 
     public List<SecondaryRoles> getSecondaryRoles() {
         return secondaryRoles;
+    }
+
+    public void addSecondaryRole(SecondaryRoles role) throws SQLException {
+        secondaryRoles.add(role);
+
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "roles", secondaryRoles
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", uuid
+                        )
+                )
+        ).execute();
+    }
+
+    public void removeSecondaryRole(SecondaryRoles role) throws SQLException {
+        secondaryRoles.remove(role);
+
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "roles", secondaryRoles
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", uuid
+                        )
+                )
+        ).execute();
     }
 }
