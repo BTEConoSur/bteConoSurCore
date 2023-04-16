@@ -127,6 +127,8 @@ public class DiscordManager {
                                 }
                         );
 
+                        plugin.getScoreboardHandler().update(serverPlayer);
+
                     } catch (SQLException e) {
                         plugin.getLinksRegistry().uuidFromID.remove(this.id);
                         this.id = null;
@@ -154,6 +156,9 @@ public class DiscordManager {
             this.name = null;
             this.discriminator = null;
             this.hasSQLRow = false;
+
+            plugin.getScoreboardHandler().update(serverPlayer);
+
         }
     }
 }

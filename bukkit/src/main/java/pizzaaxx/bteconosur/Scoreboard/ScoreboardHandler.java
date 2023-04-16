@@ -2,15 +2,18 @@ package pizzaaxx.bteconosur.Scoreboard;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.Managers.ScoreboardManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class ScoreboardHandler {
@@ -89,6 +92,18 @@ public class ScoreboardHandler {
                 return Country.class;
             default:
                 return BTEConoSur.class;
+        }
+    }
+
+    public void update(@NotNull ScoreboardDisplay display) throws SQLException {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+            ScoreboardManager manager = s.getScoreboardManager();
+            if (manager.getDisplay().getClass() == display.getClass()) {
+                if (manager.getDisplay().getScoreboardID().equals(display.getScoreboardID())) {
+                    manager.setDisplay(display);
+                }
+            }
         }
     }
 

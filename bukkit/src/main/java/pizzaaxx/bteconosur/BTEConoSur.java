@@ -669,4 +669,9 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
     public String getScoreboardType() {
         return "server";
     }
+
+    @Override
+    public String getScoreboardID() {
+        return "server";
+    }
 }

@@ -87,6 +87,11 @@ public class ServerPlayer implements ScoreboardDisplay {
         return "me";
     }
 
+    @Override
+    public String getScoreboardID() {
+        return "player_" + uuid.toString();
+    }
+
     public enum BuilderRank implements PrefixHolder, TablistPrefixHolder {
         VISITA("§f[VISITA§f] §r", "[:flag_white:] ", "§f[VIS§f]", 6),
         POSTULANTE("§f[§7POSTULANTE§f] §r", "[:books:] ", "§f[§7POS§f]", 5),
@@ -348,6 +353,8 @@ public class ServerPlayer implements ScoreboardDisplay {
                         )
                 )
         ).execute();
+
+        plugin.getScoreboardHandler().update(this);
     }
 
     public void removeSecondaryRole(SecondaryRoles role) throws SQLException {
@@ -366,5 +373,7 @@ public class ServerPlayer implements ScoreboardDisplay {
                         )
                 )
         ).execute();
+
+        plugin.getScoreboardHandler().update(this);
     }
 }

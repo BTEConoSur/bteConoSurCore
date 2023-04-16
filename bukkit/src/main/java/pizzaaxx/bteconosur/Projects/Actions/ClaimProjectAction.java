@@ -4,6 +4,7 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Projects.Project;
 
@@ -43,6 +44,10 @@ public class ClaimProjectAction {
         ProtectedPolygonalRegion region = project.getRegion();
         region.setMembers(domain);
         plugin.getRegionManager().addRegion(region);
+
+        for (City city : project.getCitiesResolved()) {
+            plugin.getScoreboardHandler().update(city);
+        }
 
         project.getCountry().getLogsChannel().sendMessage(":inbox_tray: **" + plugin.getPlayerRegistry().get(owner).getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
     }

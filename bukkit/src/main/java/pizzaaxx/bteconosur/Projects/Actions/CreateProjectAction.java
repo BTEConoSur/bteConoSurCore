@@ -98,6 +98,10 @@ public class CreateProjectAction {
                 )
         ).execute();
 
+        for (City city : cities) {
+            plugin.getScoreboardHandler().update(city);
+        }
+
         plugin.getRegionManager().addRegion(protectedPolygonalRegion);
 
         plugin.getProjectRegistry().registerID(id);

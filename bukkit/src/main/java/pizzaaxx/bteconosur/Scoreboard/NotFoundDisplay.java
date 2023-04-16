@@ -32,6 +32,11 @@ public class NotFoundDisplay implements ScoreboardDisplay {
         return type;
     }
 
+    @Override
+    public String getScoreboardID() {
+        return "notFound";
+    }
+
     public Class<? extends ScoreboardDisplay> getClazz() {
         return clazz;
     }

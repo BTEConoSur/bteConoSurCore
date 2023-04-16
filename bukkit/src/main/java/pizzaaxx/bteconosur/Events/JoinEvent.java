@@ -24,7 +24,7 @@ public class JoinEvent implements Listener {
     }
 
     @EventHandler
-    public void onJoin(@NotNull PlayerJoinEvent event) {
+    public void onJoin(@NotNull PlayerJoinEvent event) throws SQLException {
         plugin.getPlayerRegistry().load(event.getPlayer().getUniqueId());
         ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -57,5 +57,7 @@ public class JoinEvent implements Listener {
         if (!serverPlayer.getChatManager().hasCountryPrefix()) {
             plugin.getPrefixCommand().openPrefixMenu(event.getPlayer());
         }
+
+        plugin.getScoreboardHandler().update(plugin);
     }
 }

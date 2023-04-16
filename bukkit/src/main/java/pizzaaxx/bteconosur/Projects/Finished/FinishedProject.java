@@ -213,4 +213,9 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay 
     public String getScoreboardType() {
         return "tour";
     }
+
+    @Override
+    public String getScoreboardID() {
+        return "finishedProject_" + id;
+    }
 }

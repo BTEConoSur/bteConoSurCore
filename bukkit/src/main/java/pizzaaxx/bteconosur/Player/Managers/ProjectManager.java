@@ -229,20 +229,23 @@ public class ProjectManager {
                         )
                 )
         ).execute();
+        plugin.getScoreboardHandler().update(serverPlayer);
         type.getCountry().getLogsChannel().sendMessage(
                 ":chart_with_upwards_trend: Se han añadido **" + points + "** puntos a **" + serverPlayer.getName() + "**."
         ).queue();
     }
 
-    public void addProject(@NotNull Project project) {
+    public void addProject(@NotNull Project project) throws SQLException {
         this.ids.add(project.getId());
+        plugin.getScoreboardHandler().update(serverPlayer);
     }
 
-    public void removeProject(@NotNull Project project) {
+    public void removeProject(@NotNull Project project) throws SQLException {
         this.ids.remove(project.getId());
+        plugin.getScoreboardHandler().update(serverPlayer);
     }
 
-    public void addFinished(@NotNull Project project) {
+    public void addFinished(@NotNull Project project) throws SQLException {
         List<ProjectType> beforeTypes = new ArrayList<>();
         for (ProjectType type : project.getCountry().getProjectTypes()) {
             if (type.isUnlocked(this)) {
@@ -264,6 +267,7 @@ public class ProjectManager {
 
             }
         }
+        plugin.getScoreboardHandler().update(serverPlayer);
     }
 
 }

@@ -102,6 +102,7 @@ public class ChatManager implements PrefixHolder {
                         )
                 )
         ).execute();
+        plugin.getScoreboardHandler().update(serverPlayer);
     }
 
     public String getDefaultChatName() {

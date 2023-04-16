@@ -264,8 +264,9 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
             for (Country country : plugin.getCountryManager().getAllCountries()) {
                 int finishedProjects = projectManager.getFinishedProjects(country);
 
+                int activeProjects = projectManager.getProjects(new CountrySQLSelector(country)).size();
 
-                if (finishedProjects > 0) {
+                if (finishedProjects > 0 || activeProjects > 0) {
                     builder.addField(
                             ":flag_" + country.getAbbreviation() + ": " + country.getDisplayName(),
                             "• `" + projectManager.getPoints(country) + "` puntos obtenidos\n• `" + projectManager.getFinishedProjects(country) + "` proyectos terminados\n• `" + projectManager.getProjects(new CountrySQLSelector(country)).size() + "` proyectos activos",
@@ -288,7 +289,6 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                         plugin.getDiscordHandler().getDeleteButton(event.getUser())
                                 )
                         );
-
                 if (is != null) {
                     action.setFiles(
                             FileUpload.fromData(is, "map.png")

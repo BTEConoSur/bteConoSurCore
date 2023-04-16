@@ -71,6 +71,8 @@ public class MiscManager {
                 )
         ).execute();
 
+        plugin.getScoreboardHandler().update(serverPlayer);
+
     }
 
 }

@@ -23,7 +23,7 @@ public class QuitEvent implements Listener {
     }
 
     @EventHandler
-    public void onQuit(@NotNull PlayerQuitEvent event) {
+    public void onQuit(@NotNull PlayerQuitEvent event) throws SQLException {
         ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
         try {
             Chat chat = serverPlayer.getChatManager().getCurrentChat();
@@ -42,6 +42,7 @@ public class QuitEvent implements Listener {
 
         plugin.getScoreboardHandler().unregisterAuto(serverPlayer.getUUID());
         plugin.getScoreboardHandler().unregisterDisplay(serverPlayer.getUUID());
+        plugin.getScoreboardHandler().update(plugin);
     }
 
 }

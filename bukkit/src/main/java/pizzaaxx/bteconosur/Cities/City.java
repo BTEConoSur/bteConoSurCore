@@ -311,6 +311,8 @@ public class City implements JSONParsable, ScoreboardDisplay {
                 )
         ).execute();
 
+        plugin.getScoreboardHandler().update(this);
+
         this.finishedArea = area;
     }
 
@@ -366,5 +368,10 @@ public class City implements JSONParsable, ScoreboardDisplay {
     @Override
     public String getScoreboardType() {
         return "city";
+    }
+
+    @Override
+    public String getScoreboardID() {
+        return "city_" + name;
     }
 }

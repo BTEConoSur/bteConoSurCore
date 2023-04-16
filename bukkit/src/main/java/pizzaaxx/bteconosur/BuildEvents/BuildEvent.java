@@ -728,6 +728,11 @@ public class BuildEvent implements TourCommand.TourDisplay {
     }
 
     @Override
+    public String getScoreboardID() {
+        return "event_" + id;
+    }
+
+    @Override
     public Location getTeleportLocation() {
         return CoordinatesUtils.blockVector2DtoLocation(plugin, RegionUtils.getAveragePoint((ProtectedPolygonalRegion) region));
     }

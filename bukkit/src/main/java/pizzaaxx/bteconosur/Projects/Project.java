@@ -8,8 +8,11 @@ import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -18,6 +21,7 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -570,6 +574,8 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
 
             this.region = (ProtectedPolygonalRegion) plugin.getRegionManager().getRegion("project_" + id);
 
+            plugin.getScoreboardHandler().update(this);
+
         } else {
             throw new IllegalArgumentException();
         }
@@ -634,6 +640,11 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     @Override
     public String getScoreboardType() {
         return "project";
+    }
+
+    @Override
+    public String getScoreboardID() {
+        return "project_" + id;
     }
 
     @Override

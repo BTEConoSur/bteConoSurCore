@@ -333,4 +333,9 @@ public class Country implements JSONParsable, ScoreboardDisplay {
     public String getScoreboardType() {
         return "top";
     }
+
+    @Override
+    public String getScoreboardID() {
+        return "country_" + name;
+    }
 }

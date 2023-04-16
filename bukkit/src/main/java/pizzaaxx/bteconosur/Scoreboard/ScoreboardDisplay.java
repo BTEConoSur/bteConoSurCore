@@ -25,4 +25,10 @@ public interface ScoreboardDisplay {
      */
     String getScoreboardType();
 
+    /**
+     * The identifier of this display. Used for comparisons.
+     * @return The identifier.
+     */
+    String getScoreboardID();
+
 }

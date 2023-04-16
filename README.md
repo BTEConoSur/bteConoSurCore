@@ -20,7 +20,7 @@
 * ✔️ `/tour [ciudad]`
 * ✔️ `/banners <colorLetra> <colorFondo> <texto>`
 * ✔️ `/get`
-* ⏳ `/help [comando]`
+* ✔️ `/help [comando]`
 * ✔️ `/scoreboard [<tipo>|auto]`
 * ✔️ `/prefix`
 * ✔️ `/nightvision`

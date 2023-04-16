@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class HelpCommand extends ListenerAdapter implements SlashCommandContainer, CommandExecutor {
+public class HelpCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
 
@@ -474,15 +474,4 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
             );
         }
     }
-
-
-    @Override
-    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-
-
-
-        return true;
-    }
-
-
 }
