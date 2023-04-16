@@ -19,12 +19,14 @@ public class NightVisionCommand implements CommandExecutor {
 
         if (p.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+            p.sendActionBar("§7Visión nocturna desactivada.");
         } else {
             p.addPotionEffect(new PotionEffect(
                     PotionEffectType.NIGHT_VISION,
                     999999,
                     1
             ));
+            p.sendActionBar("§7Visión nocturna activada.");
         }
 
         return true;

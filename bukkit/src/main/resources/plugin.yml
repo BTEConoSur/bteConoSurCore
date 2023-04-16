@@ -112,3 +112,5 @@ commands:
     description: Da el rango de Streamer a alguien.
   donator:
     description: Da el rango de Donador a alguien.
+  lobby:
+    description: Abre un menú de los diferentes lobbies.
