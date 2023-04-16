@@ -24,7 +24,7 @@
 * ✔️ `/scoreboard [<tipo>|auto]`
 * ✔️ `/prefix`
 * ✔️ `/nightvision`
-* 🕙 `/lobby`
+* ✔️ `/lobby`
 * ✔️ `/tpdir <nombre>`  
   **Mejoras:**
   * Menú de selección si se encuentran múltiples opciones. 
