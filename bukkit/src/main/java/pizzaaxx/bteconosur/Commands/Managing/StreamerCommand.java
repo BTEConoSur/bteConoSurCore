@@ -55,15 +55,17 @@ public class StreamerCommand implements CommandExecutor {
             if (s.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.STREAMER)) {
                 s.removeSecondaryRole(ServerPlayer.SecondaryRoles.STREAMER);
                 s.sendNotification(
-                        plugin.getPrefix() + "¡Has conseguido el rol de §aStreamer§f!",
-                        "**[ROLES]** » ¡Has conseguido el rol de **Streamer**!"
-                );
-            } else {
-                s.addSecondaryRole(ServerPlayer.SecondaryRoles.STREAMER);
-                s.sendNotification(
                         plugin.getPrefix() + "Has perdido el rol de §aStreamer§f.",
                         "**[ROLES]** » Has perdido el rol de **Streamer**."
                 );
+                sender.sendMessage(plugin.getPrefix() + "Has quitado el rol de §aStreamer§f de §a" + s.getName() + "§f.");
+            } else {
+                s.addSecondaryRole(ServerPlayer.SecondaryRoles.STREAMER);
+                s.sendNotification(
+                        plugin.getPrefix() + "¡Has conseguido el rol de §aStreamer§f!",
+                        "**[ROLES]** » ¡Has conseguido el rol de **Streamer**!"
+                );
+                sender.sendMessage(plugin.getPrefix() + "Has dado el rol de §aStreamer§f a §a" + s.getName() + "§f.");
             }
 
         } catch (SQLException | IOException e) {

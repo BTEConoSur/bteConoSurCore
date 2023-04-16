@@ -55,16 +55,19 @@ public class DonatorCommand implements CommandExecutor {
             if (s.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.DONADOR)) {
                 s.removeSecondaryRole(ServerPlayer.SecondaryRoles.DONADOR);
                 s.sendNotification(
-                        plugin.getPrefix() + "¡Has conseguido el rol de §dDonador§f!",
-                        "**[ROLES]** » ¡Has conseguido el rol de **Donador**!"
-                );
-            } else {
-                s.addSecondaryRole(ServerPlayer.SecondaryRoles.DONADOR);
-                s.sendNotification(
                         plugin.getPrefix() + "Has perdido el rol de §dDonador§f.",
                         "**[ROLES]** » Has perdido el rol de **Donador**."
                 );
+                sender.sendMessage(plugin.getPrefix() + "Has quitado el rol de §dDonador§f de §a" + s.getName() + "§f.");
+            } else {
+                s.addSecondaryRole(ServerPlayer.SecondaryRoles.DONADOR);
+                s.sendNotification(
+                        plugin.getPrefix() + "¡Has conseguido el rol de §dDonador§f!",
+                        "**[ROLES]** » ¡Has conseguido el rol de **Donador**!"
+                );
+                sender.sendMessage(plugin.getPrefix() + "Has dado el rol de §dDonador§f a §a" + s.getName() + "§f.");
             }
+
 
         } catch (SQLException | IOException e) {
             sender.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
