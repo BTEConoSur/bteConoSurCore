@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -45,10 +44,7 @@ import pizzaaxx.bteconosur.Discord.DiscordHandler;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
 import pizzaaxx.bteconosur.Discord.SlashCommands.*;
-import pizzaaxx.bteconosur.Events.JoinEvent;
-import pizzaaxx.bteconosur.Events.PreLoginEvent;
-import pizzaaxx.bteconosur.Events.QuitEvent;
-import pizzaaxx.bteconosur.Events.TeleportEvent;
+import pizzaaxx.bteconosur.Events.*;
 import pizzaaxx.bteconosur.Help.HelpCommand;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
@@ -353,7 +349,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 this.selUndoRedoCommand,
                 chatHandler,
                 projectsCommand,
-                tourCommand
+                tourCommand,
+                new SecurityEvents(this)
         );
 
         this.log("Starting chats...");
@@ -539,6 +536,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("buildevent").setExecutor(buildEventCommand);
         getCommand("streamer").setExecutor(new StreamerCommand(this));
         getCommand("donator").setExecutor(new DonatorCommand(this));
+        getCommand("lobby").setExecutor(new LobbyCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

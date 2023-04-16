@@ -22,7 +22,6 @@
 * ✔️ `/get`
 * ⏳ `/help [comando]`
 * ✔️ `/scoreboard [<tipo>|auto]`
-* 🕙 `/streaming <link>`
 * ✔️ `/prefix`
 * ✔️ `/nightvision`
 * 🕙 `/lobby`
