@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Player;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -280,7 +281,7 @@ public class ServerPlayer implements ScoreboardDisplay {
     }
 
     public boolean canBuild(Location loc) {
-        return true;
+        return plugin.getWorldGuard().canBuild(Bukkit.getPlayer(uuid), loc);
     }
 
     public List<String> getLore(boolean name) {

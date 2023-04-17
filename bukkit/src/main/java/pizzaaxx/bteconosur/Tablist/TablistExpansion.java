@@ -52,7 +52,6 @@ public class TablistExpansion extends PlaceholderExpansion {
                 return null;
             }
         }
-
         return null;
     }
 

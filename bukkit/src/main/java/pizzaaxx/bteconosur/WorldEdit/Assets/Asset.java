@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.WorldEdit.Assets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
@@ -11,6 +12,7 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.WorldData;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -167,16 +169,35 @@ public class Asset implements AssetHolder {
         LocalSession localSession = plugin.getWorldEdit().getLocalSession(player);
         EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
 
-        WorldData worldData = plugin.getWorldEditWorld().getWorldData();
-        ClipboardHolder holder = new ClipboardHolder(this.clipboard, worldData);
-        Transform transform = new AffineTransform().rotateY(rotation);
-        holder.setTransform(transform);
-        Operation operation = holder
-                .createPaste(editSession, worldData)
-                .to(vector)
-                .ignoreAirBlocks(true)
-                .build();
-        Operations.complete(operation);
+        Vector origin = clipboard.getOrigin();
+        plugin.log("X: " + origin.getBlockX() + " /// Y: " + origin.getBlockY() + " /// Z: " + origin.getBlockZ());
+
+        Vector dimensions = clipboard.getDimensions();
+        plugin.log("X: " + dimensions.getBlockX() + " /// Y: " + dimensions.getBlockY() + " /// Z: " + dimensions.getBlockZ());
+
+        for (int x = 0; x < dimensions.getBlockX(); x++) {
+            for (int y = 0; y < dimensions.getBlockY(); y++) {
+                for (int z = 0; z < dimensions.getBlockZ(); z++) {
+
+                    if (plugin.getWorldGuard().canBuild(player, new Location(plugin.getWorld(), vector.getX(), vector.getY(), vector.getZ()))) {
+                        Vector blockVector = new Vector(x, y, z);
+                        Vector targetVector = vector.add(blockVector).subtract(clipboard.getOrigin()).transform2D(rotation, vector.getBlockX(), vector.getBlockZ(), 0, 0);
+
+                        plugin.log("X: " + targetVector.getBlockX() + " /// Y: " + targetVector.getBlockY() + " /// Z: " + targetVector.getBlockZ());
+
+                        BaseBlock block = clipboard.getBlock(blockVector);
+                        if (block.getId() == 0) {
+                            continue;
+                        }
+
+                        editSession.setBlock(
+                                targetVector,
+                                block
+                        );
+                    }
+                }
+            }
+        }
 
         localSession.remember(editSession);
     }
