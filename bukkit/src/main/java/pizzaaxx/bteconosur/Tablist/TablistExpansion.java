@@ -5,7 +5,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 public class TablistExpansion extends PlaceholderExpansion {
 
@@ -38,6 +42,15 @@ public class TablistExpansion extends PlaceholderExpansion {
             ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
             return "§" + s.getTablistPriority() + "" + s.getChatManager().getCountryTabPrefix() + " " + s.getTablistPrefixHolder().getTablistPrefix() + " " + s.getChatManager().getTabColor();
 
+        }
+
+        if (params.startsWith("top")) {
+            Country country = plugin.getCountryManager().get(params.replace("top", "").toLowerCase());
+            try {
+                return plugin.getPlayerRegistry().get(country.getTopPlayers().get(0)).getName();
+            } catch (SQLException | IOException e) {
+                return null;
+            }
         }
 
         return null;
