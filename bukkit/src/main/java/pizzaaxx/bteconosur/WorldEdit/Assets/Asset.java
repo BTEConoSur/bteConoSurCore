@@ -1,19 +1,16 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sk89q.worldedit.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.sk89q.jnbt.*;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.transform.AffineTransform;
-import com.sk89q.worldedit.math.transform.Transform;
-import com.sk89q.worldedit.session.ClipboardHolder;
-import com.sk89q.worldedit.world.registry.WorldData;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -23,14 +20,16 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Asset implements AssetHolder {
 
@@ -41,7 +40,8 @@ public class Asset implements AssetHolder {
     private final UUID creator;
     private boolean autoRotate;
     private Set<String> tags;
-    private Clipboard clipboard;
+    private final Vector dimensions;
+    private final Vector origin;
 
     public Asset(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -64,22 +64,13 @@ public class Asset implements AssetHolder {
             this.creator = plugin.getSqlManager().getUUID(set, "creator");
             this.autoRotate = set.getBoolean("auto_rotate");
             this.tags = plugin.getJSONMapper().readValue(set.getString("tags"), HashSet.class);
+            Map<String, Double> dimensionsMap = plugin.getJSONMapper().readValue(set.getString("dimensions"), HashMap.class);
+            this.dimensions = new Vector(dimensionsMap.get("x"), dimensionsMap.get("y"), dimensionsMap.get("z"));
+            Map<String, Double> originMap = plugin.getJSONMapper().readValue(set.getString("origin"), HashMap.class);
+            this.origin = new Vector(originMap.get("x"), originMap.get("y"), originMap.get("z"));
         } else {
             throw new IllegalArgumentException();
         }
-    }
-
-    public void loadSchematic() throws IOException {
-        if (this.clipboard == null) {
-            File file = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
-            ClipboardFormat format = ClipboardFormat.SCHEMATIC;
-            ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()));
-            this.clipboard = reader.read(plugin.getWorldEditWorld().getWorldData());
-        }
-    }
-
-    public Clipboard getClipboard() {
-        return clipboard;
     }
 
     // --- GETTER ---
@@ -107,6 +98,14 @@ public class Asset implements AssetHolder {
 
     public Set<String> getTags() {
         return tags;
+    }
+
+    public Vector getDimensions() {
+        return dimensions;
+    }
+
+    public Vector getOrigin() {
+        return origin;
     }
 
     // --- SETTER ---
@@ -165,41 +164,243 @@ public class Asset implements AssetHolder {
         this.tags = tags;
     }
 
-    public void paste(Player player, Vector vector, double rotation) throws WorldEditException {
-        LocalSession localSession = plugin.getWorldEdit().getLocalSession(player);
-        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
+    public void paste(Player player, Vector vector, double rotation, EditSession editSession) throws WorldEditException, IOException {
 
-        Vector origin = clipboard.getOrigin();
-        plugin.log("X: " + origin.getBlockX() + " /// Y: " + origin.getBlockY() + " /// Z: " + origin.getBlockZ());
+        String content;
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(plugin.getDataFolder(), "assets/" + id + ".asset")))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
 
-        Vector dimensions = clipboard.getDimensions();
-        plugin.log("X: " + dimensions.getBlockX() + " /// Y: " + dimensions.getBlockY() + " /// Z: " + dimensions.getBlockZ());
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
 
-        for (int x = 0; x < dimensions.getBlockX(); x++) {
-            for (int y = 0; y < dimensions.getBlockY(); y++) {
-                for (int z = 0; z < dimensions.getBlockZ(); z++) {
+            content = sb.toString();
+        }
 
-                    if (plugin.getWorldGuard().canBuild(player, new Location(plugin.getWorld(), vector.getX(), vector.getY(), vector.getZ()))) {
-                        Vector blockVector = new Vector(x, y, z);
-                        Vector targetVector = vector.add(blockVector).subtract(clipboard.getOrigin()).transform2D(rotation, vector.getBlockX(), vector.getBlockZ(), 0, 0);
+        if (content.length() < dimensions.getBlockX() * dimensions.getBlockY() * dimensions.getBlockZ() * 3) {
+            return;
+        }
 
-                        plugin.log("X: " + targetVector.getBlockX() + " /// Y: " + targetVector.getBlockY() + " /// Z: " + targetVector.getBlockZ());
+        Pattern pattern = Pattern.compile("\\{.*}([\\dabcdef]{3}|$)");
 
-                        BaseBlock block = clipboard.getBlock(blockVector);
-                        if (block.getId() == 0) {
-                            continue;
-                        }
+        ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
 
-                        editSession.setBlock(
-                                targetVector,
-                                block
-                        );
+        int begin = 0;
+        int blockCounter = 0;
+        while (blockCounter < dimensions.getBlockX() * dimensions.getBlockY() * dimensions.getBlockZ()) {
+
+            String subString = content.substring(begin);
+
+            int x = (blockCounter / (dimensions.getBlockZ() * dimensions.getBlockY())) % dimensions.getBlockX();
+            int y = (blockCounter / dimensions.getBlockZ()) % dimensions.getBlockY();
+            int z = blockCounter % dimensions.getBlockZ();
+
+
+            int id = Integer.parseInt(subString.substring(0,2), 16);
+            int data = Integer.parseInt(subString.substring(2,3), 16);
+
+            BaseBlock baseBlock = new BaseBlock(id, data);
+
+            if (subString.charAt(3) == '{') {
+
+                Matcher matcher = pattern.matcher(subString);
+
+                if (!matcher.find()) {
+                    return;
+                }
+                String match = matcher.group();
+
+                JsonNode node = plugin.getJSONMapper().readTree(match.substring(0, match.length() - 3));
+
+                CompoundTag tag = this.getNBT(node);
+
+                plugin.log(tag.toString());
+
+                baseBlock.setNbtData(tag);
+
+                begin += match.length() - 3;
+            }
+
+            Vector targetVector = new Vector(x, y, z).add(vector).subtract(origin).transform2D(-rotation, vector.getBlockX(), vector.getBlockZ(), 0, 0);
+
+            if (s.canBuild(new Location(plugin.getWorld(), targetVector.getX(), targetVector.getY(), targetVector.getZ())) && id != 0) {
+                editSession.setBlock(targetVector, baseBlock);
+            }
+
+            begin += 3;
+            blockCounter++;
+        }
+    }
+
+    @Contract(pure = true)
+    private CompoundTag getNBT(@NotNull JsonNode node) {
+        CompoundTagBuilder builder = CompoundTagBuilder.create();
+        Iterator<String> names = node.fieldNames();
+        while (names.hasNext()) {
+
+            String name = names.next();
+
+            String[] parts = name.split("/");
+
+            String realName = parts[parts.length - 1];
+
+            switch (parts[0]) {
+                case "ba": {
+                    List<Byte> bytes = new ArrayList<>();
+                    Iterator<JsonNode> iterator = node.path(name).elements();
+
+                    while (iterator.hasNext()) {
+                        JsonNode n = iterator.next();
+
+                        bytes.add(Byte.parseByte(n.asText()));
                     }
+
+                    Byte[] byteArray = bytes.toArray(new Byte[0]);
+
+                    builder.putByteArray(realName, ArrayUtils.toPrimitive(byteArray));
+                    break;
+                }
+                case "b": {
+                    builder.putByte(realName, Byte.parseByte(node.path(name).asText()));
+                    break;
+                }
+                case "c": {
+                    builder.put(realName, this.getNBT(node.path(name)));
+                    break;
+                }
+                case "d": {
+                    builder.putDouble(realName, Double.parseDouble(node.path(name).asText()));
+                    break;
+                }
+                case "f": {
+                    builder.putFloat(realName, Float.parseFloat(node.path(name).asText()));
+                    break;
+                }
+                case "ia": {
+                    List<Integer> ints = new ArrayList<>();
+                    Iterator<JsonNode> iterator = node.path(name).elements();
+
+                    while (iterator.hasNext()) {
+                        JsonNode n = iterator.next();
+
+                        ints.add(Integer.parseInt(n.asText()));
+                    }
+
+                    Integer[] intArray = ints.toArray(new Integer[0]);
+
+                    builder.putIntArray(realName, ArrayUtils.toPrimitive(intArray));
+                    break;
+                }
+                case "i": {
+                    builder.putInt(realName, Integer.parseInt(node.path(name).asText()));
+                    break;
+                }
+                case "li": {
+
+                    String nextPrefix = Arrays.stream(ArrayUtils.subarray(parts, 1, parts.length - 1)).map(Object::toString).collect(Collectors.joining("/")) + "/";
+
+                    List<Tag> listTags = new ArrayList<>();
+                    Iterator<JsonNode> iterator = node.path(name).elements();
+                    while (iterator.hasNext()) {
+                        JsonNode n = iterator.next();
+
+                        listTags.add(this.getTag(n, nextPrefix));
+                    }
+
+                    builder.put(realName, new ListTag(listTags.get(0).getClass(), listTags));
+
+                    break;
+                }
+                case "l": {
+                    builder.putLong(realName, Long.parseLong(node.path(name).asText()));
+                    break;
+                }
+                case "s": {
+                    builder.putShort(realName, Short.parseShort(node.path(name).asText()));
+                    break;
+                }
+                case "str": {
+                    builder.putString(realName, node.path(name).asText());
+                    break;
                 }
             }
         }
+        return builder.build();
+    }
 
-        localSession.remember(editSession);
+    @NotNull
+    @Contract("_, _ -> new")
+    private Tag getTag(JsonNode node, @NotNull String prefix) {
+        switch (prefix.split("/", 2)[0]) {
+            case "ba": {
+                List<Byte> bytes = new ArrayList<>();
+                Iterator<JsonNode> iterator = node.elements();
+
+                while (iterator.hasNext()) {
+                    JsonNode n = iterator.next();
+
+                    bytes.add(Byte.parseByte(n.asText()));
+                }
+
+                Byte[] byteArray = bytes.toArray(new Byte[0]);
+
+                return new ByteArrayTag(ArrayUtils.toPrimitive(byteArray));
+            }
+            case "b": {
+                return new ByteTag(Byte.parseByte(node.asText()));
+            }
+            case "c": {
+                return this.getNBT(node);
+            }
+            case "d": {
+                return new DoubleTag(Double.parseDouble(node.asText()));
+            }
+            case "f": {
+                return new FloatTag(Float.parseFloat(node.asText()));
+            }
+            case "ia": {
+                List<Integer> ints = new ArrayList<>();
+                Iterator<JsonNode> iterator = node.elements();
+
+                while (iterator.hasNext()) {
+                    JsonNode n = iterator.next();
+
+                    ints.add(Integer.parseInt(n.asText()));
+                }
+
+                Integer[] intArray = ints.toArray(new Integer[0]);
+
+                return new IntArrayTag(ArrayUtils.toPrimitive(intArray));
+            }
+            case "i": {
+                return new IntTag(Integer.parseInt(node.asText()));
+            }
+            case "li": {
+
+                String nextPrefix = prefix.split("/", 2)[1];
+
+                List<Tag> listTags = new ArrayList<>();
+                Iterator<JsonNode> iterator = node.elements();
+                while (iterator.hasNext()) {
+                    JsonNode n = iterator.next();
+
+                    listTags.add(this.getTag(n, nextPrefix));
+                }
+                return new ListTag(listTags.get(0).getClass(), listTags);
+            }
+            case "l": {
+                return new LongTag(Long.parseLong(node.asText()));
+            }
+            case "s": {
+                return new ShortTag(Short.parseShort(node.asText()));
+            }
+            default: {
+                return new StringTag(node.asText());
+            }
+        }
     }
 
     @Override

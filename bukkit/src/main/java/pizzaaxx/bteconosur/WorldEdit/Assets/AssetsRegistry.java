@@ -1,7 +1,9 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
@@ -20,6 +22,7 @@ import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.ResultSet;
@@ -127,12 +130,9 @@ public class AssetsRegistry implements Registry<String, Asset> {
 
     public String create(String name, @NotNull Clipboard clipboard, Vector origin, UUID creator) throws IOException, SQLException {
         String id = StringUtils.generateCode(6, this.getIds(), LOWER_CASE);
-        File output = new File(plugin.getDataFolder(), "assets/" + id + ".schematic");
+        File output = new File(plugin.getDataFolder(), "assets/" + id + ".asset");
         output.createNewFile();
-        clipboard.setOrigin(origin);
-        ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(Files.newOutputStream(output.toPath()));
-        writer.write(clipboard, plugin.getWorldEditWorld().getWorldData());
-        writer.close();
+        this.saveAsset(clipboard, output);
         plugin.getSqlManager().insert(
                 "assets",
                 new SQLValuesSet(
@@ -147,12 +147,237 @@ public class AssetsRegistry implements Registry<String, Asset> {
                         ),
                         new SQLValue(
                                 "auto_rotate", false
+                        ),
+                        new SQLValue(
+                                "dimensions", clipboard.getDimensions()
+                        ),
+                        new SQLValue(
+                                "origin", origin.subtract(clipboard.getMinimumPoint())
                         )
                 )
         ).execute();
         names.put(id, name);
         tags.put(id, new HashSet<>());
         return id;
+    }
+
+    private void saveAsset(@NotNull Clipboard clipboard, File file) throws IOException {
+
+        FileWriter writer = new FileWriter(file);
+
+        Vector dimensions = clipboard.getDimensions();
+
+        for (int x = 0; x < dimensions.getBlockX(); x++) {
+            for (int y = 0; y < dimensions.getBlockY(); y++) {
+                for (int z = 0; z < dimensions.getBlockZ(); z++) {
+
+                    Vector blockVector = new Vector(x,y,z);
+
+                    BaseBlock block = clipboard.getBlock(blockVector.add(clipboard.getMinimumPoint()));
+
+                    writer.append(Integer.toHexString(Math.floorDiv(block.getId(), 16)));
+                    writer.append(Integer.toHexString(block.getId() % 16));
+                    writer.append(Integer.toHexString(block.getData()));
+
+                    if (block.hasNbtData()) {
+                        CompoundTag compoundTag = block.getNbtData();
+                        writer.append(this.getTagJSON(compoundTag));
+                    }
+                }
+            }
+        }
+        writer.close();
+    }
+
+    public String getTagJSON(String key, Tag tag) {
+        if (tag instanceof ByteArrayTag) {
+            ByteArrayTag byteArrayTag = (ByteArrayTag) tag;
+
+            String[] bytes = new String[byteArrayTag.getValue().length];
+            int counter = 0;
+            for (byte b : byteArrayTag.getValue()) {
+                bytes[counter] = "\"" + b + "\"";
+                counter++;
+            }
+
+            return "\"ba/" + key + "\":[" + String.join(",", bytes) + "]";
+
+        } else if (tag instanceof ByteTag) {
+            ByteTag byteTag = (ByteTag) tag;
+
+            return "\"b/" + key + "\":\"" + byteTag.getValue() + "\"";
+
+        } else if (tag instanceof DoubleTag) {
+            DoubleTag doubleTag = (DoubleTag) tag;
+
+            return "\"d/" + key + "\":\"" + doubleTag.getValue() + "\"";
+
+        } else if (tag instanceof FloatTag) {
+            FloatTag floatTag = (FloatTag) tag;
+
+            return "\"f/" + key + "\":\"" + floatTag.getValue() + "\"";
+
+        } else if (tag instanceof IntArrayTag) {
+            IntArrayTag intArrayTag = (IntArrayTag) tag;
+
+            String[] ints = new String[intArrayTag.getValue().length];
+            int counter = 0;
+            for (int i : intArrayTag.getValue()) {
+                ints[counter] = "\"" + i + "\"";
+                counter++;
+            }
+
+            return "\"ia/" + key + "\":[" + String.join(",", ints) + "]";
+
+        } else if (tag instanceof IntTag) {
+            IntTag intTag = (IntTag) tag;
+
+            return "\"i/" + key + "\":\"" + intTag.getValue() + "\"";
+
+        } else if (tag instanceof ListTag) {
+            ListTag listTag = (ListTag) tag;
+
+            List<String> values = new ArrayList<>();
+            for (Tag tag1 : listTag.getValue()) {
+                values.add(this.getTagJSON(tag1));
+            }
+
+            return "\"" + this.getTagPrefix(listTag) + key + "\":[" + String.join(",", values) + "]";
+
+        } else if (tag instanceof LongTag) {
+            LongTag longTag = (LongTag) tag;
+
+            return "\"l/" + key + "\":\"" + longTag.getValue() + "\"";
+
+        } else if (tag instanceof ShortTag) {
+            ShortTag shortTag = (ShortTag) tag;
+
+            return "\"s/" + key + "\":\"" + shortTag.getValue() + "\"";
+
+        } else if (tag instanceof StringTag) {
+            StringTag stringTag = (StringTag) tag;
+
+            return "\"str/" + key + "\":\"" + stringTag.getValue() + "\"";
+
+        } else if (tag instanceof CompoundTag) {
+            CompoundTag compoundTag = (CompoundTag) tag;
+
+            List<String> tags = new ArrayList<>();
+            for (String k : compoundTag.getValue().keySet()) {
+                Tag tag1 = compoundTag.getValue().get(k);
+                tags.add(this.getTagJSON(k, tag1));
+            }
+
+            return "\"c/" + key + "\":{" + String.join(",", tags) + "}";
+        }
+        return "";
+    }
+
+    public String getTagJSON(Tag tag) {
+        if (tag instanceof ByteArrayTag) {
+            ByteArrayTag byteArrayTag = (ByteArrayTag) tag;
+
+            String[] bytes = new String[byteArrayTag.getValue().length];
+            int counter = 0;
+            for (byte b : byteArrayTag.getValue()) {
+                bytes[counter] = "\"" + b + "\"";
+                counter++;
+            }
+
+            return "[" + String.join(",", bytes) + "]";
+
+        } else if (tag instanceof ByteTag) {
+            ByteTag byteTag = (ByteTag) tag;
+
+            return "\"" + byteTag.getValue() + "\"";
+
+        } else if (tag instanceof DoubleTag) {
+            DoubleTag doubleTag = (DoubleTag) tag;
+
+            return "\"" + doubleTag.getValue() + "\"";
+
+        } else if (tag instanceof FloatTag) {
+            FloatTag floatTag = (FloatTag) tag;
+
+            return "\"" + floatTag.getValue() + "\"";
+
+        } else if (tag instanceof IntArrayTag) {
+            IntArrayTag intArrayTag = (IntArrayTag) tag;
+
+            String[] ints = new String[intArrayTag.getValue().length];
+            int counter = 0;
+            for (int i : intArrayTag.getValue()) {
+                ints[counter] = "\"" + i + "\"";
+                counter++;
+            }
+
+            return "[" + String.join(",", ints) + "]";
+
+        } else if (tag instanceof IntTag) {
+            IntTag intTag = (IntTag) tag;
+
+            return "\"" + intTag.getValue() + "\"";
+
+        } else if (tag instanceof ListTag) {
+            ListTag listTag = (ListTag) tag;
+
+            List<String> values = new ArrayList<>();
+            for (Tag tag1 : listTag.getValue()) {
+                values.add(this.getTagJSON(tag1));
+            }
+
+            return "[" + String.join(",", values) + "]";
+
+        } else if (tag instanceof LongTag) {
+            LongTag longTag = (LongTag) tag;
+
+            return "\"" + longTag.getValue() + "\"";
+
+        } else if (tag instanceof ShortTag) {
+            ShortTag shortTag = (ShortTag) tag;
+
+            return "\"" + shortTag.getValue() + "\"";
+
+        } else if (tag instanceof StringTag) {
+            StringTag stringTag = (StringTag) tag;
+
+            return "\"" + stringTag.getValue() + "\"";
+
+        } else if (tag instanceof CompoundTag) {
+            CompoundTag compoundTag = (CompoundTag) tag;
+
+            List<String> tags = new ArrayList<>();
+            for (String k : compoundTag.getValue().keySet()) {
+                Tag tag1 = compoundTag.getValue().get(k);
+                tags.add(this.getTagJSON(k, tag1));
+            }
+
+            return "{" + String.join(",", tags) + "}";
+
+        }
+        return "";
+    }
+
+    public String getTagPrefix(@NotNull Tag tag) {
+        Class<? extends Tag> clazz = tag.getClass();
+        if (clazz == CompoundTag.class) return "c/";
+        if (clazz == ByteArrayTag.class) return "ba/";
+        if (clazz == ByteTag.class) return "b/";
+        if (clazz == DoubleTag.class) return "d/";
+        if (clazz == FloatTag.class) return "f/";
+        if (clazz == IntArrayTag.class) return "ia/";
+        if (clazz == IntTag.class) return "i/";
+        if (clazz == ListTag.class) {
+            ListTag listTag = (ListTag) tag;
+
+            Tag innerTag = listTag.getIfExists(0);
+
+            return "li/" + (innerTag != null ? this.getTagPrefix(innerTag) : "");
+        }
+        if (clazz == LongTag.class) return "l/";
+        if (clazz == ShortTag.class) return "s/";
+        if (clazz == StringTag.class) return "str/";
+        return "";
     }
 
     public void delete(String id) throws SQLException, JsonProcessingException {

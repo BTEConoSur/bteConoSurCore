@@ -1,7 +1,7 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets.Listener;
 
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEditException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,14 +56,25 @@ public class AssetListener implements Listener {
                             try {
                                 BlockFace face = event.getBlockFace();
                                 Location location = event.getClickedBlock().getLocation().add(face.getModX(), face.getModY(), face.getModZ());
-                                asset.loadSchematic();
                                 double rotation;
                                 if (asset.isAutoRotate()) {
                                     rotation = random.nextInt(4) * 90;
                                 } else {
                                     rotation = this.rotations.getOrDefault(uuid, new HashMap<>()).getOrDefault(id, 0.0);
                                 }
-                                asset.paste(event.getPlayer(), new Vector(location.getX(), location.getY(), location.getZ()), rotation);
+
+                                LocalSession localSession = plugin.getWorldEdit().getLocalSession(event.getPlayer());
+                                EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
+
+                                try {
+                                    asset.paste(event.getPlayer(), new Vector(location.getX(), location.getY(), location.getZ()), rotation, editSession);
+                                } catch (MaxChangedBlocksException e) {
+                                    localSession.remember(editSession);
+                                }
+
+                                if (editSession.getBlockChangeCount() > 0) {
+                                    localSession.remember(editSession);
+                                }
                             } catch (IOException | WorldEditException e) {
                                 e.printStackTrace();
                                 event.getPlayer().sendActionBar("§cHa ocurrido un error.");
@@ -129,7 +140,19 @@ public class AssetListener implements Listener {
                         BlockFace face = event.getBlockFace();
                         Location location = event.getClickedBlock().getLocation().add(face.getModX(), face.getModY(), face.getModZ());
                         try {
-                            group.paste(event.getPlayer(), new Vector(location.getX(), location.getY(), location.getZ()));
+
+                            LocalSession localSession = plugin.getWorldEdit().getLocalSession(event.getPlayer());
+                            EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(plugin.getWorldEditWorld(), localSession.getBlockChangeLimit());
+
+                            try {
+                                group.paste(event.getPlayer(), new Vector(location.getX(), location.getY(), location.getZ()), editSession);
+                            } catch (MaxChangedBlocksException e) {
+                                localSession.remember(editSession);
+                            }
+
+                            if (editSession.getBlockChangeCount() > 0) {
+                                localSession.remember(editSession);
+                            }
                         } catch (IOException | WorldEditException e) {
                             event.getPlayer().sendActionBar("§cHa ocurrido un error.");
                         }

@@ -1,16 +1,9 @@
 package pizzaaxx.bteconosur.WorldEdit.Assets;
 
 import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.mask.Mask;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.transform.AffineTransform;
-import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.session.ClipboardHolder;
-import com.sk89q.worldedit.world.registry.WorldData;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,7 +15,6 @@ import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Utils.NumberUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -223,30 +215,16 @@ public class AssetFillCommand implements CommandExecutor {
 
                             if (y >= polyRegion.getMinimumY() && y <= polyRegion.getMaximumY() + 1) {
                                 Asset asset = holder.select();
-                                try {
-                                    asset.loadSchematic();
-                                } catch (IOException e) {
-                                    p.sendMessage(prefix + "Ha ocurrido un error al cargar un schematic.");
-                                    localSession.remember(editSession);
-                                    return true;
-                                }
-                                Clipboard clipboard = asset.getClipboard();
 
-                                WorldData worldData = plugin.getWorldEditWorld().getWorldData();
-                                ClipboardHolder clipboardHolder = new ClipboardHolder(clipboard, worldData);
-                                Transform transform = new AffineTransform().rotateY(random.nextInt(4) * 90);
-                                clipboardHolder.setTransform(transform);
-                                Operation operation = clipboardHolder
-                                        .createPaste(editSession, worldData)
-                                        .to(vector.toVector(y))
-                                        .ignoreAirBlocks(true)
-                                        .build();
                                 try {
-                                    Operations.complete(operation);
-                                } catch (WorldEditException e) {
-                                    p.sendMessage(prefix + "Ha ocurrido un error con WorldEdit.");
+                                    asset.paste(
+                                            p,
+                                            vector.toVector(y),
+                                            random.nextInt(4) * 90,
+                                            editSession
+                                    );
+                                } catch (MaxChangedBlocksException e) {
                                     localSession.remember(editSession);
-                                    return true;
                                 }
                             }
                         }
@@ -254,7 +232,9 @@ public class AssetFillCommand implements CommandExecutor {
                 }
             }
 
-            localSession.remember(editSession);
+            if (editSession.getBlockChangeCount() > 0) {
+                localSession.remember(editSession);
+            }
             p.sendMessage(prefix + "Operación completada. §7Bloques afectados: " + editSession.getBlockChangeCount());
 
         } catch (Exception e) {

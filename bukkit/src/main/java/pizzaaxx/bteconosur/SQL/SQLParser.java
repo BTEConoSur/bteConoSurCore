@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.SQL;
 
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldedit.Vector;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +50,15 @@ public class SQLParser {
             coords.put("z", vector.getZ());
             return SQLParser.getString(coords, insideJSON);
             
+        } else if (object instanceof Vector) {
+            Vector vector = (Vector) object;
+
+            Map<String, Double> coords = new HashMap<>();
+            coords.put("x", vector.getX());
+            coords.put("y", vector.getY());
+            coords.put("z", vector.getZ());
+
+            return SQLParser.getString(coords, insideJSON);
         } else if (object instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) object;
             int size = collection.size();

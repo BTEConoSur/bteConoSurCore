@@ -9,6 +9,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.Managers.*;
+import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
@@ -281,7 +282,7 @@ public class ServerPlayer implements ScoreboardDisplay {
     }
 
     public boolean canBuild(Location loc) {
-        return plugin.getWorldGuard().canBuild(Bukkit.getPlayer(uuid), loc);
+        return plugin.getProjectRegistry().getProjectsAt(loc, new MemberProjectSelector(uuid)).size() > 0;
     }
 
     public List<String> getLore(boolean name) {

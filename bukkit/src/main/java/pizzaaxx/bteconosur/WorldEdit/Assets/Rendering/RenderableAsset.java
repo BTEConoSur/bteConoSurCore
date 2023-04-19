@@ -29,8 +29,7 @@ public class RenderableAsset implements GLEventListener {
 
     public RenderableAsset(@NotNull BTEConoSur plugin, @NotNull Asset asset) throws IOException {
         this.asset = asset;
-        this.asset.loadSchematic();
-        models = plugin.getModelsManager().getClipboard(asset.getClipboard());
+        models = plugin.getModelsManager().getClipboard(null);
         this.os = new FileOutputStream(new File(plugin.getDataFolder(), "assets/gifs/" + asset.getId() + ".gif"));
         encoder.setFrameRate(60);
         encoder.setSize(400, 400);
@@ -69,7 +68,7 @@ public class RenderableAsset implements GLEventListener {
         gl.glRotatef(rotation, 0.0f, 1.0f, 0.0f);
 
         gl.glBegin(GL2.GL_QUADS); // Start Drawing The Cube
-        Vector dimensions = asset.getClipboard().getDimensions();
+        Vector dimensions = asset.getDimensions();
         for (int x = 0; x < dimensions.getBlockX(); x++) {
             for (int y = 0; x < dimensions.getBlockY(); y++) {
                 for (int z = 0; x < dimensions.getBlockZ(); z++) {
