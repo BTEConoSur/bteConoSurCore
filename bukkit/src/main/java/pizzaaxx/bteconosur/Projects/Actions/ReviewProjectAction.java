@@ -259,44 +259,10 @@ public class ReviewProjectAction {
                     manager.addFinished(project);
                 }
 
-                ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
-                boolean sent;
-                if (project.hasPost()) {
-                    sent = true;
-                    Post post = project.getPost();
-                    post.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!");
-                    post.setProjectID(id);
-                    post.updateTags(project.getTag());
-                } else {
-                    if (owner.getDiscordManager().isLinked()) {
-                        sent = true;
-                        plugin.getBot().retrieveUserById(owner.getDiscordManager().getId()).queue(
-                                user -> user.openPrivateChannel().queue(
-                                        channel -> channel.sendMessage(
-                                                "**[PROYECTOS]** » Felicidades por haber completado el proyecto **" + project.getDisplayName() + "**. Por favor, completa el siguiente formulario para que tu proyecto aparezca en <#" + project.getCountry().getProjectsForumChannelID() + "> y otros lugares."
-                                        ).addActionRow(
-                                                Button.of(ButtonStyle.SUCCESS, "projectForm?id=" + id, "Formulario", Emoji.fromUnicode("U+1F4D1"))
-                                        ).queue()
-                                )
-                        );
-                    } else {
-                        sent = false;
-                    }
-                }
-
-                plugin.getSqlManager().update(
-                        "finished_projects",
-                        new SQLValuesSet(
-                                new SQLValue(
-                                        "sent_form", sent
-                                )
-                        ),
-                        new SQLANDConditionSet(
-                                new SQLOperatorCondition(
-                                        "id", "=", id
-                                )
-                        )
-                ).execute();
+                Post post = project.getPost();
+                post.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!");
+                post.setProjectID(id);
+                post.updateTags(project.getTag());
 
                 plugin.getSqlManager().delete(
                         "projects",

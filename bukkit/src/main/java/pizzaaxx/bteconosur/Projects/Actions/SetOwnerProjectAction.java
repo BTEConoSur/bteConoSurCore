@@ -38,5 +38,6 @@ public class SetOwnerProjectAction {
                 )
         ).execute();
         project.update();
+        project.getPost().updateOwner();
     }
 }

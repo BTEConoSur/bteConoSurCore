@@ -318,6 +318,8 @@ public class ProjectRedefineRequestListener extends ListenerAdapter implements P
                                 )
                         ).execute();
 
+                        project.getPost().updateType();
+
                         event.getMessage().delete().queue();
 
                         DiscordUtils.respondSuccessEphemeral(event, "Solicitud aceptada correctamente.");

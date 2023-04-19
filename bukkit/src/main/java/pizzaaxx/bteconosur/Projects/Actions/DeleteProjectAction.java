@@ -51,6 +51,10 @@ public class DeleteProjectAction {
         File file = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
         file.delete();
 
+        if (project.hasPost()) {
+            project.getPost().close();
+        }
+
         project.getCountry().getLogsChannel().sendMessage(
                 ":wastebasket: **" + plugin.getPlayerRegistry().get(moderatorUUID).getName() + "** ha eliminado el proyecto `" + project.getId() + "`."
         ).queue();

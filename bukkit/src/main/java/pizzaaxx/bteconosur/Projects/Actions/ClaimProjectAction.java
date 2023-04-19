@@ -6,6 +6,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
+import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
 
 import java.awt.*;
@@ -48,6 +49,13 @@ public class ClaimProjectAction {
         for (City city : project.getCitiesResolved()) {
             plugin.getScoreboardHandler().update(city);
         }
+
+        Post.createPost(
+                plugin,
+                plugin.getProjectRegistry().get(project.getId()),
+                "Proyecto " + project.getId().toUpperCase(),
+                "N/A"
+        );
 
         project.getCountry().getLogsChannel().sendMessage(":inbox_tray: **" + plugin.getPlayerRegistry().get(owner).getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
     }

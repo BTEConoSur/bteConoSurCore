@@ -157,87 +157,16 @@ public class PostsListener extends ListenerAdapter {
                 project = plugin.getFinishedProjectsRegistry().get(id);
             }
 
-            if (event.getModalId().startsWith("createPostForm")) {
+            try {
+                Post post = project.getPost();
+                post.setName(name);
+                post.setDescription(description);
 
-                try {
-                    Post.createPost(
-                            plugin,
-                            project,
-                            name,
-                            description
-                    );
-
-                    event.replyEmbeds(
-                            DiscordUtils.fastEmbed(
-                                    Color.GREEN,
-                                    "Proyecto " + project.getDisplayName() + " publicado.",
-                                    "Ve la publicación en <#" + project.getCountry().getProjectsForumChannelID() + ">."
-                            )
-                    ).queue(
-                            msg -> msg.deleteOriginal().queueAfter(1, TimeUnit.MINUTES)
-                    );
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
-                }
-
-            } else {
-
-                try {
-                    Post post = project.getPost();
-                    post.setName(name);
-                    post.setDescription(description);
-
-                    DiscordUtils.respondSuccessEphemeral(event, "Publicación editada con éxito.");
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
-                }
-
+                DiscordUtils.respondSuccessEphemeral(event, "Publicación editada con éxito.");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
             }
-
-        }
-
-    }
-
-    @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-
-        if (event.getButton().getId() == null) {
-            return;
-        }
-
-        if (event.getButton().getId().startsWith("projectForm")) {
-
-            Map<String, String> query = StringUtils.getQuery(event.getButton().getId().split("\\?")[1]);
-            String id = query.get("id");
-
-            FinishedProject project = plugin.getFinishedProjectsRegistry().get(id);
-
-            Modal modal = Modal.create(
-                    "createPostForm?id=" + id,
-                    "Publicar proyecto " + project.getName()
-            )
-                    .addActionRows(
-                            ActionRow.of(
-                                    TextInput.create(
-                                            "name",
-                                            "Nombre",
-                                            TextInputStyle.SHORT
-                                    ).setPlaceholder("Un nombre representativo del proyecto (EJ: Palacio de la Moneda)").setRequired(true).build()
-                            ),
-                            ActionRow.of(
-                                    TextInput.create(
-                                            "description",
-                                            "Descripción",
-                                            TextInputStyle.PARAGRAPH
-                                    ).setMaxLength(1000).setRequired(true).build()
-                            )
-                    )
-                    .build();
-
-            event.replyModal(modal).queue();
-
         }
     }
 }

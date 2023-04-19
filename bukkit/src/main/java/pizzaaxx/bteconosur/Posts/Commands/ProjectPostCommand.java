@@ -46,16 +46,6 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                 "Publica tu proyecto en Discord"
         ).addSubcommands(
                 new SubcommandData(
-                        "create",
-                        "Crea un publicación para un proyecto en construcción"
-                )
-                        .addOption(
-                                OptionType.STRING,
-                                "id",
-                                "ID del proyecto",
-                                true
-                        ),
-                new SubcommandData(
                         "edit",
                         "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
                 ),
@@ -320,6 +310,5 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                 }
             }
         }
-
     }
 }

@@ -49,7 +49,7 @@ public class Post {
             @NotNull ProjectWrapper project,
             String name,
             String description
-    ) throws IOException {
+    ) {
 
         List<String> cityNames = new ArrayList<>();
         for (String city : project.getCities()) {
@@ -366,10 +366,6 @@ public class Post {
                     message.editMessageEmbeds(builder.build()).queue();
                 }
         );
-    }
-
-    public enum StatusTag{
-        ONGOING, FINISHED
     }
 
     public void updateTags(@Nullable ProjectTag tag) {

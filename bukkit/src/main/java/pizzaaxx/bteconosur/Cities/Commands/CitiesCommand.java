@@ -263,9 +263,6 @@ public class CitiesCommand implements CommandExecutor, Prefixable {
                 }
                 break;
             }
-            case "delete": {
-                // TODO DELETE SUBCOMMAND
-            }
         }
         return true;
     }

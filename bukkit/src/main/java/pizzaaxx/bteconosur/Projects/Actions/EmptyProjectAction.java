@@ -61,6 +61,8 @@ public class EmptyProjectAction {
         region.setMembers(new DefaultDomain());
         plugin.getRegionManager().addRegion(region);
 
+        project.getPost().close();
+
         project.getCountry().getLogsChannel().sendMessage(":book: El proyecto `" + project.getId() + "` está disponible de nuevo.").queue();
     }
 }
