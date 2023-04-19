@@ -7,6 +7,7 @@ import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.blocks.BlockData;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -217,14 +218,19 @@ public class Asset implements AssetHolder {
 
                 CompoundTag tag = this.getNBT(node);
 
-                plugin.log(tag.toString());
-
                 baseBlock.setNbtData(tag);
 
                 begin += match.length() - 3;
             }
 
             Vector targetVector = new Vector(x, y, z).add(vector).subtract(origin).transform2D(-rotation, vector.getBlockX(), vector.getBlockZ(), 0, 0);
+
+            int rot = 0;
+            while (rot < rotation) {
+                baseBlock.setData(BlockData.rotate90Reverse(id, baseBlock.getData()));
+
+                rot += 90;
+            }
 
             if (s.canBuild(new Location(plugin.getWorld(), targetVector.getX(), targetVector.getY(), targetVector.getZ())) && id != 0) {
                 editSession.setBlock(targetVector, baseBlock);
