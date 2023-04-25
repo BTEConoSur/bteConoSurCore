@@ -60,10 +60,10 @@ public class OnlineCommand extends ListenerAdapter implements SlashCommandContai
 
                 Graphics2D g = base.createGraphics();
 
-                double maxLat =  WebMercatorUtils.getLatitudeFromY(4, 3);
-                double minLat =  WebMercatorUtils.getLatitudeFromY(5.5, 3);
-                double minLon =  WebMercatorUtils.getLongitudeFromX(2, 3);
-                double maxLon =  WebMercatorUtils.getLongitudeFromX(3, 3);
+                double maxLat =  WebMercatorUtils.getLatitudeFromY(4*256, 3);
+                double minLat =  WebMercatorUtils.getLatitudeFromY(5.5*256, 3);
+                double minLon =  WebMercatorUtils.getLongitudeFromX(2*256, 3);
+                double maxLon =  WebMercatorUtils.getLongitudeFromX(3*256, 3);
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
 

@@ -56,7 +56,9 @@ public class MemberLeaveProjectAction {
         plugin.getRegionManager().addRegion(region);
 
         project.update();
-
+        if (project.hasPost()) {
+            project.getPost().updateMembers();
+        }
         project.getCountry().getLogsChannel().sendMessage(":outbox_tray: **" + target.getName() + "** ha abandonado el proyecto `" + project.getId() + "`.").queue();
     }
 

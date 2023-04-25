@@ -54,7 +54,9 @@ public class AddMemberProjectAction {
         plugin.getRegionManager().addRegion(region);
 
         project.update();
-        project.getPost().updateMembers();
+        if (project.hasPost()) {
+            project.getPost().updateMembers();
+        }
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha agregado a **" + plugin.getPlayerRegistry().get(member).getName() + "** al proyecto `" + project.getId() + "`.").queue();
     }
 }

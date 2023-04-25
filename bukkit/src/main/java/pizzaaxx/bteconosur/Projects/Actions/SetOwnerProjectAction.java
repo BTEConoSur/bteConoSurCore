@@ -38,6 +38,8 @@ public class SetOwnerProjectAction {
                 )
         ).execute();
         project.update();
-        project.getPost().updateOwner();
+        if (project.hasPost()) {
+            project.getPost().updateOwner();
+        }
     }
 }
