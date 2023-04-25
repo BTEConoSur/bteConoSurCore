@@ -58,6 +58,7 @@ import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestLis
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectRedefineRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProjectsRegistry;
+import pizzaaxx.bteconosur.Projects.Listeners.ProjectClickListener;
 import pizzaaxx.bteconosur.Projects.Listeners.ProjectRegionListener;
 import pizzaaxx.bteconosur.Projects.ProjectRegistry;
 import pizzaaxx.bteconosur.Regions.RegionListenersHandler;
@@ -350,7 +351,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 chatHandler,
                 projectsCommand,
                 tourCommand,
-                new SecurityEvents(this)
+                new SecurityEvents(this),
+                new ProjectClickListener(this)
         );
 
         this.log("Starting chats...");
