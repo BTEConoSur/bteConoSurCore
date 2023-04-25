@@ -530,7 +530,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("/selredo").setExecutor(this.selUndoRedoCommand);
         getCommand("/selundo").setExecutor(this.selUndoRedoCommand);
         getCommand("nightvision").setExecutor(new NightVisionCommand());
-        getCommand("drawPolygon").setExecutor(new DrawPolygonCommand(this));
         getCommand("project").setExecutor(projectsCommand);
         getCommand("chat").setExecutor(new ChatCommand(this));
         getCommand("nickname").setExecutor(new NicknameCommand(this));

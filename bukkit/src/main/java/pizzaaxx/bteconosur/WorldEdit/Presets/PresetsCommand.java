@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.WorldEdit.Presets;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
@@ -10,9 +11,9 @@ import pizzaaxx.bteconosur.Player.Managers.WorldEditManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.*;
 
-public class PresetsCommand implements CommandExecutor, Prefixable {
+public class PresetsCommand implements CommandExecutor, Prefixable, TabCompleter {
 
     private final BTEConoSur plugin;
 
@@ -116,5 +117,32 @@ public class PresetsCommand implements CommandExecutor, Prefixable {
     @Override
     public String getPrefix() {
         return "§f[§7PRESETS§f] §7>> §f";
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            completions.addAll(
+                    Arrays.asList(
+                            "set", "delete", "list"
+                    )
+            );
+        } else if (args.length == 2 && args[0].equals("delete")) {
+            Player player = (Player) sender;
+            ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
+            WorldEditManager manager = s.getWorldEditManager();
+            completions.addAll(manager.getPresets().keySet());
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
     }
 }

@@ -72,10 +72,13 @@ public class OnlineCommand extends ListenerAdapter implements SlashCommandContai
                     int x = (int) (NumberUtils.getInNewRange(minLon, maxLon, 0, 255, coords.getLon()) - 8);
                     int y = (int) (NumberUtils.getInNewRange(maxLat, minLat, 0, 383, coords.getLat()) - 8);
 
-                    InputStream is = HttpRequest.get(new URL("https://mc-heads.net/avatar/" + player.getUniqueId().toString() + "/16")).execute().getInputStream();
-                    BufferedImage head = ImageIO.read(is);
+                    if (x >= 0 && x <= 255 && y >= 0 & y <= 383) {
+                        InputStream is = HttpRequest.get(new URL("https://mc-heads.net/avatar/" + player.getUniqueId().toString() + "/16")).execute().getInputStream();
+                        BufferedImage head = ImageIO.read(is);
 
-                    g.drawImage(head, x, y, null);
+                        g.drawImage(head, x, y, null);
+                    }
+
 
                     Country country = plugin.getCountryManager().getCountryAt(player.getLocation());
 

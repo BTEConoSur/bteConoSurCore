@@ -14,6 +14,7 @@ import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,7 +32,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-public class AssetsCommand implements CommandExecutor {
+public class AssetsCommand implements CommandExecutor, TabCompleter {
 
     private final BTEConoSur plugin;
     private final String prefix;
@@ -545,5 +546,31 @@ public class AssetsCommand implements CommandExecutor {
         }
         int option = sum % 5;
         return groupHeadOptions.get(option);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            completions.addAll(
+                    Arrays.asList(
+                            "setorigin", "create", "setname", "setautorotate", "settags", "delete", "search", "fav"
+                    )
+            );
+        } else if (args.length == 2 && args[0].equals("setautorotate")) {
+            completions.addAll(
+                    Arrays.asList("true", "false")
+            );
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
     }
 }

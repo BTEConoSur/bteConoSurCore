@@ -21,6 +21,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -65,7 +66,7 @@ import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.Projects.Project.MAX_PROJECTS_PER_PLAYER;
 
-public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
+public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, TabCompleter {
 
     private final BTEConoSur plugin;
 
@@ -2979,4 +2980,72 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener {
     public String getPrefix() {
         return "§f[§dPROYECTO§f] §7>> §f";
     }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+
+        int length = args.length;
+
+        if (length == 1) {
+            completions.addAll(
+                    Arrays.asList(
+                            "create", "manage", "borders", "name", "list", "claim", "delete", "request", "tag", "find", "pending", "review", "progress", "redefine"
+                    )
+            );
+        } else {
+            if (args[0].equals("create")) {
+
+                Player p = (Player) sender;
+                ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+
+                if (length == 2) {
+                    Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                    if (country != null && s.getProjectManager().hasAdminPermission(country)) {
+                        completions.addAll(country.getProjectTypes().stream().map(ProjectType::getName).collect(Collectors.toList()));
+                    }
+
+                } else if (length == 3) {
+                    Country country = plugin.getCountryManager().getCountryAt(p.getLocation());
+
+                    if (country != null && s.getProjectManager().hasAdminPermission(country) && country.isType(args[1])) {
+                        ProjectType type = country.getProjectType(args[1]);
+
+                        for (Integer option : type.getPointsOptions()) {
+                            completions.add(Integer.toString(option));
+                        }
+                    }
+                }
+            }
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
+    }
+
+    /*
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
+    }
+    */
 }

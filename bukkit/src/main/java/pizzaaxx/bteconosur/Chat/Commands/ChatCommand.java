@@ -1,9 +1,11 @@
 package pizzaaxx.bteconosur.Chat.Commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -26,14 +28,11 @@ import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
-public class ChatCommand implements CommandExecutor, Prefixable {
+public class ChatCommand implements CommandExecutor, Prefixable, TabCompleter {
 
     private final BTEConoSur plugin;
 
@@ -142,6 +141,7 @@ public class ChatCommand implements CommandExecutor, Prefixable {
                 if (args[0].equals("set")) {
                     this.openConfigChatMenu(p);
                 }
+
                 if (args[0].matches("[a-z]{6}")) { // TODO TEST INVITES
                     if (!invites.containsKey(args[0])) {
                         p.sendMessage(getPrefix() + "La invitación introducida no existe.");
@@ -508,5 +508,33 @@ public class ChatCommand implements CommandExecutor, Prefixable {
     @Override
     public String getPrefix() {
         return "§f[§aCHAT§f] §7>> §f";
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            completions.addAll(
+                    Arrays.asList(
+                            "invite", "default", "set", "toggle"
+                    )
+            );
+        } else if (args.length == 2 && args[0].equals("invite")) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                completions.add(player.getName());
+            }
+        } else if (args.length == 2 && args[0].equals("default")) {
+            completions.add("set");
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
     }
 }

@@ -4,16 +4,18 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Player.Managers.MiscManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.*;
 
-public class PWarpsCommand implements CommandExecutor{
+public class PWarpsCommand implements CommandExecutor, TabCompleter {
 
     private final BTEConoSur plugin;
 
@@ -104,5 +106,37 @@ public class PWarpsCommand implements CommandExecutor{
             p.sendMessage(plugin.getPrefix() + "Introduce un subcomando o nombre válido.");
         }
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            completions.addAll(
+                    Arrays.asList("set", "delete", "list")
+            );
+
+            Player p = (Player) sender;
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+            MiscManager miscManager = s.getMiscManager();
+
+            completions.addAll(miscManager.getPWarps().keySet());
+        } else if (args.length == 2 && args[0].equals("delete")) {
+            Player p = (Player) sender;
+            ServerPlayer s = plugin.getPlayerRegistry().get(p.getUniqueId());
+            MiscManager miscManager = s.getMiscManager();
+
+            completions.addAll(miscManager.getPWarps().keySet());
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
     }
 }

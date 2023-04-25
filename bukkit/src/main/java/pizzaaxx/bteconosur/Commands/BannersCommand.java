@@ -7,6 +7,7 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -16,12 +17,13 @@ import pizzaaxx.bteconosur.Utils.Pair;
 
 import java.util.*;
 
-public class BannersCommand implements CommandExecutor {
+public class BannersCommand implements CommandExecutor, TabCompleter {
+
+
 
     private enum PatternColor {
-        BACKGROUND, FRONT
+        BACKGROUND, FRONT;
     }
-
     private final Map<String, List<Pair<PatternColor, PatternType>>> letters = new HashMap<>();
 
     public BannersCommand() {
@@ -416,5 +418,42 @@ public class BannersCommand implements CommandExecutor {
                 return DyeColor.BLACK;
         }
         return null;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1 || args.length == 2) {
+            completions.addAll(
+                    Arrays.asList(
+                            "white", "blanco",
+                            "orange", "naranjo", "anaranjado", "naranja",
+                            "magenta",
+                            "light_blue", "celeste", "azul_claro",
+                            "yellow", "amarillo",
+                            "lime", "lima", "verde_claro",
+                            "pink", "rosado", "rosa",
+                            "dark_gray", "dark_grey", "gris_oscuro",
+                            "gray", "grey", "gris", "gris_claro",
+                            "cyan", "cian",
+                            "purple", "purpura", "morado",
+                            "blue", "azul", "azul_oscuro",
+                            "brown", "marron", "cafe",
+                            "green", "verde", "verde_oscuro",
+                            "red", "rojo",
+                            "black", "negro"
+                    )
+            );
+        }
+
+        List<String> finalCompletions = new ArrayList<>();
+        for (String completion : completions) {
+            if (completion.startsWith(args[args.length - 1])) {
+                finalCompletions.add(completion);
+            }
+        }
+        Collections.sort(finalCompletions);
+        return finalCompletions;
     }
 }
