@@ -113,6 +113,8 @@ public class Post {
 
         appliedTags.add(channel.getAvailableTagsByName(statusTag, true).get(0));
 
+        appliedTags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
+
         action.setTags(appliedTags);
 
         action.queue(
@@ -368,7 +370,7 @@ public class Post {
         );
     }
 
-    public void updateTags(@Nullable ProjectTag tag) {
+    public void updateTags(@Nullable ProjectTag tag, @NotNull ProjectType type) {
 
         ForumChannel forum = this.getChannel().getParentChannel().asForumChannel();
         List<ForumTag> tags = new ArrayList<>();
@@ -388,6 +390,10 @@ public class Post {
                     forum.getAvailableTagsByName(tag.toString(), true).get(0)
             );
         }
+
+        tags.add(
+                forum.getAvailableTagsByName(type.getDisplayName(), true).get(0)
+        );
 
         this.getChannel().getManager().setAppliedTags(
                 tags

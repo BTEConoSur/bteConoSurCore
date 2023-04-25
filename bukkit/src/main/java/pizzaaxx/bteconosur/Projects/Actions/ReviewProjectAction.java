@@ -262,7 +262,7 @@ public class ReviewProjectAction {
                 Post post = project.getPost();
                 post.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!");
                 post.setProjectID(id);
-                post.updateTags(project.getTag());
+                post.updateTags(project.getTag(), project.getType());
 
                 plugin.getSqlManager().delete(
                         "projects",

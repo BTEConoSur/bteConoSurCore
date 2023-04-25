@@ -90,60 +90,6 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
             ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
 
             switch (subcommand) {
-                case "create": {
-                    OptionMapping idMapping = event.getOption("id");
-                    assert idMapping != null;
-                    String id = idMapping.getAsString();
-
-                    if (!plugin.getProjectRegistry().exists(id)) {
-                        DiscordUtils.respondError(event, "El proyecto introducido no existe.");
-                        return;
-                    }
-
-                    Project project = plugin.getProjectRegistry().get(id);
-
-                    if (project.hasPost()) {
-                        Post post = project.getPost();
-                        event.replyEmbeds(
-                                DiscordUtils.fastEmbed(
-                                        Color.RED,
-                                        "Este proyecto ya tiene una publicación.",
-                                        "Ve en <#" + post.getChannel().getId() + ">."
-                                )
-                        ).queue(
-                                msg -> msg.deleteOriginal().queueAfter(1, TimeUnit.MINUTES)
-                        );
-                    }
-
-                    if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
-                        DiscordUtils.respondError(event, "Solo el líder de un proyecto puede publicarlo.");
-                        return;
-                    }
-
-                    Modal modal = Modal.create(
-                                    "createPostForm?id=" + project.getId(),
-                                    "Publicar proyecto " + project.getDisplayName()
-                            )
-                            .addActionRows(
-                                    ActionRow.of(
-                                            TextInput.create(
-                                                    "name",
-                                                    "Nombre",
-                                                    TextInputStyle.SHORT
-                                            ).setPlaceholder("Un nombre representativo del proyecto (EJ: Palacio de la Moneda)").setRequired(true).build()
-                                    ),
-                                    ActionRow.of(
-                                            TextInput.create(
-                                                    "description",
-                                                    "Descripción",
-                                                    TextInputStyle.PARAGRAPH
-                                            ).setMaxLength(1000).setRequired(true).build()
-                                    )
-                            )
-                            .build();
-                    event.replyModal(modal).queue();
-                    break;
-                }
                 case "edit": {
                     Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
 

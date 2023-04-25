@@ -319,6 +319,7 @@ public class ProjectRedefineRequestListener extends ListenerAdapter implements P
                         ).execute();
 
                         project.getPost().updateType();
+                        project.getPost().updateTags(project.getTag(), project.getType());
 
                         event.getMessage().delete().queue();
 
