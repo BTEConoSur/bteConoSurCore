@@ -47,7 +47,10 @@ public class AssetsCommand implements CommandExecutor, TabCompleter {
 
     private void startCooldown(@NotNull Player player) {
 
-        // TODO ADD GROUP BYPASSES
+        ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
+        if (s.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.ADMIN)) {
+            return;
+        }
 
         onCooldown.add(player.getUniqueId());
         new BukkitRunnable() {

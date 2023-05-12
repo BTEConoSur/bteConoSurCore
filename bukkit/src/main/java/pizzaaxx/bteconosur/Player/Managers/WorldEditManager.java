@@ -46,7 +46,7 @@ public class WorldEditManager {
                 )
         ).retrieve();
 
-        if (set.next()) { // TODO CREATION OF OTHER MANAGERS
+        if (set.next()) {
 
             this.increment = set.getInt("increment");
             this.presets = plugin.getJSONMapper().readValue(set.getString("presets"), HashMap.class);

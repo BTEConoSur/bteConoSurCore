@@ -1,6 +1,7 @@
 package pizzaaxx.bteconosur.Countries;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -52,6 +53,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
     private final String chatPrefix;
     private final String tabPrefix;
     private String buildEventID;
+    private final List<String> legacyDifficulties;
 
     public Country(@NotNull BTEConoSur plugin, @NotNull ResultSet set) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -96,6 +98,13 @@ public class Country implements JSONParsable, ScoreboardDisplay {
         this.chatPrefix = set.getString("chat_prefix");
         this.tabPrefix = set.getString("tab_prefix");
         this.buildEventID = set.getString("current_build_event_id");
+
+        this.legacyDifficulties = new ArrayList<>();
+        JsonNode legacyNode = plugin.getJSONMapper().readTree(set.getString("legacy_difficulties"));
+        for (JsonNode difficulty : legacyNode) {
+            legacyDifficulties.add(difficulty.asText());
+        }
+
     }
 
     public BTEConoSur getPlugin() {
@@ -205,6 +214,10 @@ public class Country implements JSONParsable, ScoreboardDisplay {
 
     public BuildEvent getBuildEvent() {
         return plugin.getBuildEventsRegistry().get(buildEventID);
+    }
+
+    public List<String> getLegacyDifficulties() {
+        return legacyDifficulties;
     }
 
     public List<ProjectType> getUnlockedProjectTypes(ProjectManager manager) {

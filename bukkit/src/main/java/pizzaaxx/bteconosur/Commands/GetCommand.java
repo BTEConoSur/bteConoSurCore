@@ -47,8 +47,6 @@ public class GetCommand implements CommandExecutor, Listener {
                 "Bloques especiales"
         );
 
-        // TODO FIX THIS
-
         gui.setItem(ItemBuilder.head(
             "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGRkMGNkMTU4YzJiYjY2MTg2NTBlMzk1NGIyZDI5MjM3ZjViNGMwZGRjN2QyNThlMTczODBhYjY5NzlmMDcxIn19fQ=="
         , "§a[43:8] §fPiedra Lisa", new ArrayList<>()), 10);

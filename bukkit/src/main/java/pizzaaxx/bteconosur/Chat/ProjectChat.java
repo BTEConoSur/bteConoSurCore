@@ -117,7 +117,7 @@ public class  ProjectChat implements Chat {
     }
 
     @Override
-    public void sendMessage(UUID uuid, String message) { // TODO PREFIXES
+    public void sendMessage(UUID uuid, String message) {
         ServerPlayer senderPlayer = plugin.getPlayerRegistry().get(uuid);
         Project.ProjectRole projectRole = getProject().getProjectRole(uuid);
         for (UUID playerUUID : players) {

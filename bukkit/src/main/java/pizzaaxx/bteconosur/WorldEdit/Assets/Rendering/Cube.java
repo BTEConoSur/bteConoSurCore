@@ -130,7 +130,6 @@ public class Cube implements GLEventListener {
 
     @Override
     public void dispose( GLAutoDrawable drawable ) {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -169,8 +168,6 @@ public class Cube implements GLEventListener {
 
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-
-        // TODO Auto-generated method stub
         final GL2 gl = drawable.getGL().getGL2();
         if( height == 0 ) height = 1;
 
