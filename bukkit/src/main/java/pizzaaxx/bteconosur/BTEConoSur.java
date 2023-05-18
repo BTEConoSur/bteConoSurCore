@@ -47,6 +47,7 @@ import pizzaaxx.bteconosur.Discord.SlashCommands.*;
 import pizzaaxx.bteconosur.Events.*;
 import pizzaaxx.bteconosur.Help.HelpCommand;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
+import pizzaaxx.bteconosur.LegacyConversion.LegacyConverterCommand;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
@@ -541,6 +542,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("streamer").setExecutor(new StreamerCommand(this));
         getCommand("donator").setExecutor(new DonatorCommand(this));
         getCommand("lobby").setExecutor(new LobbyCommand(this));
+        getCommand("convertLegacy").setExecutor(new LegacyConverterCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
