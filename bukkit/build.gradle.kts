@@ -34,6 +34,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.2")
     implementation("org.jogamp.gluegen:gluegen-rt-main:2.3.2")
     implementation("org.jogamp.jogl:jogl-all-main:2.3.2")
+    implementation("com.networknt:json-schema-validator:1.0.72")
 }
 
 tasks.withType<JavaCompile> {

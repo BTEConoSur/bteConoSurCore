@@ -6,6 +6,7 @@ import clipper2.core.Path64;
 import clipper2.core.Paths64;
 import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mysql.cj.protocol.ResultStreamer;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
@@ -17,6 +18,7 @@ import pizzaaxx.bteconosur.Cities.Actions.RedefineRegionCityAction;
 import pizzaaxx.bteconosur.Cities.Actions.SetDisplayNameCityAction;
 import pizzaaxx.bteconosur.Cities.Actions.SetUrbanAreaCityAction;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
@@ -27,6 +29,10 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
+import java.awt.*;
+import java.awt.geom.Area;
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -40,11 +46,13 @@ public class City implements JSONParsable, ScoreboardDisplay {
     private final String name;
     private final String displayName;
     private final Country country;
+    private final Area area;
+    private Area urban;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
     private int finishedArea;
 
-    public City(@NotNull BTEConoSur plugin, String name) throws SQLException, JsonProcessingException {
+    public City(@NotNull BTEConoSur plugin, String name) throws SQLException, IOException {
         this.plugin = plugin;
         ResultSet set = plugin.getSqlManager().select(
                 "cities",
@@ -70,6 +78,63 @@ public class City implements JSONParsable, ScoreboardDisplay {
         } else {
             throw new IllegalArgumentException();
         }
+
+        File coordsFile = new File(plugin.getDataFolder(), "cities/" + name + ".json");
+        if (!coordsFile.exists()) {
+            throw new IllegalArgumentException();
+        }
+        JsonNode node = plugin.getJSONMapper().readTree(coordsFile);
+
+        String type = node.path("type").asText();
+
+        {
+            int n = node.path("coordinates").size();
+            int[] xPoints = new int[n];
+            int[] yPoints = new int[n];
+
+            int counter = 0;
+            for (JsonNode coordsArray : node.path("coordinates")) {
+                int n1, n2;
+                if (type.equals("geographic")) {
+                    Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                    n1 = (int) Math.floor(coord.getX());
+                    n2 = (int) Math.floor(coord.getZ());
+                } else {
+                    n1 = coordsArray.get(0).asInt();
+                    n2 = coordsArray.get(1).asInt();
+                }
+                xPoints[counter] = n1;
+                yPoints[counter] = n2;
+                counter++;
+            }
+
+            area = new Area(new Polygon(xPoints, yPoints, n));
+        }
+
+        if (node.has("urban")) {
+            int n = node.path("urban").size();
+            int[] xPoints = new int[n];
+            int[] yPoints = new int[n];
+
+            int counter = 0;
+            for (JsonNode coordsArray : node.path("urban")) {
+                int n1, n2;
+                if (type.equals("geographic")) {
+                    Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                    n1 = (int) Math.floor(coord.getX());
+                    n2 = (int) Math.floor(coord.getZ());
+                } else {
+                    n1 = coordsArray.get(0).asInt();
+                    n2 = coordsArray.get(1).asInt();
+                }
+                xPoints[counter] = n1;
+                yPoints[counter] = n2;
+                counter++;
+            }
+
+            urban = new Area(new Polygon(xPoints, yPoints, n));
+        }
+
     }
 
     public BTEConoSur getPlugin() {

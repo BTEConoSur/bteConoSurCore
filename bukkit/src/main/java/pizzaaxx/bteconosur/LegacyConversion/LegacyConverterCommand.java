@@ -35,8 +35,6 @@ public class LegacyConverterCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        Shape shape =
-
         for (Map.Entry<String, ProtectedRegion> entry : plugin.getRegionManager().getRegions().entrySet()) {
 
             String regionName = entry.getKey();

@@ -1,11 +1,18 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.util.net.HttpRequest;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -32,19 +39,25 @@ import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import pizzaaxx.bteconosur.Utils.ListUtils;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CreateCityCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
+    private final JsonSchema schema;
 
-    public CreateCityCommand(@NotNull BTEConoSur plugin) {
+    public CreateCityCommand(@NotNull BTEConoSur plugin) throws IOException {
         this.plugin = plugin;
+        JsonNode schemaNode = plugin.getJSONMapper().readTree(new File(plugin.getDataFolder(), "city_schema.json"));
+        schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4).getSchema(schemaNode);
     }
 
     @Override
@@ -55,6 +68,60 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
         }
 
         if (event.getName().equals("createcity")) {
+            Guild guild = event.getGuild();
+            assert guild != null;
+
+            OptionMapping fileMapping = event.getOption("archivo");
+            assert fileMapping != null;
+            Message.Attachment file = fileMapping.getAsAttachment();
+
+            try {
+                URL url = new URL(file.getUrl());
+                InputStream is = HttpRequest.get(url).execute().getInputStream();
+                JsonNode node = plugin.getJSONMapper().readTree(is);
+
+                Set<ValidationMessage> errors = schema.validate(node);
+
+                if (!errors.isEmpty()) {
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.setColor(Color.RED);
+                    builder.setTitle("Archivo JSON inválido.");
+                    builder.setDescription(
+                            "```" + errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("```\n```")) + "```"
+                    );
+                    event.replyEmbeds(builder.build()).setEphemeral(true).queue();
+                    return;
+                }
+
+                Country country = plugin.getCountryManager().guilds.get(guild.getId());
+
+                OptionMapping nameMapping = event.getOption("nombre");
+                assert nameMapping != null;
+                String name = nameMapping.getAsString();
+
+                if (!name.matches("[a-z]{32}")) {
+                    DiscordUtils.respondError(event, "Nombre visible inválido.");
+                    return;
+                }
+
+                OptionMapping displayMapping = event.getOption("nombreVisible");
+                assert displayMapping != null;
+                String displayName = displayMapping.getAsString();
+
+                if (!displayName.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ\\-_.,]{32}")) {
+                    DiscordUtils.respondError(event, "Nombre visible inválido.");
+                    return;
+                }
+
+
+
+            } catch (IOException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
+            }
+
+        }
+
+        /* if (event.getName().equals("createcity")) {
 
             if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
                 DiscordUtils.respondError(event, "Conecta tu cuenta para poder usar esto.");
@@ -185,7 +252,7 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                 e.printStackTrace();
                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
-        }
+        } */
     }
 
     @Override
@@ -197,6 +264,16 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                 OptionType.ATTACHMENT,
                 "archivo",
                 "Un archivo JSON válido.",
+                true
+        ).addOption(
+                OptionType.STRING,
+                "nombre",
+                "El nombre que se usará para identificar a la ciudad. No puede contener espacios ni mayúsculas.",
+                true
+        ).addOption(
+                OptionType.STRING,
+                "nombreVisible",
+                "El nombre que se mostrará a los usuarios.",
                 true
         );
     }

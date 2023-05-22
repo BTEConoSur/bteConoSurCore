@@ -476,7 +476,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new ProjectCreationRequestListener(this),
                 new ProjectRedefineRequestListener(this),
                 chatHandler,
-                new CreateCityCommand(this),
                 new PostsListener(this),
                 new ProjectPostCommand(this),
                 helpCommand,
@@ -491,6 +490,16 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new OnlineCommand(this),
                 new ModsCommand(this)
         );
+
+        try {
+            jdaBuilder.addEventListeners(
+                    new CreateCityCommand(this)
+            );
+        } catch (IOException e) {
+            this.error("Error loading cities schema.");
+            return;
+        }
+
         jdaBuilder.setStatus(OnlineStatus.ONLINE);
         jdaBuilder.setActivity(Activity.playing("bteconosur.com"));
 
