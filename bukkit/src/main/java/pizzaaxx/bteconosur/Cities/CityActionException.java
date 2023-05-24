@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.Cities.Actions;
+package pizzaaxx.bteconosur.Cities;
 
 public class CityActionException extends Exception {
 }

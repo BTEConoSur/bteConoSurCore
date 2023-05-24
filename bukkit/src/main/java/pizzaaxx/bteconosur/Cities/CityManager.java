@@ -1,17 +1,19 @@
 package pizzaaxx.bteconosur.Cities;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.Actions.CreateCityAction;
-import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -24,13 +26,15 @@ public class CityManager {
     private final Set<String> names = new HashSet<>();
     public final Map<String, String> displayNames = new HashMap<>();
 
+    public final Map<String, ProtectedRegion> regions = new HashMap<>();
+
     private final BTEConoSur plugin;
 
     public CityManager(BTEConoSur plugin) {
         this.plugin = plugin;
     }
 
-    public void init() throws SQLException {
+    public void init() throws SQLException, IOException {
         ResultSet set = plugin.getSqlManager().select(
                 "cities",
                 new SQLColumnSet(
@@ -41,8 +45,46 @@ public class CityManager {
         ).retrieve();
 
         while (set.next()) {
-            names.add(set.getString("name"));
+            String name = set.getString("name");
+
+            File coordsFile = new File(plugin.getDataFolder(), "cities/" + name + ".json");
+
+            if (!coordsFile.exists()) {
+                continue;
+            }
+
+            JsonNode node = plugin.getJSONMapper().readTree(coordsFile);
+
+            String type = node.path("type").asText();
+
+            List<BlockVector2D> regionPoints = new ArrayList<>();
+
+            for (JsonNode coordsArray : node.path("coordinates")) {
+                int n1, n2;
+                if (type.equals("geographic")) {
+                    Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                    n1 = (int) Math.floor(coord.getX());
+                    n2 = (int) Math.floor(coord.getZ());
+                } else {
+                    n1 = coordsArray.get(0).asInt();
+                    n2 = coordsArray.get(1).asInt();
+                }
+                regionPoints.add(new BlockVector2D(n1, n2));
+            }
+
+            this.regions.put(
+                    name,
+                    new ProtectedPolygonalRegion(
+                            "city_" + name,
+                            regionPoints,
+                            -100,
+                            8000
+                    )
+            );
+
+            names.add(name);
             displayNames.put(set.getString("name"), set.getString("display_name"));
+
         }
     }
 
@@ -55,7 +97,7 @@ public class CityManager {
         return citiesCache.containsKey(name);
     }
 
-    public void load(String name) throws SQLException, JsonProcessingException {
+    public void load(String name) throws SQLException, IOException {
         citiesCache.put(name, new City(plugin, name));
         this.scheduleDeletion(name);
     }
@@ -69,7 +111,7 @@ public class CityManager {
         if (!this.isLoaded(name)) {
             try {
                 this.load(name);
-            } catch (SQLException | JsonProcessingException e) {
+            } catch (SQLException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -78,7 +120,7 @@ public class CityManager {
     }
 
     public City getCityAt(Location loc) {
-        for (ProtectedRegion region : plugin.getRegionManager().getApplicableRegions(loc)) {
+        for (ProtectedRegion region : plugin.getApplicableRegions(loc)) {
             if (region.getId().startsWith("city_")) {
                 String name = region.getId().replace("city_", "").replace("_urban", "");
                 return this.get(name);
@@ -95,9 +137,36 @@ public class CityManager {
         return displayNames.get(name);
     }
 
-    public void registerName(String name, String displayName) {
+    public void registerName(String name, String displayName, @NotNull JsonNode node) {
         names.add(name);
         displayNames.put(name, displayName);
+
+        String type = node.path("type").asText();
+
+        List<BlockVector2D> regionPoints = new ArrayList<>();
+
+        for (JsonNode coordsArray : node.path("coordinates")) {
+            int n1, n2;
+            if (type.equals("geographic")) {
+                Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                n1 = (int) Math.floor(coord.getX());
+                n2 = (int) Math.floor(coord.getZ());
+            } else {
+                n1 = coordsArray.get(0).asInt();
+                n2 = coordsArray.get(1).asInt();
+            }
+            regionPoints.add(new BlockVector2D(n1, n2));
+        }
+
+        this.regions.put(
+                name,
+                new ProtectedPolygonalRegion(
+                        "city_" + name,
+                        regionPoints,
+                        -100,
+                        8000
+                )
+        );
     }
 
     public void unregisterName(String name) {
@@ -111,20 +180,10 @@ public class CityManager {
             unload(name);
             try {
                 load(name);
-            } catch (SQLException | JsonProcessingException e) {
+            } catch (SQLException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public CreateCityAction createCity(String name, String displayName, Country country, List<BlockVector2D> points) {
-        return new CreateCityAction(
-                plugin,
-                name,
-                displayName,
-                country,
-                points
-        );
     }
 
     public void scheduleDeletion(String name) {
@@ -163,8 +222,6 @@ public class CityManager {
                         )
                 );
             }
-
-
         }
 
         entries.sort(Map.Entry.comparingByValue());

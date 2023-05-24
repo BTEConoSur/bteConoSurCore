@@ -1,10 +1,10 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
-import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -29,8 +29,10 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
 
             OptionMapping idMapping = event.getOption("id");
             assert idMapping != null;
-            String id = idMapping.getAsString();
+            String id = idMapping.getAsString().toLowerCase();
 
             if (!plugin.getProjectRegistry().exists(id)) {
                 DiscordUtils.respondError(event, "La ID introducida no existe.");
@@ -175,6 +177,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                         OptionType.STRING,
                         "id",
                         "La ID del proyecto.",
+                        true,
                         true
                 )
                 .setNameLocalization(DiscordLocale.SPANISH, "proyecto");
@@ -183,5 +186,31 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
     @Override
     public JDA getJDA() {
         return plugin.getBot();
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("project")) {
+            if (event.getFocusedOption().getName().equals("id")) {
+
+                String value = event.getFocusedOption().getValue();
+
+                if (value.length() == 0 || value.length() > 6) {
+                    event.replyChoiceStrings().queue();
+                    return;
+                }
+
+                List<String> response = new ArrayList<>();
+                for (String id : plugin.getProjectRegistry().getIds()) {
+                    if (id.startsWith(value.toLowerCase())) {
+                        response.add(id);
+                    }
+                }
+                Collections.sort(response);
+
+                event.replyChoiceStrings(response.subList(0, Math.min(25, response.size()))).queue();
+
+            }
+        }
     }
 }

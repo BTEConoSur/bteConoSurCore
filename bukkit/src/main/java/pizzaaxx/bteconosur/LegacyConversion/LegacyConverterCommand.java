@@ -242,8 +242,12 @@ public class LegacyConverterCommand implements CommandExecutor {
                 } catch (SQLException | IOException e) {
                     throw new RuntimeException(e);
                 }
-
             }
+        }
+
+        for (Country country : plugin.getCountryManager().getAllCountries()) {
+
+            
 
         }
 

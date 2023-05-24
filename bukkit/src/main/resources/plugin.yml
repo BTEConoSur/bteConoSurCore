@@ -11,8 +11,7 @@ depend:
   - PlaceholderAPI
 
 commands:
-  city:
-    description: Manage cities.
+  createcity:
     permission: bteconosur.city.admin
   increment:
     description: Cambia el incremento al usar los atajos de WorldEdit.

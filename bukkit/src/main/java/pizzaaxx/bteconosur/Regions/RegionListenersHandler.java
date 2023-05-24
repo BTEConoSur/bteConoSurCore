@@ -102,8 +102,8 @@ public class RegionListenersHandler implements Listener {
     }
 
     private @NotNull Set<ProtectedRegion> getLeaveRegions(Location from, Location to) {
-        Set<ProtectedRegion> fromRegions = plugin.getRegionManager().getApplicableRegions(from).getRegions();
-        Set<ProtectedRegion> toRegions = plugin.getRegionManager().getApplicableRegions(to).getRegions();
+        Set<ProtectedRegion> fromRegions = plugin.getApplicableRegions(from);
+        Set<ProtectedRegion> toRegions = plugin.getApplicableRegions(to);
 
         Set<ProtectedRegion> result = new HashSet<>();
         for (ProtectedRegion region : fromRegions) {
@@ -115,8 +115,8 @@ public class RegionListenersHandler implements Listener {
     }
 
     private @NotNull Set<ProtectedRegion> getEnterRegions(Location from, Location to) {
-        Set<ProtectedRegion> fromRegions = plugin.getRegionManager().getApplicableRegions(from).getRegions();
-        Set<ProtectedRegion> toRegions = plugin.getRegionManager().getApplicableRegions(to).getRegions();
+        Set<ProtectedRegion> fromRegions = plugin.getApplicableRegions(from);
+        Set<ProtectedRegion> toRegions = plugin.getApplicableRegions(to);
 
         Set<ProtectedRegion> result = new HashSet<>();
         for (ProtectedRegion region : toRegions) {

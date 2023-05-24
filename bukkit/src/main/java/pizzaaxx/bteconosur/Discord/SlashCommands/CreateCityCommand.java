@@ -1,52 +1,39 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.util.net.HttpRequest;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
-import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.Actions.CityActionException;
-import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
-import pizzaaxx.bteconosur.Geo.Coords2D;
-import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
-import pizzaaxx.bteconosur.Player.ServerPlayer;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
-import pizzaaxx.bteconosur.Utils.ListUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CreateCityCommand extends ListenerAdapter implements SlashCommandContainer {
@@ -67,56 +54,97 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
             return;
         }
 
-        if (event.getName().equals("createcity")) {
+        if (event.getName().equals("managecity")) {
+
             Guild guild = event.getGuild();
             assert guild != null;
 
-            OptionMapping fileMapping = event.getOption("archivo");
-            assert fileMapping != null;
-            Message.Attachment file = fileMapping.getAsAttachment();
+            String subcommand = event.getSubcommandName();
+            assert subcommand != null;
 
-            try {
-                URL url = new URL(file.getUrl());
-                InputStream is = HttpRequest.get(url).execute().getInputStream();
-                JsonNode node = plugin.getJSONMapper().readTree(is);
+            if (subcommand.equals("create")) {
 
-                Set<ValidationMessage> errors = schema.validate(node);
+                OptionMapping fileMapping = event.getOption("archivo");
+                assert fileMapping != null;
+                Message.Attachment file = fileMapping.getAsAttachment();
 
-                if (!errors.isEmpty()) {
-                    EmbedBuilder builder = new EmbedBuilder();
-                    builder.setColor(Color.RED);
-                    builder.setTitle("Archivo JSON inválido.");
-                    builder.setDescription(
-                            "```" + errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("```\n```")) + "```"
-                    );
-                    event.replyEmbeds(builder.build()).setEphemeral(true).queue();
-                    return;
+                try {
+                    URL url = new URL(file.getUrl());
+                    InputStream is = HttpRequest.get(url).execute().getInputStream();
+                    JsonNode node = plugin.getJSONMapper().readTree(is);
+
+                    Set<ValidationMessage> errors = schema.validate(node);
+
+                    if (!errors.isEmpty()) {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.setColor(Color.RED);
+                        builder.setTitle("Archivo JSON inválido.");
+                        builder.setDescription(
+                                "```" + errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("```\n```")) + "```"
+                        );
+                        event.replyEmbeds(builder.build()).setEphemeral(true).queue();
+                        return;
+                    }
+
+                    Country country = plugin.getCountryManager().guilds.get(guild.getId());
+
+                    OptionMapping nameMapping = event.getOption("nombre");
+                    assert nameMapping != null;
+                    String name = nameMapping.getAsString();
+
+                    if (!name.matches("[a-z]{1,32}")) {
+                        DiscordUtils.respondError(event, "Nombre visible inválido.");
+                        return;
+                    }
+
+                    if (plugin.getCityManager().exists(name)) {
+                        DiscordUtils.respondError(event, "La ciudad introducida ya existe.");
+                        return;
+                    }
+
+                    OptionMapping displayMapping = event.getOption("nombreVisible");
+                    assert displayMapping != null;
+                    String displayName = displayMapping.getAsString();
+
+                    if (!displayName.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ\\-_., \\d]{1,32}")) {
+                        DiscordUtils.respondError(event, "Nombre visible inválido.");
+                        return;
+                    }
+
+                    File target = new File(plugin.getDataFolder(), "cities/" + name + ".json");
+                    if (target.createNewFile()) {
+                        InputStream is2 = HttpRequest.get(url).execute().getInputStream();
+                        Files.copy(is2, target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } else {
+                        DiscordUtils.respondError(event, "Ha ocurrido un error.");
+                        return;
+                    }
+
+                    try {
+                        plugin.getSqlManager().insert(
+                                "cities",
+                                new SQLValuesSet(
+                                        new SQLValue("name", name),
+                                        new SQLValue("displayName", displayName),
+                                        new SQLValue("country", country)
+                                )
+                        ).execute();
+                    } catch (SQLException e) {
+                        target.delete();
+                        DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                        return;
+                    }
+
+                    plugin.getCityManager().registerName(name, displayName, node);
+
+                } catch (IOException e) {
+                    DiscordUtils.respondError(event, "Ha ocurrido un error.");
                 }
 
-                Country country = plugin.getCountryManager().guilds.get(guild.getId());
-
-                OptionMapping nameMapping = event.getOption("nombre");
-                assert nameMapping != null;
-                String name = nameMapping.getAsString();
-
-                if (!name.matches("[a-z]{32}")) {
-                    DiscordUtils.respondError(event, "Nombre visible inválido.");
-                    return;
-                }
-
-                OptionMapping displayMapping = event.getOption("nombreVisible");
-                assert displayMapping != null;
-                String displayName = displayMapping.getAsString();
-
-                if (!displayName.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ\\-_.,]{32}")) {
-                    DiscordUtils.respondError(event, "Nombre visible inválido.");
-                    return;
-                }
+            } else if (subcommand.equals("edit")) {
 
 
 
-            } catch (IOException e) {
-                DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
 
         }
@@ -258,23 +286,43 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
     @Override
     public CommandData getCommandData() {
         return Commands.slash(
-                "createcity",
+                "managecity",
                 "Crea ciudades desde Discord"
-        ).addOption(
-                OptionType.ATTACHMENT,
-                "archivo",
-                "Un archivo JSON válido.",
-                true
-        ).addOption(
-                OptionType.STRING,
-                "nombre",
-                "El nombre que se usará para identificar a la ciudad. No puede contener espacios ni mayúsculas.",
-                true
-        ).addOption(
-                OptionType.STRING,
-                "nombreVisible",
-                "El nombre que se mostrará a los usuarios.",
-                true
+        ).addSubcommands(
+                new SubcommandData("create", "Crea una ciudad.")
+                        .addOption(
+                                OptionType.STRING,
+                                "nombre",
+                                "El nombre que se usará para identificar a la ciudad. No puede contener espacios ni mayúsculas.",
+                                true
+                        ).addOption(
+                                OptionType.STRING,
+                                "nombrevisible",
+                                "El nombre que se mostrará a los usuarios.",
+                                true
+                        )
+                        .addOption(
+                                OptionType.ATTACHMENT,
+                                "archivo",
+                                "Un archivo JSON válido.",
+                                true
+                        ),
+                new SubcommandData("edit", "Edita algún parámetro de una ciudad.")
+                        .addOption(
+                                OptionType.STRING,
+                                "nombre",
+                                "El nombre que se usará para identificar a la ciudad. No puede contener espacios ni mayúsculas.",
+                                true
+                        ).addOption(
+                                OptionType.STRING,
+                                "nombrevisible",
+                                "El nombre que se mostrará a los usuarios."
+                        )
+                        .addOption(
+                                OptionType.ATTACHMENT,
+                                "archivo",
+                                "Un archivo JSON válido."
+                        )
         );
     }
 

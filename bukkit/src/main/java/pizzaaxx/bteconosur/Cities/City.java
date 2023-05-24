@@ -7,16 +7,12 @@ import clipper2.core.Paths64;
 import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mysql.cj.protocol.ResultStreamer;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.Actions.DeleteUrbanAreaCityAction;
-import pizzaaxx.bteconosur.Cities.Actions.RedefineRegionCityAction;
-import pizzaaxx.bteconosur.Cities.Actions.SetDisplayNameCityAction;
-import pizzaaxx.bteconosur.Cities.Actions.SetUrbanAreaCityAction;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -29,8 +25,6 @@ import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 
-import java.awt.*;
-import java.awt.geom.Area;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -46,8 +40,6 @@ public class City implements JSONParsable, ScoreboardDisplay {
     private final String name;
     private final String displayName;
     private final Country country;
-    private final Area area;
-    private Area urban;
     private final ProtectedRegion region;
     private ProtectedRegion urbanRegion;
     private int finishedArea;
@@ -70,29 +62,25 @@ public class City implements JSONParsable, ScoreboardDisplay {
             this.name = set.getString("name");
             this.displayName = set.getString("display_name");
             this.country = plugin.getCountryManager().get(set.getString("country"));
-            if (plugin.getRegionManager().hasRegion("city_" + this.name + "_urban")) {
-                this.urbanRegion = plugin.getRegionManager().getRegion("city_" + this.name + "_urban");
-            }
-            this.region = plugin.getRegionManager().getRegion("city_" + this.name);
             this.finishedArea = set.getInt("finished_area");
         } else {
             throw new IllegalArgumentException();
         }
 
         File coordsFile = new File(plugin.getDataFolder(), "cities/" + name + ".json");
+
         if (!coordsFile.exists()) {
             throw new IllegalArgumentException();
         }
+
         JsonNode node = plugin.getJSONMapper().readTree(coordsFile);
 
         String type = node.path("type").asText();
 
         {
-            int n = node.path("coordinates").size();
-            int[] xPoints = new int[n];
-            int[] yPoints = new int[n];
 
-            int counter = 0;
+            List<BlockVector2D> regionPoints = new ArrayList<>();
+
             for (JsonNode coordsArray : node.path("coordinates")) {
                 int n1, n2;
                 if (type.equals("geographic")) {
@@ -103,20 +91,21 @@ public class City implements JSONParsable, ScoreboardDisplay {
                     n1 = coordsArray.get(0).asInt();
                     n2 = coordsArray.get(1).asInt();
                 }
-                xPoints[counter] = n1;
-                yPoints[counter] = n2;
-                counter++;
+                regionPoints.add(new BlockVector2D(n1, n2));
             }
 
-            area = new Area(new Polygon(xPoints, yPoints, n));
+            this.region = new ProtectedPolygonalRegion(
+                    "city_" + name,
+                    regionPoints,
+                    -100,
+                    8000
+            );
         }
 
         if (node.has("urban")) {
-            int n = node.path("urban").size();
-            int[] xPoints = new int[n];
-            int[] yPoints = new int[n];
 
-            int counter = 0;
+            List<BlockVector2D> urbanPoints = new ArrayList<>();
+
             for (JsonNode coordsArray : node.path("urban")) {
                 int n1, n2;
                 if (type.equals("geographic")) {
@@ -127,14 +116,16 @@ public class City implements JSONParsable, ScoreboardDisplay {
                     n1 = coordsArray.get(0).asInt();
                     n2 = coordsArray.get(1).asInt();
                 }
-                xPoints[counter] = n1;
-                yPoints[counter] = n2;
-                counter++;
+                urbanPoints.add(new BlockVector2D(n1, n2));
             }
 
-            urban = new Area(new Polygon(xPoints, yPoints, n));
+            this.urbanRegion = new ProtectedPolygonalRegion(
+                    "city_" + name + "_urban",
+                    urbanPoints,
+                    -100,
+                    8000
+            );
         }
-
     }
 
     public BTEConoSur getPlugin() {
@@ -241,37 +232,6 @@ public class City implements JSONParsable, ScoreboardDisplay {
 
     public ProtectedRegion getUrbanRegion() {
         return urbanRegion;
-    }
-
-    public SetDisplayNameCityAction setDisplayName(@NotNull String displayName) {
-        return new SetDisplayNameCityAction(
-                plugin,
-                name,
-                displayName
-        );
-    }
-
-    public SetUrbanAreaCityAction setUrbanArea(List<BlockVector2D> points) {
-        return new SetUrbanAreaCityAction(
-                plugin,
-                name,
-                points
-        );
-    }
-
-    public DeleteUrbanAreaCityAction deleteUrbanArea() {
-        return new DeleteUrbanAreaCityAction(
-                plugin,
-                name
-        );
-    }
-
-    public RedefineRegionCityAction redefine(List<BlockVector2D> points) {
-        return new RedefineRegionCityAction(
-                plugin,
-                name,
-                points
-        );
     }
 
     public int getFinishedArea() {

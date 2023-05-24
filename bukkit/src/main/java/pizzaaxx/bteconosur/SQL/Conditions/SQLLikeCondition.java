@@ -14,6 +14,6 @@ public class SQLLikeCondition implements SQLCondition {
 
     @Override
     public String getString() {
-        return column + (like ? " LIKE " : " NOT LIKE '") + pattern + "'";
+        return column + (like ? " LIKE '" : " NOT LIKE '") + pattern + "'";
     }
 }

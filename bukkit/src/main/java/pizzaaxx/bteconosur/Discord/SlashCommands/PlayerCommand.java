@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -40,10 +41,7 @@ import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.SQLSelectors.CountrySQLSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLORConditionSet;
-import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.*;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
@@ -58,12 +56,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
+import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.DESC;
 
 public class PlayerCommand extends ListenerAdapter implements SlashCommandContainer {
@@ -618,6 +617,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                         OptionType.STRING,
                         "nombre",
                         "El nombre del jugador.",
+                        true,
                         true
                 ),
                 new SubcommandData(
@@ -638,5 +638,48 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
     @Override
     public JDA getJDA() {
         return plugin.getBot();
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("player")) {
+            String subcommand = event.getSubcommandName();
+            assert subcommand != null;
+            if (subcommand.equals("name")) {
+                String value = event.getFocusedOption().getValue();
+
+                if (!value.matches("[A-Za-z\\d_]{1,100}")) {
+                    event.replyChoiceStrings().queue();
+                    return;
+                }
+
+                try {
+                    ResultSet set = plugin.getSqlManager().select(
+                            "players",
+                            new SQLColumnSet(
+                                    "name"
+                            ),
+                            new SQLANDConditionSet(
+                                    new SQLLikeCondition("LOWER(name)", true, value.toLowerCase() + "%")
+                            ),
+                            new SQLOrderSet(
+                                    new SQLOrderExpression(
+                                            "name", ASC
+                                    )
+                            )
+                    ).addText(" LIMIT 25").retrieve();
+
+                    List<String> result = new ArrayList<>();
+                    while (set.next()) {
+                        result.add(set.getString("name"));
+                    }
+                    event.replyChoiceStrings(result).queue();
+
+                } catch (SQLException e) {
+                    event.replyChoiceStrings().queue();
+                }
+
+            }
+        }
     }
 }

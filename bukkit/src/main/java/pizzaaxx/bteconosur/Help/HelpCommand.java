@@ -5,13 +5,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -24,8 +24,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
@@ -67,7 +65,8 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                         OptionType.STRING,
                         "comando",
                         "El comando a buscar",
-                        false
+                        false,
+                        true
                 ),
                 new SubcommandData(
                         "discord",
@@ -76,7 +75,8 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                         OptionType.STRING,
                         "comando",
                         "El comando a buscar",
-                        false
+                        false,
+                        true
                 )
         ).setNameLocalization(DiscordLocale.SPANISH, "ayuda");
     }
@@ -472,6 +472,52 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
             ).queue(
                     interaction -> interaction.deleteOriginal().queueAfter(10, TimeUnit.MINUTES)
             );
+        }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("help")) {
+            String subcommand = event.getSubcommandName();
+            assert subcommand != null;
+
+            if (event.getFocusedOption().getName().equals("comando")) {
+                String value = event.getFocusedOption().getValue();
+
+                if (!value.matches("[a-zA-Z_ ]{0,100}")) {
+                    event.replyChoiceStrings().queue();
+                    return;
+                }
+
+                try {
+                    List<String> response = new ArrayList<>();
+                    ResultSet set = plugin.getSqlManager().select(
+                            "commands",
+                            new SQLColumnSet(
+                                    "path"
+                            ),
+                            new SQLANDConditionSet(
+                                    new SQLLikeCondition("path", true, value + "%"),
+                                    new SQLOperatorCondition("platform", "=", subcommand)
+                            ),
+                            new SQLOrderSet(
+                                    new SQLOrderExpression(
+                                            "path", SQLOrderExpression.Order.ASC
+                                    )
+                            )
+                    ).addText(" LIMIT 25").retrieve();
+
+                    while (set.next()) {
+                        response.add(set.getString("path"));
+                    }
+
+                    event.replyChoiceStrings(response).queue();
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    event.replyChoiceStrings().queue();
+                }
+            }
         }
     }
 }

@@ -1,12 +1,12 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
 
 import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -45,7 +44,6 @@ import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -54,12 +52,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
 
@@ -81,6 +76,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                         OptionType.STRING,
                         "nombre",
                         "El nombre de la ciudad a mostrar.",
+                        true,
                         true
                 )
                 .setNameLocalization(DiscordLocale.SPANISH, "ciudad");
@@ -560,5 +556,43 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
 
         }
 
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("city")) {
+            if (event.getFocusedOption().getName().equals("nombre")) {
+                String value = event.getFocusedOption().getValue();
+
+                List<String> response = new ArrayList<>();
+                for (String displayName : plugin.getCityManager().displayNames.values()) {
+                    if (
+                            displayName
+                                    .toLowerCase()
+                                    .replace(" ", "")
+                                    .replace("á", "a")
+                                    .replace("é", "e")
+                                    .replace("í", "i")
+                                    .replace("ó", "o")
+                                    .replace("ú", "u")
+                                    .startsWith(
+                                            value.toLowerCase()
+                                                    .replace(" ", "")
+                                                    .replace("á", "a")
+                                                    .replace("é", "e")
+                                                    .replace("í", "i")
+                                                    .replace("ó", "o")
+                                                    .replace("ú", "u")
+                                    )
+                    ) {
+                        response.add(displayName);
+                    }
+                }
+
+                Collections.sort(response);
+
+                event.replyChoiceStrings(response.subList(0, Math.min(25, response.size()))).queue();
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import fr.minuskube.netherboard.Netherboard;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -69,7 +71,6 @@ import pizzaaxx.bteconosur.Scoreboard.ScoreboardHandler;
 import pizzaaxx.bteconosur.Tablist.TablistExpansion;
 import pizzaaxx.bteconosur.Terramap.TerramapHandler;
 import pizzaaxx.bteconosur.Terramap.TerramapServer;
-import pizzaaxx.bteconosur.Terramap.Testing.DrawPolygonCommand;
 import pizzaaxx.bteconosur.Utils.FuzzyMatching.FuzzyMatcher;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 import pizzaaxx.bteconosur.WorldEdit.Assets.AssetFillCommand;
@@ -372,7 +373,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         this.log("Starting city manager...");
         try {
             cityManager.init();
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
             this.error("Plugin starting stopped. City manager startup failed.");
             return;
         }
@@ -519,7 +521,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         // --- COMMANDS ---
         this.log("Registering commands...");
-        getCommand("city").setExecutor(new CitiesCommand(this));
+        getCommand("createcity").setExecutor(new CitiesCommand(this));
         getCommand("increment").setExecutor(new IncrementCommand(this));
         getCommand("link").setExecutor(linkCommand);
         getCommand("unlink").setExecutor(linkCommand);
@@ -688,5 +690,18 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
     @Override
     public String getScoreboardID() {
         return "server";
+    }
+
+    public Set<ProtectedRegion> getApplicableRegions(Location loc) {
+
+        Set<ProtectedRegion> result = new HashSet<>(this.regionManager.getApplicableRegions(loc).getRegions());
+        for (ProtectedRegion region : this.cityManager.regions.values()) {
+            if (region.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())) {
+                result.add(region);
+            }
+        }
+
+        return result;
+
     }
 }
