@@ -270,4 +270,13 @@ public class ProjectManager {
         plugin.getScoreboardHandler().update(serverPlayer);
     }
 
+    public void addFinished(Country country, ProjectType projectType) throws SQLException {
+        Map<ProjectType, Integer> countryMap = finished.getOrDefault(country, new HashMap<>());
+        Integer amount = countryMap.getOrDefault(projectType, 0);
+        amount++;
+        countryMap.put(projectType, amount);
+        finished.put(country, countryMap);
+        plugin.getScoreboardHandler().update(serverPlayer);
+    }
+
 }

@@ -84,7 +84,7 @@ public class City implements JSONParsable, ScoreboardDisplay {
             for (JsonNode coordsArray : node.path("coordinates")) {
                 int n1, n2;
                 if (type.equals("geographic")) {
-                    Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                    Coords2D coord = new Coords2D(plugin, coordsArray.get(1).asDouble(), coordsArray.get(0).asDouble());
                     n1 = (int) Math.floor(coord.getX());
                     n2 = (int) Math.floor(coord.getZ());
                 } else {
@@ -109,7 +109,7 @@ public class City implements JSONParsable, ScoreboardDisplay {
             for (JsonNode coordsArray : node.path("urban")) {
                 int n1, n2;
                 if (type.equals("geographic")) {
-                    Coords2D coord = new Coords2D(plugin, coordsArray.get(0).asDouble(), coordsArray.get(1).asDouble());
+                    Coords2D coord = new Coords2D(plugin, coordsArray.get(1).asDouble(), coordsArray.get(0).asDouble());
                     n1 = (int) Math.floor(coord.getX());
                     n2 = (int) Math.floor(coord.getZ());
                 } else {

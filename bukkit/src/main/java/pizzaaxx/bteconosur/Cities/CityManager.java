@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -127,6 +128,18 @@ public class CityManager {
             }
         }
         return null;
+    }
+
+    public Set<City> getCitiesAt(@NotNull ProtectedRegion region, Country country) {
+        Set<City> cities = new HashSet<>();
+        for (ProtectedRegion r : region.getIntersectingRegions(regions.values())) {
+            String name = r.getId().replace("city_", "");
+            Country c = plugin.getCountryManager().get(name);
+            if (c.equals(country)) {
+                cities.add(this.get(name));
+            }
+        }
+        return cities;
     }
 
     public Collection<String> getNames() {

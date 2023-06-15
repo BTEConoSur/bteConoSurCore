@@ -1,9 +1,6 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
 import com.sk89q.worldedit.BlockVector2D;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
@@ -156,6 +153,9 @@ public class ReviewProjectAction {
                                 ),
                                 new SQLValue(
                                         "id", id
+                                ),
+                                new SQLValue(
+                                        "cities", project.getCitiesResolved()
                                 )
                         )
                 ).execute();

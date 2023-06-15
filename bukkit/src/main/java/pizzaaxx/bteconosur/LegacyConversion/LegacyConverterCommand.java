@@ -245,12 +245,6 @@ public class LegacyConverterCommand implements CommandExecutor {
             }
         }
 
-        for (Country country : plugin.getCountryManager().getAllCountries()) {
-
-            
-
-        }
-
         return true;
     }
 }

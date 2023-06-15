@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
@@ -36,12 +37,12 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CreateCityCommand extends ListenerAdapter implements SlashCommandContainer {
+public class ManageCityCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
     private final JsonSchema schema;
 
-    public CreateCityCommand(@NotNull BTEConoSur plugin) throws IOException {
+    public ManageCityCommand(@NotNull BTEConoSur plugin) throws IOException {
         this.plugin = plugin;
         JsonNode schemaNode = plugin.getJSONMapper().readTree(new File(plugin.getDataFolder(), "city_schema.json"));
         schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4).getSchema(schemaNode);
@@ -55,6 +56,18 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
         }
 
         if (event.getName().equals("managecity")) {
+
+            if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Conecta tu cuenta para poder usar esto.");
+                return;
+            }
+
+            ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
+
+            if (!serverPlayer.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.ADMIN)) {
+                DiscordUtils.respondError(event, "Solo jugadores con rango **ADMIN** pueden usar esto.");
+                return;
+            }
 
             Guild guild = event.getGuild();
             assert guild != null;
@@ -93,7 +106,7 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                     String name = nameMapping.getAsString();
 
                     if (!name.matches("[a-z]{1,32}")) {
-                        DiscordUtils.respondError(event, "Nombre visible inválido.");
+                        DiscordUtils.respondError(event, "Nombre inválido.");
                         return;
                     }
 
@@ -102,11 +115,11 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                         return;
                     }
 
-                    OptionMapping displayMapping = event.getOption("nombreVisible");
+                    OptionMapping displayMapping = event.getOption("nombrevisible");
                     assert displayMapping != null;
                     String displayName = displayMapping.getAsString();
 
-                    if (!displayName.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ\\-_., \\d]{1,32}")) {
+                    if (!displayName.matches("[A-Za-zÁÉÍÓÚáéíóúÑñäëïöüÄËÏÖÜ\\-_., \\d]{1,32}")) {
                         DiscordUtils.respondError(event, "Nombre visible inválido.");
                         return;
                     }
@@ -125,7 +138,7 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
                                 "cities",
                                 new SQLValuesSet(
                                         new SQLValue("name", name),
-                                        new SQLValue("displayName", displayName),
+                                        new SQLValue("display_name", displayName),
                                         new SQLValue("country", country)
                                 )
                         ).execute();
@@ -137,7 +150,10 @@ public class CreateCityCommand extends ListenerAdapter implements SlashCommandCo
 
                     plugin.getCityManager().registerName(name, displayName, node);
 
+                    DiscordUtils.respondSuccessEphemeral(event, "Ciudad \"" + displayName + "\" creada exitosamente.");
+
                 } catch (IOException e) {
+                    e.printStackTrace();
                     DiscordUtils.respondError(event, "Ha ocurrido un error.");
                 }
 
