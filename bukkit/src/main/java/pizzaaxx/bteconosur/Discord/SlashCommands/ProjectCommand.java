@@ -168,8 +168,8 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "project",
                 "Obtén información sobre un proyecto."
         )
@@ -180,7 +180,7 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                         true,
                         true
                 )
-                .setNameLocalization(DiscordLocale.SPANISH, "proyecto");
+                .setNameLocalization(DiscordLocale.SPANISH, "proyecto")};
     }
 
     @Override

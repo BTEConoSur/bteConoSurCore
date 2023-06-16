@@ -82,8 +82,8 @@ public class BuildEventCommand extends ListenerAdapter implements SlashCommandCo
     // /buildevent post
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "buildevent",
                 "Maneja eventos de construcción."
         )
@@ -144,7 +144,7 @@ public class BuildEventCommand extends ListenerAdapter implements SlashCommandCo
                         ).setNameLocalization(
                                 DiscordLocale.SPANISH, "publicar"
                         )
-                ).setGuildOnly(true);
+                ).setGuildOnly(true)};
     }
 
     @Override

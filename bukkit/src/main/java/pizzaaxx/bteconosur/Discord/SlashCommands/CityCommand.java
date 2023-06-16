@@ -67,8 +67,8 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                         "city",
                         "Obtén información sobre una ciudad."
                 )
@@ -79,7 +79,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                         true,
                         true
                 )
-                .setNameLocalization(DiscordLocale.SPANISH, "ciudad");
+                .setNameLocalization(DiscordLocale.SPANISH, "ciudad")};
     }
 
     @Override

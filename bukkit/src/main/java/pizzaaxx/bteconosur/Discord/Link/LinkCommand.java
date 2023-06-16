@@ -1,9 +1,14 @@
 package pizzaaxx.bteconosur.Discord.Link;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,22 +17,22 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Player.Managers.DiscordManager;
-import pizzaaxx.bteconosur.Player.Notifications.Notification;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import pizzaaxx.bteconosur.Utils.StringUtils;
 
 import java.awt.*;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static pizzaaxx.bteconosur.Utils.StringUtils.*;
+import static pizzaaxx.bteconosur.Utils.StringUtils.DIGITS;
+import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
-public class LinkCommand extends ListenerAdapter implements CommandExecutor, Prefixable {
+public class LinkCommand extends ListenerAdapter implements CommandExecutor, Prefixable, SlashCommandContainer {
 
     private final BTEConoSur plugin;
 
@@ -164,5 +169,24 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Pre
     @Override
     public String getPrefix() {
         return "§f[§bDISCORD§f] §7>> §f";
+    }
+
+    @Override
+    public CommandData[] getCommandData() {
+        return new CommandData[] {
+                Commands.slash("link", "Conecta tu cuenta de Minecraft y tu cuenta de Discord.")
+                        .addOption(
+                                OptionType.STRING,
+                        "código",
+                        "El código obtenido en Minecraft."
+                ).setNameLocalization(DiscordLocale.SPANISH, "conectar"),
+                Commands.slash("unlink", "Desconecta de cuenta de Discord de tu cuenta de Minecraft.")
+                        .setNameLocalization(DiscordLocale.SPANISH, "desconectar")
+        };
+    }
+
+    @Override
+    public JDA getJDA() {
+        return plugin.getBot();
     }
 }

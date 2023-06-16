@@ -22,7 +22,6 @@ import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,8 +116,8 @@ public class OnlineCommand extends ListenerAdapter implements SlashCommandContai
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash("online", "ve los jugadores online y su ubicación.");
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash("online", "ve los jugadores online y su ubicación.")};
     }
 
     @Override

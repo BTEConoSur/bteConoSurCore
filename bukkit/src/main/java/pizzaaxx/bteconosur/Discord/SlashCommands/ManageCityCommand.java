@@ -300,8 +300,8 @@ public class ManageCityCommand extends ListenerAdapter implements SlashCommandCo
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "managecity",
                 "Crea ciudades desde Discord"
         ).addSubcommands(
@@ -339,7 +339,7 @@ public class ManageCityCommand extends ListenerAdapter implements SlashCommandCo
                                 "archivo",
                                 "Un archivo JSON válido."
                         )
-        );
+        )};
     }
 
     @Override

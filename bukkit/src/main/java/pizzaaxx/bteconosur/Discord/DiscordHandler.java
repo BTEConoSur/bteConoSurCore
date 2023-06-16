@@ -40,23 +40,29 @@ public class DiscordHandler extends ListenerAdapter {
         }
     }
 
+    // TODO FIX DISCRIMINATORS
+
     public void checkCommand(@NotNull SlashCommandContainer container) {
 
-        CommandData data = container.getCommandData();
+        CommandData[] data = container.getCommandData();
 
         container.getJDA().retrieveCommands().queue(
                 commands -> {
 
                     boolean found = false;
                     for (Command command : commands) {
-                        if (this.compareCommands(command, data)) {
-                            found = true;
-                            break;
+                        for (CommandData c2 : data) {
+                            if (this.compareCommands(command, c2)) {
+                                found = true;
+                                break;
+                            }
                         }
                     }
 
                     if (!found) {
-                        container.getJDA().upsertCommand(data).queue();
+                        for (CommandData command : data) {
+                            container.getJDA().upsertCommand(command).queue();
+                        }
                     }
                 }
         );

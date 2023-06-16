@@ -38,11 +38,11 @@ public class TutorialsCommand extends ListenerAdapter implements SlashCommandCon
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "tutorial",
                 "Busca tutoriales sobre el servidor."
-        );
+        )};
     }
 
     @Override

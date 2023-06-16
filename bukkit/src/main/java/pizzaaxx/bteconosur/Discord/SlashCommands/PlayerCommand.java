@@ -599,8 +599,8 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "player",
                 "Obtén información sobre un jugador."
         ).setNameLocalization(
@@ -632,7 +632,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                         "El usuario del jugador.",
                         true
                 )
-        );
+        )};
     }
 
     @Override

@@ -34,12 +34,12 @@ public class ScoreboardCommand extends ListenerAdapter implements SlashCommandCo
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "scoreboard",
                 "Obtén una lista de los jugadores con el mayor puntaje de un país."
         )
-                .setGuildOnly(true);
+                .setGuildOnly(true)};
     }
 
     @Override

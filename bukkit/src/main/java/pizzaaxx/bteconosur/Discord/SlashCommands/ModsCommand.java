@@ -45,8 +45,8 @@ public class ModsCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash("mods", "Obtén los mods del servidor.");
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash("mods", "Obtén los mods del servidor.")};
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.bukkit.Bukkit;
@@ -491,7 +492,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new TutorialsCommand(this),
                 new IPCommand(this),
                 new OnlineCommand(this),
-                new ModsCommand(this)
+                new ModsCommand(this),
+                new RegisterFinishedCommand(this)
         );
 
         try {
@@ -515,6 +517,16 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                     this.getDiscordHandler().checkCommand(container);
                 }
             }
+
+            bot.retrieveCommands().queue(
+                    commands -> {
+                        for (Command command : commands) {
+                            if (command.getName().equals("createcity")) {
+                                command.delete().queue();
+                            }
+                        }
+                    }
+            );
         } catch (InterruptedException e) {
             this.error("Plugin starting stopped. Bot startup failed.");
             return;

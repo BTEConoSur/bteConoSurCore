@@ -21,14 +21,11 @@ import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.ProjectWrapper;
-import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class ProjectPostCommand extends ListenerAdapter implements SlashCommandContainer {
 
@@ -40,8 +37,8 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "post",
                 "Publica tu proyecto en Discord"
         ).addSubcommands(
@@ -63,7 +60,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         "removeimage",
                         "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
                 )
-        );
+        )};
     }
 
     @Override

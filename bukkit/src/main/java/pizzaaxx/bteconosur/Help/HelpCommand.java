@@ -53,8 +53,8 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "help",
                 "Obtén información sobre alguno de los comandos."
         ).addSubcommands(
@@ -78,7 +78,7 @@ public class HelpCommand extends ListenerAdapter implements SlashCommandContaine
                         false,
                         true
                 )
-        ).setNameLocalization(DiscordLocale.SPANISH, "ayuda");
+        ).setNameLocalization(DiscordLocale.SPANISH, "ayuda")};
     }
 
     @Override

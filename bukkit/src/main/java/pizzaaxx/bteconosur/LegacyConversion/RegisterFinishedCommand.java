@@ -273,8 +273,8 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(
+    public CommandData[] getCommandData() {
+        return new CommandData[] {Commands.slash(
                 "registerfinished",
                 "Registra un proyecto finalizado anterior al cambio del nuevo sistema."
         ).addOption(
@@ -282,7 +282,7 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                 "id",
                 "ID del mensaje de creación del proyecto.",
                 true
-        );
+        )};
     }
 
     @Override
