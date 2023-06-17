@@ -52,9 +52,8 @@ public class RemoveMemberProjectAction {
         region.setMembers(domain);
         plugin.getRegionManager().addRegion(region);
 
-        project.update();if (project.hasPost()) {
-            project.getPost().updateMembers();
-        }
+        project.update();
+        project.updatePostEmbed();
 
         project.getCountry().getLogsChannel().sendMessage(":pencil: **" + plugin.getPlayerRegistry().get(project.getOwner()).getName() + "** ha removido a **" + plugin.getPlayerRegistry().get(member).getName() + "** del proyecto `" + project.getId() + "`.").queue();
     }

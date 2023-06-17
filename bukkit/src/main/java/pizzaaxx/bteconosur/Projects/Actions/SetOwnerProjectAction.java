@@ -38,8 +38,6 @@ public class SetOwnerProjectAction {
                 )
         ).execute();
         project.update();
-        if (project.hasPost()) {
-            project.getPost().updateOwner();
-        }
+        project.updatePostEmbed();
     }
 }

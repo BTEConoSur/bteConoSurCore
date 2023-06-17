@@ -1,12 +1,14 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
 import com.sk89q.worldedit.BlockVector2D;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
@@ -20,10 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
@@ -60,11 +60,6 @@ public class ReviewProjectAction {
                 project.getCountry().getLogsChannel().sendMessage(
                         ":mag_right: **" + moderator.getName() + "** ha rechazado el proyecto `" + project.getId() + "`."
                 ).queue();
-
-                if (project.hasPost()) {
-                    Post post = project.getPost();
-                    post.close();
-                }
 
                 project.emptyProject().execute();
 
@@ -259,10 +254,54 @@ public class ReviewProjectAction {
                     manager.addFinished(project);
                 }
 
-                Post post = project.getPost();
-                post.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!");
-                post.setProjectID(id);
-                post.updateTags(project.getTag(), project.getType());
+                ResultSet set = plugin.getSqlManager().select(
+                        "posts",
+                        new SQLColumnSet(
+                                "channel_id"
+                        ),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "target_type", "=", "project"
+                                ),
+                                new SQLOperatorCondition(
+                                        "target_id", "=", project.getId()
+                                )
+                        )
+                ).retrieve();
+
+                if (set.next()) {
+                    ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+                    if (channel == null) {
+                        return;
+                    }
+                    channel.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!").queue();
+
+                    ForumChannel forumChannel = project.getCountry().getProjectsForumChannel();
+                    Set<ForumTag> tags = new HashSet<>();
+                    tags.add(forumChannel.getAvailableTagsByName("En construcción", true).get(0));
+                    if (project.getTag() != null) {
+                        tags.add(forumChannel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
+                    }
+                    tags.add(forumChannel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
+
+                    channel.getManager().setAppliedTags(tags).queue();
+
+                    plugin.getSqlManager().update(
+                            "posts",
+                            new SQLValuesSet(
+                                    new SQLValue("target_type", "finished_project"),
+                                    new SQLValue("target_id", id)
+                            ),
+                            new SQLANDConditionSet(
+                                    new SQLOperatorCondition(
+                                            "target_type", "=", "project"
+                                    ),
+                                    new SQLOperatorCondition(
+                                            "target_id", "=", project.getId()
+                                    )
+                            )
+                    ).execute();
+                }
 
                 plugin.getSqlManager().delete(
                         "projects",

@@ -58,7 +58,6 @@ import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Posts.Commands.ProjectPostCommand;
 import pizzaaxx.bteconosur.Posts.Listener.PostsListener;
-import pizzaaxx.bteconosur.Posts.PostsRegistry;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectRedefineRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
@@ -240,12 +239,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return chatHandler;
     }
 
-    private final PostsRegistry postsRegistry = new PostsRegistry(this);
-
-    public PostsRegistry getPostsRegistry() {
-        return postsRegistry;
-    }
-
     private final LinksRegistry linksRegistry = new LinksRegistry(this);
 
     public LinksRegistry getLinksRegistry() {
@@ -406,15 +399,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
             finishedProjectsRegistry.init();
         } catch (SQLException e) {
             this.error("Plugin starting stopped. Finished projects registry startup failed.");
-            return;
-        }
-
-        // --- POSTS ---
-        this.log("Starting posts registry...");
-        try {
-            postsRegistry.init();
-        } catch (SQLException e) {
-            this.error("Plugin starting stopped. Posts registry startup failed.");
             return;
         }
 

@@ -34,7 +34,6 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
-import pizzaaxx.bteconosur.Scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
 import pizzaaxx.bteconosur.Utils.RegionUtils;
 import pizzaaxx.bteconosur.Utils.StringUtils;
@@ -194,6 +193,20 @@ public class BuildEvent implements TourCommand.TourDisplay {
     public void addMember(UUID member) throws SQLException {
         this.members.add(member);
         this.update("members", this.members);
+        plugin.getSqlManager().update(
+                "posts",
+                new SQLValuesSet(
+                        new SQLValue("members", members)
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "event"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", id
+                        )
+                )
+        ).execute();
         if (status == Status.ACTIVE) {
             DefaultDomain domain = region.getMembers();
             domain.addPlayer(member);
@@ -220,6 +233,20 @@ public class BuildEvent implements TourCommand.TourDisplay {
     public void removeMember(UUID member) throws SQLException {
         this.members.remove(member);
         this.update("members", this.members);
+        plugin.getSqlManager().update(
+                "posts",
+                new SQLValuesSet(
+                        new SQLValue("members", members)
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "event"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", id
+                        )
+                )
+        ).execute();
         if (status == Status.ACTIVE) {
             DefaultDomain domain = region.getMembers();
             domain.removePlayer(member);
@@ -532,6 +559,24 @@ public class BuildEvent implements TourCommand.TourDisplay {
                     .queue(
                             forumPost -> {
                                 try {
+
+                                    plugin.getSqlManager().insert(
+                                            "posts",
+                                            new SQLValuesSet(
+                                                    new SQLValue(
+                                                            "target_type", "event"
+                                                    ),
+                                                    new SQLValue("target_id", id),
+                                                    new SQLValue("channel_id", forumPost.getThreadChannel().getId()),
+                                                    new SQLValue("message_id", forumPost.getMessage().getId()),
+                                                    new SQLValue("members", members),
+                                                    new SQLValue("country", country),
+                                                    new SQLValue("cities", plugin.getCityManager().getCitiesAt(region, country)),
+                                                    new SQLValue("name", "Evento " + name),
+                                                    new SQLValue("description", description)
+                                            )
+                                    ).execute();
+
                                     this.update("post_channel_id", forumPost.getThreadChannel().getId());
                                     this.update("post_message_id", forumPost.getMessage().getId());
                                     this.postChannelID = forumPost.getThreadChannel().getId();

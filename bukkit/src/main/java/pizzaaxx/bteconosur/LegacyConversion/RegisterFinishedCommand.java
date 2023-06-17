@@ -5,13 +5,18 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +27,6 @@ import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProject;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
@@ -41,6 +45,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RegisterFinishedCommand extends ListenerAdapter implements CommandExecutor, SlashCommandContainer {
 
@@ -263,12 +268,79 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
         file.createNewFile();
         Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-        Post.createPost(
-                plugin,
-                project,
-                "Proyecto " + id.toUpperCase(),
-                "N/A"
-        );
+        {
+            List<String> memberNames = new ArrayList<>();
+            for (UUID memberUUID : project.getMembers()) {
+                memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
+            }
+
+            ForumChannel channel = project.getCountry().getProjectsForumChannel();
+            Set<ForumTag> tags = new HashSet<>();
+            tags.add(channel.getAvailableTagsByName("En construcción", true).get(0));
+            if (project.getTag() != null) {
+                tags.add(channel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
+            }
+            tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
+
+            project.getCountry().getProjectsForumChannel().createForumPost(
+                            "Proyecto" + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + cities.stream().map(City::getDisplayName).collect(Collectors.joining(", "))),
+                            MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
+                    )
+                    .setEmbeds(
+                            new EmbedBuilder()
+                                    .setColor(project.getType().getColor())
+                                    .addField(
+                                            ":crown: Líder:",
+                                            plugin.getPlayerRegistry().get(project.getOwner()).getName(),
+                                            true
+                                    )
+                                    .addField(
+                                            ":busts_in_silhouette: Miembros:",
+                                            (memberNames.isEmpty() ? "Sin miembros." : String.join(", ", memberNames)),
+                                            true
+                                    )
+                                    .addField(
+                                            ":game_die: Tipo:",
+                                            project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
+                                            true
+                                    )
+                                    .build()
+                    )
+                    .setFiles(
+                            FileUpload.fromData(
+                                    plugin.getSatMapHandler().getMapStream(
+                                            new SatMapHandler.SatMapPolygon(
+                                                    plugin,
+                                                    project.getRegionPoints()
+                                            )
+                                    ),
+                                    "projectMap.png"
+                            )
+                    ).setTags(
+                            tags
+                    ).queue(
+                            forumPost -> {
+                                try {
+                                    plugin.getSqlManager().insert(
+                                            "posts",
+                                            new SQLValuesSet(
+                                                    new SQLValue("target_type", "finished_project"),
+                                                    new SQLValue("target_id", project.getId()),
+                                                    new SQLValue("channel_id", forumPost.getThreadChannel().getId()),
+                                                    new SQLValue("members", project.getAllMembers()),
+                                                    new SQLValue("country", project.getCountry()),
+                                                    new SQLValue("cities", project.getCities()),
+                                                    new SQLValue("name", "Proyecto" + project.getId().toUpperCase()),
+                                                    new SQLValue("description", "N/A"),
+                                                    new SQLValue("message_id", forumPost.getMessage().getId())
+                                            )
+                                    ).execute();
+                                } catch (SQLException e) {
+                                    forumPost.getThreadChannel().delete().queue();
+                                }
+                            }
+                    );
+        }
 
     }
 

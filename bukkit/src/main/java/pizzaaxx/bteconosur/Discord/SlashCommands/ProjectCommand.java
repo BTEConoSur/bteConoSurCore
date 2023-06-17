@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Discord.SlashCommands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +24,14 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 
-import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,14 +61,18 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                 return;
             }
 
-            this.projectEmbed(event, id);
+            try {
+                this.projectEmbed(event, id);
+            } catch (SQLException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            }
 
         }
 
 
     }
 
-    public void projectEmbed(IReplyCallback event, String id) {
+    public void projectEmbed(IReplyCallback event, String id) throws SQLException {
 
         Project project = plugin.getProjectRegistry().get(id);
 
@@ -131,40 +138,46 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
             );
         }
 
-        if (project.hasPost()) {
-            Post post = project.getPost();
-            builder.setTitle(post.getName());
-            post.getMessage().queue(
-                    msg -> {
-                        Message.Attachment attachment = msg.getAttachments().get(0);
-                        builder.setImage(attachment.getUrl());
-                        builder.setDescription(post.getDescription());
-                        event.replyEmbeds(builder.build())
-                                .addComponents(
-                                        ActionRow.of(
-                                                Button.of(
-                                                        ButtonStyle.LINK,
-                                                        post.getChannel().getJumpUrl(),
-                                                        "Ver publicación",
-                                                        Emoji.fromUnicode("U+1F4F8")
-                                                ),
-                                                plugin.getDiscordHandler().getDeleteButton(event.getUser())
-                                        )
-                                ).queue();
-                    }
-            );
-        } else {
-            builder.setImage("attachment://map.png");
-            event.replyEmbeds(builder.build())
-                    .setFiles(
-                            FileUpload.fromData(new File(plugin.getDataFolder(), "projects/images/" + id + ".png"), "map.png")
-                    )
-                    .setComponents(
-                            ActionRow.of(
-                                    plugin.getDiscordHandler().getDeleteButton(event.getUser())
-                            )
-                    ).queue();
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "channel_id", "message_id", "description"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition("target_id", "=", project.getId())
+                )
+        ).retrieve();
+
+        ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+        if (channel == null) {
+            DiscordUtils.respondError(event, "Ha ocurrido un error.");
+            return;
         }
+
+        String description = set.getString("description");
+
+        channel.retrieveMessageById(set.getString("message_id")).queue(
+                msg -> {
+                    Message.Attachment attachment = msg.getAttachments().get(0);
+                    builder.setImage(attachment.getUrl());
+                    builder.setDescription(description);
+                    event.replyEmbeds(builder.build())
+                            .addComponents(
+                                    ActionRow.of(
+                                            Button.of(
+                                                    ButtonStyle.LINK,
+                                                    channel.getJumpUrl(),
+                                                    "Ver publicación",
+                                                    Emoji.fromUnicode("U+1F4F8")
+                                            ),
+                                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                    )
+                            ).queue();
+                }
+        );
     }
 
     @Override

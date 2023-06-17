@@ -2,6 +2,9 @@ package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -32,9 +35,7 @@ import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProjectRedefineRequestListener extends ListenerAdapter implements Prefixable {
 
@@ -318,8 +319,21 @@ public class ProjectRedefineRequestListener extends ListenerAdapter implements P
                                 )
                         ).execute();
 
-                        project.getPost().updateType();
-                        project.getPost().updateTags(project.getTag(), project.getType());
+                        project.updatePostEmbed();
+                        ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+                        if (channel == null) {
+                            return;
+                        }
+
+                        ForumChannel forumChannel = project.getCountry().getProjectsForumChannel();
+                        Set<ForumTag> tags = new HashSet<>();
+                        tags.add(forumChannel.getAvailableTagsByName("En construcción", true).get(0));
+                        if (project.getTag() != null) {
+                            tags.add(forumChannel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
+                        }
+                        tags.add(forumChannel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
+
+                        channel.getManager().setAppliedTags(tags).queue();
 
                         event.getMessage().delete().queue();
 

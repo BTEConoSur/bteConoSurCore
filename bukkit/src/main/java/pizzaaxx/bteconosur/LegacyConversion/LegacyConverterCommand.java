@@ -1,6 +1,11 @@
 package pizzaaxx.bteconosur.LegacyConversion;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,13 +14,13 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
 import java.awt.*;
 import java.io.File;
@@ -98,8 +103,11 @@ public class LegacyConverterCommand implements CommandExecutor {
 
                 List<ProtectedRegion> intersectingCities = region.getIntersectingRegions(cityRegions);
                 Set<City> cities = new HashSet<>();
+                Set<String> cityNames = new HashSet<>();
                 for (ProtectedRegion intersectingCity : intersectingCities) {
-                    cities.add(plugin.getCityManager().get(intersectingCity.getId().replace("city_", "")));
+                    String cityName = intersectingCity.getId().replace("city_", "");
+                    cities.add(plugin.getCityManager().get(cityName));
+                    cityNames.add(plugin.getCityManager().getDisplayName(cityName));
                 }
 
                 for (UUID uuid : region.getMembers().getUniqueIds()) {
@@ -227,13 +235,81 @@ public class LegacyConverterCommand implements CommandExecutor {
                     ).execute();
                     plugin.getProjectRegistry().registerID(id);
                     Project project = plugin.getProjectRegistry().get(id);
-                    Post.createPost(
-                            plugin,
-                            project,
-                            "Proyecto " + project.getId().toUpperCase(),
-                            "N/A"
 
-                    );
+                    {
+                        List<String> memberNames = new ArrayList<>();
+                        for (UUID memberUUID : project.getMembers()) {
+                            memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
+                        }
+
+                        ForumChannel channel = project.getCountry().getProjectsForumChannel();
+                        Set<ForumTag> tags = new HashSet<>();
+                        tags.add(channel.getAvailableTagsByName("En construcción", true).get(0));
+                        if (project.getTag() != null) {
+                            tags.add(channel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
+                        }
+                        tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
+
+                        project.getCountry().getProjectsForumChannel().createForumPost(
+                                        "Proyecto" + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cityNames)),
+                                        MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
+                                )
+                                .setEmbeds(
+                                        new EmbedBuilder()
+                                                .setColor(project.getType().getColor())
+                                                .addField(
+                                                        ":crown: Líder:",
+                                                        plugin.getPlayerRegistry().get(project.getOwner()).getName(),
+                                                        true
+                                                )
+                                                .addField(
+                                                        ":busts_in_silhouette: Miembros:",
+                                                        (memberNames.isEmpty() ? "Sin miembros." : String.join(", ", memberNames)),
+                                                        true
+                                                )
+                                                .addField(
+                                                        ":game_die: Tipo:",
+                                                        project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
+                                                        true
+                                                )
+                                                .build()
+                                )
+                                .setFiles(
+                                        FileUpload.fromData(
+                                                plugin.getSatMapHandler().getMapStream(
+                                                        new SatMapHandler.SatMapPolygon(
+                                                                plugin,
+                                                                project.getRegionPoints()
+                                                        )
+                                                ),
+                                                "projectMap.png"
+                                        )
+                                ).setTags(
+                                        tags
+                                ).queue(
+                                        forumPost -> {
+                                            try {
+                                                plugin.getSqlManager().insert(
+                                                        "posts",
+                                                        new SQLValuesSet(
+                                                                new SQLValue("target_type", "project"),
+                                                                new SQLValue("target_id", project.getId()),
+                                                                new SQLValue("channel_id", forumPost.getThreadChannel().getId()),
+                                                                new SQLValue("members", project.getAllMembers()),
+                                                                new SQLValue("country", project.getCountry()),
+                                                                new SQLValue("cities", project.getCities()),
+                                                                new SQLValue("name", "Proyecto" + project.getId().toUpperCase()),
+                                                                new SQLValue("description", "N/A"),
+                                                                new SQLValue("message_id", forumPost.getMessage().getId())
+                                                        )
+                                                ).execute();
+                                            } catch (SQLException e) {
+                                                forumPost.getThreadChannel().delete().queue();
+                                            }
+                                        }
+                                );
+                    }
+
                     plugin.getTerramapHandler().drawPolygon(
                             CoordinatesUtils.getCoords2D(plugin, project.getRegionPoints()),
                             (ownerUUID == null ? new Color(78, 255, 71) : new Color(255, 200, 0)),

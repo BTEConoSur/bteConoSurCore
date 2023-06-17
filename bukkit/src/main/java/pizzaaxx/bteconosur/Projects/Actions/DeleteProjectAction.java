@@ -1,13 +1,16 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -51,8 +54,39 @@ public class DeleteProjectAction {
         File file = new File(plugin.getDataFolder(), "projects/images/" + project.getId() + ".png");
         file.delete();
 
-        if (project.hasPost()) {
-            project.getPost().close();
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "channel_id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", project.getId()
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+            if (channel == null) {
+                return;
+            }
+            channel.delete().queue();
+
+            plugin.getSqlManager().delete(
+                    "posts",
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "target_type", "=", "project"
+                            ),
+                            new SQLOperatorCondition(
+                                    "target_id", "=", project.getId()
+                            )
+                    )
+            ).execute();
         }
 
         project.getCountry().getLogsChannel().sendMessage(

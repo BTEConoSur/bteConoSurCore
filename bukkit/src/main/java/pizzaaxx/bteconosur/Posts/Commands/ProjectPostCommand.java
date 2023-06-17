@@ -33,10 +33,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class ProjectPostCommand extends ListenerAdapter implements SlashCommandContainer {
 
@@ -265,7 +262,15 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                 String description = descriptionMapping.getAsString();
 
                 if (!name.equals(set.getString("name"))) {
-                    channel.getManager().setName(name).queue();
+
+                    List<String> cities = new ArrayList<>();
+                    for (String cityName : project.getCities()) {
+                        cities.add(plugin.getCityManager().getDisplayName(cityName));
+                    }
+
+                    channel.getManager().setName(
+                            name + (cities.isEmpty() ? "" : " - " + String.join(", ", cities))
+                    ).queue();
                 }
 
                 if (!description.equals(set.getString("description"))) {

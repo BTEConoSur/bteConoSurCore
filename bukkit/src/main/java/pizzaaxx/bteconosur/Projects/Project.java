@@ -3,16 +3,14 @@ package pizzaaxx.bteconosur.Projects;
 import clipper2.Clipper;
 import clipper2.core.Path64;
 import clipper2.core.Point64;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -21,8 +19,6 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
-import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -59,7 +55,6 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     private ProjectTag tag;
     private ProtectedPolygonalRegion region;
     private final Set<UUID> requests;
-    private Post post;
 
     public Project(@NotNull BTEConoSur plugin, String id) throws SQLException, IOException {
         this.plugin = plugin;
@@ -121,13 +116,7 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
             requests = new HashSet<>();
 
             while (set.next()) {
-                requests.add(plugin.getSqlManager().getUUID(set, "target"));
-            }
-
-            try {
-                post = new Post(plugin, id);
-            } catch (IllegalArgumentException e) {
-                post = null;
+                requests.add(plugin.getSqlManager().getUUID(requestsSet, "target"));
             }
 
         } else {
@@ -431,25 +420,6 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     }
 
     @Override
-    public boolean hasPost() {
-        return post != null;
-    }
-
-    @Override
-    public Post getPost() {
-        return post;
-    }
-
-    @Override
-    public void updatePost() throws SQLException, JsonProcessingException {
-        try {
-            post = new Post(plugin, id);
-        } catch (IllegalArgumentException e) {
-            post = null;
-        }
-    }
-
-    @Override
     public List<BlockVector2D> getRegionPoints() {
         return region.getPoints();
     }
@@ -656,5 +626,74 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
 
         Project project = (Project) obj;
         return this.id.equals(project.id);
+    }
+
+    public void updatePostEmbed() throws SQLException {
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "channel_id", "message_id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", this.getId()
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            ThreadChannel channel = this.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+            if (channel == null) {
+                return;
+            }
+            channel.retrieveMessageById(set.getString("message_id")).queue(
+                    message -> {
+
+                        List<String> members = new ArrayList<>();
+                        for (UUID memberUUID : this.getMembers()) {
+                            members.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
+                        }
+
+                        message.editMessageEmbeds(
+                                new EmbedBuilder()
+                                        .setColor(this.getType().getColor())
+                                        .addField(
+                                                ":crown: Líder:",
+                                                plugin.getPlayerRegistry().get(this.getOwner()).getName(),
+                                                true
+                                        )
+                                        .addField(
+                                                ":busts_in_silhouette: Miembros:",
+                                                (members.isEmpty() ? "Sin miembros." : String.join(", ", members)),
+                                                true
+                                        )
+                                        .addField(
+                                                ":game_die: Tipo:",
+                                                this.getType().getDisplayName() + " (" + this.getPoints() + " puntos)",
+                                                true
+                                        )
+                                        .build()
+                        ).queue();
+                    }
+            );
+        }
+
+        plugin.getSqlManager().update(
+                "posts",
+                new SQLValuesSet(
+                        new SQLValue("members", this.getAllMembers())
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", this.getId()
+                        )
+                )
+        ).execute();
     }
 }
