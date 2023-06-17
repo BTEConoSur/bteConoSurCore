@@ -1,9 +1,10 @@
 package pizzaaxx.bteconosur.Posts.Commands;
 
+import com.sk89q.worldguard.util.net.HttpRequest;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -15,17 +16,27 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
-import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Post;
 import pizzaaxx.bteconosur.Projects.ProjectWrapper;
+import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class ProjectPostCommand extends ListenerAdapter implements SlashCommandContainer {
 
@@ -40,26 +51,21 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
     public CommandData[] getCommandData() {
         return new CommandData[] {Commands.slash(
                 "post",
-                "Publica tu proyecto en Discord"
+                "Maneja la publicación tu proyecto en Discord."
         ).addSubcommands(
                 new SubcommandData(
                         "edit",
                         "Edita la publicación de un proyecto. Debe usarse en el canal de la publicación."
                 ),
                 new SubcommandData(
-                        "setimage",
+                        "image",
                         "Agrega una imagen de portada a la publicación. Debe usarse en el canal de la publicación."
                 )
                         .addOption(
                                 OptionType.ATTACHMENT,
                                 "imagen",
-                                "La imagen a agregar a la portada",
-                                true
-                        ),
-                new SubcommandData(
-                        "removeimage",
-                        "Quita una imagen de portada de la publicación. Debe usarse en el canal de la publicación."
-                )
+                                "La imagen a agregar a la portada"
+                        )
         )};
     }
 
@@ -73,185 +79,208 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
         if (event.getName().equals("post")) {
 
-            String subcommand = event.getSubcommandName();
-
-            if (subcommand == null) {
-                return;
-            }
-
-            if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
-                DiscordUtils.respondError(event, "Debes conectar tu cuenta de Minecraft para usar este comando.");
-                return;
-            }
-
-            ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
-
-            switch (subcommand) {
-                case "edit": {
-                    Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
-
-                    if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {
-                        runnable.run();
-                        return;
-                    }
-
-                    ThreadChannel channel = event.getChannel().asThreadChannel();
-
-                    if (!plugin.getCountryManager().projectForumChannels.contains(channel.getParentChannel().getId())) {
-                        runnable.run();
-                    }
-
-                    if (plugin.getPostsRegistry().idsFromChannelID.containsKey(channel.getId())) {
-
-                        String id = plugin.getPostsRegistry().idsFromChannelID.get(channel.getId());
-
-                        ProjectWrapper project;
-                        if (id.length() == 6) {
-                            project = plugin.getProjectRegistry().get(id);
-                        } else {
-                            project = plugin.getFinishedProjectsRegistry().get(id);
-                        }
-
-                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
-                            DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
-                            return;
-                        }
-
-                        Modal modal = Modal.create(
-                                "editPostForm?id=" + project.getId(),
-                                "Editar proyecto " + project.getDisplayName()
+            try {
+                ResultSet set = plugin.getSqlManager().select(
+                        "posts",
+                        new SQLColumnSet(
+                                "*"
+                        ),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "channel_id", "=", event.getChannel().getId()
+                                )
                         )
+                ).retrieve();
+
+                if (!set.next()) {
+                    DiscordUtils.respondError(event, "Debes usar este comando dentro de una publicación.");
+                    return;
+                }
+
+                if (set.getString("target_type").equals("event")) {
+                    DiscordUtils.respondError(event, "No puedes editar publicaciones de eventos.");
+                    return;
+                }
+
+                if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
+                    DiscordUtils.respondError(event, "Conecta tu cuenta de Discord para usar este comando.");
+                    return;
+                }
+
+                ProjectWrapper project;
+                if (set.getString("target_type").equals("project")) {
+                    project = plugin.getProjectRegistry().get(set.getString("id"));
+                } else {
+                    project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
+                }
+
+                if (project == null) {
+                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                    return;
+                }
+
+                UUID userUUID = plugin.getLinksRegistry().get(event.getUser().getId());
+
+                if (project.getOwner() != userUUID) {
+                    DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
+                    return;
+                }
+
+                String subcommand = event.getSubcommandName();
+                assert subcommand != null;
+                switch (subcommand) {
+                    case "edit": {
+
+                        Modal modal = Modal.create("editPostModal", "Editar publicación")
                                 .addActionRows(
                                         ActionRow.of(
                                                 TextInput.create(
-                                                        "name",
-                                                        "Nombre",
-                                                        TextInputStyle.SHORT
+                                                        "name", "Nombre", TextInputStyle.SHORT
                                                 )
                                                         .setRequired(true)
-                                                        .setPlaceholder("Un nombre representativo del proyecto (EJ: Palacio de la Moneda)")
-                                                        .setValue(project.getPost().getName())
+                                                        .setMaxLength(32)
+                                                        .setPlaceholder("Nombre de la publicación")
+                                                        .setValue(set.getString("name"))
                                                         .build()
                                         ),
                                         ActionRow.of(
                                                 TextInput.create(
-                                                        "description",
-                                                        "Descripción",
-                                                        TextInputStyle.PARAGRAPH
-                                                )
-                                                        .setValue(project.getPost().getDescription())
-                                                        .setMaxLength(1000)
+                                                                "description", "Descripción", TextInputStyle.PARAGRAPH
+                                                        )
                                                         .setRequired(true)
+                                                        .setMaxLength(2000)
+                                                        .setPlaceholder("Descripción de la publicación")
+                                                        .setValue(set.getString("description"))
                                                         .build()
                                         )
-                                )
-                                .build();
+                                ).build();
 
                         event.replyModal(modal).queue();
 
+                        break;
                     }
-                    break;
-                }
-                case "setimage": {
-                    Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
+                    case "image": {
 
-                    if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {
-                        runnable.run();
-                        return;
-                    }
+                        OptionMapping mapping = event.getOption("imagen");
 
+                        InputStream is;
+                        if (mapping != null) {
 
-                    ThreadChannel channel = event.getChannel().asThreadChannel();
+                            Message.Attachment attachment = mapping.getAsAttachment();
+                            if (!ALLOWED_IMAGE_EXTENSIONS.contains(attachment.getFileExtension())) {
+                                DiscordUtils.respondError(event, "Debes subir una imagen válida.");
+                                return;
+                            }
 
-                    if (!plugin.getCountryManager().projectForumChannels.contains(channel.getParentChannel().getId())) {
-                        runnable.run();
-                    }
+                            if (attachment.getSize() > 2.5e+7) {
+                                DiscordUtils.respondError(event, "Solo se pueden subir imágenes de menos de 25mb de tamaño.");
+                                return;
+                            }
 
-                    if (plugin.getPostsRegistry().idsFromChannelID.containsKey(channel.getId())) {
+                            is = HttpRequest.get(new URL(attachment.getUrl())).execute().getInputStream();
 
-                        String id = plugin.getPostsRegistry().idsFromChannelID.get(channel.getId());
-
-                        ProjectWrapper project;
-                        if (id.length() == 6) {
-                            project = plugin.getProjectRegistry().get(id);
                         } else {
-                            project = plugin.getFinishedProjectsRegistry().get(id);
+
+                            is = plugin.getSatMapHandler().getMapStream(
+                                    new SatMapHandler.SatMapPolygon(
+                                            plugin,
+                                            project.getRegionPoints()
+                                    )
+                            );
                         }
 
-                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
-                            DiscordUtils.respondError(event, "Solo el líder del proyecto puede agregar imágenes");
-                            return;
-                        }
-
-                        OptionMapping imageMapping = event.getOption("imagen");
-                        assert imageMapping != null;
-                        Message.Attachment attachment = imageMapping.getAsAttachment();
-
-                        if (!ALLOWED_IMAGE_EXTENSIONS.contains(attachment.getFileExtension())) {
-                            DiscordUtils.respondError(event, "Solo se permiten archivos de tipo " + String.join(", ", ALLOWED_IMAGE_EXTENSIONS));
-                            return;
-                        }
-
-                        Post post = project.getPost();
-
-                        if (attachment.getSize() > post.getChannel().getGuild().getMaxFileSize()) {
-                            DiscordUtils.respondError(event, "El archivo es demasiado grande para subir.");
-                            return;
-                        }
-
-                        post.getMessage().queue(
-                                message -> {
-                                    post.addImage(attachment);
-
-                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen de portada establecida correctamente.");
-                                }
-                        );
-                    }
-                    break;
-                }
-                case "removeimage": {
-                    Runnable runnable = () -> DiscordUtils.respondError(event, "Este comando debe usarse en el canal de una publicación.");
-
-                    if (event.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD) {
-                        runnable.run();
-                        return;
-                    }
-
-                    ThreadChannel channel = event.getChannel().asThreadChannel();
-
-                    if (!plugin.getCountryManager().projectForumChannels.contains(channel.getParentChannel().getId())) {
-                        runnable.run();
-                    }
-
-                    if (plugin.getPostsRegistry().idsFromChannelID.containsKey(channel.getId())) {
-
-                        String id = plugin.getPostsRegistry().idsFromChannelID.get(channel.getId());
-
-                        ProjectWrapper project;
-                        if (id.length() == 6) {
-                            project = plugin.getProjectRegistry().get(id);
-                        } else {
-                            project = plugin.getFinishedProjectsRegistry().get(id);
-                        }
-
-                        if (!project.isClaimed() || !project.getOwner().equals(s.getUUID())) {
-                            DiscordUtils.respondError(event, "Solo el líder del proyecto puede quitar imágenes.");
-                            return;
-                        }
-
-                        Post post = project.getPost();
-
-                        post.getMessage().queue(
-                                message -> {
-                                    post.removeImage();
-                                    DiscordUtils.respondSuccessEphemeral(event, "Imagen de portada quitada correctamente.");
-                                }
+                        event.getChannel().retrieveMessageById(set.getString("message_id")).queue(
+                                message -> message.editMessageAttachments(
+                                        FileUpload.fromData(is, "image.png")
+                                ).queue()
                         );
 
+                        break;
                     }
-                    break;
                 }
+
+            } catch (SQLException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            } catch (IOException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error con la imagen.");
             }
         }
+    }
+
+    @Override
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
+
+        if (event.getModalId().equals("postEditModal")) {
+
+            try {
+                ResultSet set = plugin.getSqlManager().select(
+                        "posts",
+                        new SQLColumnSet(
+                                "*"
+                        ),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "channel_id", "=", event.getChannel().getId()
+                                )
+                        )
+                ).retrieve();
+
+                ThreadChannel channel = event.getChannel().asThreadChannel();
+
+                if (!set.next()) {
+                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                    return;
+                }
+
+                if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
+                    DiscordUtils.respondError(event, "Conecta tu cuenta de Discord para usar esto.");
+                    return;
+                }
+
+                ProjectWrapper project;
+                if (set.getString("target_type").equals("project")) {
+                    project = plugin.getProjectRegistry().get(set.getString("id"));
+                } else {
+                    project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
+                }
+
+                if (project == null) {
+                    DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                    return;
+                }
+
+                UUID userUUID = plugin.getLinksRegistry().get(event.getUser().getId());
+
+                if (project.getOwner() != userUUID) {
+                    DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
+                    return;
+                }
+
+                ModalMapping nameMapping = event.getValue("name");
+                assert nameMapping != null;
+                String name = nameMapping.getAsString();
+
+                ModalMapping descriptionMapping = event.getValue("description");
+                assert descriptionMapping != null;
+                String description = descriptionMapping.getAsString();
+
+                if (!name.equals(set.getString("name"))) {
+                    channel.getManager().setName(name).queue();
+                }
+
+                if (!description.equals(set.getString("description"))) {
+                    channel.retrieveMessageById(set.getString("message_id")).queue(
+                            message -> message.editMessage(":speech_balloon: **Descripción:** " + description).queue()
+                    );
+                }
+
+                DiscordUtils.respondSuccessEphemeral(event, "Publicación editada con éxito.");
+
+            } catch (SQLException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            }
+
+        }
+
     }
 }

@@ -40,8 +40,6 @@ public class DiscordHandler extends ListenerAdapter {
         }
     }
 
-    // TODO FIX DISCRIMINATORS
-
     public void checkCommand(@NotNull SlashCommandContainer container) {
 
         CommandData[] data = container.getCommandData();

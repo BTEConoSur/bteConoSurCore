@@ -7,8 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Utils.NumberUtils;
-import pizzaaxx.bteconosur.Utils.Pair;
-import pizzaaxx.bteconosur.Utils.Trio;
 import pizzaaxx.bteconosur.Utils.WebMercatorUtils;
 
 import javax.imageio.ImageIO;
@@ -215,7 +213,7 @@ public class TerramapHandler {
         this.deletePolygon(id, 19);
     }
 
-    private void deletePolygon(String id, int zoom) throws IOException { // TODO FIX THIS
+    private void deletePolygon(String id, int zoom) throws IOException {
         File layersFolder = new File(plugin.getDataFolder(), "terramap/layers/" + zoom);
         File[] layers = layersFolder.listFiles((FilenameFilter) new RegexFileFilter("-?\\d{1,12}_-?\\d{1,12}_" + id + "\\.png"));
         if (layers == null) {

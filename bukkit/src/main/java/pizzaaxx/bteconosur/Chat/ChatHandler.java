@@ -176,6 +176,8 @@ public class ChatHandler extends ListenerAdapter implements Listener, Prefixable
             return;
         }
 
+        String discriminator = (user.getDiscriminator().equals("0000") ? "" : "#" + user.getDiscriminator());
+
         String channelID = event.getChannel().getId();
         if (plugin.getCountryManager().globalChannels.contains(channelID)) {
 
@@ -183,8 +185,8 @@ public class ChatHandler extends ListenerAdapter implements Listener, Prefixable
 
             Country originCountry = plugin.getCountryManager().guilds.get(event.getGuild().getId());
 
-            StringBuilder newMessage = new StringBuilder(); // TODO TEST THIS
-            newMessage.append(":flag_").append(originCountry.getAbbreviation()).append(": **").append(user.getName()).append("#").append(user.getDiscriminator()).append(":** ").append(event.getMessage().getContentDisplay());
+            StringBuilder newMessage = new StringBuilder();
+            newMessage.append(":flag_").append(originCountry.getAbbreviation()).append(": **").append(user.getName()).append(discriminator).append(":** ").append(event.getMessage().getContentDisplay());
             for (Country country : plugin.getCountryManager().getAllCountries()) {
                 if (country != originCountry) {
                     MessageCreateAction action = country.getGlobalChatChannel().sendMessage(newMessage);
@@ -200,14 +202,14 @@ public class ChatHandler extends ListenerAdapter implements Listener, Prefixable
                 }
             }
 
-            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + "#" + user.getDiscriminator() + "§f: " + event.getMessage().getContentDisplay(), false);
+            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + discriminator + "§f: " + event.getMessage().getContentDisplay(), false);
 
         } else if (plugin.getCountryManager().countryChannels.containsKey(channelID)) {
 
             Country country = plugin.getCountryManager().countryChannels.get(channelID);
             Chat chat = this.getChat(country.getName());
 
-            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + "#" + user.getDiscriminator() + "§f: " + event.getMessage().getContentDisplay(), false);
+            chat.broadcast("[§bDISCORD§f] §7>> §a" + user.getName() + discriminator + "§f: " + event.getMessage().getContentDisplay(), false);
 
         }
     }

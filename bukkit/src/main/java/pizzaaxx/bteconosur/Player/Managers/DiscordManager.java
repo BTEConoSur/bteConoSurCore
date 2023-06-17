@@ -1,7 +1,6 @@
 package pizzaaxx.bteconosur.Player.Managers;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Player.Notifications.Notification;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
@@ -11,10 +10,8 @@ import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class DiscordManager {
 
@@ -64,7 +61,7 @@ public class DiscordManager {
     }
 
     public String getDiscriminator() {
-        return discriminator;
+        return (discriminator.equals("0000") ? "" : "#" + discriminator);
     }
 
     public boolean isLinked() {

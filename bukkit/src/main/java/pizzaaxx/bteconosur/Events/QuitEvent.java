@@ -10,6 +10,10 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -43,6 +47,20 @@ public class QuitEvent implements Listener {
         plugin.getScoreboardHandler().unregisterAuto(serverPlayer.getUUID());
         plugin.getScoreboardHandler().unregisterDisplay(serverPlayer.getUUID());
         plugin.getScoreboardHandler().update(plugin);
+
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "last_disconnected", System.currentTimeMillis()
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", event.getPlayer().getUniqueId()
+                        )
+                )
+        ).execute();
     }
 
 }

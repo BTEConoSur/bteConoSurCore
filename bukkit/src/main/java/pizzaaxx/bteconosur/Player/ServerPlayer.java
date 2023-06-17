@@ -2,7 +2,6 @@ package pizzaaxx.bteconosur.Player;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
@@ -58,7 +57,7 @@ public class ServerPlayer implements ScoreboardDisplay {
         }
 
         if (discordManager.isLinked()) {
-            lines.add("§aDiscord: §f" + discordManager.getName() + "#" + discordManager.getDiscriminator());
+            lines.add("§aDiscord: §f" + discordManager.getName() + discordManager.getDiscriminator());
         }
         try {
             lines.add("§aChat: §f" + chatManager.getCurrentChat().getDisplayName());
@@ -292,7 +291,7 @@ public class ServerPlayer implements ScoreboardDisplay {
             lore.add("§r ");
         }
         if (discordManager.isLinked()) {
-            lore.add("§aDiscord: §f" + discordManager.getName() + "#" + discordManager.getDiscriminator());
+            lore.add("§aDiscord: §f" + discordManager.getName() + discordManager.getDiscriminator());
         } else {
             lore.add("§aDiscord: §fN/A");
         }
