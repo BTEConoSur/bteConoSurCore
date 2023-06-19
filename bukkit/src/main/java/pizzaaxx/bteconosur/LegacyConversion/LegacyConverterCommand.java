@@ -96,18 +96,10 @@ public class LegacyConverterCommand implements CommandExecutor {
                     tag = ProjectTag.valueOf(legacyTag.replace("centros_comerciales", "shopping"));
                 }
 
-                Set<ProtectedRegion> cityRegions = new HashSet<>();
-                for (String cityName : country.getCities()) {
-                    cityRegions.add(plugin.getRegionManager().getRegion("city_" + cityName));
-                }
-
-                List<ProtectedRegion> intersectingCities = region.getIntersectingRegions(cityRegions);
-                Set<City> cities = new HashSet<>();
+                Set<City> cities = plugin.getCityManager().getCitiesAt(region, country);
                 Set<String> cityNames = new HashSet<>();
-                for (ProtectedRegion intersectingCity : intersectingCities) {
-                    String cityName = intersectingCity.getId().replace("city_", "");
-                    cities.add(plugin.getCityManager().get(cityName));
-                    cityNames.add(plugin.getCityManager().getDisplayName(cityName));
+                for (City city : cities) {
+                    cityNames.add(city.getDisplayName());
                 }
 
                 for (UUID uuid : region.getMembers().getUniqueIds()) {

@@ -24,7 +24,7 @@ public class ProjectClickListener implements Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (event.getItem() != null || event.getItem().getType() == Material.WOOD_AXE) {
+            if (event.getItem() == null || event.getItem().getType() == Material.WOOD_AXE) {
                 return;
             }
 

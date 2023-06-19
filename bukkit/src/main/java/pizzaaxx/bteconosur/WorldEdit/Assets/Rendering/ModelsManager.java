@@ -7,6 +7,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Utils.StringUtils;
+import pizzaaxx.bteconosur.WorldEdit.Assets.Asset;
 
 import java.io.File;
 import java.io.IOException;
@@ -245,9 +246,11 @@ public class ModelsManager {
         }
     }
 
-    public RenderableModel[][][] getClipboard(@NotNull Clipboard clipboard) {
+    public RenderableModel[][][] getClipboard(Asset asset) {
 
-        Vector dimensions = clipboard.getDimensions();
+        Clipboard clipboard = asset.getClipboard();
+
+        Vector dimensions = asset.getDimensions();
         RenderableModel[][][] result = new RenderableModel[dimensions.getBlockX()][dimensions.getBlockY()][dimensions.getBlockZ()];
 
         for (int x = 0; x < dimensions.getBlockX(); x++) {

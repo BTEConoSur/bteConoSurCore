@@ -133,10 +133,10 @@ public class CityManager {
     public Set<City> getCitiesAt(@NotNull ProtectedRegion region, Country country) {
         Set<City> cities = new HashSet<>();
         for (ProtectedRegion r : region.getIntersectingRegions(regions.values())) {
-            String name = r.getId().replace("city_", "");
-            Country c = plugin.getCountryManager().get(name);
-            if (c.equals(country)) {
-                cities.add(this.get(name));
+            String cityName = r.getId().replace("city_", "");
+            City city = this.get(cityName);
+            if (city.getCountry().equals(country)) {
+                cities.add(city);
             }
         }
         return cities;

@@ -8,6 +8,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockData;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -107,6 +108,10 @@ public class Asset implements AssetHolder {
 
     public Vector getOrigin() {
         return origin;
+    }
+
+    public Clipboard getClipboard() {
+        return null;
     }
 
     // --- SETTER ---

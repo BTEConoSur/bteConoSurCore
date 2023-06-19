@@ -34,6 +34,7 @@ import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLORConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
@@ -459,8 +460,9 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                             new SQLColumnSet("channel_id"),
                             new SQLANDConditionSet(
                                     new SQLJSONArrayCondition("cities", name),
-                                    new SQLOperatorCondition(
-                                            "LENGTH(project_id)", "=", 8
+                                    new SQLORConditionSet(
+                                            new SQLOperatorCondition("target_type", "=", "finished_project"),
+                                            new SQLOperatorCondition("target_type", "=", "event")
                                     )
                             ),
                             new SQLOrderSet(
@@ -476,7 +478,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                     }
 
                     builder.addField(
-                            ":white_check_mark: Proyectos terminados:",
+                            ":white_check_mark: Proyectos terminados / Eventos:",
                             (finishedLines.isEmpty() ? "No hay publicaciones de proyectos terminados." : String.join("\n", finishedLines)),
                             true
                     );
@@ -486,9 +488,7 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
                             new SQLColumnSet("channel_id"),
                             new SQLANDConditionSet(
                                     new SQLJSONArrayCondition("cities", name),
-                                    new SQLOperatorCondition(
-                                            "LENGTH(project_id)", "=", 6
-                                    )
+                                    new SQLOperatorCondition("target_type", "=", "project")
                             ),
                             new SQLOrderSet(
                                     new SQLOrderExpression(

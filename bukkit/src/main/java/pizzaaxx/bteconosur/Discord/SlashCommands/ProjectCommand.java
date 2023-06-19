@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -29,14 +30,15 @@ import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
+import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class ProjectCommand extends ListenerAdapter implements SlashCommandContainer {
@@ -65,6 +67,8 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                 this.projectEmbed(event, id);
             } catch (SQLException e) {
                 DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+            } catch (IOException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
 
         }
@@ -72,59 +76,33 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
 
     }
 
-    public void projectEmbed(IReplyCallback event, String id) throws SQLException {
+    public void projectEmbed(IReplyCallback event, String id) throws SQLException, IOException {
 
         Project project = plugin.getProjectRegistry().get(id);
 
+        List<String> cities = project.getCitiesResolved().stream().map(City::getDisplayName).collect(Collectors.toList());
+        String locationString = " - " + (cities.isEmpty() ? project.getCountry().getDisplayName() : (cities.size() == 1 ? cities.get(0) + ", " + project.getCountry().getDisplayName() : String.join(", ", cities) + " (" + project.getCountry().getDisplayName() + ")"));
+
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(project.getType().getColor());
-        builder.setTitle("Proyecto " + project.getDisplayName());
+        builder.setTitle("Proyecto " + project.getDisplayName() + locationString);
         ServerPlayer owner = plugin.getPlayerRegistry().get(project.getOwner());
         if (project.getOwner() != null) {
             builder.setThumbnail("https://mc-heads.net/head/" + owner.getUUID());
         }
-
-        // TIPO PAIS ETIQUETA
-        // COORDENADAS
-        // LIDER MIEMBROS
-
-        builder.addField(
-                "País",
-                ":flag_" + project.getCountry().getAbbreviation() + ": " + project.getCountry().getDisplayName(),
-                true
-        );
         builder.addField(
                 ":game_die: Tipo:",
                 project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
                 true
         );
-        if (project.getTag() != null) {
-            builder.addField(
-                    ":label: Etiqueta:",
-                    StringUtils.capitalize(project.getTag().toString().toLowerCase()),
-                    true
-            );
-        } else {
-            builder.addBlankField(true);
-        }
         Location loc = project.getTeleportLocation();
         Coords2D coords = new Coords2D(plugin, loc);
         builder.addField(
                 ":round_pushpin: Coordenadas:",
                 "[" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "](https://www.google.com/maps/@" + coords.getLat() + "," + coords.getLon() + ",19z" + ")",
-                false
-        );
-        builder.addField(
-                ":city_sunset: Ciudad(es):",
-                project.getCitiesResolved().stream().map(City::getDisplayName).collect(Collectors.joining(", ")),
                 true
         );
-        NumberFormat format = NumberFormat.getNumberInstance(Locale.GERMAN);
-        builder.addField(
-                ":straight_ruler: Área:",
-                format.format(Math.abs(project.getTotalArea())) + "m²",
-                true
-        );
+        builder.addBlankField(false);
         if (project.getOwner() != null) {
             builder.addField(
                     ":crown: Líder:",
@@ -138,10 +116,14 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
             );
         }
 
+        if (project.getTag() != null) {
+            builder.setFooter("Etiqueta: " + StringUtils.capitalize(project.getTag().toString().toLowerCase()), "https://media.discordapp.net/attachments/807694452214333482/1120164518618734732/label_1f3f7-fe0f.png");
+        }
+
         ResultSet set = plugin.getSqlManager().select(
                 "posts",
                 new SQLColumnSet(
-                        "channel_id", "message_id", "description"
+                        "channel_id", "message_id", "description", "name"
                 ),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition(
@@ -151,33 +133,47 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                 )
         ).retrieve();
 
-        ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
-        if (channel == null) {
-            DiscordUtils.respondError(event, "Ha ocurrido un error.");
-            return;
+        if (set.next()) {
+            ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+            if (channel == null) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
+                return;
+            }
+
+            String description = set.getString("description");
+            String name = set.getString("name");
+
+            channel.retrieveMessageById(set.getString("message_id")).queue(
+                    msg -> {
+                        Message.Attachment attachment = msg.getAttachments().get(0);
+                        builder.setTitle(name + locationString);
+                        builder.setImage(attachment.getUrl());
+                        builder.setDescription(description);
+                        event.replyEmbeds(builder.build())
+                                .addComponents(
+                                        ActionRow.of(
+                                                Button.of(
+                                                        ButtonStyle.LINK,
+                                                        channel.getJumpUrl(),
+                                                        "Ver publicación",
+                                                        Emoji.fromUnicode("U+1F4F8")
+                                                ),
+                                                plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                        )
+                                ).queue();
+                    }
+            );
+        } else {
+            builder.setImage("attachment://map.png");
+            InputStream is = plugin.getSatMapHandler().getMapStream(
+                    new SatMapHandler.SatMapPolygon(
+                            plugin,
+                            project.getRegionPoints()
+                    )
+            );
+            event.replyEmbeds(builder.build()).addFiles(FileUpload.fromData(is, "map.png")).queue();
         }
 
-        String description = set.getString("description");
-
-        channel.retrieveMessageById(set.getString("message_id")).queue(
-                msg -> {
-                    Message.Attachment attachment = msg.getAttachments().get(0);
-                    builder.setImage(attachment.getUrl());
-                    builder.setDescription(description);
-                    event.replyEmbeds(builder.build())
-                            .addComponents(
-                                    ActionRow.of(
-                                            Button.of(
-                                                    ButtonStyle.LINK,
-                                                    channel.getJumpUrl(),
-                                                    "Ver publicación",
-                                                    Emoji.fromUnicode("U+1F4F8")
-                                            ),
-                                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
-                                    )
-                            ).queue();
-                }
-        );
     }
 
     @Override

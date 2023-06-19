@@ -29,7 +29,7 @@ public class RenderableAsset implements GLEventListener {
 
     public RenderableAsset(@NotNull BTEConoSur plugin, @NotNull Asset asset) throws IOException {
         this.asset = asset;
-        models = plugin.getModelsManager().getClipboard(null);
+        models = plugin.getModelsManager().getClipboard(asset);
         this.os = new FileOutputStream(new File(plugin.getDataFolder(), "assets/gifs/" + asset.getId() + ".gif"));
         encoder.setFrameRate(60);
         encoder.setSize(400, 400);

@@ -1,9 +1,7 @@
 package pizzaaxx.bteconosur.Projects.Actions;
 
 import com.sk89q.worldedit.BlockVector2D;
-import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Geo.Coords2D;
@@ -22,8 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.*;
+import java.util.UUID;
 
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
@@ -100,9 +100,6 @@ public class ReviewProjectAction {
                         new SQLValuesSet(
                                 new SQLValue(
                                         "finished_date", date
-                                ),
-                                new SQLValue(
-                                        "sent_form", false
                                 ),
                                 new SQLValue(
                                         "id", id
@@ -276,15 +273,7 @@ public class ReviewProjectAction {
                     }
                     channel.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!").queue();
 
-                    ForumChannel forumChannel = project.getCountry().getProjectsForumChannel();
-                    Set<ForumTag> tags = new HashSet<>();
-                    tags.add(forumChannel.getAvailableTagsByName("En construcción", true).get(0));
-                    if (project.getTag() != null) {
-                        tags.add(forumChannel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
-                    }
-                    tags.add(forumChannel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
-
-                    channel.getManager().setAppliedTags(tags).queue();
+                    project.updatePostTags();
 
                     plugin.getSqlManager().update(
                             "posts",

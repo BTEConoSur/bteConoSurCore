@@ -590,9 +590,21 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         this.scoreboardHandler.init();
 
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new TablistExpansion(this).register();
         }
+
+        // Cube.main(new String[0]);
+
+        /*
+        try {
+            Asset asset = assetsRegistry.get("bekvwj");
+            RenderableAsset renderableAsset = new RenderableAsset(this, asset);
+            renderableAsset.generateGIF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+         */
     }
 
     @Override

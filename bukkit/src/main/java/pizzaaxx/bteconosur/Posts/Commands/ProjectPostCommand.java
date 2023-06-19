@@ -25,6 +25,8 @@ import pizzaaxx.bteconosur.Projects.ProjectWrapper;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Values.SQLValue;
+import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.DiscordUtils;
 import pizzaaxx.bteconosur.Utils.SatMapHandler;
 
@@ -38,7 +40,7 @@ import java.util.*;
 public class ProjectPostCommand extends ListenerAdapter implements SlashCommandContainer {
 
     private final BTEConoSur plugin;
-    private final Set<String> ALLOWED_IMAGE_EXTENSIONS = new HashSet<>(Arrays.asList("png", "jpg", "jpeg"));
+    private final Set<String> ALLOWED_IMAGE_EXTENSIONS = new HashSet<>(Arrays.asList("png", "jpg", "jpeg", "gif"));
 
     public ProjectPostCommand(BTEConoSur plugin) {
         this.plugin = plugin;
@@ -106,9 +108,9 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                 ProjectWrapper project;
                 if (set.getString("target_type").equals("project")) {
-                    project = plugin.getProjectRegistry().get(set.getString("id"));
+                    project = plugin.getProjectRegistry().get(set.getString("target_id"));
                 } else {
-                    project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
+                    project = plugin.getFinishedProjectsRegistry().get(set.getString("target_id"));
                 }
 
                 if (project == null) {
@@ -118,7 +120,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                 UUID userUUID = plugin.getLinksRegistry().get(event.getUser().getId());
 
-                if (project.getOwner() != userUUID) {
+                if (!project.getOwner().equals(userUUID)) {
                     DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
                     return;
                 }
@@ -161,6 +163,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                         OptionMapping mapping = event.getOption("imagen");
 
                         InputStream is;
+                        String extension;
                         if (mapping != null) {
 
                             Message.Attachment attachment = mapping.getAsAttachment();
@@ -168,6 +171,8 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                 DiscordUtils.respondError(event, "Debes subir una imagen válida.");
                                 return;
                             }
+
+                            extension = attachment.getFileExtension();
 
                             if (attachment.getSize() > 2.5e+7) {
                                 DiscordUtils.respondError(event, "Solo se pueden subir imágenes de menos de 25mb de tamaño.");
@@ -184,13 +189,16 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                                             project.getRegionPoints()
                                     )
                             );
+                            extension = "png";
                         }
 
                         event.getChannel().retrieveMessageById(set.getString("message_id")).queue(
                                 message -> message.editMessageAttachments(
-                                        FileUpload.fromData(is, "image.png")
+                                        FileUpload.fromData(is,  "image." + extension)
                                 ).queue()
                         );
+
+                        DiscordUtils.respondSuccessEphemeral(event, "Imagen modificada con éxito.");
 
                         break;
                     }
@@ -207,7 +215,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
 
-        if (event.getModalId().equals("postEditModal")) {
+        if (event.getModalId().equals("editPostModal")) {
 
             try {
                 ResultSet set = plugin.getSqlManager().select(
@@ -236,9 +244,9 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                 ProjectWrapper project;
                 if (set.getString("target_type").equals("project")) {
-                    project = plugin.getProjectRegistry().get(set.getString("id"));
+                    project = plugin.getProjectRegistry().get(set.getString("target_id"));
                 } else {
-                    project = plugin.getFinishedProjectsRegistry().get(set.getString("id"));
+                    project = plugin.getFinishedProjectsRegistry().get(set.getString("target_id"));
                 }
 
                 if (project == null) {
@@ -248,7 +256,7 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
 
                 UUID userUUID = plugin.getLinksRegistry().get(event.getUser().getId());
 
-                if (project.getOwner() != userUUID) {
+                if (!project.getOwner().equals(userUUID)) {
                     DiscordUtils.respondError(event, "Solo el líder del proyecto puede editar la publicación.");
                     return;
                 }
@@ -279,9 +287,27 @@ public class ProjectPostCommand extends ListenerAdapter implements SlashCommandC
                     );
                 }
 
+                plugin.getSqlManager().update(
+                        "posts",
+                        new SQLValuesSet(
+                                new SQLValue(
+                                        "name", name
+                                ),
+                                new SQLValue(
+                                        "description", description
+                                )
+                        ),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "channel_id", "=", event.getChannel().getId()
+                                )
+                        )
+                ).execute();
+
                 DiscordUtils.respondSuccessEphemeral(event, "Publicación editada con éxito.");
 
             } catch (SQLException e) {
+                e.printStackTrace();
                 DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
             }
 

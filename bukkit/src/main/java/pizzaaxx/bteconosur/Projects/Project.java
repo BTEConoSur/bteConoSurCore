@@ -7,7 +7,9 @@ import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -497,6 +499,7 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
                             )
                     )
             ).execute();
+            this.updatePostTags();
             return true;
         }
         return false;
@@ -695,5 +698,40 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
                         )
                 )
         ).execute();
+    }
+
+    public void updatePostTags() throws SQLException {
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "channel_id", "message_id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", this.getId()
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            ThreadChannel channel = this.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+            if (channel == null) {
+                return;
+            }
+            Set<ForumTag> tags = new HashSet<>();
+
+            ForumChannel forumChannel = country.getProjectsForumChannel();
+
+            tags.add(forumChannel.getAvailableTagsByName("En construcción", true).get(0));
+            if (this.getTag() != null) {
+                tags.add(forumChannel.getAvailableTagsByName(this.getTag().toString(), true).get(0));
+            }
+            tags.add(forumChannel.getAvailableTagsByName(this.getType().getDisplayName(), true).get(0));
+
+            channel.getManager().setAppliedTags(tags).queue();
+        }
     }
 }

@@ -6,10 +6,9 @@ import com.sk89q.worldguard.protection.flags.RegionGroup;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Cities.CityActionException;
 import pizzaaxx.bteconosur.Cities.City;
+import pizzaaxx.bteconosur.Cities.CityActionException;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Geo.Coords2D;
 import pizzaaxx.bteconosur.Projects.Project;
@@ -27,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,16 +63,7 @@ public class CreateProjectAction {
         protectedPolygonalRegion.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
         protectedPolygonalRegion.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
 
-        Set<ProtectedRegion> cityRegions = new HashSet<>();
-        for (String cityName : country.getCities()) {
-            cityRegions.add(plugin.getRegionManager().getRegion("city_" + cityName));
-        }
-
-        List<ProtectedRegion> intersectingCities = protectedPolygonalRegion.getIntersectingRegions(cityRegions);
-        Set<City> cities = new HashSet<>();
-        for (ProtectedRegion intersectingCity : intersectingCities) {
-            cities.add(plugin.getCityManager().get(intersectingCity.getId().replace("city_", "")));
-        }
+        Set<City> cities = plugin.getCityManager().getCitiesAt(protectedPolygonalRegion, country);
 
         plugin.getSqlManager().insert(
                 "projects",

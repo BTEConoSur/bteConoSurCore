@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.Utils.ImageUtils;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -30,7 +29,7 @@ public class Cube implements GLEventListener {
     FileOutputStream os;
 
     public Cube() throws FileNotFoundException {
-        this.os = new FileOutputStream("E:\\DESCARGA\\texture.gif");
+        this.os = new FileOutputStream("test.gif");
         encoder.setFrameRate(60);
         encoder.setSize(400, 400);
         encoder.setRepeat(0);
@@ -146,7 +145,7 @@ public class Cube implements GLEventListener {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try{
 
-            File im = new File("C:\\Users\\pedro\\Desktop\\assets\\1.12\\assets\\minecraft\\textures\\blocks\\bedrock.png");
+            File im = new File("plugins\\bteConoSur\\rendering\\textures\\block\\bedrock.png");
             BufferedImage image = ImageIO.read(im);
             int w = image.getWidth();
             int h = image.getHeight();
@@ -197,11 +196,6 @@ public class Cube implements GLEventListener {
 
         glcanvas.addGLEventListener( cube );
         glcanvas.setSize( 400, 400 );
-
-        final JFrame frame = new JFrame ( " Multicolored cube" );
-        frame.getContentPane().add( glcanvas );
-        frame.setSize( frame.getContentPane().getPreferredSize() );
-        frame.setVisible( true );
         final FPSAnimator animator = new FPSAnimator(glcanvas, 60,true);
 
         animator.start();

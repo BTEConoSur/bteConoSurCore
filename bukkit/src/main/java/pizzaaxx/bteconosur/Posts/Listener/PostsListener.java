@@ -101,6 +101,7 @@ public class PostsListener extends ListenerAdapter {
             }
 
         } catch (SQLException | JsonProcessingException e) {
+            e.printStackTrace();
             event.getMessage().delete().queue();
             event.getAuthor().openPrivateChannel().queue(
                     privateChannel -> privateChannel.sendMessageEmbeds(

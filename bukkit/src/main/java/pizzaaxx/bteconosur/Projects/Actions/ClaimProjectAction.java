@@ -55,7 +55,7 @@ public class ClaimProjectAction {
         List<String> cities = new ArrayList<>();
         for (City city : project.getCitiesResolved()) {
             plugin.getScoreboardHandler().update(city);
-            cities.add(city.getName());
+            cities.add(city.getDisplayName());
         }
 
         List<String> members = new ArrayList<>();
@@ -72,7 +72,7 @@ public class ClaimProjectAction {
         tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
 
         project.getCountry().getProjectsForumChannel().createForumPost(
-                "Proyecto" + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cities)),
+                "Proyecto " + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cities)),
                 MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
         )
                 .setEmbeds(
@@ -119,7 +119,7 @@ public class ClaimProjectAction {
                                                 new SQLValue("members", project.getAllMembers()),
                                                 new SQLValue("country", project.getCountry()),
                                                 new SQLValue("cities", project.getCities()),
-                                                new SQLValue("name", "Proyecto" + project.getId().toUpperCase()),
+                                                new SQLValue("name", "Proyecto " + project.getId().toUpperCase()),
                                                 new SQLValue("description", "N/A"),
                                                 new SQLValue("message_id", forumPost.getMessage().getId())
                                         )

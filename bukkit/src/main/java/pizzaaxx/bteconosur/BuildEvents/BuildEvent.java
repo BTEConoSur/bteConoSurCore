@@ -707,16 +707,7 @@ public class BuildEvent implements TourCommand.TourDisplay {
                     )
             ).execute();
 
-            Set<ProtectedRegion> cityRegions = new HashSet<>();
-            for (String cityName : country.getCities()) {
-                cityRegions.add(plugin.getRegionManager().getRegion("city_" + cityName));
-            }
-
-            List<ProtectedRegion> intersectingCities = region.getIntersectingRegions(cityRegions);
-            Set<City> cities = new HashSet<>();
-            for (ProtectedRegion intersectingCity : intersectingCities) {
-                cities.add(plugin.getCityManager().get(intersectingCity.getId().replace("city_", "")));
-            }
+            Set<City> cities = plugin.getCityManager().getCitiesAt(region, country);
 
             plugin.getSqlManager().insert(
                     "tour_displays",

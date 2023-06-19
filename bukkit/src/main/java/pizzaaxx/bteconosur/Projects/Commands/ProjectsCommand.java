@@ -376,6 +376,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                 break;
             }
+            case "info":
             case "manage": {
 
                 List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
@@ -2297,7 +2298,25 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
             List<String> lore = new ArrayList<>(member.getLore(false));
             lore.add(" ");
-            lore.add("§c[-]§7 Haz §fShift + Click Derecho§7 para remover a §f" + member.getName() + "§7.");
+
+            InventoryAction event = null;
+            if (isLeader) {
+                lore.add("§c[-]§7 Haz §fShift + Click Derecho§7 para remover a §f" + member.getName() + "§7.");
+                event = removeClickEvent -> {
+                    try {
+                        project.removeMember(memberUUID).execute();
+                        player.sendMessage(getPrefix() + "Has removido a §a" + member.getName() + "§f del proyecto.");
+                        member.sendNotification(
+                                getPrefix() + "Has sido removido del proyecto §a" + project.getDisplayName() + "§f.",
+                                "**[PROYECTO]** » Has sido removido del proyecto **" + project.getDisplayName() + "**."
+                        );
+                        openManageInventory(player, id);
+                    } catch (SQLException | IOException e) {
+                        removeClickEvent.closeGUI();
+                        player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    }
+                };
+            }
 
             gui.addPaginated(
                     ItemBuilder.head(
@@ -2308,20 +2327,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                     null,
                     null,
                     null,
-                    removeClickEvent -> {
-                        try {
-                            project.removeMember(memberUUID).execute();
-                            player.sendMessage(getPrefix() + "Has removido a §a" + member.getName() + "§f del proyecto.");
-                            member.sendNotification(
-                                    getPrefix() + "Has sido removido del proyecto §a" + project.getDisplayName() + "§f.",
-                                    "**[PROYECTO]** » Has sido removido del proyecto **" + project.getDisplayName() + "**."
-                            );
-                            this.openManageInventory(player, id);
-                        } catch (SQLException | IOException e) {
-                            removeClickEvent.closeGUI();
-                            player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
-                        }
-                    }
+                    event
             );
         } // MIEMBROS
 

@@ -26,7 +26,6 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay 
     private final BTEConoSur plugin;
     private final String id;
     private final long finishedDate;
-    private final boolean sentForm;
     private final String name;
     private final Country country;
     private final Set<String> cities;
@@ -53,7 +52,6 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay 
         if (set.next()) {
 
             this.finishedDate = set.getTimestamp("finished_date").getTime();
-            this.sentForm = set.getBoolean("sent_form");
             this.name = set.getString("name");
             this.country = plugin.getCountryManager().get(set.getString("country"));
             this.cities = plugin.getJSONMapper().readValue(set.getString("cities"), HashSet.class);
@@ -87,14 +85,6 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay 
     @Override
     public boolean isClaimed() {
         return true;
-    }
-
-    public long getFinishedDate() {
-        return finishedDate;
-    }
-
-    public boolean isSentForm() {
-        return sentForm;
     }
 
     public String getName() {

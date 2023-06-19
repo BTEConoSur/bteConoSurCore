@@ -35,6 +35,8 @@ public class JoinEvent implements Listener {
         for (Country country : plugin.getCountryManager().getAllCountries()) {
             country.getGlobalChatChannel().sendMessageEmbeds(embed).queue();
         }
+        ScoreboardManager scoreboardManager = serverPlayer.getScoreboardManager();
+        scoreboardManager.loadDisplay(); // <- If player was loaded before joining.
         try {
             Chat defaultChat = serverPlayer.getChatManager().getDefaultChat();
             serverPlayer.getChatManager().setCurrentChat(defaultChat);
@@ -43,8 +45,6 @@ public class JoinEvent implements Listener {
             plugin.error("Error loading chat: " + serverPlayer.getChatManager().getCurrentChatName());
         }
 
-        ScoreboardManager scoreboardManager = serverPlayer.getScoreboardManager();
-        scoreboardManager.loadDisplay(); // <- If player was loaded before joining.
         if (scoreboardManager.isAuto()) {
             plugin.getScoreboardHandler().registerAuto(serverPlayer.getUUID());
         }
