@@ -236,7 +236,7 @@ public class ServerPlayer implements ScoreboardDisplay {
         return secondaryRoles.get(0);
     }
 
-    public int getTablistPriority() {
+    public int getPriority() {
         return this.getTablistPrefixHolder().getPriority();
     }
 

@@ -40,7 +40,7 @@ public class TablistExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("tabPrefix")) {
 
             ServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
-            return "§" + s.getTablistPriority() + "" + s.getChatManager().getCountryTabPrefix() + " " + s.getTablistPrefixHolder().getTablistPrefix() + " " + s.getChatManager().getTabColor();
+            return "§" + s.getPriority() + "" + s.getChatManager().getCountryTabPrefix() + " " + s.getTablistPrefixHolder().getTablistPrefix() + " " + s.getChatManager().getTabColor();
 
         }
 
