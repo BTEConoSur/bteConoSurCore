@@ -10,12 +10,14 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.BuildEvents.BuildEvent;
-import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Player.Managers.ProjectManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
-import pizzaaxx.bteconosur.SQL.Conditions.*;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONContainsPathCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLNullCondition;
+import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
 import pizzaaxx.bteconosur.SQL.JSONParsable;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression;
 import pizzaaxx.bteconosur.SQL.Ordering.SQLOrderSet;
@@ -29,6 +31,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
+import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.DESC;
 
 public class Country implements JSONParsable, ScoreboardDisplay {
 
@@ -304,7 +307,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
                 ),
                 new SQLOrderSet(
                         new SQLOrderExpression(
-                                "getcountrypoints(points, '" + this.name + "')", ASC
+                                "getcountrypoints(points, '" + this.name + "')", DESC
                         )
                 )
         ).addText(" LIMIT 10").retrieve();

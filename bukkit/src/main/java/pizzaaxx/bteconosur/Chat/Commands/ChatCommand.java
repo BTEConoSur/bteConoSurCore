@@ -10,16 +10,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
-import pizzaaxx.bteconosur.Chat.*;
+import pizzaaxx.bteconosur.Chat.Chat;
+import pizzaaxx.bteconosur.Chat.ChatHandler;
+import pizzaaxx.bteconosur.Chat.Prefixable;
+import pizzaaxx.bteconosur.Chat.ProjectChat;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.CustomSlotsPaginatedGUI;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
-import pizzaaxx.bteconosur.Inventory.PaginatedInventoryGUI;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
-import pizzaaxx.bteconosur.Projects.RegionSelectors.MemberProjectSelector;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLJSONArrayCondition;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLORConditionSet;
@@ -142,7 +143,7 @@ public class ChatCommand implements CommandExecutor, Prefixable, TabCompleter {
                     this.openConfigChatMenu(p);
                 }
 
-                if (args[0].matches("[a-z]{6}")) { // TODO TEST INVITES
+                if (args[0].matches("[a-z]{6}")) {
                     if (!invites.containsKey(args[0])) {
                         p.sendMessage(getPrefix() + "La invitación introducida no existe.");
                         return true;

@@ -10,10 +10,12 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Chat.Chat;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Player.Managers.ScoreboardManager;
+import pizzaaxx.bteconosur.Player.Notifications.Notification;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.List;
 
 public class JoinEvent implements Listener {
 
@@ -59,5 +61,18 @@ public class JoinEvent implements Listener {
         }
 
         plugin.getScoreboardHandler().update(plugin);
+
+        event.getPlayer().sendMessage("§8+---------------------------------------------------+");
+        event.getPlayer().sendMessage("§7                     §2§lBuildTheEarth: §a§lCono Sur");
+        event.getPlayer().sendMessage("§8+---------------------------------------------------+");
+        List<Notification> notifications = plugin.getNotificationsService().getNotifications(event.getPlayer().getUniqueId());
+        if (!notifications.isEmpty()) {
+            event.getPlayer().sendMessage("§7 Notificaciones:");
+            int counter = 1;
+            for (Notification notification : notifications) {
+                event.getPlayer().sendMessage("§7" + counter + ". " + notification.getMinecraftMessage());
+            }
+            event.getPlayer().sendMessage("§8+---------------------------------------------------+");
+        }
     }
 }
