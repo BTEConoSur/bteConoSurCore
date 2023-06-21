@@ -101,7 +101,6 @@
 * ✔️ `/city setUrban <nombre>`
 * ✔️ `/city deleteUrban <nombre>`
 * ✔️ `/city redefine <nombre>`
-* 🕙 `/city delete <nombre>`
 ## Proyectos
 * ✔️ *Action Bar*
 * ✔️ Publicaciones
@@ -118,7 +117,6 @@
 * ✔️ `/project progress`  
 **Subcomando nuevo:**
   * Muestra tu progreso en los tipos de proyecto. Cuáles has desbloqueado y cuáles no.
-* 🕙 `/project tutorial`
 * ✔️ `/project redefine`
 ## Chat
 * ✔️ `/chat [nombre]`

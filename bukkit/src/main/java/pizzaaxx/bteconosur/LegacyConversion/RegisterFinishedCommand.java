@@ -125,6 +125,7 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
         try {
             this.registerFinishedProject(region.getPoints(), owner, type);
         } catch (SQLException | IOException e) {
+            e.printStackTrace();
             p.sendMessage("Ha ocurrido un error.");
         }
 
@@ -217,11 +218,13 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
 
         Set<City> cities = plugin.getCityManager().getCitiesAt(region, type.getCountry());
 
+        Date date = new Date(System.currentTimeMillis());
+
         plugin.getSqlManager().insert(
                 "finished_projects",
                 new SQLValuesSet(
                         new SQLValue(
-                                "finished_date", "CURRENT_TIMESTAMP()"
+                                "finished_date", date
                         ),
                         new SQLValue(
                                 "id", id
@@ -244,7 +247,7 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
         plugin.getSqlManager().insert(
                 "tour_displays",
                 new SQLValuesSet(
-                        new SQLValue("date", "CURRENT_TIMESTAMP()"),
+                        new SQLValue("date", date),
                         new SQLValue("type", "finished_project"),
                         new SQLValue("id", id),
                         new SQLValue("cities", cities)
@@ -276,14 +279,14 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
 
             ForumChannel channel = project.getCountry().getProjectsForumChannel();
             Set<ForumTag> tags = new HashSet<>();
-            tags.add(channel.getAvailableTagsByName("En construcción", true).get(0));
+            tags.add(channel.getAvailableTagsByName("Terminado", true).get(0));
             if (project.getTag() != null) {
                 tags.add(channel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
             }
             tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
 
             project.getCountry().getProjectsForumChannel().createForumPost(
-                            "Proyecto" + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + cities.stream().map(City::getDisplayName).collect(Collectors.joining(", "))),
+                            "Proyecto " + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + cities.stream().map(City::getDisplayName).collect(Collectors.joining(", "))),
                             MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
                     )
                     .setEmbeds(
@@ -340,6 +343,10 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                                 }
                             }
                     );
+        }
+
+        for (City city : cities) {
+            city.updateFinishedArea();
         }
 
     }
