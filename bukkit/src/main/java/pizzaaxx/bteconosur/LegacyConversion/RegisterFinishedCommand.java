@@ -148,7 +148,7 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                 return;
             }
 
-            ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getId()));
+            ServerPlayer s = plugin.getPlayerRegistry().get(plugin.getLinksRegistry().get(event.getUser().getId()));
 
             if (!s.getSecondaryRoles().contains(ServerPlayer.SecondaryRoles.ADMIN) || !s.getProjectManager().hasAdminPermission(country)) {
                 DiscordUtils.respondError(event, "No puedes hacer esto.");
@@ -191,7 +191,9 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                             ProjectType type = country.getProjectType(country.getLegacyDifficulties().get((difficulty.equals("FACIL") ? 0 : (difficulty.equals("INTERMEDIO") ? 1 : 2))));
 
                             try {
+                                event.deferReply(true).queue();
                                 this.registerFinishedProject(vectors, owner, type);
+                                event.getInteraction().getHook().editOriginalEmbeds(DiscordUtils.fastEmbed(Color.GREEN, "Proyecto registrado con éxito.")).queue();
                             } catch (SQLException | IOException e) {
                                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
                             }
@@ -203,7 +205,6 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                     }
             );
         }
-
     }
 
     public void registerFinishedProject(List<BlockVector2D> vectors, UUID owner, @NotNull ProjectType type) throws SQLException, IOException {
