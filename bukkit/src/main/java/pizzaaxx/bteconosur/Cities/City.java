@@ -8,7 +8,6 @@ import clipper2.core.Point64;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.jetbrains.annotations.NotNull;
@@ -369,7 +368,7 @@ public class City implements JSONParsable, ScoreboardDisplay {
         List<String> lines = new ArrayList<>();
 
         double finishedArea = this.finishedArea / 1000000.0;
-        double totalArea = new Polygonal2DRegion(plugin.getWorldEditWorld(), region.getPoints(), 100, 100).getArea() / 1000000.0;
+        double totalArea = this.getTotalArea() / 1000000.0;
         double percentage = (finishedArea / totalArea) * 100;
 
         DecimalFormat format = new DecimalFormat("#.##");
