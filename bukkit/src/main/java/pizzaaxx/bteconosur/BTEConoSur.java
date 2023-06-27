@@ -13,6 +13,9 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -44,6 +47,9 @@ import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Countries.CountryManager;
 import pizzaaxx.bteconosur.Countries.CountryScoreboardRegionListener;
 import pizzaaxx.bteconosur.Discord.DiscordHandler;
+import pizzaaxx.bteconosur.Discord.FuzzyMatching.FuzzyMatchCondition;
+import pizzaaxx.bteconosur.Discord.FuzzyMatching.FuzzyMatcherListener;
+import pizzaaxx.bteconosur.Discord.FuzzyMatching.MustContainFuzzyMatcherCondition;
 import pizzaaxx.bteconosur.Discord.Link.LinkCommand;
 import pizzaaxx.bteconosur.Discord.Link.LinksRegistry;
 import pizzaaxx.bteconosur.Discord.SlashCommands.*;
@@ -450,6 +456,47 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
         HelpCommand helpCommand = new HelpCommand(this);
+        IPCommand ipCommand = new IPCommand(this);
+
+        FuzzyMatchCondition notInPostCondition = (event, message) -> {
+            Channel channel = event.getChannel();
+            if (channel instanceof ThreadChannel) {
+                ThreadChannel threadChannel = (ThreadChannel) channel;
+                if (threadChannel.getParentChannel() instanceof ForumChannel) {
+                    return !this.getCountryManager().projectForumChannels.contains(threadChannel.getParentChannel().getId());
+                }
+            }
+            return true;
+        };
+
+        FuzzyMatcherListener fuzzyMatcherListener = new FuzzyMatcherListener(this);
+        fuzzyMatcherListener.register(
+                new String[]{
+                        "cual es la ip?",
+                        "cual es la ip del servidor?",
+                        "cual es la ip del server?",
+                        "ip del servidor?",
+                        "ip del server?"
+                },
+                FuzzyMatcherListener.MatchingMethod.COMPLETE,
+                3,
+                ipCommand,
+                new MustContainFuzzyMatcherCondition("ip"),
+                notInPostCondition
+        );
+        fuzzyMatcherListener.register(
+                new String[]{
+                        "que hay construido en",
+                        "que hay hecho en",
+                        "hay algo construido en",
+                        "hay algo hecho en",
+                        "que hay en"
+                },
+                FuzzyMatcherListener.MatchingMethod.PARTIAL,
+                3,
+                new CityFuzzyListener(this),
+                notInPostCondition
+        );
 
         jdaBuilder.enableIntents(
                 GatewayIntent.MESSAGE_CONTENT,
@@ -477,7 +524,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new IPCommand(this),
                 new OnlineCommand(this),
                 new ModsCommand(this),
-                new RegisterFinishedCommand(this)
+                new RegisterFinishedCommand(this),
+                fuzzyMatcherListener
         );
 
         try {

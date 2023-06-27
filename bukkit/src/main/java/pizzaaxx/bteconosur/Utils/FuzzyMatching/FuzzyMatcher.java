@@ -4,8 +4,6 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 
-import java.util.List;
-
 public class FuzzyMatcher {
 
     private final BTEConoSur plugin;
@@ -38,5 +36,24 @@ public class FuzzyMatcher {
             }
         }
         return min;
+    }
+
+    public String getMinimumDistanceMatch(@NotNull String base, @NotNull String input) {
+        if (base.length() <= input.length()) {
+            return input;
+        }
+
+        int inputLength = input.length();
+        int min = base.length() * 2;
+        String minString = input;
+        for (int i = 0; i <= base.length() - inputLength; i++) {
+            String substring = base.substring(i, i + inputLength);
+            int distance = this.getDistance(input, substring);
+            if (distance < min) {
+                min = distance;
+                minString = substring;
+            }
+        }
+        return minString;
     }
 }

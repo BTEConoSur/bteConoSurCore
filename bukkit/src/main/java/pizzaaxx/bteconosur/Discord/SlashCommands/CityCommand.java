@@ -54,8 +54,8 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.NumberFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static pizzaaxx.bteconosur.SQL.Ordering.SQLOrderExpression.Order.ASC;
 
@@ -104,14 +104,16 @@ public class CityCommand extends ListenerAdapter implements SlashCommandContaine
         }
     }
 
-    public void respond(IReplyCallback event, String input) throws SQLException, IOException {
+    public void respond(IReplyCallback event, @NotNull String input) throws SQLException, IOException {
+
+        int length = input.length();
 
         ResultSet set = plugin.getSqlManager().select(
                 "cities",
                 new SQLColumnSet("name", "levenshtein('" + input + "',display_name) AS distance"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition(
-                                "levenshtein('" + input + "',display_name)", "<=", 5
+                                "levenshtein('" + input + "',display_name)", "<=", (length == 1 ? 1 : (length == 2 || length == 3 ? 2 : (length == 4 || length == 5 ? 3 : (length == 6 || length == 7 ? 4 : 5))))
                         )
                 ),
                 new SQLOrderSet(
