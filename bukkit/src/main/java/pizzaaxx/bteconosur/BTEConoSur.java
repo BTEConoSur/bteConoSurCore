@@ -525,7 +525,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new OnlineCommand(this),
                 new ModsCommand(this),
                 new RegisterFinishedCommand(this),
-                fuzzyMatcherListener
+                fuzzyMatcherListener,
+                new PatternCommand(this)
         );
 
         try {
