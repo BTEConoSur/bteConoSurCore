@@ -100,5 +100,14 @@ public class EmptyProjectAction {
         }
 
         project.getCountry().getLogsChannel().sendMessage(":book: El proyecto `" + project.getId() + "` está disponible de nuevo.").queue();
+
+        plugin.getSqlManager().delete(
+                "project_join_requests",
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "project_id", "=", project.getId()
+                        )
+                )
+        ).execute();
     }
 }

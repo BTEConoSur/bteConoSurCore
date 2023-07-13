@@ -93,5 +93,16 @@ public class DeleteProjectAction {
                 ":wastebasket: **" + plugin.getPlayerRegistry().get(moderatorUUID).getName() + "** ha eliminado el proyecto `" + project.getId() + "`."
         ).queue();
 
+        plugin.getSqlManager().delete(
+                "project_join_requests",
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "project_id", "=", project.getId()
+                        )
+                )
+        ).execute();
+
+        plugin.getProjectRegistry().unregisterID(project.getId());
+
     }
 }

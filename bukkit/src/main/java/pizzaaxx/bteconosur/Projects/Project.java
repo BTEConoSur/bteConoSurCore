@@ -21,6 +21,7 @@ import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Actions.*;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
@@ -478,6 +479,11 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
                             )
                     )
             ).execute();
+            ServerPlayer targetPlayer = plugin.getPlayerRegistry().get(target);
+            plugin.getPlayerRegistry().get(owner).sendNotification(
+                    getPrefix() + "§a" + targetPlayer.getName() + "§f ha solicitado unirse a tu proyecto §a" + this.getDisplayName() + "§f.",
+                    "**[PROYECTOS]** » **" + targetPlayer.getName() + "** ha solicitado unirse a tu proyecto **" + this.getDisplayName() + "**."
+            );
             return true;
         }
         return false;

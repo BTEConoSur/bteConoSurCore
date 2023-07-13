@@ -2001,6 +2001,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                                     );
                                                     project.deleteRequest(targetUUID);
                                                     this.run();
+                                                    openManageInventory(player, id);
                                                 } catch (SQLException | IOException e) {
                                                     player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                     requestAcceptClickEvent.closeGUI();
@@ -2014,17 +2015,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                                             getPrefix() + "§a" + player.getName() + "§f ha rechazado tu solicitud de unión al proyecto §a" + project.getDisplayName() + "§f.",
                                                             "**[PROYECTO]** » **" + player.getName() + "** ha rechazado tu solicitud de unión al proyecto **" + project.getDisplayName() + "**."
                                                     );
-                                                    plugin.getSqlManager().delete(
-                                                            "project_join_requests",
-                                                            new SQLANDConditionSet(
-                                                                    new SQLOperatorCondition(
-                                                                            "target", "=", targetUUID
-                                                                    ),
-                                                                    new SQLOperatorCondition(
-                                                                            "project_id", "=", id
-                                                                    )
-                                                            )
-                                                    ).execute();
+                                                    project.deleteRequest(targetUUID);
+                                                    openManageInventory(player, id);
                                                     this.run();
                                                 } catch (SQLException e) {
                                                     player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
