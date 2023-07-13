@@ -85,7 +85,7 @@ public class CountryChat implements Chat {
             if (!serverPlayer.getChatManager().isHidden()) {
                 Bukkit.getPlayer(playerUUID).sendMessage(
                         BookUtil.TextBuilder.of("§f[§ePING§f] §7(" + originChat.getDisplayName() + ") §f<").color(ChatColor.WHITE).build(),
-                        BookUtil.TextBuilder.of(senderPlayer.getChatManager().getDisplayName()).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getChatManager().getDisplayName()).onHover(BookUtil.HoverAction.showText(String.join("\n", senderPlayer.getLore(true)))).build(),
                         BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
                         BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
                 );
@@ -101,7 +101,7 @@ public class CountryChat implements Chat {
             if (!serverPlayer.getChatManager().isHidden()) {
                 Bukkit.getPlayer(playerUUID).sendMessage(
                         BookUtil.TextBuilder.of("<").color(ChatColor.WHITE).build(),
-                        BookUtil.TextBuilder.of(senderPlayer.getChatManager().getDisplayName()).onHover(BookUtil.HoverAction.showText(String.join("\n", serverPlayer.getLore(true)))).build(),
+                        BookUtil.TextBuilder.of(senderPlayer.getChatManager().getDisplayName()).onHover(BookUtil.HoverAction.showText(String.join("\n", senderPlayer.getLore(true)))).build(),
                         BookUtil.TextBuilder.of("> ").color(ChatColor.WHITE).build(),
                         BookUtil.TextBuilder.of(message).color(ChatColor.WHITE).build()
                 );
