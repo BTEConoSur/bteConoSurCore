@@ -99,7 +99,7 @@ public class PatternCommand extends ListenerAdapter implements SlashCommandConta
 
                 builder.setImage("attachment://image.png");
 
-                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user" + event.getUser().getId());
+                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user=" + event.getUser().getId());
                 menuBuilder.addOption(
                         "16x16", "16"
                 );
@@ -198,7 +198,7 @@ public class PatternCommand extends ListenerAdapter implements SlashCommandConta
 
                 builder.setImage("attachment://image.png");
 
-                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user" + event.getUser().getId());
+                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user=" + event.getUser().getId());
                 menuBuilder.addOption(
                         "16x16", "16"
                 );
@@ -318,7 +318,7 @@ public class PatternCommand extends ListenerAdapter implements SlashCommandConta
 
                 builder.setImage("attachment://image.png");
 
-                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user" + event.getUser().getId());
+                StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user=" + event.getUser().getId());
                 menuBuilder.addOption(
                         "16x16", "16"
                 );
@@ -418,7 +418,7 @@ public class PatternCommand extends ListenerAdapter implements SlashCommandConta
 
                     builder.setImage("attachment://image.png");
 
-                    StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user" + event.getUser().getId());
+                    StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("changePatternSize?user=" + event.getUser().getId());
                     menuBuilder.addOption(
                             "16x16", "16"
                     );
@@ -495,7 +495,7 @@ public class PatternCommand extends ListenerAdapter implements SlashCommandConta
                     continue;
                 }
 
-                BufferedImage subTexture = textures.getSubimage(coordinates.getKey(), coordinates.getValue(), 16, 16);
+                BufferedImage subTexture = textures.getSubimage(coordinates.getKey() * 16, coordinates.getValue() * 16, 16, 16);
 
                 if (subTexture.getRGB(0, 0) == 65535 && subTexture.getRGB(15, 15) == 16711680) {
                     continue;

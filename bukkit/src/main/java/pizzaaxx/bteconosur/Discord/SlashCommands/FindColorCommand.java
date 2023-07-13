@@ -1,4 +1,5 @@
 package pizzaaxx.bteconosur.Discord.SlashCommands;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -23,12 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -42,35 +39,34 @@ public class FindColorCommand extends ListenerAdapter implements SlashCommandCon
     public FindColorCommand(@NotNull BTEConoSur plugin) throws URISyntaxException, IOException {
         this.plugin = plugin;
 
-        URL url = plugin.getClass().getClassLoader().getResource("textures");
+        File textures = new File(plugin.getDataFolder(), "textures");
+        File[] files = textures.listFiles();
 
-        Path path = Paths.get(url.toURI());
-
-        Files.walk(path).filter(Files::isRegularFile).forEach(
-                filePath -> {
-                    BufferedImage img;
-                    try {
-                        img = ImageIO.read(new File(path.toString()));
-                    } catch (IOException e) {
-                        return;
-                    }
-
-                    int red = 0, green = 0, blue = 0;
-                    for (int x = 0; x < img.getWidth(); x++) {
-                        for (int y = 0; y < img.getHeight(); y++) {
-                            Color pixel = new Color(img.getRGB(x, y));
-                            red += pixel.getRed();
-                            green += pixel.getGreen();
-                            blue += pixel.getBlue();
-                        }
-                    }
-
-                    int total = img.getWidth() * img.getHeight();
-                    Color color = new Color(red/total, green/total, blue/total);
-
-                    averageColors.put(img, color);
+        if (files != null) {
+            for (File file : files) {
+                BufferedImage img;
+                try {
+                    img = ImageIO.read(file);
+                } catch (IOException e) {
+                    return;
                 }
-        );
+
+                int red = 0, green = 0, blue = 0;
+                for (int x = 0; x < img.getWidth(); x++) {
+                    for (int y = 0; y < img.getHeight(); y++) {
+                        Color pixel = new Color(img.getRGB(x, y));
+                        red += pixel.getRed();
+                        green += pixel.getGreen();
+                        blue += pixel.getBlue();
+                    }
+                }
+
+                int total = img.getWidth() * img.getHeight();
+                Color color = new Color(red/total, green/total, blue/total);
+
+                averageColors.put(img, color);
+            }
+        }
 
     }
 
@@ -156,6 +152,8 @@ public class FindColorCommand extends ListenerAdapter implements SlashCommandCon
             Graphics2D g = img.createGraphics();
 
             g.drawImage(distances.get(0).getKey().getScaledInstance(256, 256, 1), 0,0,null);
+            g.drawImage(distances.get(1).getKey().getScaledInstance(256, 256, 1), 256,0,null);
+            g.drawImage(distances.get(2).getKey().getScaledInstance(256, 256, 1), 512,0,null);
 
             String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 
@@ -206,7 +204,8 @@ public class FindColorCommand extends ListenerAdapter implements SlashCommandCon
                         ).addOption(
                                 OptionType.STRING,
                                 "code",
-                                "El código HEX del color."
+                                "El código HEX del color.",
+                                true
                         ).setNameLocalization(
                                 DiscordLocale.SPANISH,
                                 "código"

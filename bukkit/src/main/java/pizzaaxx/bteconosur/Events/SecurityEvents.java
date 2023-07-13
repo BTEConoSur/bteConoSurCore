@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.Events;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
@@ -35,5 +36,10 @@ public class SecurityEvents implements Listener {
             List<String> ids = plugin.getProjectRegistry().getProjectsAt(event.getPlayer().getLocation(), new MemberProjectSelector(event.getPlayer().getUniqueId()));
             event.setCancelled(ids.isEmpty());
         }
+    }
+
+    @EventHandler
+    public void onBlock(@NotNull ItemSpawnEvent event) {
+        event.getEntity().remove();
     }
 }
