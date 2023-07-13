@@ -171,7 +171,12 @@ public class ProjectCommand extends ListenerAdapter implements SlashCommandConta
                             project.getRegionPoints()
                     )
             );
-            event.replyEmbeds(builder.build()).addFiles(FileUpload.fromData(is, "map.png")).queue();
+            event.replyEmbeds(builder.build()).addFiles(FileUpload.fromData(is, "map.png"))
+                    .addComponents(
+                            ActionRow.of(
+                                    plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                            )
+                    ).queue();
         }
 
     }
