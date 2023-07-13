@@ -483,6 +483,22 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
         return false;
     }
 
+    public void deleteRequest(UUID target) throws SQLException {
+        if (requests.remove(target)) {
+            plugin.getSqlManager().delete(
+                    "project_join_requests",
+                    new SQLANDConditionSet(
+                            new SQLOperatorCondition(
+                                    "target", "=", target
+                            ),
+                            new SQLOperatorCondition(
+                                    "project_id", "=", id
+                            )
+                    )
+            ).execute();
+        }
+    }
+
     public boolean setTag(@Nullable ProjectTag tag) throws SQLException {
         if (tag != this.tag) {
             this.tag = tag;

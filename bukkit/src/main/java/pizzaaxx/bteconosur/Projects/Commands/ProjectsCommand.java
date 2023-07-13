@@ -1999,17 +1999,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                                             getPrefix() + "§a" + player.getName() + "§f te ha agregado al proyecto §a" + project.getDisplayName() + "§f.",
                                                             "**[PROYECTO]** » **" + player.getName() + "** te ha agregado al proyecto **" + project.getDisplayName() + "**."
                                                     );
-                                                    plugin.getSqlManager().delete(
-                                                            "project_join_requests",
-                                                            new SQLANDConditionSet(
-                                                                    new SQLOperatorCondition(
-                                                                            "target", "=", targetUUID
-                                                                    ),
-                                                                    new SQLOperatorCondition(
-                                                                            "project_id", "=", id
-                                                                    )
-                                                            )
-                                                    ).execute();
+                                                    project.deleteRequest(targetUUID);
                                                     this.run();
                                                 } catch (SQLException | IOException e) {
                                                     player.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
