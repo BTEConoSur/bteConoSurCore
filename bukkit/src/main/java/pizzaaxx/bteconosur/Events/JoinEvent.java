@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.Events;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -28,6 +29,7 @@ public class JoinEvent implements Listener {
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) throws SQLException {
         plugin.getPlayerRegistry().load(event.getPlayer().getUniqueId());
+        event.getPlayer().setGameMode(GameMode.CREATIVE);
         ServerPlayer serverPlayer = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(Color.GREEN);
