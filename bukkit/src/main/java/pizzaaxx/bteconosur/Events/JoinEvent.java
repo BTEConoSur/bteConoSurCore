@@ -76,5 +76,6 @@ public class JoinEvent implements Listener {
             }
             event.getPlayer().sendMessage("§8+---------------------------------------------------+");
         }
+        plugin.getNotificationsService().deleteNotifications(event.getPlayer().getUniqueId());
     }
 }
