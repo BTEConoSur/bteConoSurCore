@@ -99,6 +99,7 @@ import pizzaaxx.bteconosur.WorldEdit.WorldEditHandler;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.*;
@@ -449,6 +450,13 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         LinkCommand linkCommand = new LinkCommand(this);
         BuildEventCommand buildEventCommand = new BuildEventCommand(this);
+        FindColorCommand findColorCommand;
+        try {
+            findColorCommand = new FindColorCommand(this);
+        } catch (URISyntaxException | IOException e) {
+            this.error("Plugin starting stopped. FindColor command startup failed.");
+            return;
+        }
 
         // --- DISCORD ---
         Configuration discordConfig = new Configuration(this, "discord/token");
@@ -526,7 +534,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new ModsCommand(this),
                 new RegisterFinishedCommand(this),
                 fuzzyMatcherListener,
-                new PatternCommand(this)
+                new PatternCommand(this),
+                findColorCommand
         );
 
         try {
