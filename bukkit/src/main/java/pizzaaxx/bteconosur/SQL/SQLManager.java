@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.SQL;
 
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Configuration.Configuration;
@@ -27,7 +29,7 @@ import java.util.UUID;
 public class SQLManager {
 
     private final BTEConoSur plugin;
-    private final Connection connection;
+    private Connection connection;
 
     private static final String AUTO_RECONNECT_PROPERTY = "?autoReconnect=true&useUnicode=yes";
     private static final String CLASS_NAME = "com.mysql.jdbc.Driver";
@@ -46,6 +48,27 @@ public class SQLManager {
                 databaseConfig.getString("username"),
                 databaseConfig.getString("password")
         );
+
+        BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                Configuration databaseConfig = new Configuration(plugin, "database");
+
+                String url = databaseConfig.getString("url") + AUTO_RECONNECT_PROPERTY;
+
+                try {
+                    connection = DriverManager.getConnection(
+                            url,
+                            databaseConfig.getString("username"),
+                            databaseConfig.getString("password")
+                    );
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        runnable.runTaskTimer(plugin, 0, 18000);
     }
 
     public Connection getConnection() {

@@ -32,13 +32,6 @@ public class PostsListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
-        if (event.getAuthor().isBot()) {
-            if (!event.getAuthor().getId().equals(plugin.getBot().getSelfUser().getId())) {
-                event.getMessage().delete().queue();
-            }
-            return;
-        }
-
         if (event.getChannelType() !=  ChannelType.GUILD_PUBLIC_THREAD) {
             return;
         }
@@ -64,6 +57,13 @@ public class PostsListener extends ListenerAdapter {
             ).retrieve();
 
             if (set.next()) {
+
+                if (event.getAuthor().isBot()) {
+                    if (!event.getAuthor().getId().equals(plugin.getBot().getSelfUser().getId())) {
+                        event.getMessage().delete().queue();
+                    }
+                    return;
+                }
 
                 if (!plugin.getLinksRegistry().isLinked(event.getAuthor().getId())) {
                     event.getMessage().delete().queue();

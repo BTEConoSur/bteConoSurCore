@@ -159,7 +159,7 @@ public class AssetsCommand implements CommandExecutor, TabCompleter {
                     int xDif = max.getBlockX() - min.getBlockX();
                     int yDif = max.getBlockY() - min.getBlockY();
                     int zDif = max.getBlockZ() - min.getBlockZ();
-                    if (xDif > 20 || yDif > 40 || zDif > 20) {
+                    if (xDif > 20 || yDif > 80 || zDif > 20) {
                         p.sendMessage(prefix + "Los §oassets§r tienen un tamaño máximo de §a20x20x40§f bloques. Actual: §a" + xDif + "x" + zDif + "x" + yDif + "§f.");
                         return true;
                     }

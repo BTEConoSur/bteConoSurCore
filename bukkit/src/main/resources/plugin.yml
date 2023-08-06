@@ -4,6 +4,7 @@ main: pizzaaxx.bteconosur.BTEConoSur
 
 loadbefore:
   - TAB
+  - bteChileBot
 
 depend:
   - WorldEdit
@@ -118,4 +119,7 @@ commands:
     permission: op
   registerfinished:
     description: Legacy.
+    permission: op
+  reloadplayer:
+    description: Reload a player data.
     permission: op

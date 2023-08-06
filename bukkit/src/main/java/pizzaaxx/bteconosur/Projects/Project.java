@@ -722,6 +722,41 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
         ).execute();
     }
 
+    public void setFinishedPostTags() throws SQLException{
+        ResultSet set = plugin.getSqlManager().select(
+                "posts",
+                new SQLColumnSet(
+                        "channel_id", "message_id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "target_type", "=", "project"
+                        ),
+                        new SQLOperatorCondition(
+                                "target_id", "=", this.getId()
+                        )
+                )
+        ).retrieve();
+
+        if (set.next()) {
+            ThreadChannel channel = this.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+            if (channel == null) {
+                return;
+            }
+            Set<ForumTag> tags = new HashSet<>();
+
+            ForumChannel forumChannel = country.getProjectsForumChannel();
+
+            tags.add(forumChannel.getAvailableTagsByName("Terminado", true).get(0));
+            if (this.getTag() != null) {
+                tags.add(forumChannel.getAvailableTagsByName(this.getTag().toString(), true).get(0));
+            }
+            tags.add(forumChannel.getAvailableTagsByName(this.getType().getDisplayName(), true).get(0));
+
+            channel.getManager().setAppliedTags(tags).queue();
+        }
+    }
+
     public void updatePostTags() throws SQLException {
         ResultSet set = plugin.getSqlManager().select(
                 "posts",

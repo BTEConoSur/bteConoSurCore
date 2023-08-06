@@ -273,7 +273,7 @@ public class ReviewProjectAction {
                     }
                     channel.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!").queue();
 
-                    project.updatePostTags();
+                    project.setFinishedPostTags();
 
                     plugin.getSqlManager().update(
                             "posts",

@@ -227,7 +227,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                 URL baseURL = new URL("https://www.mapquestapi.com/staticmap/v5/map?key=" + plugin.getSatMapHandler().getKey() + "&size=1280,720&format=png&center=" + coords.getLat() + "," + coords.getLon() + "&zoom=18&type=sat");
                 InputStream baseIS = HttpRequest.get(baseURL).execute().getInputStream();
 
-                URL iconURL = new URL("https://cravatar.eu/helmavatar/" + s.getUUID() + "/64.png");
+                URL iconURL = new URL("https://crafatar.com/avatars/" + s.getUUID() + "?size=64");
                 InputStream iconIS = HttpRequest.get(iconURL).execute().getInputStream();
 
                 BufferedImage image = ImageIO.read(baseIS);
@@ -465,7 +465,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                 ActionRow.of(
                                         Button.of(
                                                 ButtonStyle.PRIMARY,
-                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + page + "&uuid=" + s.getUUID().toString(),
                                                 "Pág. anterior",
                                                 Emoji.fromUnicode("U+2B05")
                                         ).withDisabled(page <= 1),
@@ -476,7 +476,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                         ).withDisabled(true),
                                         Button.of(
                                                 ButtonStyle.PRIMARY,
-                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + page + "&uuid=" + s.getUUID().toString(),
                                                 "Pág. siguiente",
                                                 Emoji.fromUnicode("U+27A1")
                                         ).withDisabled(page >= ((Math.floorDiv(count, 25) + 1)))
@@ -505,7 +505,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                 ActionRow.of(
                                         Button.of(
                                                 ButtonStyle.PRIMARY,
-                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "playerCommandProjectsBack?user=" + event.getUser().getId() + "&page=" + page + "&uuid=" + s.getUUID().toString(),
                                                 "Pág. anterior",
                                                 Emoji.fromUnicode("U+2B05")
                                         ).withDisabled(page <= 1),
@@ -516,7 +516,7 @@ public class PlayerCommand extends ListenerAdapter implements SlashCommandContai
                                         ).withDisabled(true),
                                         Button.of(
                                                 ButtonStyle.PRIMARY,
-                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + (page - 1) + "&uuid=" + s.getUUID().toString(),
+                                                "playerCommandProjectsNext?user=" + event.getUser().getId() + "&page=" + page + "&uuid=" + s.getUUID().toString(),
                                                 "Pág. siguiente",
                                                 Emoji.fromUnicode("U+27A1")
                                         ).withDisabled(page >= ((Math.floorDiv(count, 25) + 1)))

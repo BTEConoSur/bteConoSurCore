@@ -41,6 +41,7 @@ import pizzaaxx.bteconosur.Commands.*;
 import pizzaaxx.bteconosur.Commands.Custom.CustomCommandsManager;
 import pizzaaxx.bteconosur.Commands.Managing.DeletePlayerDataCommand;
 import pizzaaxx.bteconosur.Commands.Managing.DonatorCommand;
+import pizzaaxx.bteconosur.Commands.Managing.ReloadPlayerCommand;
 import pizzaaxx.bteconosur.Commands.Managing.StreamerCommand;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
@@ -56,6 +57,7 @@ import pizzaaxx.bteconosur.Discord.SlashCommands.*;
 import pizzaaxx.bteconosur.Events.*;
 import pizzaaxx.bteconosur.Help.HelpCommand;
 import pizzaaxx.bteconosur.Inventory.InventoryHandler;
+import pizzaaxx.bteconosur.LegacyConversion.ArgentinaFix;
 import pizzaaxx.bteconosur.LegacyConversion.LegacyConverterCommand;
 import pizzaaxx.bteconosur.LegacyConversion.RegisterFinishedCommand;
 import pizzaaxx.bteconosur.Player.Managers.ChatManager;
@@ -459,8 +461,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         }
 
         // --- DISCORD ---
-        Configuration discordConfig = new Configuration(this, "discord/token");
-        String token = discordConfig.getString("token");
+        Configuration config = new Configuration(this, "config");
+        String token = config.getString("token");
 
         JDABuilder jdaBuilder = JDABuilder.createDefault(token);
         HelpCommand helpCommand = new HelpCommand(this);
@@ -559,16 +561,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                     this.getDiscordHandler().checkCommand(container);
                 }
             }
-
-            bot.retrieveCommands().queue(
-                    commands -> {
-                        for (Command command : commands) {
-                            if (command.getName().equals("createcity")) {
-                                command.delete().queue();
-                            }
-                        }
-                    }
-            );
         } catch (InterruptedException e) {
             this.error("Plugin starting stopped. Bot startup failed.");
             return;
@@ -610,6 +602,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("lobby").setExecutor(new LobbyCommand(this));
         getCommand("convertlegacy").setExecutor(new LegacyConverterCommand(this));
         getCommand("registerfinished").setExecutor(new RegisterFinishedCommand(this));
+        getCommand("reloadplayer").setExecutor(new ReloadPlayerCommand(this));
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);

@@ -1,6 +1,11 @@
 package pizzaaxx.bteconosur.Projects.Commands.Listeners;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.RegionGroup;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -272,10 +277,9 @@ public class ProjectRedefineRequestListener extends ListenerAdapter implements P
                         ServerPlayer s = plugin.getPlayerRegistry().get(project.getOwner());
 
                         List<BlockVector2D> regionPoints = new ArrayList<>();
-                        List<Object> rawCoords = plugin.getJSONMapper().readValue(set.getString("region_points"), ArrayList.class);
-                        for (Object obj : rawCoords) {
-                            Map<String, Double> coords = (Map<String, Double>) obj;
-                            regionPoints.add(new BlockVector2D(coords.get("x"), coords.get("z")));
+                        JsonNode coordsNode = plugin.getJSONMapper().readTree(set.getString("region_points"));
+                        for (JsonNode coord : coordsNode) {
+                            regionPoints.add(new BlockVector2D(coord.path("x").asDouble(), coord.path("z").asDouble()));
                         }
 
                         ProtectedPolygonalRegion region = new ProtectedPolygonalRegion(
@@ -283,6 +287,17 @@ public class ProjectRedefineRequestListener extends ListenerAdapter implements P
                                 regionPoints,
                                 -100, 8000
                         );
+                        region.setFlag(DefaultFlag.BUILD, StateFlag.State.ALLOW);
+                        region.setFlag(DefaultFlag.BUILD.getRegionGroupFlag(), RegionGroup.MEMBERS);
+                        region.setPriority(1);
+
+                        FlagRegistry registry = plugin.getWorldGuard().getFlagRegistry();
+
+                        region.setFlag((StateFlag) registry.get("worldedit"), StateFlag.State.ALLOW);
+                        region.setFlag(registry.get("worldedit").getRegionGroupFlag(), RegionGroup.MEMBERS);
+
+                        region.setMembers(project.getRegion().getMembers());
+
                         plugin.getRegionManager().addRegion(region);
 
                         plugin.getSqlManager().update(

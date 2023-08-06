@@ -379,10 +379,10 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
             case "info":
             case "manage": {
 
-                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation(), new MemberProjectSelector(p.getUniqueId()));
+                List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
 
                 if (projectIDs.size() == 0) {
-                    p.sendMessage(getPrefix() + "No estás dentro de ningún proyecto del que seas miembro.");
+                    p.sendMessage(getPrefix() + "No estás dentro de ningún proyecto.");
                 } else if (projectIDs.size() == 1) {
 
                     this.openManageInventory(p, projectIDs.get(0));
@@ -458,7 +458,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                 String name = args[1];
 
-                if (!name.matches("[a-zA-Z1-9_]{1,32}")) {
+                if (!name.matches("[a-zA-Z1-9_]{1,28}")) {
                     p.sendMessage(getPrefix() + "Introduce un nombre válido.");
                     return true;
                 }
@@ -516,9 +516,8 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                 Collections.sort(projectIDs);
                 projectIDs.add(0, "a");
-                projectIDs.add(1, "b");
 
-                List<List<String>> idLists = Lists.partition(projectIDs, 14);
+                List<List<String>> idLists = Lists.partition(projectIDs, 12);
 
                 BookUtil.BookBuilder builder = BookUtil.writtenBook();
                 List<BaseComponent[]> pages = new ArrayList<>();
@@ -532,8 +531,6 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                             page.add(
                                     BookUtil.TextBuilder.of("§7-[ §aTUS PROYECTOS§7 ]-").build()
                             );
-                            page.newLine();
-                        } else if (id.equals("b")) {
                             page.newLine();
                             page.newLine();
                         } else {
@@ -1208,6 +1205,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                     plugin.getInventoryHandler().open(p, actionGUI);
 
                 } else {
+
                     PaginatedInventoryGUI gui = new PaginatedInventoryGUI(
                             6,
                             "Elige un proyecto para revisar"
@@ -1215,10 +1213,6 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                     for (String id : projectIDs) {
                         Project project = plugin.getProjectRegistry().get(id);
-
-                        if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
-                            p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
-                        }
 
                         gui.add(
                                 project.getItem(),
@@ -1258,12 +1252,16 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                     actionGUI.setLCAction(
                                             event -> {
                                                 try {
+                                                    if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
+                                                        p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
+                                                        return;
+                                                    }
+                                                    event.closeGUI();
                                                     project.review(ReviewProjectAction.ReviewAction.ACCEPT, p.getUniqueId()).execute();
                                                     p.sendMessage(getPrefix() + "Has aceptado el proyecto §a" + project.getDisplayName() + "§f.");
                                                 } catch (SQLException | IOException e) {
                                                     p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                 }
-                                                event.closeGUI();
                                             },
                                             2
                                     );
@@ -1271,12 +1269,12 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                     actionGUI.setLCAction(
                                             event -> {
                                                 try {
+                                                    event.closeGUI();
                                                     project.review(ReviewProjectAction.ReviewAction.CONTINUE, p.getUniqueId()).execute();
                                                     p.sendMessage(getPrefix() + "Has continuado el proyecto §a" + project.getDisplayName() + "§f.");
                                                 } catch (SQLException | IOException e) {
                                                     p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                 }
-                                                event.closeGUI();
                                             },
                                             4
                                     );
@@ -1284,12 +1282,12 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                     actionGUI.setLCAction(
                                             event -> {
                                                 try {
+                                                    event.closeGUI();
                                                     project.review(ReviewProjectAction.ReviewAction.DENY, p.getUniqueId()).execute();
                                                     p.sendMessage(getPrefix() + "Has rechazado el proyecto §a" + project.getDisplayName() + "§f.");
                                                 } catch (SQLException | IOException e) {
                                                     p.sendMessage(getPrefix() + "Ha ocurrido un error en la base de datos.");
                                                 }
-                                                event.closeGUI();
                                             },
                                             6
                                     );
@@ -1360,10 +1358,6 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                         }
 
                     }
-
-                    page.newLine();
-                    page.newLine();
-                    page.add("§7\"" + type.getDescription() + "\"");
 
                     pages.add(page.build());
                 }

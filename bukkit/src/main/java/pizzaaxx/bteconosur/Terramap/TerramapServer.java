@@ -20,7 +20,7 @@ public class TerramapServer {
         server = HttpServer.create(
                 new InetSocketAddress(
                         "0.0.0.0",
-                        25619
+                        19370
                 ),
                 0
         );

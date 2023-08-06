@@ -119,7 +119,10 @@ public class ProjectRegistry {
         for (ProtectedRegion region : set) {
             if (region.getId().startsWith("project_")) {
                 String id = region.getId().replace("project_", "");
-                Project project = plugin.getProjectRegistry().get(id);
+                if (!this.exists(id)) {
+                    continue;
+                }
+                Project project = this.get(id);
                 boolean applies = true;
                 for (ProjectRegionSelector selector : selectors) {
                     if (!selector.applies(project)) {

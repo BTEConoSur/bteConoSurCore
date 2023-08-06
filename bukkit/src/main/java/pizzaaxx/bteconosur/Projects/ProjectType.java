@@ -29,7 +29,6 @@ public class ProjectType implements JSONParsable {
     private final List<Integer> pointsOptions;
     private final Map<String, Integer> unlockProjects;
     private final Color color;
-    private final String description;
 
     public ProjectType(@NotNull BTEConoSur plugin, Country country, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -59,7 +58,6 @@ public class ProjectType implements JSONParsable {
             this.unlockProjects = plugin.getJSONMapper().readValue(set.getString("unlock_projects"), HashMap.class);
 
             this.color = Color.decode("#" + set.getString("color"));
-            this.description = set.getString("description");
         } else {
             throw new IllegalArgumentException();
         }
@@ -87,10 +85,6 @@ public class ProjectType implements JSONParsable {
 
     public List<Integer> getPointsOptions() {
         return pointsOptions;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public Integer getRequiredProjects(String projectTypeName) {

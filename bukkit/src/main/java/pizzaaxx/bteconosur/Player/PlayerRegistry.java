@@ -112,7 +112,7 @@ public class PlayerRegistry { // REGISTRO CIVIL XD
         return null;
     }
 
-    private void unload(UUID uuid) {
+    public void unload(UUID uuid) {
         cache.remove(uuid);
         deletionCache.remove(uuid);
     }

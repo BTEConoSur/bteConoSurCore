@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,6 +15,7 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Configuration.Configuration;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
@@ -40,7 +42,39 @@ public class LegacyConverterCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (args.length < 1) {
+            return true;
+        }
+
+        String countryName = args[0];
+
+        Country c = plugin.getCountryManager().get(countryName);
+        if (c == null) {
+            return true;
+        }
+
+
+        int counter = 0;
+
+        int sum = 0;
         for (Map.Entry<String, ProtectedRegion> entry : plugin.getRegionManager().getRegions().entrySet()) {
+            Location loc = new Location(plugin.getWorld(), entry.getValue().getMaximumPoint().getX(), 100, entry.getValue().getMaximumPoint().getZ());
+            Country country = plugin.getCountryManager().getCountryAt(loc);
+            if (country == null) {
+                continue;
+            }
+            if (entry.getKey().startsWith("project_") && country.equals(c)) {
+                sum++;
+            }
+        }
+
+        plugin.log(String.valueOf(sum));
+
+        for (Map.Entry<String, ProtectedRegion> entry : plugin.getRegionManager().getRegions().entrySet()) {
+
+            if (counter >= 3) {
+                break;
+            }
 
             String regionName = entry.getKey();
             ProtectedRegion region = entry.getValue();
@@ -51,15 +85,21 @@ public class LegacyConverterCommand implements CommandExecutor {
 
                 String id = regionName.replace("project_", "");
 
+                if (plugin.getProjectRegistry().exists(id)) {
+                    continue;
+                }
+
                 File file = new File(plugin.getDataFolder(), "projects/" + id + ".yml");
 
                 if (!file.exists()) {
+                    plugin.getRegionManager().removeRegion(regionName);
                     continue;
                 }
 
                 Configuration config = new Configuration(plugin, "projects/" + id);
 
                 if (!config.contains("country") || !config.contains("difficulty")) {
+                    plugin.getRegionManager().removeRegion(regionName);
                     continue;
                 }
 
@@ -70,7 +110,7 @@ public class LegacyConverterCommand implements CommandExecutor {
 
                 Country country = plugin.getCountryManager().get(config.getString("country"));
 
-                if (country == null) {
+                if (country == null || !country.equals(c)) {
                     continue;
                 }
 
@@ -86,14 +126,27 @@ public class LegacyConverterCommand implements CommandExecutor {
 
                 String name = config.getString("name", null);
 
-                Set<UUID> members = region.getMembers().getUniqueIds();
-                members.remove(ownerUUID);
+                Set<UUID> members = new HashSet<>();
+                Set<UUID> allMembers = new HashSet<>();
+                if (pending) {
+                    if (config.contains("members")) {
+                        for (String uuidString : config.getStringList("members")) {
+                            members.add(UUID.fromString(uuidString));
+                        }
+                        allMembers.addAll(members);
+                    }
+                    allMembers.add(ownerUUID);
+                } else {
+                    allMembers.addAll(region.getMembers().getUniqueIds());
+                    members.addAll(region.getMembers().getUniqueIds());
+                    members.remove(ownerUUID);
+                }
 
                 String legacyTag = config.getString("tag", null);
 
                 ProjectTag tag = null;
                 if (legacyTag != null) {
-                    tag = ProjectTag.valueOf(legacyTag.replace("centros_comerciales", "shopping"));
+                    tag = ProjectTag.valueOf(legacyTag.replace("centros_comerciales", "shopping").toUpperCase());
                 }
 
                 Set<City> cities = plugin.getCityManager().getCitiesAt(region, country);
@@ -102,7 +155,7 @@ public class LegacyConverterCommand implements CommandExecutor {
                     cityNames.add(city.getDisplayName());
                 }
 
-                for (UUID uuid : region.getMembers().getUniqueIds()) {
+                for (UUID uuid : allMembers) {
 
                     if (!plugin.getPlayerRegistry().hasPlayedBefore(uuid)) {
 
@@ -119,40 +172,12 @@ public class LegacyConverterCommand implements CommandExecutor {
                             }
                         }
 
-                        Map<Country, Map<ProjectType, Double>> points = new HashMap<>();
-                        ConfigurationSection pointsSection = playerConfig.getConfigurationSection("points");
-                        for (String key : pointsSection.getKeys(false)) {
-                            int legacyPoints = pointsSection.getInt(key);
-
-                            Country c = plugin.getCountryManager().get(key);
-
-                            int counterPoints = legacyPoints;
-
-                            Map<ProjectType, Double> pointsMap = new HashMap<>();
-                            int counter = 1;
-                            int size = c.getProjectTypes().size();
-                            for (ProjectType projectType : c.getProjectTypes()) {
-
-                                if (counter == size) {
-                                    pointsMap.put(projectType, (double) counterPoints);
-                                    break;
-                                }
-
-                                int max = projectType.getPointsOptions().get(projectType.getPointsOptions().size() - 1);
-                                if (counterPoints > max * 3) {
-                                    pointsMap.put(projectType, (double) (max * 3));
-                                    counterPoints -= max * 3;
-                                } else {
-                                    pointsMap.put(projectType, (double) counterPoints);
-                                }
-                            }
-                            points.put(c, pointsMap);
-                        }
-
                         Map<String, String> presets = new HashMap<>();
-                        ConfigurationSection presetsSection = playerConfig.getConfigurationSection("presets");
-                        for (String preset : presetsSection.getKeys(false)) {
-                            presets.put(preset, presetsSection.getString(preset));
+                        if (playerConfig.contains("presets")) {
+                            ConfigurationSection presetsSection = playerConfig.getConfigurationSection("presets");
+                            for (String preset : presetsSection.getKeys(false)) {
+                                presets.put(preset, presetsSection.getString(preset));
+                            }
                         }
 
                         try {
@@ -176,15 +201,13 @@ public class LegacyConverterCommand implements CommandExecutor {
                                             )
                                     )
                             ).execute();
-                            if (!points.isEmpty()) {
-                                plugin.getSqlManager().insert(
-                                        "project_managers",
-                                        new SQLValuesSet(
-                                                new SQLValue("uuid", uuid),
-                                                new SQLValue("points", points)
-                                        )
-                                ).execute();
-                            }
+                            plugin.getSqlManager().insert(
+                                    "project_managers",
+                                    new SQLValuesSet(
+                                            new SQLValue("uuid", uuid),
+                                            new SQLValue("points", "{}")
+                                    )
+                            ).execute();
                             if (playerConfig.contains("discord.name")) {
                                 String dscName = playerConfig.getString("discord.name");
                                 String dscDiscriminator = playerConfig.getString("discord.discriminator");
@@ -217,7 +240,7 @@ public class LegacyConverterCommand implements CommandExecutor {
                                     new SQLValue("name", name),
                                     new SQLValue("country", country),
                                     new SQLValue("cities", cities),
-                                    new SQLValue("pending", pending),
+                                    new SQLValue("pending", (pending ? new Date(System.currentTimeMillis()) : null)),
                                     new SQLValue("type", type),
                                     new SQLValue("points", projectPoints),
                                     new SQLValue("members", members),
@@ -227,8 +250,15 @@ public class LegacyConverterCommand implements CommandExecutor {
                     ).execute();
                     plugin.getProjectRegistry().registerID(id);
                     Project project = plugin.getProjectRegistry().get(id);
+                    if (ownerUUID != null) {
+                        ServerPlayer s = plugin.getPlayerRegistry().get(ownerUUID);
+                        s.getProjectManager().addProject(project);
+                    }
+                    for (UUID member : members) {
+                        plugin.getPlayerRegistry().get(member).getProjectManager().addProject(project);
+                    }
 
-                    {
+                    if (project.isClaimed()) {
                         List<String> memberNames = new ArrayList<>();
                         for (UUID memberUUID : project.getMembers()) {
                             memberNames.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
@@ -243,7 +273,7 @@ public class LegacyConverterCommand implements CommandExecutor {
                         tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
 
                         project.getCountry().getProjectsForumChannel().createForumPost(
-                                        "Proyecto" + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cityNames)),
+                                        "Proyecto " + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cityNames)),
                                         MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
                                 )
                                 .setEmbeds(
@@ -290,7 +320,7 @@ public class LegacyConverterCommand implements CommandExecutor {
                                                                 new SQLValue("members", project.getAllMembers()),
                                                                 new SQLValue("country", project.getCountry()),
                                                                 new SQLValue("cities", project.getCities()),
-                                                                new SQLValue("name", "Proyecto" + project.getId().toUpperCase()),
+                                                                new SQLValue("name", "Proyecto " + project.getId().toUpperCase()),
                                                                 new SQLValue("description", "N/A"),
                                                                 new SQLValue("message_id", forumPost.getMessage().getId())
                                                         )
@@ -307,6 +337,8 @@ public class LegacyConverterCommand implements CommandExecutor {
                             (ownerUUID == null ? new Color(78, 255, 71) : new Color(255, 200, 0)),
                             id
                     );
+                    sender.sendMessage("Created project " + id.toUpperCase() + ".");
+                    counter++;
                 } catch (SQLException | IOException e) {
                     throw new RuntimeException(e);
                 }
