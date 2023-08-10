@@ -1128,6 +1128,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                     if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
                         p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
+                        return true;
                     }
 
                     InventoryGUI actionGUI = new InventoryGUI(
@@ -1217,6 +1218,13 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                         gui.add(
                                 project.getItem(),
                                 projectClickEvent -> {
+
+                                    if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
+                                        p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
+                                        projectClickEvent.closeGUI();
+                                        return;
+                                    }
+
                                     InventoryGUI actionGUI = new InventoryGUI(
                                             1,
                                             "Elige una acción"
@@ -1252,10 +1260,6 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
                                     actionGUI.setLCAction(
                                             event -> {
                                                 try {
-                                                    if (!s.getProjectManager().hasAdminPermission(project.getCountry())) {
-                                                        p.sendMessage(getPrefix() + "No tienes permisos para revisar proyectos en §a" + project.getCountry().getDisplayName() + "§f.");
-                                                        return;
-                                                    }
                                                     event.closeGUI();
                                                     project.review(ReviewProjectAction.ReviewAction.ACCEPT, p.getUniqueId()).execute();
                                                     p.sendMessage(getPrefix() + "Has aceptado el proyecto §a" + project.getDisplayName() + "§f.");

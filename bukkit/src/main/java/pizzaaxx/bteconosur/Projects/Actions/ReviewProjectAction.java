@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -243,9 +244,11 @@ public class ReviewProjectAction {
                             "**[PROYECTOS]** » Tu proyecto **" + project.getDisplayName() + "** ha sido aceptado."
                     );
 
+                    DecimalFormat format = new DecimalFormat("#.##");
+
                     s.sendNotification(
-                            project.getPrefix() + "Has obtenido §a" + (int) total + "§f puntos. §7(Proyecto: " + (int) base + " / Boost (x" + boostPercentage + "): " + boost + (futureBoosts > 0 ? " / Boost futuro: " + futureBoosts : "") + ")",
-                            "**[PROYECTOS]** » Has obtenido **" + (int) total + "** puntos. **(Proyecto: " + (int) base + " / Boost (x" + boostPercentage + "): " + boost + (futureBoosts > 0 ? " / Boost futuro: " + futureBoosts : "") + ")**"
+                            project.getPrefix() + "Has obtenido §a" + (int) total + "§f puntos. §7(Proyecto: " + (int) base + " / Boost (x" + format.format(boostPercentage) + "): " + format.format(boost) + (futureBoosts > 0 ? " / Boost futuro: " + format.format(futureBoosts) : "") + ")",
+                            "**[PROYECTOS]** » Has obtenido **" + (int) total + "** puntos. **(Proyecto: " + (int) base + " / Boost (x" + format.format(boostPercentage) + "): " + format.format(boost) + (futureBoosts > 0 ? " / Boost futuro: " + format.format(futureBoosts) : "") + ")**"
                     );
 
                     manager.addFinished(project);
