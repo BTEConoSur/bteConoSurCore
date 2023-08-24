@@ -4,6 +4,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -30,6 +32,11 @@ public class SecurityEvents implements Listener {
 
     @EventHandler
     public void onIgnite(@NotNull BlockIgniteEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onTNT(@NotNull ExplosionPrimeEvent event) {
         event.setCancelled(true);
     }
 
