@@ -233,6 +233,10 @@ public class Country implements JSONParsable, ScoreboardDisplay {
         return result;
     }
 
+    public String getShowcaseID() {
+        return showcaseID;
+    }
+
     public Set<String> getPendingProjectsIDs() {
         Set<String> result = new HashSet<>();
         try {

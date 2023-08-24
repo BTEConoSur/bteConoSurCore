@@ -381,7 +381,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
                 List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(p.getLocation());
 
-                if (projectIDs.size() == 0) {
+                if (projectIDs.isEmpty()) {
                     p.sendMessage(getPrefix() + "No estás dentro de ningún proyecto.");
                 } else if (projectIDs.size() == 1) {
 
