@@ -11,6 +11,7 @@ import pizzaaxx.bteconosur.Projects.Project;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.*;
+import pizzaaxx.bteconosur.SQL.Entities.SQLPolygon;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.StringUtils;
@@ -131,6 +132,9 @@ public class ReviewProjectAction {
                                 ),
                                 new SQLValue(
                                         "region_points", project.getRegion().getPoints()
+                                ),
+                                new SQLValue(
+                                        "region", SQLPolygon.getFromPolygonRegion(project.getRegion())
                                 )
                         )
                 ).execute();

@@ -29,6 +29,7 @@ import pizzaaxx.bteconosur.Discord.SlashCommands.SlashCommandContainer;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Finished.FinishedProject;
 import pizzaaxx.bteconosur.Projects.ProjectType;
+import pizzaaxx.bteconosur.SQL.Entities.SQLPolygon;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
@@ -238,7 +239,8 @@ public class RegisterFinishedCommand extends ListenerAdapter implements CommandE
                         new SQLValue("members", new HashSet<>()),
                         new SQLValue("owner", owner),
                         new SQLValue("tag", null),
-                        new SQLValue("region_points", vectors)
+                        new SQLValue("region_points", vectors),
+                        new SQLValue("region", SQLPolygon.getFromVectors(vectors))
                 )
         ).execute();
         plugin.getFinishedProjectsRegistry().registerID(id);
