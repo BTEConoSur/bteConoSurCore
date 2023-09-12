@@ -233,7 +233,7 @@ public class Country implements JSONParsable, ScoreboardDisplay {
         return result;
     }
 
-    public String getShowcaseID() {
+    public String getShowcaseChannelID() {
         return showcaseID;
     }
 

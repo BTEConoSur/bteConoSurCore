@@ -4,9 +4,12 @@ import com.monst.polylabel.PolyLabel;
 import com.sk89q.worldedit.BlockVector2D;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSur;
+import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Commands.TourCommand;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Discord.Showcase.ShowcaseContainer;
 import pizzaaxx.bteconosur.Projects.ProjectTag;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.Projects.ProjectWrapper;
@@ -20,8 +23,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay {
+public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay, ShowcaseContainer {
 
     private final BTEConoSur plugin;
     private final String id;
@@ -89,6 +93,23 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay 
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getOptionName() {
+        return "Proyecto " + this.name;
+    }
+
+    @Nullable
+    @Override
+    public String getOptionDescription() {
+        String citiesString = cities.stream().map(name -> plugin.getCityManager().get(name)).map(City::getDisplayName).collect(Collectors.joining(", "));
+        return id + (cities.isEmpty() ? "" : " • " + citiesString.substring(0, Math.min(citiesString.length(), 91)));
+    }
+
+    @Override
+    public boolean isMember(UUID uuid) {
+        return members.contains(uuid);
     }
 
     public Country getCountry() {

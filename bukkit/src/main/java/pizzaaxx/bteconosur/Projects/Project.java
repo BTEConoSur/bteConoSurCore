@@ -20,6 +20,7 @@ import pizzaaxx.bteconosur.Chat.PrefixHolder;
 import pizzaaxx.bteconosur.Chat.Prefixable;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Discord.Showcase.ShowcaseContainer;
 import pizzaaxx.bteconosur.Inventory.ItemBuilder;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.Actions.*;
@@ -40,7 +41,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Project implements JSONParsable, Prefixable, ProjectWrapper, ScoreboardDisplay {
+public class Project implements JSONParsable, Prefixable, ProjectWrapper, ScoreboardDisplay, ShowcaseContainer {
 
     public static int MAX_PROJECTS_PER_PLAYER = 15;
 
@@ -150,6 +151,20 @@ public class Project implements JSONParsable, Prefixable, ProjectWrapper, Scoreb
     public String getName() {
         return displayName;
     }
+
+    @Override
+    public String getOptionName() {
+        return "Proyecto " + this.getDisplayName();
+    }
+
+    @org.jetbrains.annotations.Nullable
+    @Override
+    public String getOptionDescription() {
+        String citiesString = cities.stream().map(name -> plugin.getCityManager().get(name)).map(City::getDisplayName).collect(Collectors.joining(", "));
+        return id + (cities.isEmpty() ? "" : " • " + citiesString.substring(0, Math.min(citiesString.length(), 91)));
+    }
+
+
 
     public Country getCountry() {
         return country;

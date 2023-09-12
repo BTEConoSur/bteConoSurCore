@@ -27,11 +27,13 @@ import pizzaaxx.bteconosur.BTEConoSur;
 import pizzaaxx.bteconosur.Cities.City;
 import pizzaaxx.bteconosur.Commands.TourCommand;
 import pizzaaxx.bteconosur.Countries.Country;
+import pizzaaxx.bteconosur.Discord.Showcase.ShowcaseContainer;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
 import pizzaaxx.bteconosur.Projects.ProjectType;
 import pizzaaxx.bteconosur.SQL.Columns.SQLColumnSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLANDConditionSet;
 import pizzaaxx.bteconosur.SQL.Conditions.SQLOperatorCondition;
+import pizzaaxx.bteconosur.SQL.Entities.SQLPolygon;
 import pizzaaxx.bteconosur.SQL.Values.SQLValue;
 import pizzaaxx.bteconosur.SQL.Values.SQLValuesSet;
 import pizzaaxx.bteconosur.Utils.CoordinatesUtils;
@@ -54,7 +56,28 @@ import java.util.*;
 import static pizzaaxx.bteconosur.BuildEvents.BuildEvent.Status.*;
 import static pizzaaxx.bteconosur.Utils.StringUtils.LOWER_CASE;
 
-public class BuildEvent implements TourCommand.TourDisplay {
+public class BuildEvent implements TourCommand.TourDisplay, ShowcaseContainer {
+
+    @Override
+    public String getOptionName() {
+        return "Evento " + name;
+    }
+
+    @Nullable
+    @Override
+    public String getOptionDescription() {
+        return null;
+    }
+
+    @Override
+    public boolean isMember(UUID uuid) {
+        return members.contains(uuid);
+    }
+
+    @Override
+    public Set<String> getCities() {
+        return new HashSet<>();
+    }
 
     public enum Status {
         EDITED, POSTED, ACTIVE, FINISHED
@@ -320,6 +343,7 @@ public class BuildEvent implements TourCommand.TourDisplay {
 
     public void setRegion(List<BlockVector2D> points) throws SQLException {
         this.update("region_points", points);
+        this.update("region", SQLPolygon.getFromVectors(points));
         ProtectedPolygonalRegion r = new ProtectedPolygonalRegion(
                 "event_" + id,
                 points,

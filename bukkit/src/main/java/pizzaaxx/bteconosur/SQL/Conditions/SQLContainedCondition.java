@@ -18,6 +18,14 @@ public class SQLContainedCondition<K> implements SQLCondition {
 
     @Override
     public String getString() {
+        if (values.isEmpty()) {
+            if (contained) {
+                return "1 = 2";
+            } else {
+                return "1 = 1";
+            }
+        }
+
         StringBuilder builder = new StringBuilder();
         builder.append(column).append((contained?" IN ":" NOT IN ")).append("(");
         int counter = 0;
