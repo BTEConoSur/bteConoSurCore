@@ -535,7 +535,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new RegisterFinishedCommand(this),
                 fuzzyMatcherListener,
                 new PatternCommand(this),
-                findColorCommand
+                findColorCommand,
+                new SchematicCommand(this)
         );
 
         try {
