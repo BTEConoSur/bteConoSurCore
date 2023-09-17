@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -80,9 +81,25 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             assert subcommandName != null;
             switch (subcommandName) {
                 case "city":
-                    break;
+                    OptionMapping cityMapping = event.getOption("city");
+                    assert cityMapping != null;
+                    String cityName = cityMapping.getAsString();
+
+                    try {
+                        this.respondCity(event, cityName);
+                    } catch (SQLException e) {
+                        DiscordUtils.respondError(event, "Ha ocurrido un error.");
+                    }
                 case "address":
-                    break;
+                    OptionMapping addressMapping = event.getOption("address");
+                    assert addressMapping != null;
+                    String address = addressMapping.getAsString();
+
+                    try {
+                        this.respondAddress(event, address);
+                    } catch (SQLException | IOException e) {
+                        DiscordUtils.respondError(event, "Ha ocurrido un error.");
+                    }
             }
         }
     }
@@ -118,25 +135,19 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
         if (names.isEmpty()) {
             DiscordUtils.respondError(event, "No se ha encontrado ninguna ciudad con ese nombre.");
         } else if (names.size() == 1) {
-            this.respondCityImage(event, names.get(0));
+            this.respondCityImage(event, names.get(0), 0);
         } else {
             if (zeros.isEmpty()) {
                 this.respondCitySelector(event, names);
             } else if (zeros.size() == 1) {
-                this.respondCityImage(event, zeros.get(0));
+                this.respondCityImage(event, zeros.get(0), 0);
             } else {
                 this.respondCitySelector(event, zeros);
             }
         }
     }
 
-    public void respondCitySelector(IReplyCallback event, List<String> options) {
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            event.deferReply().queue();
-        } else if (event instanceof IMessageEditCallback) {
-            ((IMessageEditCallback) event).deferEdit().queue();
-        }
+    public void respondCitySelector(@NotNull IReplyCallback event, @NotNull List<String> options) {
 
         StringSelectMenu.Builder menu = StringSelectMenu.create("imageCommandCitySelector?user=" + event.getUser().getId());
         menu.setPlaceholder("Se han encontrado " + options.size() + " opciones:");
@@ -151,14 +162,206 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             );
         }
 
+        if (event instanceof SlashCommandInteractionEvent) {
+            event.replyComponents(
+                    ActionRow.of(
+                            menu.build()
+                    )
+            ).queue();
+        } else if (event instanceof IMessageEditCallback) {
+            IMessageEditCallback editCallback = (IMessageEditCallback) event;
+            editCallback.editComponents(
+                    ActionRow.of(
+                            menu.build()
+                    )
+            ).setReplace(true).queue();
+        }
     }
 
-    public void respondCityImage() {
+    public void respondCityImage(IReplyCallback event, String cityName, int index) throws SQLException {
+
+        if (event instanceof SlashCommandInteractionEvent) {
+            event.deferReply().queue();
+        } else if (event instanceof IMessageEditCallback) {
+            ((IMessageEditCallback) event).deferEdit().queue();
+        }
+
+        if (!plugin.getCityManager().exists(cityName)) {
+            DiscordUtils.respondError(event, "La ciudad no existe.");
+            return;
+        }
+
+        City city = plugin.getCityManager().get(cityName);
+
+        ResultSet set = plugin.getSqlManager().select(
+                "showcases",
+                new SQLColumnSet(
+                        "id"
+                ),
+                new SQLANDConditionSet(
+                        new SQLJSONArrayCondition("cities", cityName)
+                )
+        ).retrieve();
+
+        List<String> showcaseIDs = new ArrayList<>();
+        while (set.next()) {
+            showcaseIDs.add(set.getString("id"));
+        }
+
+        if (showcaseIDs.isEmpty()) {
+            event.getHook().editOriginalEmbeds(
+                    DiscordUtils.fastEmbed(
+                            Color.RED,
+                            "No hay imágenes en esta ciudad."
+                    )
+            ).setActionRow(
+                    Button.of(
+                            ButtonStyle.PRIMARY,
+                            "imagesCommandCitySearchNew?user=" + event.getUser().getId(),
+                            "Buscar otra dirección",
+                            Emoji.fromUnicode("U+1F50E")
+                    )
+            ).setReplace(true).queue();
+            return;
+        }
+
+        int finalIndex = index < 0 ? showcaseIDs.size() - 1 : (index >= showcaseIDs.size() ? 0 : index);
+
+        String showcaseId = showcaseIDs.get(finalIndex);
+
+        ResultSet showcaseSet = plugin.getSqlManager().select(
+                "showcases",
+                new SQLColumnSet("*"),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "id", "=", showcaseId
+                        )
+                )
+        ).retrieve();
+
+        showcaseSet.next();
+
+        Country country = plugin.getCountryManager().get(showcaseSet.getString("country"));
+
+        try {
+            country.getShowcaseChannel().retrieveMessageById(showcaseSet.getString("message_id")).queue(
+                    message -> {
+                        try {
+                            EmbedBuilder builder = new EmbedBuilder();
+                            builder.setColor(Color.GREEN);
+                            DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+                            builder.setFooter("Fecha: " + format.format(new Date(message.getTimeCreated().toInstant().toEpochMilli())));
+                            builder.setImage(showcaseSet.getString("url"));
+                            builder.addField("Autor:", "<@" + message.getAuthor().getId() + ">", false);
+                            builder.addField("Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
+
+                            builder.setAuthor(
+                                    "Imágenes de " + city.getDisplayName()
+                            );
+
+                            String targetID = showcaseSet.getString("target_id");
+                            switch (showcaseSet.getString("target_type")) {
+                                case "project":
+                                    builder.setTitle(
+                                            "Proyecto " + plugin.getProjectRegistry().get(targetID).getDisplayName()
+                                    );
+                                    break;
+                                case "finished":
+                                    builder.setTitle(
+                                            "Proyecto " + plugin.getFinishedProjectsRegistry().get(targetID).getDisplayName()
+                                    );
+                                    break;
+                                case "event":
+                                    builder.setTitle(
+                                            "Evento " + plugin.getBuildEventsRegistry().get(targetID).getName()
+                                    );
+                                    break;
+                            }
+
+                            event.getHook().editOriginalEmbeds(
+                                    builder.build()
+                            ).setReplace(true).setComponents(
+                                    ActionRow.of(
+                                            Button.of(
+                                                    ButtonStyle.PRIMARY,
+                                                    "imagesCommandCitySearchNew?user=" + event.getUser().getId(),
+                                                    "Buscar otra ciudad",
+                                                    Emoji.fromUnicode("U+1F50E")
+                                            ),
+                                            plugin.getDiscordHandler().getDeleteButton(event.getUser())
+                                    ),
+                                    ActionRow.of(
+                                            Button.of(
+                                                    ButtonStyle.SUCCESS,
+                                                    "imagesCommandCitySkip?user=" + event.getUser().getId() + "&page=" + (finalIndex - 1) + "&city=" + cityName,
+                                                    "Anterior",
+                                                    Emoji.fromUnicode("U+2B05")
+                                            ),
+                                            Button.of(
+                                                    ButtonStyle.SECONDARY,
+                                                    "counter",
+                                                    (finalIndex + 1) + "/" + showcaseIDs.size()
+                                            ),
+                                            Button.of(
+                                                    ButtonStyle.SUCCESS,
+                                                    "imagesCommandCitySkip?user=" + event.getUser().getId() + "&page=" + (finalIndex + 1) + "&city=" + cityName,
+                                                    "Siguiente",
+                                                    Emoji.fromUnicode("U+27A1")
+                                            )
+                                    )
+                            ).queue();
+
+                        } catch (SQLException e) {
+                            event.getHook().editOriginalEmbeds(
+                                    DiscordUtils.fastEmbed(
+                                            Color.RED,
+                                            "Ha ocurrido un error."
+                                    )
+                            ).setActionRow(
+                                    Button.of(
+                                            ButtonStyle.PRIMARY,
+                                            "imagesCommandCitySearchNew?user=" + event.getUser().getId(),
+                                            "Buscar otra dirección",
+                                            Emoji.fromUnicode("U+1F50E")
+                                    )
+                            ).setReplace(true).queue();
+                        }
+                    }
+            );
+        } catch (ErrorResponseException e) {
+            if (e.getErrorResponse() == ErrorResponse.UNKNOWN_MESSAGE) {
+                plugin.getSqlManager().delete(
+                        "showcases",
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "message_id", "=", showcaseSet.getString("message_id")
+                                )
+                        )
+                ).execute();
+            }
+            event.getHook().editOriginalEmbeds(
+                    DiscordUtils.fastEmbed(
+                            Color.RED,
+                            "Ha ocurrido un error."
+                    )
+            ).setActionRow(
+                    Button.of(
+                            ButtonStyle.PRIMARY,
+                            "imagesCommandCitySearchNew?user=" + event.getUser().getId(),
+                            "Buscar otra dirección",
+                            Emoji.fromUnicode("U+1F50E")
+                    )
+            ).setReplace(true).queue();
+        }
 
     }
 
     public void respondAddress(@NotNull IReplyCallback event, @NotNull String address) throws IOException, SQLException {
-        event.deferReply().queue();
+        if (event instanceof SlashCommandInteractionEvent) {
+            event.deferReply().queue();
+        } else if (event instanceof IMessageEditCallback) {
+            ((IMessageEditCallback) event).deferEdit().queue();
+        }
 
         String dir = String.join("+", address.split(" "));
 
@@ -182,7 +385,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                     new Pair<>(
                             new Pair<>(
                                     optionNode.path("name").asText(),
-                                    optionNode.path("osm_id").asText()
+                                    optionNode.path("osm_type").asText().substring(0,1).toUpperCase() + optionNode.path("osm_id").asText()
                             ),
                             new Pair<>(
                                     country,
@@ -191,7 +394,6 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                     )
             );
         }
-
         if (applicableNodes.isEmpty()) {
             event.getHook().editOriginalEmbeds(DiscordUtils.fastEmbed(
                     Color.RED,
@@ -204,14 +406,9 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
         }
     }
 
-    public void respondAddressSelector(IReplyCallback event, @NotNull List<Pair<Pair<String, String>, Pair<Country, City>>> options) {
-        if (event instanceof SlashCommandInteractionEvent) {
-            event.deferReply().queue();
-        } else if (event instanceof IMessageEditCallback) {
-            ((IMessageEditCallback) event).deferEdit().queue();
-        }
+    public void respondAddressSelector(@NotNull IReplyCallback event, @NotNull List<Pair<Pair<String, String>, Pair<Country, City>>> options) {
 
-        StringSelectMenu.Builder menu = StringSelectMenu.create("imageCommandAddressSelector?user=" + event.getUser().getId());
+        StringSelectMenu.Builder menu = StringSelectMenu.create("imagesCommandAddressSelector?user=" + event.getUser().getId());
 
         for (Pair<Pair<String, String>, Pair<Country, City>> option : options) {
             String name = option.getKey().getKey();
@@ -237,39 +434,33 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
 
         menu.setPlaceholder("Se han encontrado " + menu.getOptions().size() + " opciones:");
 
-        if (event instanceof SlashCommandInteractionEvent) {
-            event.replyComponents(
-                    ActionRow.of(
-                            menu.build()
-                    )
-            ).queue();
-        } else if (event instanceof IMessageEditCallback) {
-            IMessageEditCallback editCallback = (IMessageEditCallback) event;
-            editCallback.editComponents(
-                    ActionRow.of(
-                            menu.build()
-                    )
-            ).setReplace(true).queue();
-        }
+        event.getHook().editOriginalComponents(
+                ActionRow.of(
+                        menu.build()
+                )
+        ).setReplace(true).queue();
     }
 
     public void respondAddressImage(IReplyCallback event, String osmID, int index) throws IOException, SQLException {
+
         if (event instanceof SlashCommandInteractionEvent) {
             event.deferReply().queue();
         } else if (event instanceof IMessageEditCallback) {
             ((IMessageEditCallback) event).deferEdit().queue();
         }
 
-        URL url = new URL("https://nominatim.openstreetmap.org/details.php?osmtype=N&osmid=" + osmID + "&format=json");
+        URL url = new URL("https://nominatim.openstreetmap.org/details.php?osmtype=" + osmID.charAt(0) + "&osmid=" + osmID.substring(1) + "&format=json");
 
         JsonNode responseNode = plugin.getJSONMapper().readTree(url);
 
         if (!queryCache.containsKey(osmID)) {
 
+
             JsonNode coordinatesNode = responseNode.path("centroid").path("coordinates");
             double lon = coordinatesNode.get(0).asDouble();
             double lat = coordinatesNode.get(1).asDouble();
             Coords2D coords = new Coords2D(plugin, lat, lon);
+
 
             Location loc = new Coords2D(plugin, lat, lon).toHighestLocation();
             List<String> projectIDs = plugin.getProjectRegistry().getProjectsAt(loc);
@@ -296,7 +487,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
 
             ResultSet eventsSet = plugin.getSqlManager().select(
                     "build_events",
-                    new SQLColumnSet("message_id"),
+                    new SQLColumnSet("id"),
                     new SQLANDConditionSet(
                             new SQLPointInPolygonCondition(
                                     coords.getX(),
@@ -345,7 +536,6 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             while (showcasesSet.next()) {
                 resultIDs.add(showcasesSet.getString("id"));
             }
-
             queryCache.put(osmID, resultIDs);
             BukkitRunnable runnable = new BukkitRunnable() {
                 @Override
@@ -375,8 +565,10 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             return;
         }
 
+
         List<String> showcaseIDs = queryCache.get(osmID);
-        String showcaseId = showcaseIDs.get(index < 0 ? showcaseIDs.size() - 1 : (index >= showcaseIDs.size() ? 0 : index));
+        int finalIndex = index < 0 ? showcaseIDs.size() - 1 : (index >= showcaseIDs.size() ? 0 : index);
+        String showcaseId = showcaseIDs.get(finalIndex);
 
         ResultSet showcaseSet = plugin.getSqlManager().select(
                 "showcases",
@@ -388,6 +580,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                 )
         ).retrieve();
 
+        showcaseSet.next();
+
         Country country = plugin.getCountryManager().get(showcaseSet.getString("country"));
 
         try {
@@ -397,19 +591,15 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                             EmbedBuilder builder = new EmbedBuilder();
                             builder.setColor(Color.GREEN);
                             DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-                            builder.setFooter("Fecha: " + format.format(new Date(message.getTimeCreated().toEpochSecond())));
+                            builder.setFooter("Fecha: " + format.format(new Date(message.getTimeCreated().toInstant().toEpochMilli())));
                             builder.setImage(showcaseSet.getString("url"));
                             builder.addField("Autor:", "<@" + message.getAuthor().getId() + ">", false);
                             builder.addField("Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
 
                             String locationName = responseNode.path("localname").asText();
-                            String locationStreet = responseNode.path("addresstags").path("street").asText();
-                            String locationCity = responseNode.path("addresstags").path("city").asText();
 
                             builder.setAuthor(
-                                    locationName + ", " + locationStreet + ", " + locationCity,
-                                    null,
-                                    "https://static.vecteezy.com/system/resources/previews/010/157/991/original/pin-location-icon-sign-symbol-design-free-png.png"
+                                    "Imágenes de " + locationName
                             );
 
                             String targetID = showcaseSet.getString("target_id");
@@ -446,18 +636,18 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                     ActionRow.of(
                                             Button.of(
                                                     ButtonStyle.SUCCESS,
-                                                    "imagesCommandAddressSkip?user=" + event.getUser().getId() + "&page=" + (index - 1) + "&id=" + osmID,
+                                                    "imagesCommandAddressSkip?user=" + event.getUser().getId() + "&page=" + (finalIndex - 1) + "&id=" + osmID,
                                                     "Anterior",
                                                     Emoji.fromUnicode("U+2B05")
                                             ),
                                             Button.of(
                                                     ButtonStyle.SECONDARY,
                                                     "counter",
-                                                    (index + 1) + "/" + queryCache.get(osmID).size()
+                                                    (finalIndex + 1) + "/" + queryCache.get(osmID).size()
                                             ),
                                             Button.of(
                                                     ButtonStyle.SUCCESS,
-                                                    "imagesCommandAddressSkip?user=" + event.getUser().getId() + "&page=" + (index + 1) + "&id=" + osmID,
+                                                    "imagesCommandAddressSkip?user=" + event.getUser().getId() + "&page=" + (finalIndex + 1) + "&id=" + osmID,
                                                     "Siguiente",
                                                     Emoji.fromUnicode("U+27A1")
                                             )
@@ -528,6 +718,21 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             } catch (SQLException | IOException e) {
                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
+        } else if (selectID.startsWith("imagesCommandCitySelector")) {
+            Map<String, String> query = StringUtils.getQuery(selectID.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quien usó el comando puede usar los menú.");
+                return;
+            }
+
+            String cityName = event.getSelectedOptions().get(0).getValue();
+
+            try {
+                this.respondAddressImage(event, cityName, 0);
+            } catch (SQLException | IOException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
+            }
         } else if (selectID.startsWith("showcaseSelect")) {
 
             if (!plugin.getLinksRegistry().isLinked(event.getUser().getId())) {
@@ -557,27 +762,63 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
 
             country.getShowcaseChannel().retrieveMessageById(messageID).queue(
                     message -> {
+
+                        boolean isEdit;
+                        try {
+                            ResultSet set = plugin.getSqlManager().select(
+                                    "showcases",
+                                    new SQLColumnSet("COUNT(id) AS count"),
+                                    new SQLANDConditionSet(
+                                            new SQLOperatorCondition("message_id", "=", messageID)
+                                    )
+                            ).retrieve();
+
+                            set.next();
+                            isEdit = set.getInt("count") > 0;
+                        } catch (SQLException e) {
+                            DiscordUtils.respondError(event, "Ha ocurrido un error en la base de datos.");
+                            return;
+                        }
+
                         int counter = 0;
                         for (Message.Attachment attachment : message.getAttachments()) {
                             if (attachment.isImage()) {
                                 try {
-                                    plugin.getSqlManager().insert(
-                                            "showcases",
-                                            new SQLValuesSet(
-                                                    new SQLValue("message_id", messageID),
-                                                    new SQLValue("target_type", type),
-                                                    new SQLValue("target_id", targetID),
-                                                    new SQLValue("cities", container.getCities()),
-                                                    new SQLValue("country", country),
-                                                    new SQLValue("url", attachment.getUrl())
-                                            )
-                                    ).execute();
+                                    if (isEdit) {
+                                        plugin.getSqlManager().update(
+                                                "showcases",
+                                                new SQLValuesSet(
+                                                        new SQLValue("target_type", type),
+                                                        new SQLValue("target_id", targetID),
+                                                        new SQLValue("cities", container.getCities())
+                                                ),
+                                                new SQLANDConditionSet(
+                                                        new SQLOperatorCondition("message_id", "=", messageID),
+                                                        new SQLOperatorCondition("url", "=", attachment.getUrl())
+                                                )
+                                        ).execute();
+                                    } else {
+                                        plugin.getSqlManager().insert(
+                                                "showcases",
+                                                new SQLValuesSet(
+                                                        new SQLValue("message_id", messageID),
+                                                        new SQLValue("target_type", type),
+                                                        new SQLValue("target_id", targetID),
+                                                        new SQLValue("cities", container.getCities()),
+                                                        new SQLValue("country", country),
+                                                        new SQLValue("url", attachment.getUrl())
+                                                )
+                                        ).execute();
+                                    }
                                 } catch (SQLException ignored) {}
                                 counter++;
                             }
                         }
                         if (counter == 0) {
                             DiscordUtils.respondError(event, "El mensaje ya no tiene imágenes adjuntas.");
+                        } else {
+                            DiscordUtils.respondSuccess(event, "Selección guardada correctamente.");
+                            event.getMessage().delete().queue();
                         }
                     },
                     throwable -> DiscordUtils.respondError(event, "No se ha podido encontrar el mensaje.")
@@ -618,6 +859,37 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                     Modal.create("imagesCommandAddressSearch", "Buscar nueva dirección")
                             .addActionRow(
                                     TextInput.create("address", "Dirección", TextInputStyle.SHORT).build()
+                            )
+                            .build()
+            ).queue();
+        } else if (buttonID.startsWith("imagesCommandCitySkip")) {
+
+            Map<String, String> query = StringUtils.getQuery(buttonID.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quien usó el comando puede usar los botones.");
+                return;
+            }
+
+            try {
+                this.respondCityImage(event, query.get("city"), Integer.parseInt(query.get("page")));
+            } catch (SQLException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
+            }
+
+        } else if (buttonID.startsWith("imagesCommandCitySearchNew")) {
+
+            Map<String, String> query = StringUtils.getQuery(buttonID.split("\\?")[1]);
+
+            if (!query.get("user").equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "Solo quien usó el comando puede usar los botones.");
+                return;
+            }
+
+            event.replyModal(
+                    Modal.create("imagesCommandcitySearch", "Buscar nueva ciudad")
+                            .addActionRow(
+                                    TextInput.create("city", "Ciudad", TextInputStyle.SHORT).build()
                             )
                             .build()
             ).queue();
@@ -851,6 +1123,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                         while (set.next()) {
                             ids.add(set.getString("id"));
                         }
+                        menu.setPlaceholder("Tus proyectos terminados en " + country.getDisplayName());
+
 
                         break;
                     }
@@ -869,6 +1143,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                         while (set.next()) {
                             ids.add(set.getString("id"));
                         }
+                        menu.setPlaceholder("Tus eventos en " + country.getDisplayName());
 
                         break;
                     }
@@ -937,6 +1212,16 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             } catch (IOException | SQLException e) {
                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
+        } else if (modalID.startsWith("imagesCommandCitySearch")) {
+            ModalMapping cityMapping = event.getValue("city");
+            assert cityMapping != null;
+            String cityName = cityMapping.getAsString();
+
+            try {
+                this.respondCity(event, cityName);
+            } catch (SQLException e) {
+                DiscordUtils.respondError(event, "Ha ocurrido un error.");
+            }
         }
 
     }
@@ -960,7 +1245,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                         .setDescription(
                                                 "Has subido imagenes a <#" + event.getChannel().getId() + ">, pero no tienes una cuenta de Minecraft conectada. Conecta tu cuenta para que tus imágenes aparezcan en los comandos de Discord.\n"
                                                 + "Para conectar tu cuenta, usa `/link` en Discord o en Minecraft.\n"
-                                                + "Cuando la hayas conectado, usa el botón de abajo para recargar las opciones."
+                                                + "Cuando la hayas conectado, usa el botón de abajo para recargar las opciones.\n\n"
+                                                + "[Mensaje original](" + event.getMessage().getJumpUrl() + ")"
                                         ).build()
                         ).addActionRow(
                                 Button.of(
@@ -1009,7 +1295,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                             new EmbedBuilder()
                                     .setColor(Color.GREEN)
                                     .setDescription(
-                                            "Has subido imágenes a <#" + event.getChannel().getId() + ">. Por favor, selecciona a que proyecto o evento pertenecen."
+                                            "Has subido imágenes a <#" + event.getChannel().getId() + ">. Por favor, selecciona a que proyecto o evento pertenecen.\n\n"
+                                            + "[Mensaje original](" + event.getMessage().getJumpUrl() + ")"
                                     ).build()
                     )
                             .addActionRow(
@@ -1022,7 +1309,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                     Button.of(
                                             ButtonStyle.SUCCESS,
                                             "showcaseSelectFinished?id=" + event.getMessageId() + "&country=" + country.getName(),
-                                            "P. terminados",
+                                            "Proy. terminados",
                                             Emoji.fromUnicode("U+2705")
                                     ).withDisabled(!finishedProjects),
                                     Button.of(
@@ -1039,6 +1326,11 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
     @Override
     public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
         if (event.getName().equals("Establecer proyecto o evento")) {
+
+            if (!event.getTarget().getAuthor().getId().equals(event.getUser().getId())) {
+                DiscordUtils.respondError(event, "No puedes hacer esto.");
+                return;
+            }
 
             assert event.getGuild() != null;
             assert event.getChannel() != null;
@@ -1058,7 +1350,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                             .setDescription(
                                                     "Has subido imagenes a <#" + event.getChannel().getId() + ">, pero no tienes una cuenta de Minecraft conectada. Conecta tu cuenta para que tus imágenes aparezcan en los comandos de Discord.\n"
                                                             + "Para conectar tu cuenta, usa `/link` en Discord o en Minecraft.\n"
-                                                            + "Cuando la hayas conectado, usa el botón de abajo para recargar las opciones."
+                                                            + "Cuando la hayas conectado, usa el botón de abajo para recargar las opciones.\n\n"
+                                                            + "[Mensaje original](" + event.getTarget().getJumpUrl() + ")"
                                             ).build()
                             ).addActionRow(
                                     Button.of(
@@ -1107,7 +1400,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                         new EmbedBuilder()
                                                 .setColor(Color.GREEN)
                                                 .setDescription(
-                                                        "Has subido imágenes a <#" + event.getChannel().getId() + ">. Por favor, selecciona a que proyecto o evento pertenecen."
+                                                        "Has subido imágenes a <#" + event.getChannel().getId() + ">. Por favor, selecciona a que proyecto o evento pertenecen.\n\n"
+                                                                + "[Mensaje original](" + event.getTarget().getJumpUrl() + ")"
                                                 ).build()
                                 )
                                 .addActionRow(
@@ -1120,7 +1414,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                         Button.of(
                                                 ButtonStyle.SUCCESS,
                                                 "showcaseSelectFinished?id=" + event.getInteraction().getTarget().getId() + "&country=" + country.getName(),
-                                                "P. terminados",
+                                                "Proy. terminados",
                                                 Emoji.fromUnicode("U+2705")
                                         ).withDisabled(!finishedProjects),
                                         Button.of(
@@ -1131,6 +1425,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                         ).withDisabled(!events)
                                 ).queue()
                 );
+                DiscordUtils.respondSuccessEphemeral(event, "Mensaje enviado a tus mensajes directos.");
             }
         }
     }
@@ -1146,7 +1441,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                         .addOptions(
                                                 new OptionData(
                                                         OptionType.STRING,
-                                                        "ciudad",
+                                                        "city",
                                                         "Nombre de la ciudad.",
                                                         true
                                                 ).setNameLocalization(

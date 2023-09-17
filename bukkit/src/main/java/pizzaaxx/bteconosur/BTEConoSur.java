@@ -264,7 +264,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         return scoreboardHandler;
     }
 
-    private PrefixCommand prefixCommand = new PrefixCommand(this);
+    private final PrefixCommand prefixCommand = new PrefixCommand(this);
 
     public PrefixCommand getPrefixCommand() {
         return prefixCommand;
@@ -536,7 +536,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 fuzzyMatcherListener,
                 new PatternCommand(this),
                 findColorCommand,
-                new SchematicCommand(this)
+                new SchematicCommand(this),
+                new ImagesCommand(this)
         );
 
         try {
