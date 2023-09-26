@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -88,6 +89,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                     try {
                         this.respondCity(event, cityName);
                     } catch (SQLException e) {
+                        e.printStackTrace();
                         DiscordUtils.respondError(event, "Ha ocurrido un error.");
                     }
                 case "address":
@@ -1463,6 +1465,28 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                         ),
                 Commands.message("Establecer proyecto o evento").setGuildOnly(true)
         };
+    }
+
+    @Override
+    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
+        Country country = plugin.getCountryManager().guilds.get(event.getGuild().getId());
+
+        if (country == null) {
+            return;
+        }
+
+        if (event.getChannel().getId().equals(country.getShowcaseChannelID())) {
+            try {
+                plugin.getSqlManager().delete(
+                        "showcases",
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "message_id", "=", event.getMessageId()
+                                )
+                        )
+                ).execute();
+            } catch (SQLException ignored) {}
+        }
     }
 
     @Override
