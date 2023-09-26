@@ -64,41 +64,6 @@ public class EmptyProjectAction {
         region.setMembers(new DefaultDomain());
         plugin.getRegionManager().addRegion(region);
 
-        ResultSet set = plugin.getSqlManager().select(
-                "posts",
-                new SQLColumnSet(
-                        "channel_id"
-                ),
-                new SQLANDConditionSet(
-                        new SQLOperatorCondition(
-                                "target_type", "=", "project"
-                        ),
-                        new SQLOperatorCondition(
-                                "target_id", "=", project.getId()
-                        )
-                )
-        ).retrieve();
-
-        if (set.next()) {
-            ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
-            if (channel == null) {
-                return;
-            }
-            channel.delete().queue();
-
-            plugin.getSqlManager().delete(
-                    "posts",
-                    new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "target_type", "=", "project"
-                            ),
-                            new SQLOperatorCondition(
-                                    "target_id", "=", project.getId()
-                            )
-                    )
-            ).execute();
-        }
-
         project.getCountry().getLogsChannel().sendMessage(":book: El proyecto `" + project.getId() + "` está disponible de nuevo.").queue();
 
         plugin.getSqlManager().delete(

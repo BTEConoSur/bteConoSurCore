@@ -52,83 +52,9 @@ public class ClaimProjectAction {
         region.setMembers(domain);
         plugin.getRegionManager().addRegion(region);
 
-        List<String> cities = new ArrayList<>();
         for (City city : project.getCitiesResolved()) {
             plugin.getScoreboardHandler().update(city);
-            cities.add(city.getDisplayName());
         }
-
-        List<String> members = new ArrayList<>();
-        for (UUID memberUUID : project.getMembers()) {
-            members.add(plugin.getPlayerRegistry().get(memberUUID).getName().replace("_", "\\_"));
-        }
-
-        ForumChannel channel = project.getCountry().getProjectsForumChannel();
-        Set<ForumTag> tags = new HashSet<>();
-        tags.add(channel.getAvailableTagsByName("En construcción", true).get(0));
-        if (project.getTag() != null) {
-            tags.add(channel.getAvailableTagsByName(project.getTag().toString(), true).get(0));
-        }
-        tags.add(channel.getAvailableTagsByName(project.getType().getDisplayName(), true).get(0));
-
-        project.getCountry().getProjectsForumChannel().createForumPost(
-                "Proyecto " + project.getId().toUpperCase() + (cities.isEmpty() ? "" : " - " + String.join(", ", cities)),
-                MessageCreateData.fromContent(":speech_balloon: **Descripción:** N/A")
-        )
-                .setEmbeds(
-                        new EmbedBuilder()
-                                .setColor(project.getType().getColor())
-                                .addField(
-                                        ":crown: Líder:",
-                                        plugin.getPlayerRegistry().get(project.getOwner()).getName(),
-                                        true
-                                )
-                                .addField(
-                                        ":busts_in_silhouette: Miembros:",
-                                        (members.isEmpty() ? "Sin miembros." : String.join(", ", members)),
-                                        true
-                                )
-                                .addField(
-                                        ":game_die: Tipo:",
-                                        project.getType().getDisplayName() + " (" + project.getPoints() + " puntos)",
-                                        true
-                                )
-                                .build()
-                )
-                .setFiles(
-                        FileUpload.fromData(
-                                plugin.getSatMapHandler().getMapStream(
-                                        new SatMapHandler.SatMapPolygon(
-                                                plugin,
-                                                project.getRegionPoints()
-                                        )
-                                ),
-                                "projectMap.png"
-                        )
-                ).setTags(
-                        tags
-                ).queue(
-                        forumPost -> {
-                            try {
-                                plugin.getSqlManager().insert(
-                                        "posts",
-                                        new SQLValuesSet(
-                                                new SQLValue("target_type", "project"),
-                                                new SQLValue("target_id", project.getId()),
-                                                new SQLValue("channel_id", forumPost.getThreadChannel().getId()),
-                                                new SQLValue("members", project.getAllMembers()),
-                                                new SQLValue("country", project.getCountry()),
-                                                new SQLValue("cities", project.getCities()),
-                                                new SQLValue("name", "Proyecto " + project.getId().toUpperCase()),
-                                                new SQLValue("description", "N/A"),
-                                                new SQLValue("message_id", forumPost.getMessage().getId())
-                                        )
-                                ).execute();
-                            } catch (SQLException e) {
-                                forumPost.getThreadChannel().delete().queue();
-                            }
-                        }
-                );
 
         project.getCountry().getLogsChannel().sendMessage(":inbox_tray: **" + plugin.getPlayerRegistry().get(owner).getName() + "** ha reclamado el proyecto `" + project.getId() + "`.").queue();
     }

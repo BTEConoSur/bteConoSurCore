@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
@@ -254,8 +255,14 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                             DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
                             builder.setFooter("Fecha: " + format.format(new Date(message.getTimeCreated().toInstant().toEpochMilli())));
                             builder.setImage(showcaseSet.getString("url"));
-                            builder.addField("Autor:", "<@" + message.getAuthor().getId() + ">", false);
-                            builder.addField("Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
+                            builder.setThumbnail(message.getAuthor().getAvatarUrl());
+                            builder.addField(":camera_with_flash: Autor:", "<@" + message.getAuthor().getId() + ">", true);
+                            builder.addField(
+                                    ":heart: Reacciones:",
+                                    Integer.toString(message.getReactions().stream().mapToInt(MessageReaction::getCount).sum()),
+                                    true
+                            );
+                            builder.addField(":speech_balloon: Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
 
                             builder.setAuthor(
                                     "Imágenes de " + city.getDisplayName()
@@ -595,8 +602,14 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                             DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
                             builder.setFooter("Fecha: " + format.format(new Date(message.getTimeCreated().toInstant().toEpochMilli())));
                             builder.setImage(showcaseSet.getString("url"));
-                            builder.addField("Autor:", "<@" + message.getAuthor().getId() + ">", false);
-                            builder.addField("Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
+                            builder.setThumbnail(message.getAuthor().getAvatarUrl());
+                            builder.addField(":camera_with_flash: Autor:", "<@" + message.getAuthor().getId() + ">", true);
+                            builder.addField(
+                                    ":heart: Reacciones:",
+                                    Integer.toString(message.getReactions().stream().mapToInt(MessageReaction::getCount).sum()),
+                                    true
+                            );
+                            builder.addField(":speech_balloon: Descripción:", message.getContentRaw().isEmpty() ? "N/A" : message.getContentRaw(), false);
 
                             String locationName = responseNode.path("localname").asText();
 
@@ -812,7 +825,9 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                                                 )
                                         ).execute();
                                     }
-                                } catch (SQLException ignored) {}
+                                } catch (SQLException ignored) {
+                                    ignored.printStackTrace();
+                                }
                                 counter++;
                             }
                         }
@@ -889,7 +904,7 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             }
 
             event.replyModal(
-                    Modal.create("imagesCommandcitySearch", "Buscar nueva ciudad")
+                    Modal.create("imagesCommandCitySearch", "Buscar nueva ciudad")
                             .addActionRow(
                                     TextInput.create("city", "Ciudad", TextInputStyle.SHORT).build()
                             )

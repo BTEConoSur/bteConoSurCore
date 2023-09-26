@@ -62,8 +62,6 @@ import pizzaaxx.bteconosur.Player.Managers.ChatManager;
 import pizzaaxx.bteconosur.Player.Notifications.NotificationsService;
 import pizzaaxx.bteconosur.Player.PlayerRegistry;
 import pizzaaxx.bteconosur.Player.ServerPlayer;
-import pizzaaxx.bteconosur.Posts.Commands.ProjectPostCommand;
-import pizzaaxx.bteconosur.Posts.Listener.PostsListener;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.Listeners.ProjectRedefineRequestListener;
 import pizzaaxx.bteconosur.Projects.Commands.ProjectsCommand;
@@ -519,8 +517,6 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 new ProjectCreationRequestListener(this),
                 new ProjectRedefineRequestListener(this),
                 chatHandler,
-                new PostsListener(this),
-                new ProjectPostCommand(this),
                 helpCommand,
                 discordHandler,
                 new CityCommand(this),

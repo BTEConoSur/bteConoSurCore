@@ -38,6 +38,5 @@ public class SetOwnerProjectAction {
                 )
         ).execute();
         project.update();
-        project.updatePostEmbed();
     }
 }
