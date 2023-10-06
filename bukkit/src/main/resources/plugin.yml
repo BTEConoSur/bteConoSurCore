@@ -123,3 +123,7 @@ commands:
   reloadplayer:
     description: Reload a player data.
     permission: op
+  gridlock:
+    description: GridLock
+    aliases:
+      - gl

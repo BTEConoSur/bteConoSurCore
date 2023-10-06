@@ -89,6 +89,7 @@ import pizzaaxx.bteconosur.WorldEdit.Commands.DivideCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.IncrementCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.PolywallsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Commands.TerraformCommand;
+import pizzaaxx.bteconosur.WorldEdit.GridLock.GridLock;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsCommand;
 import pizzaaxx.bteconosur.WorldEdit.Presets.PresetsListener;
 import pizzaaxx.bteconosur.WorldEdit.Selection.SelUndoRedoCommand;
@@ -336,6 +337,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         TourCommand tourCommand = new TourCommand(this);
 
+        GridLock gridLock = new GridLock(this);
+
         this.registerListeners(
                 this,
                 regionListenersHandler,
@@ -354,7 +357,8 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
                 projectsCommand,
                 tourCommand,
                 new SecurityEvents(this),
-                new ProjectClickListener(this)
+                new ProjectClickListener(this),
+                gridLock
         );
 
         this.log("Starting chats...");
@@ -599,6 +603,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
         getCommand("convertlegacy").setExecutor(new LegacyConverterCommand(this));
         getCommand("registerfinished").setExecutor(new RegisterFinishedCommand(this));
         getCommand("reloadplayer").setExecutor(new ReloadPlayerCommand(this));
+        getCommand("gridlock").setExecutor(gridLock);
 
         EmbedBuilder startEmbed = new EmbedBuilder();
         startEmbed.setColor(Color.GREEN);
