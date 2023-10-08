@@ -1724,7 +1724,7 @@ public class ProjectsCommand implements CommandExecutor, Prefixable, Listener, T
 
         Project project = plugin.getProjectRegistry().get(id);
 
-        boolean isLeader = project.getOwner().equals(player.getUniqueId());
+        boolean isLeader = project.getOwner() != null && project.getOwner().equals(player.getUniqueId());
         boolean isPending = project.isPending();
 
         Integer[] slots;
