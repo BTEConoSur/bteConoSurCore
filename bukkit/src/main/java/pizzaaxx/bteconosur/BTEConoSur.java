@@ -564,7 +564,7 @@ public class BTEConoSur extends JavaPlugin implements Prefixable, ScoreboardDisp
 
         // --- COMMANDS ---
         this.log("Registering commands...");
-        getCommand("createcity").setExecutor(new CitiesCommand(this));
+        getCommand("city").setExecutor(new CitiesCommand(this));
         getCommand("increment").setExecutor(new IncrementCommand(this));
         getCommand("link").setExecutor(linkCommand);
         getCommand("unlink").setExecutor(linkCommand);
