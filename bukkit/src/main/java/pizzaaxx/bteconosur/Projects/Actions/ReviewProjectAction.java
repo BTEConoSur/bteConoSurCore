@@ -258,6 +258,46 @@ public class ReviewProjectAction {
                     manager.addFinished(project);
                 }
 
+                ResultSet set = plugin.getSqlManager().select(
+                        "posts",
+                        new SQLColumnSet(
+                                "channel_id"
+                        ),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition(
+                                        "target_type", "=", "project"
+                                ),
+                                new SQLOperatorCondition(
+                                        "target_id", "=", project.getId()
+                                )
+                        )
+                ).retrieve();
+
+                if (set.next()) {
+                    ThreadChannel channel = project.getCountry().getGuild().getThreadChannelById(set.getString("channel_id"));
+                    if (channel != null) {
+                        channel.sendMessage("<:approve:959984723868913714> ¡El proyecto ha sido aceptado!").queue();
+
+                        project.setFinishedPostTags();
+
+                        plugin.getSqlManager().update(
+                                "posts",
+                                new SQLValuesSet(
+                                        new SQLValue("target_type", "finished_project"),
+                                        new SQLValue("target_id", id)
+                                ),
+                                new SQLANDConditionSet(
+                                        new SQLOperatorCondition(
+                                                "target_type", "=", "project"
+                                        ),
+                                        new SQLOperatorCondition(
+                                                "target_id", "=", project.getId()
+                                        )
+                                )
+                        ).execute();
+                    }
+                }
+
                 plugin.getSqlManager().delete(
                         "projects",
                         new SQLANDConditionSet(
