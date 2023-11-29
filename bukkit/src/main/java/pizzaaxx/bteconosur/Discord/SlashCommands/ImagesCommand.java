@@ -744,8 +744,8 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
             String cityName = event.getSelectedOptions().get(0).getValue();
 
             try {
-                this.respondAddressImage(event, cityName, 0);
-            } catch (SQLException | IOException e) {
+                this.respondCityImage(event, cityName, 0);
+            } catch (SQLException e) {
                 DiscordUtils.respondError(event, "Ha ocurrido un error.");
             }
         } else if (selectID.startsWith("showcaseSelect")) {
@@ -1003,12 +1003,16 @@ public class ImagesCommand extends ListenerAdapter implements SlashCommandContai
                         break;
                     }
                     case "finished": {
+                        menu.setPlaceholder("Tus proyectos terminados en " + country.getDisplayName());
                         ResultSet set = plugin.getSqlManager().select(
                                 "finished_projects",
                                 new SQLColumnSet("id"),
                                 new SQLANDConditionSet(
                                         new SQLOperatorCondition("country", "=", country.getName()),
-                                        new SQLJSONArrayCondition("members", s.getUUID())
+                                        new SQLORConditionSet(
+                                                new SQLJSONArrayCondition("members", s.getUUID()),
+                                                new SQLOperatorCondition("owner", "=", s.getUUID())
+                                        )
                                 )
                         ).retrieve();
 

@@ -109,7 +109,7 @@ public class FinishedProject implements ProjectWrapper, TourCommand.TourDisplay,
 
     @Override
     public boolean isMember(UUID uuid) {
-        return members.contains(uuid);
+        return members.contains(uuid) || owner.equals(uuid);
     }
 
     public Country getCountry() {

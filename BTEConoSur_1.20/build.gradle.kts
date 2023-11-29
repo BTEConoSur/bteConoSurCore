@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -23,10 +25,9 @@ dependencies {
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.17-SNAPSHOT")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT")
     implementation("org.apache.commons:commons-text:1.10.0")
-    implementation("net.dv8tion:JDA:5.0.0-beta.2")
+    implementation("net.dv8tion:JDA:5.0.0-beta.18")
     implementation("com.github.SmylerMC:terraminusminus:5907790da3")
     implementation("xyz.upperlevel.spigot.book:spigot-book-api:1.6")
-    implementation("fr.minuskube:netherboard-bukkit:1.2.2")
     implementation("com.mysql:mysql-connector-j:8.0.32")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")
@@ -35,6 +36,8 @@ dependencies {
     implementation("org.jogamp.gluegen:gluegen-rt-main:2.3.2")
     implementation("org.jogamp.jogl:jogl-all-main:2.3.2")
     implementation("com.networknt:json-schema-validator:1.0.72")
+    implementation("com.github.PeterMassmann:SQL-Manager:decf275163")
+    implementation("fr.mrmicky:fastboard:2.0.1")
 }
 
 tasks.withType<JavaCompile> {
@@ -44,4 +47,10 @@ tasks.withType<JavaCompile> {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+tasks {
+    withType<ShadowJar> {
+        relocate("fr.mrmicky.fastboard", "pizzaaxx.bteconosur.fastboard")
+    }
 }

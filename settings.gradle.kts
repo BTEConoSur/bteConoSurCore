@@ -10,3 +10,4 @@
 
 rootProject.name = "BTEConoSur"
 include("bukkit")
+include("BTEConoSur_1.20")
