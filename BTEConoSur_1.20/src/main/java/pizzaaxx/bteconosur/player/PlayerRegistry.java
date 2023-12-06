@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.player;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import org.bukkit.Bukkit;
@@ -28,13 +29,12 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
                 plugin,
                 () -> {
                     Collection<UUID> uuids = new ArrayList<>();
-                    try {
-                        ResultSet set = plugin.getSqlManager().select(
-                                "players",
-                                new SQLColumnSet("uuid"),
-                                new SQLANDConditionSet()
-                        ).retrieve();
-
+                    try (SQLResult result = plugin.getSqlManager().select(
+                            "players",
+                            new SQLColumnSet("uuid"),
+                            new SQLANDConditionSet()
+                    ).retrieve()) {
+                        ResultSet set = result.getResultSet();
                         while(set.next()) {
                             uuids.add(
                                     SQLUtils.uuidFromBytes(set.getBytes("uuid"))
@@ -64,9 +64,9 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
 
     public void login(UUID uuid) throws SQLException {
         if (this.isLoaded(uuid)) {
-            OfflineServerPlayer current = this.cacheMap.get(uuid);
-            if (!(current instanceof OnlineServerPlayer)) {
-                OnlineServerPlayer online = current.asOnlinePlayer();
+            OfflineServerPlayer offline = this.cacheMap.get(uuid);
+            if (!(offline instanceof OnlineServerPlayer)) {
+                OnlineServerPlayer online = offline.asOnlinePlayer();
                 this.cacheMap.put(uuid, online);
             }
         }

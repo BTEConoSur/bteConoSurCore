@@ -11,6 +11,8 @@ import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 
 import java.sql.SQLException;
 
+import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
+
 public class ScoreboardCommand implements CommandExecutor {
 
     private final BTEConoSurPlugin plugin;
@@ -30,7 +32,7 @@ public class ScoreboardCommand implements CommandExecutor {
         OfflineServerPlayer sOffline = plugin.getPlayerRegistry().get(player.getUniqueId());
 
         if (!(sOffline instanceof OnlineServerPlayer s)) {
-            player.sendMessage(plugin.getPrefix() + "Ha ocurrido un error.");
+            player.sendMessage(PREFIX + "Ha ocurrido un error.");
             return true;
         }
 
@@ -40,14 +42,14 @@ public class ScoreboardCommand implements CommandExecutor {
                 try {
                     scoreboardManager.setHidden(!scoreboardManager.isHidden());
                 } catch (SQLException e) {
-                    player.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
+                    player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
                 }
             } else {
                 if (args[0].equalsIgnoreCase("auto")) {
                     try {
                         scoreboardManager.setAuto(!scoreboardManager.isAuto());
                     } catch (SQLException e) {
-                        player.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
                     }
                 } else if (ScoreboardDisplayProvider.PROVIDERS.containsKey(args[0])) {
                     try {
@@ -55,10 +57,10 @@ public class ScoreboardCommand implements CommandExecutor {
                                 ScoreboardDisplayProvider.PROVIDERS.get(args[0]).getDisplay(player)
                         );
                     } catch (SQLException e) {
-                        player.sendMessage(plugin.getPrefix() + "Ha ocurrido un error en la base de datos.");
+                        player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
                     }
                 } else {
-                    player.sendMessage(plugin.getPrefix() + "Introduce un subcomando válido.");
+                    player.sendMessage(PREFIX + "Introduce un subcomando válido.");
                 }
             }
         }

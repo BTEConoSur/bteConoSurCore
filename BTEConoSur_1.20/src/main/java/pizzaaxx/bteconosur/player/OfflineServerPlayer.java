@@ -1,5 +1,9 @@
 package pizzaaxx.bteconosur.player;
 
+import com.github.PeterMassmann.Columns.SQLColumnSet;
+import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
+import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import org.bukkit.Bukkit;
@@ -9,6 +13,7 @@ import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.discord.DiscordManager;
 import pizzaaxx.bteconosur.utils.registry.RegistrableEntity;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -19,10 +24,26 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
     private final String name;
     private final DiscordManager discordManager;
 
-    public OfflineServerPlayer(BTEConoSurPlugin plugin, UUID uuid) throws SQLException {
+    public OfflineServerPlayer(@NotNull BTEConoSurPlugin plugin, UUID uuid) throws SQLException {
         this.plugin = plugin;
         this.uuid = uuid;
-        this.discordManager = new DiscordManager(plugin, this);
+
+        try (SQLResult result = plugin.getSqlManager().select(
+                "players",
+                new SQLColumnSet("*"),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition("uuid", "=", uuid)
+                )
+        ).retrieve()) {
+            ResultSet set = result.getResultSet();
+            if (!set.next()) {
+                throw new SQLException("Player not found.");
+            }
+
+            this.name = set.getString("name");
+
+            this.discordManager = new DiscordManager(plugin, this);
+        }
     }
 
     @Contract(pure = true)
@@ -30,6 +51,7 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
         this.plugin = base.plugin;
         this.uuid = base.uuid;
         this.discordManager = base.discordManager;
+        this.name = base.name;
     }
 
     public OnlineServerPlayer asOnlinePlayer() throws SQLException {

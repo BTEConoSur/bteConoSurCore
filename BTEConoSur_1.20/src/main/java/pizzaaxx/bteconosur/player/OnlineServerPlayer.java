@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
+import pizzaaxx.bteconosur.player.worldedit.WorldEditManager;
 
 import java.sql.SQLException;
 
@@ -12,11 +13,13 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
 
     private final BTEConoSurPlugin plugin;
     private final ScoreboardManager scoreboardManager;
+    private final WorldEditManager worldEditManager;
 
     public OnlineServerPlayer(@NotNull BTEConoSurPlugin plugin, OfflineServerPlayer offlinePlayer) throws SQLException {
         super(offlinePlayer);
         this.plugin = plugin;
         this.scoreboardManager = new ScoreboardManager(plugin, this);
+        this.worldEditManager = new WorldEditManager(plugin, this);
     }
 
     public OfflineServerPlayer asOfflinePlayer() {
@@ -32,6 +35,10 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
 
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+
+    public WorldEditManager getWorldEditManager() {
+        return worldEditManager;
     }
 
     @Override

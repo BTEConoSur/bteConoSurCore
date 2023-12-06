@@ -6,7 +6,6 @@ import com.github.PeterMassmann.SQLManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.kyori.adventure.text.Component;
@@ -15,6 +14,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandExecutor;
@@ -22,20 +22,22 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.building.DivideCommand;
+import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
-import pizzaaxx.bteconosur.discord.CommandHolder;
-import pizzaaxx.bteconosur.discord.DiscordConnector;
-import pizzaaxx.bteconosur.discord.LinkCommand;
-import pizzaaxx.bteconosur.discord.LinkRegistry;
+import pizzaaxx.bteconosur.discord.*;
 import pizzaaxx.bteconosur.events.JoinEvent;
 import pizzaaxx.bteconosur.events.LoginEvent;
 import pizzaaxx.bteconosur.events.PreLoginEvent;
 import pizzaaxx.bteconosur.events.QuitEvent;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
+import pizzaaxx.bteconosur.terra.TerraConnector;
+import pizzaaxx.bteconosur.terra.TpdirCommand;
 import pizzaaxx.bteconosur.terra.TpllCommand;
 import pizzaaxx.bteconosur.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.PlayerRegistry;
@@ -50,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
@@ -107,7 +110,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     }
 
     //--- SCOREBOARD ---
-    private ScheduledTask updateAutoScoreboardsTask;
+    private BukkitTask updateAutoScoreboardsTask;
 
     //--- DISCORD ---
     private DiscordConnector discordConnector = new DiscordConnector(this);
@@ -152,19 +155,22 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     databaseNode.path("username").asText(),
                     databaseNode.path("password").asText()
             );
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             this.error("An error occurred while connecting to the database. Stopping plugin initialization.");
             return;
         }
 
         //--- SHARED STUFF ---
         LinkCommand linkCommand = new LinkCommand(this);
+        UnlinkCommand unlinkCommand = new UnlinkCommand(this);
 
         //--- REGISTER COMMANDS ---
         this.log("Registering commands...");
         this.registerCommand("tpll", new TpllCommand(this));
         this.registerCommand("divide", new DivideCommand(this));
         this.registerCommand("link", linkCommand);
+        this.registerCommand("unlink", unlinkCommand);
+        this.registerCommand("tpdir", new TpdirCommand(this));
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -173,10 +179,12 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 new QuitEvent(this),
                 new PreLoginEvent(this),
                 new LoginEvent(this),
-                new JoinEvent(this)
+                new JoinEvent(this),
+                new Shortcuts(this)
         );
 
         //--- PLAYER REGISTRY ---
+        this.log("Loading player registry...");
         this.playerRegistry = new PlayerRegistry(this);
 
         //--- SCOREBOARDS ---
@@ -184,28 +192,34 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         AUTO_PROVIDERS.add("server");
         this.startAutoScoreboardsTimer();
 
+        //--- COUNTRIES ---
+        this.log("Loading countries registry...");
+        this.countriesRegistry = new CountriesRegistry(this);
+
         //--- DISCORD ---
+        this.log("Starting Discord bot...");
         try {
 
             File discordFile = new File(this.getDataFolder(), "discord.json");
             String token = this.objectMapper.readTree(discordFile).path("token").asText();
 
             this.discordConnector.registerListeners(
-                    linkCommand
+                    linkCommand,
+                    unlinkCommand
             );
 
             this.discordConnector.startBot(token);
             this.linkRegistry = new LinkRegistry(this);
 
-            List<CommandHolder> holders = new ArrayList<>();
+            List<DiscordCommandHolder> holders = new ArrayList<>();
             for (Object listener : BOT.getRegisteredListeners()) {
-                if (listener instanceof CommandHolder holder) {
+                if (listener instanceof DiscordCommandHolder holder) {
                     holders.add(holder);
                 }
             }
 
             List<CommandData> datas = new ArrayList<>();
-            for (CommandHolder holder : holders) {
+            for (DiscordCommandHolder holder : holders) {
                 datas.addAll(Arrays.asList(holder.getCommandData()));
             }
 
@@ -242,15 +256,17 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             this.error("An error occurred while starting the Discord bot. Stopping plugin initialization.");
             return;
         }
-
-        //--- COUNTRIES ---
-        this.countriesRegistry = new CountriesRegistry(this);
+        this.log("Discord bot started successfully.");
     }
 
     @Override
     public void onDisable() {
         this.updateAutoScoreboardsTask.cancel();
-        this.discordConnector.stopBot();
+        try {
+            this.discordConnector.stopBot();
+        } catch (InterruptedException e) {
+            this.error("An error occurred while stopping the Discord bot.");
+        }
     }
 
     public void log(@NotNull Object o) {
@@ -351,9 +367,9 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     }
 
     private void startAutoScoreboardsTimer() {
-        this.updateAutoScoreboardsTask = Bukkit.getAsyncScheduler().runAtFixedRate(
+        this.updateAutoScoreboardsTask = Bukkit.getScheduler().runTaskTimer(
                 this,
-                scheduledTask -> {
+                () -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         OnlineServerPlayer s = (OnlineServerPlayer) this.getPlayerRegistry().get(player.getUniqueId());
                         ScoreboardManager manager = s.getScoreboardManager();
@@ -371,8 +387,67 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     }
                 },
                 0,
-                5,
-                TimeUnit.SECONDS
+                5
         );
+    }
+
+    /**
+     * Teleports a player to the specified coordinates. This method won't wait until the terrain is generated.
+     * @param player The player to teleport
+     * @param x The X coordinate
+     * @param z The Z coordinate
+     */
+    public void teleportForced(@NotNull Player player, double x, double z) {
+        double height = TerraConnector.getHeight((int) x, (int) z).join();
+        World world = this.getWorld(height);
+        double finalHeight = world.getHighestBlockYAt((int) x, (int) z);
+        player.teleportAsync(
+                new Location(
+                        world,
+                        x,
+                        finalHeight,
+                        z
+                )
+        );
+    }
+
+    /**
+     * Teleports a player to the specified coordinates. This method will wait until the terrain is generated.
+     * @param player The player to teleport
+     * @param x The X coordinate
+     * @param z The Z coordinate
+     * @param loadingMessage The message to send while the terrain is loading
+     * @param successMessage The message to send when the player is teleported
+     */
+    public void teleportAsync(
+            Player player,
+            double x,
+            double z,
+            @Nullable String loadingMessage,
+            @Nullable String successMessage
+    ) {
+        CompletableFuture<Double> heightFuture = TerraConnector.getHeight((int) x, (int) z);
+        heightFuture.thenAccept(height -> {
+            World world = this.getWorld(height);
+            double finalHeight = world.getHighestBlockYAt((int) x, (int) z);
+
+            Location location = new Location(
+                    world,
+                    x,
+                    finalHeight,
+                    z
+            );
+
+            if (!location.isChunkLoaded()) {
+                if (loadingMessage != null) player.sendMessage(loadingMessage);
+            }
+            player.teleportAsync(
+                    location
+            ).whenCompleteAsync(
+                    (a, b) -> {
+                        if (successMessage != null) player.sendMessage(successMessage);
+                    }
+            );
+        });
     }
 }

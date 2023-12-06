@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.player.discord;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import net.dv8tion.jda.api.entities.User;
@@ -29,17 +30,21 @@ public class DiscordManager implements PlayerManager, RegistrableEntity<String> 
         this.plugin = plugin;
         this.player = player;
 
-        ResultSet set = plugin.getSqlManager().select(
+        try (SQLResult result = plugin.getSqlManager().select(
                 "discord_managers",
                 new SQLColumnSet("*"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition("uuid", "=", player.getUUID())
                 )
-        ).retrieve();
-
-        if (!set.next()) {
-            id = null;
-            username = null;
+        ).retrieve()) {
+            ResultSet set = result.getResultSet();
+            if (!set.next()) {
+                id = null;
+                username = null;
+            } else {
+                id = set.getString("id");
+                username = set.getString("name");
+            }
         }
     }
 
@@ -52,13 +57,14 @@ public class DiscordManager implements PlayerManager, RegistrableEntity<String> 
                                 new SQLValuesSet(
                                         new SQLValue("uuid", player.getUUID()),
                                         new SQLValue("id", id),
-                                        new SQLValue("username", user.getName())
+                                        new SQLValue("name", user.getName())
                                 )
                         ).execute();
                         this.id = id;
                         this.username = user.getName();
                         this.plugin.getLinkRegistry().registerID(id);
                     } catch (SQLException e) {
+                        e.printStackTrace();
                         plugin.error("Error linking discord account. (ID:" + id + ", UUID:" + player.getUUID() + ")");
                         return;
                     }
@@ -76,9 +82,9 @@ public class DiscordManager implements PlayerManager, RegistrableEntity<String> 
                             new SQLOperatorCondition("id", "=", id)
                     )
             ).execute();
+            this.plugin.getLinkRegistry().unregisterID(id);
             this.id = null;
             this.username = null;
-            this.plugin.getLinkRegistry().unregisterID(id);
         } catch (SQLException e) {
             plugin.error("Error unlinking discord account. (ID:" + id + ", UUID:" + player.getUUID() + ")");
         }
@@ -86,7 +92,15 @@ public class DiscordManager implements PlayerManager, RegistrableEntity<String> 
 
     @Override
     public void saveValue(String key, Object value) throws SQLException {
-
+        plugin.getSqlManager().update(
+                "discord_managers",
+                new SQLValuesSet(
+                        new SQLValue(key, value)
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition("uuid", "=", player.getUUID())
+                )
+        ).execute();
     }
 
     @Override

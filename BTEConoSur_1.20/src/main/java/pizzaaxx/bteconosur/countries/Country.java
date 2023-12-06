@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import net.dv8tion.jda.api.entities.Guild;
@@ -47,53 +48,52 @@ public class Country implements RegistrableEntity<String> {
     public Country(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
         this.name = name;
-        ResultSet set = plugin.getSqlManager().select(
+        try (SQLResult result = plugin.getSqlManager().select(
                 "countries",
                 new SQLColumnSet("*"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition("name", "=", name)
                 )
-        ).retrieve();
+        ).retrieve()) {
+            ResultSet set = result.getResultSet();
+            if (!set.next()) {
+                throw new SQLException("Country not found.");
+            }
 
-        if (!set.next()) {
-            throw new SQLException("Country not found.");
-        }
+            this.displayName = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("display_name"));
+            this.abbreviation = set.getString("abbreviation");
+            this.guildId = set.getString("guild_id");
+            this.showcaseId = set.getString("showcase_id");
+            this.chatId = set.getString("chat_id");
+            this.logsId = set.getString("logs_id");
+            this.requestsId = set.getString("requests_id");
+            this.iconUrl = set.getString("icon_url");
 
-        this.displayName = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("display_name"));
-        this.abbreviation = set.getString("abbreviation");
-        this.guildId = set.getString("guild_id");
-        this.showcaseId = set.getString("showcase_id");
-        this.chatId = set.getString("chat_id");
-        this.logsId = set.getString("logs_id");
-        this.requestsId = set.getString("requests_id");
-        this.iconUrl = set.getString("icon_url");
-
-        JsonNode spawnNode = plugin.getJsonMapper().readTree(set.getString("spawn_point"));
-        this.spawn = new Location(
-                plugin.getWorld(spawnNode.path("y").asDouble()),
-                spawnNode.path("x").asDouble(),
-                spawnNode.path("y").asDouble(),
-                spawnNode.path("z").asDouble()
-        );
-
-        this.projectTypes = new ArrayList<>();
-        JsonNode projectTypesNode = plugin.getJsonMapper().readTree(set.getString("project_types"));
-        for (JsonNode typeNode : projectTypesNode) {
-            this.projectTypes.add(
-                    new ProjectType(plugin, typeNode.asText())
+            JsonNode spawnNode = plugin.getJsonMapper().readTree(set.getString("spawn_point"));
+            this.spawn = new Location(
+                    plugin.getWorld(spawnNode.path("y").asDouble()),
+                    spawnNode.path("x").asDouble(),
+                    spawnNode.path("y").asDouble(),
+                    spawnNode.path("z").asDouble()
             );
-        }
 
-        this.headValue = set.getString("head_value");
-        this.emoji = set.getString("emoji");
-        this.chatPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("chat_prefix"));
-        this.tabPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("tab_prefix"));
+            this.projectTypes = new ArrayList<>();
+            JsonNode projectTypesNode = plugin.getJsonMapper().readTree(set.getString("project_types"));
+            for (JsonNode typeNode : projectTypesNode) {
+                this.projectTypes.add(
+                        new ProjectType(plugin, typeNode.asText())
+                );
+            }
 
-        JsonNode regionsNode = plugin.getJsonMapper().readTree(set.getString("regions"));
-        for (JsonNode regionNode : regionsNode) {
-            for (JsonNode coordinatesNode : regionNode) {
+            this.headValue = set.getString("head_value");
+            this.emoji = set.getString("emoji");
+            this.chatPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("chat_prefix"));
+            this.tabPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("tab_prefix"));
+
+            JsonNode regionsNode = plugin.getJsonMapper().readTree(set.getString("regions"));
+            for (JsonNode regionNode : regionsNode) {
                 List<BlockVector2> vectors = new ArrayList<>();
-                coordinatesNode.forEach(
+                regionNode.forEach(
                         coordinateNode -> vectors.add(
                                 BlockVector2.at(
                                         coordinateNode.path("x").asInt(),

@@ -5,6 +5,9 @@ import net.buildtheearth.terraminusminus.generator.EarthGeneratorPipelines;
 import net.buildtheearth.terraminusminus.generator.EarthGeneratorSettings;
 import net.buildtheearth.terraminusminus.generator.GeneratorDatasets;
 import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import pizzaaxx.bteconosur.BTEConoSurPlugin;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -62,5 +65,16 @@ public class TerraConnector {
         return altFuture;
     }
 
+    public static void teleportAsync(BTEConoSurPlugin plugin, double x, double z, Player player) {
+        CompletableFuture<Double> altFuture = getHeight(x, z);
+        altFuture.thenAcceptAsync(alt -> player.teleportAsync(
+                new Location(
+                        plugin.getWorld(alt),
+                        x,
+                        alt,
+                        z
+                )
+        ));
+    }
 
 }

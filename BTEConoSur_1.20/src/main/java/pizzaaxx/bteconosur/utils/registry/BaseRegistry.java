@@ -17,7 +17,7 @@ public class BaseRegistry<T extends RegistrableEntity<K>, K> {
     protected final Map<K, T> cacheMap = new HashMap<>();
     private final Map<K, Long> deletionMap = new HashMap<>();
 
-    private final boolean cache;
+    public final boolean cache;
     private final Function<K, T> get;
     public final Collection<K> ids;
 
@@ -105,7 +105,7 @@ public class BaseRegistry<T extends RegistrableEntity<K>, K> {
     private void scheduleDeletion(K id) {
         if (this.cache) {
             this.deletionMap.put(id, System.currentTimeMillis());
-            Bukkit.getAsyncScheduler().runDelayed(
+            Bukkit.getScheduler().runTaskLater(
                     plugin,
                     scheduledTask -> {
                         if (this.deletionMap.containsKey(id) && System.currentTimeMillis() - this.deletionMap.get(id) > 540000) {
@@ -113,8 +113,7 @@ public class BaseRegistry<T extends RegistrableEntity<K>, K> {
                             this.cacheMap.remove(id);
                         }
                     },
-                    10,
-                    TimeUnit.MINUTES
+                    10 * 60 * 20
             );
         }
     }

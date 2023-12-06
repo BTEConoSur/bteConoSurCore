@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 
@@ -30,35 +31,39 @@ public class ProjectType {
     public ProjectType(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
         this.name = name;
-        ResultSet set = plugin.getSqlManager().select(
+        try (SQLResult result = plugin.getSqlManager().select(
                 "project_types",
                 new SQLColumnSet("*"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition("name", "=", name)
                 )
-        ).retrieve();
+        ).retrieve()) {
+            ResultSet set = result.getResultSet();
+            if (!set.next()) {
+                throw new SQLException("Project type not found.");
+            }
 
-        if (!set.next()) {
-            throw new SQLException("Project type not found.");
+            this.displayName = set.getString("display_name");
+            this.maxMembers = set.getInt("max_members");
+
+            this.pointOptions = new ArrayList<>();
+            JsonNode pointOptionsNode = plugin.getJsonMapper().readTree(set.getString("points_options"));
+            for (JsonNode point_option : pointOptionsNode) {
+                this.pointOptions.add(point_option.asInt());
+            }
+
+            this.unlockRequirements = new HashMap<>();
+            JsonNode unlockRequirementsNode = plugin.getJsonMapper().readTree(set.getString("unlock_requirements"));
+            Iterable<Map.Entry<String, JsonNode>> unlockRequirementsFields = unlockRequirementsNode::fields;
+            for (Map.Entry<String, JsonNode> field : unlockRequirementsFields) {
+                this.unlockRequirements.put(field.getKey(), field.getValue().asInt());
+            }
+
+
+            // get color from hex
+            this.color = Color.decode("#" + set.getString("color"));
+            this.description = set.getString("description");
         }
-
-        this.displayName = set.getString("display_name");
-        this.maxMembers = set.getInt("max_members");
-
-        this.pointOptions = new ArrayList<>();
-        JsonNode pointOptionsNode = plugin.getJsonMapper().readTree(set.getString("point_options"));
-        for (JsonNode point_option : pointOptionsNode) {
-            this.pointOptions.add(point_option.asInt());
-        }
-
-        this.unlockRequirements = new HashMap<>();
-        JsonNode unlockRequirementsNode = plugin.getJsonMapper().readTree(set.getString("unlock_requirements"));
-        for (JsonNode unlock_requirement : unlockRequirementsNode) {
-            this.unlockRequirements.put(unlock_requirement.get("type").asText(), unlock_requirement.get("value").asInt());
-        }
-
-        this.color = Color.decode(set.getString("color"));
-        this.description = set.getString("description");
     }
 
     public String getName() {

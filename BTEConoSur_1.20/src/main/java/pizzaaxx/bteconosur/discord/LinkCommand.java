@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX_C;
 
-public class LinkCommand extends ListenerAdapter implements CommandExecutor, CommandHolder {
+public class LinkCommand extends ListenerAdapter implements CommandExecutor, DiscordCommandHolder {
 
     private final BTEConoSurPlugin plugin;
     private final Map<String, String> codesDsToMc = new HashMap<>();
@@ -46,6 +46,12 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Com
 
         if (args.length == 0) {
 
+            // check if already linked
+            if (plugin.getPlayerRegistry().get(player.getUniqueId()).getDiscordManager().isLinked()) {
+                player.sendMessage(PREFIX_C.append(Component.text("Tu cuenta de Minecraft ya está vinculada.", TextColor.color(ChatUtils.RED))));
+                return true;
+            }
+
             // Generar código
             String code = StringUtils.generateCode(
                     6,
@@ -55,18 +61,19 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Com
             );
 
             codesMcToDs.put(code, player.getUniqueId());
-            Bukkit.getAsyncScheduler().runDelayed(
+            Bukkit.getScheduler().runTaskLater(
                      plugin,
                     scheduledTask -> codesMcToDs.remove(code),
-                    5,
-                    TimeUnit.MINUTES
+                    5 * 60 * 20
             );
             player.sendMessage(
                     PREFIX_C
                             .append(Component.text("Tu código es "))
                             .append(Component.text(code, TextColor.color(ChatUtils.GREEN))
-                                    .clickEvent(ClickEvent.copyToClipboard(code)))
-                            .append(Component.text("."))
+                                    .clickEvent(ClickEvent.copyToClipboard(code))
+                                    .hoverEvent(Component.text("Haz click para copiar el código."))
+                            )
+                            .append(Component.text(". "))
                             .append(Component.text("Usa "))
                             .append(Component.text("/link <codigo>", TextColor.color(ChatUtils.GREEN)))
                             .append(Component.text(" en Discord para enlazar tu cuenta."))
@@ -104,6 +111,12 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Com
         OptionMapping codeMapping = event.getOption("codigo");
         if (codeMapping == null) {
 
+            // check if already linked
+            if (plugin.getLinkRegistry().exists(event.getUser().getId())) {
+                DiscordConnector.respondError(event, "Tu cuenta de Discord ya está vinculada.");
+                return;
+            }
+
             // Generar código
             String code = StringUtils.generateCode(
                     6,
@@ -113,11 +126,10 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Com
             );
 
             codesDsToMc.put(code, event.getUser().getId());
-            Bukkit.getAsyncScheduler().runDelayed(
+            Bukkit.getScheduler().runTaskLater(
                     plugin,
                     scheduledTask -> codesDsToMc.remove(code),
-                    5,
-                    TimeUnit.MINUTES
+                    5 * 60 * 20
             );
             // Send code to user via DM
             event.getUser().openPrivateChannel().queue(

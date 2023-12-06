@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.player.scoreboard;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import fr.mrmicky.fastboard.adventure.FastBoard;
@@ -21,7 +22,7 @@ public class ScoreboardManager implements PlayerManager {
 
     private final BTEConoSurPlugin plugin;
     private final OnlineServerPlayer player;
-    private FastBoard board;
+    private FastBoard board = null;
 
     private boolean hidden;
     private boolean auto;
@@ -33,36 +34,40 @@ public class ScoreboardManager implements PlayerManager {
     public ScoreboardManager(@NotNull BTEConoSurPlugin plugin, @NotNull OnlineServerPlayer player) throws SQLException {
         this.plugin = plugin;
         this.player = player;
-        this.board = new FastBoard(player.getPlayer());
 
-        ResultSet set = plugin.getSqlManager().select(
+        try (SQLResult result = plugin.getSqlManager().select(
                 "scoreboard_managers",
                 new SQLColumnSet("*"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition("uuid", "=", player.getUUID())
                 )
-        ).retrieve();
+        ).retrieve()) {
+            ResultSet set = result.getResultSet();
+            if (set.next()) {
 
-        if (set.next()) {
+                this.type = set.getString("type");
+                this.auto = set.getBoolean("auto");
+                this.hidden = set.getBoolean("hidden");
 
-            this.type = set.getString("type");
-            this.auto = set.getBoolean("auto");
-            this.hidden = set.getBoolean("hidden");
-
-        } else {
-            plugin.getSqlManager().insert(
-                    "scoreboard_managers",
-                    new SQLValuesSet(
-                            new SQLValue("uuid", player.getUUID()),
-                            new SQLValue("type", "server"),
-                            new SQLValue("auto", true),
-                            new SQLValue("hidden", false)
-                    )
-            ).execute();
-            this.type = "server";
-            this.auto = true;
-            this.hidden = false;
+            } else {
+                plugin.getSqlManager().insert(
+                        "scoreboard_managers",
+                        new SQLValuesSet(
+                                new SQLValue("uuid", player.getUUID()),
+                                new SQLValue("type", "server"),
+                                new SQLValue("auto", true),
+                                new SQLValue("hidden", false)
+                        )
+                ).execute();
+                this.type = "server";
+                this.auto = true;
+                this.hidden = false;
+            }
         }
+    }
+
+    public void startBoard() {
+        this.board = new FastBoard(player.getPlayer());
     }
 
     public boolean isAuto() {
@@ -89,11 +94,14 @@ public class ScoreboardManager implements PlayerManager {
     }
 
     public void setDisplay(@NotNull ScoreboardDisplay display) throws SQLException {
-        this.currentDisplay = display;
-        if (this.board.isDeleted()) {
-            this.board = new FastBoard(this.player.getPlayer());
+        if (this.board == null) {
+            return;
         }
+        this.currentDisplay = display;
         if (!this.hidden) {
+            if (this.board.isDeleted()) {
+                this.board = new FastBoard(this.player.getPlayer());
+            }
             this.board.updateLines(
                     display.getLines()
             );

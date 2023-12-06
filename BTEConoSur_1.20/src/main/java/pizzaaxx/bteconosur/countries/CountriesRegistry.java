@@ -3,10 +3,13 @@ package pizzaaxx.bteconosur.countries;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
+import com.github.PeterMassmann.SQLResult;
+import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.terra.TerraCoords;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
 
 import java.sql.ResultSet;
@@ -22,13 +25,12 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
                 plugin,
                 () -> {
                     List<String> names = new ArrayList<>();
-                    try {
-                        ResultSet set = plugin.getSqlManager().select(
-                                "countries",
-                                new SQLColumnSet("name"),
-                                new SQLANDConditionSet()
-                        ).retrieve();
-
+                    try (SQLResult result = plugin.getSqlManager().select(
+                            "countries",
+                            new SQLColumnSet("name"),
+                            new SQLANDConditionSet()
+                    ).retrieve()) {
+                        ResultSet set = result.getResultSet();
                         while (set.next()) {
                             names.add(set.getString("name"));
                         }
@@ -41,7 +43,8 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
                     try {
                         return new Country(plugin, name);
                     } catch (SQLException | JsonProcessingException e) {
-                        plugin.error("Error loading country instance. (Name:" + name + ")");
+                        e.printStackTrace();
+                        plugin.error("Error loading country instance. (Name: " + name + ")");
                     }
                     return null;
                 },
@@ -84,6 +87,23 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
                         location.getBlockX(),
                         location.getBlockY(),
                         location.getBlockZ()
+                )) {
+                    return country;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public Country getCountryAt(TerraCoords coords) {
+        for (Country country : super.cacheMap.values()) {
+            for (ProtectedPolygonalRegion region : country.getRegions()) {
+                if (region.contains(
+                        BlockVector2.at(
+                                coords.getX(),
+                                coords.getZ()
+                        )
                 )) {
                     return country;
                 }

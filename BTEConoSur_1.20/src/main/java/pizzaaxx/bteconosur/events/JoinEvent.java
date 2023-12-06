@@ -17,7 +17,8 @@ public class JoinEvent implements Listener {
 
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
-
+        OnlineServerPlayer serverPlayer = (OnlineServerPlayer) plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId());
+        serverPlayer.getScoreboardManager().startBoard();
     }
 
 }

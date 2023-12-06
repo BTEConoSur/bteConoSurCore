@@ -2,6 +2,7 @@ package pizzaaxx.bteconosur.building.worldedit;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.entity.Player;
@@ -29,6 +30,11 @@ public class WorldEditConnector {
     public Region getSelection(org.bukkit.entity.Player player) throws IncompleteRegionException {
         Player actor = this.getWEPlayer(player);
         return WorldEdit.getInstance().getSessionManager().get(actor).getSelection(actor.getWorld());
+    }
+
+    public LocalSession getLocalSession(org.bukkit.entity.Player player) {
+        Player actor = this.getWEPlayer(player);
+        return WorldEdit.getInstance().getSessionManager().get(actor);
     }
 
     public EditSession getEditSession(org.bukkit.entity.Player player) {

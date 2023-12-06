@@ -17,21 +17,11 @@ depend:
 commands:
   tpll:
     description: Teletranspórtate a un par de coordenadas geográficas.
-    permission: btecs.tpll
+  tpdir:
+    description: Teletranspórtate a una dirección del mundo.
   divide:
     description: Crea una linea que está dividida en partes iguales.
-    permission: btecs.divide
   link:
     description: Enlaza tu cuenta de Discord con tu cuenta de Minecraft.
-    permission: btecs.link
   unlink:
     description: Desenlaza tu cuenta de Discord con tu cuenta de Minecraft.
-    permission: btecs.link
-
-permissions:
-  btecs.tpll:
-    default: not op
-  btecs.divide:
-    default: not op
-  btecs.link:
-    default: not op

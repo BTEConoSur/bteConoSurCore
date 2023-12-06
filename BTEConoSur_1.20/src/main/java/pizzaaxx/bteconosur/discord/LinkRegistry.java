@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.discord;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.discord.DiscordManager;
 import pizzaaxx.bteconosur.utils.SQLUtils;
@@ -21,12 +22,12 @@ public class LinkRegistry extends BaseRegistry<DiscordManager, String> {
                 plugin,
                 () -> {
                     List<String> ids = new ArrayList<>();
-                    try {
-                        ResultSet set = plugin.getSqlManager().select(
-                                "discord_managers",
-                                new SQLColumnSet("id"),
-                                new SQLANDConditionSet()
-                        ).retrieve();
+                    try (SQLResult result = plugin.getSqlManager().select(
+                            "discord_managers",
+                            new SQLColumnSet("id"),
+                            new SQLANDConditionSet()
+                    ).retrieve()) {
+                        ResultSet set = result.getResultSet();
                         while (set.next()) {
                             ids.add(set.getString("id"));
                         }
@@ -36,15 +37,14 @@ public class LinkRegistry extends BaseRegistry<DiscordManager, String> {
                     return ids;
                 },
                 id -> {
-                    try {
-                        ResultSet set = plugin.getSqlManager().select(
-                                "discord_managers",
-                                new SQLColumnSet("uuid"),
-                                new SQLANDConditionSet(
-                                        new SQLOperatorCondition("id", "=", id)
-                                )
-                        ).retrieve();
-
+                    try (SQLResult result = plugin.getSqlManager().select(
+                            "discord_managers",
+                            new SQLColumnSet("uuid"),
+                            new SQLANDConditionSet(
+                                    new SQLOperatorCondition("id", "=", id)
+                            )
+                    ).retrieve()) {
+                        ResultSet set = result.getResultSet();
                         if (!set.next()) {
                             plugin.error("Link instance not found. (ID:" + id + ")");
                             return null;

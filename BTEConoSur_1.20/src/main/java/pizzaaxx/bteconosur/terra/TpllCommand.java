@@ -11,6 +11,8 @@ import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.terra.TerraConnector;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 
+import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
+
 public class TpllCommand implements CommandExecutor {
 
     private final BTEConoSurPlugin plugin;
@@ -39,49 +41,24 @@ public class TpllCommand implements CommandExecutor {
             double height;
             if (args.length >= 3) {
                 height = Double.parseDouble(args[2]);
-            } else {
-                height = TerraConnector.getHeight((int) coords.getX(), (int) coords.getZ()).join();
-            }
-
-            World world;
-            if (height < 2032) {
-                world = plugin.getWorlds()[0];
-            } else if (height < 4064) {
-                world = plugin.getWorlds()[1];
-                height -= 2032;
-            } else {
-                player.sendMessage("§7[TPLL] §8» §7No puedes teletransportarte a estas coordenadas, está demasiado alto.");
-                return true;
-            }
-
-            Location location = new Location(
-                    world,
-                    coords.getX(),
-                    (args.length >= 3
-                            ? world.getHighestBlockYAt(
-                                    (int) coords.getX(),
-                                    (int) coords.getZ()
-                            )
-                            : height
-                    ),
-                    coords.getZ()
-            );
-
-            if (!location.isChunkLoaded()) {
-                player.sendMessage("§7[TPLL] §8» §7Se esta generando el terreno, espera un momento...");
-
-                player.teleportAsync(
-                        location
-                ).whenCompleteAsync(
-                        (result, throwable) -> {
-                            if (result) {
-                                player.sendMessage("§7[TPLL] §8» §7Teletransportándote a §a" + coords.getLon() + "§7, §a" + coords.getLat() + "§7.");
-                            }
-                        }
+                World world = plugin.getWorld(height);
+                player.teleport(
+                        new Location(
+                                world,
+                                coords.getX(),
+                                height,
+                                coords.getZ()
+                        )
                 );
+                player.sendMessage(PREFIX + "§7Teletransportándote a §a" + coords.getLon() + "§7, §a" + coords.getLat() + "§7.");
             } else {
-                player.teleport(location);
-                player.sendMessage("§7[TPLL] §8» §7Teletransportándote a §a" + coords.getLon() + "§7, §a" + coords.getLat() + "§7.");
+                plugin.teleportAsync(
+                        player,
+                        coords.getX(),
+                        coords.getZ(),
+                        PREFIX + "§7Se esta generando el terreno, espera un momento...",
+                        PREFIX + "§7Teletransportándote a §a" + coords.getLon() + "§7, §a" + coords.getLat() + "§7."
+                );
             }
         }
         return true;

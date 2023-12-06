@@ -13,9 +13,10 @@ import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.OfflineServerPlayer;
 import pizzaaxx.bteconosur.player.discord.DiscordManager;
 
+import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX_C;
 
-public class UnlinkCommand extends ListenerAdapter implements CommandExecutor, CommandHolder {
+public class UnlinkCommand extends ListenerAdapter implements CommandExecutor, DiscordCommandHolder {
 
     private final BTEConoSurPlugin plugin;
 
@@ -35,14 +36,14 @@ public class UnlinkCommand extends ListenerAdapter implements CommandExecutor, C
 
         // warn if not linked
         if (!offlineServerPlayer.getDiscordManager().isLinked()) {
-            player.sendMessage(PREFIX_C + "§cTu cuenta de Discord no está vinculada.");
+            player.sendMessage(PREFIX + "§cTu cuenta de Discord no está vinculada.");
             return true;
         }
 
         // unlink
         offlineServerPlayer.getDiscordManager().unlink();
 
-        player.sendMessage(PREFIX_C + "§aTu cuenta de Discord ha sido desvinculada.");
+        player.sendMessage(PREFIX + "§aTu cuenta de Discord ha sido desvinculada.");
 
         return true;
     }

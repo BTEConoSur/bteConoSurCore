@@ -1,11 +1,14 @@
 package pizzaaxx.bteconosur.building;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.regions.RegionSelector;
+import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import org.bukkit.command.Command;
@@ -50,21 +53,24 @@ public class DivideCommand implements CommandExecutor {
             return true;
         }
 
-        Region selection;
+        RegionSelector selector = WORLDEDIT_CONNECTOR.getLocalSession(player).getRegionSelector(new BukkitWorld(player.getWorld()));
+        if (!(selector instanceof CuboidRegionSelector cuboidRegionSelector) || !selector.isDefined()) {
+            sender.sendMessage(PREFIX + "Selecciona un área cúbica primero.");
+            return true;
+        }
+
+        BlockVector3 primary;
+        BlockVector3 secondary;
         try {
-            selection = WORLDEDIT_CONNECTOR.getSelection(player);
-        } catch (Exception e) {
+            primary = cuboidRegionSelector.getRegion().getPos1();
+            secondary = cuboidRegionSelector.getRegion().getPos2();
+        } catch (IncompleteRegionException e) {
             sender.sendMessage(PREFIX + "Selecciona un área cúbica primero.");
             return true;
         }
 
-        if (!(selection instanceof CuboidRegion region)) {
-            sender.sendMessage(PREFIX + "Selecciona un área cúbica primero.");
-            return true;
-        }
-
-        List<BlockVector3> blocks = new ArrayList<>(WORLDEDIT_CONNECTOR.getBlocksInLine(region.getMinimumPoint(), region.getMaximumPoint()));
-        blocks.sort(Comparator.comparingDouble(v -> v.distance(region.getMinimumPoint())));
+        List<BlockVector3> blocks = new ArrayList<>(WORLDEDIT_CONNECTOR.getBlocksInLine(primary, secondary));
+        blocks.sort(Comparator.comparingDouble(v -> v.distance(primary)));
 
         if (blocks.size() < divisions) {
             sender.sendMessage(PREFIX + "La cantidad de bloques es menor a la cantidad de divisiones.");
@@ -84,6 +90,7 @@ public class DivideCommand implements CommandExecutor {
 
         }
 
+        LocalSession localSession = WORLDEDIT_CONNECTOR.getLocalSession(player);
         EditSession session = WORLDEDIT_CONNECTOR.getEditSession(player);
 
         Mask mask = session.getMask();
@@ -109,12 +116,17 @@ public class DivideCommand implements CommandExecutor {
                 try {
                     session.setBlock(vector, block);
                 } catch (MaxChangedBlocksException e) {
+                    localSession.remember(session);
                     player.sendMessage(PREFIX + "Se ha alcanzado el límite de bloques modificados.");
+                    return true;
                 }
             }
             counter += amount;
             switcher++;
         }
+
+        localSession.remember(session);
+        session.close();
 
         player.sendMessage(PREFIX + "Operación completada. (Bloques cambiados: " + blocks.size() + ")");
 

@@ -9,12 +9,14 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.countries.Country;
 
 import java.awt.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,9 +34,13 @@ public class DiscordConnector {
 
     public void startBot(String token) throws InterruptedException {
         JDABuilder builder = JDABuilder.createDefault(token);
+        builder.enableIntents(
+                GatewayIntent.DIRECT_MESSAGES,
+                GatewayIntent.MESSAGE_CONTENT
+        );
+        builder.addEventListeners(listeners.toArray());
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("bteconosur.com"));
-        builder.addEventListeners(listeners.toArray());
         BOT = builder.build().awaitReady();
 
         for (Country country : plugin.getCountriesRegistry().getCountries()) {
@@ -48,7 +54,7 @@ public class DiscordConnector {
         }
     }
 
-    public void stopBot() {
+    public void stopBot() throws InterruptedException {
 
         for (Country country : plugin.getCountriesRegistry().getCountries()) {
             country.getChat().sendMessageEmbeds(
@@ -60,7 +66,11 @@ public class DiscordConnector {
             ).queue();
         }
 
-        BOT.shutdown();
+            BOT.shutdown();
+        if (!BOT.awaitShutdown(Duration.ofSeconds(10))) {
+            BOT.shutdownNow(); // Cancel all remaining requests
+            BOT.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+        }
     }
 
     public void registerListeners(Object... listeners) {
