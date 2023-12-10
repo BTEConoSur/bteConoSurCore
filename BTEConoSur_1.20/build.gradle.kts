@@ -9,7 +9,7 @@ group = "pizzaaxx.bteconosur"
 version = "3.0"
 
 repositories {
-    mavenCentral()
+    maven("https://maven.geotoolkit.org/")
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.enginehub.org/repo/")
     maven("https://jitpack.io")
@@ -17,6 +17,8 @@ repositories {
     maven("https://repo.opencollab.dev/snapshot/")
     maven("https://maven.elmakers.com/repository/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://repo.osgeo.org/repository/release/")
+    mavenCentral()
 }
 
 dependencies {
@@ -38,12 +40,12 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.0.72")
     implementation("com.github.PeterMassmann:SQL-Manager:83bef5aecb")
     implementation("fr.mrmicky:fastboard:2.0.1")
+    implementation("org.geotools:gt-shapefile:27.0")
 }
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
-
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))

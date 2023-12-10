@@ -12,6 +12,7 @@ import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -42,7 +43,7 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
                 name -> {
                     try {
                         return new Country(plugin, name);
-                    } catch (SQLException | JsonProcessingException e) {
+                    } catch (SQLException | IOException e) {
                         e.printStackTrace();
                         plugin.error("Error loading country instance. (Name: " + name + ")");
                     }

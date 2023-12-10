@@ -3,9 +3,9 @@ package pizzaaxx.bteconosur;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.PeterMassmann.SQLManager;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.kyori.adventure.text.Component;
@@ -25,17 +25,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.building.DivideCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
 import pizzaaxx.bteconosur.discord.*;
-import pizzaaxx.bteconosur.events.JoinEvent;
-import pizzaaxx.bteconosur.events.LoginEvent;
-import pizzaaxx.bteconosur.events.PreLoginEvent;
-import pizzaaxx.bteconosur.events.QuitEvent;
+import pizzaaxx.bteconosur.events.*;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
+import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.terra.TerraConnector;
 import pizzaaxx.bteconosur.terra.TpdirCommand;
 import pizzaaxx.bteconosur.terra.TpllCommand;
@@ -43,21 +43,20 @@ import pizzaaxx.bteconosur.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.PlayerRegistry;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
+import pizzaaxx.bteconosur.utils.SHPUtils;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
-import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
-import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
+import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 
 public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayProvider, ScoreboardDisplay {
 
@@ -69,6 +68,11 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     private final World[] worlds = new World[2];
     public World[] getWorlds() {
         return worlds;
+    }
+
+    private final com.sk89q.worldedit.world.World[] weWorlds = new com.sk89q.worldedit.world.World[2];
+    public com.sk89q.worldedit.world.World[] getWEWorlds() {
+        return weWorlds;
     }
 
     //--- WORLDGUARD ---
@@ -129,6 +133,25 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         return countriesRegistry;
     }
 
+    //--- SHAPEFILE ---
+    private final Map<String, Map<Integer, SimpleFeature>> shapefiles = new HashMap<>();
+    public Map<Integer, SimpleFeature> getShapefile(String name) {
+        return shapefiles.get(name);
+    }
+
+    //--- PROJECTS ---
+    private final ProjectsRegistry projectsRegistry = new ProjectsRegistry(this);
+    public ProjectsRegistry getProjectsRegistry() {
+        return projectsRegistry;
+    }
+
+    //--- REGION LISTENER ---
+    private final RegionListener regionListener = new RegionListener();
+    public RegionListener getRegionListener() {
+        return regionListener;
+    }
+
+
     @Override
     public void onEnable() {
 
@@ -140,6 +163,9 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.log("Loading worlds...");
         worlds[0] = Bukkit.createWorld(WorldCreator.name("BTE_CS_1"));
         worlds[1] = Bukkit.createWorld(WorldCreator.name("BTE_CS_2"));
+
+        weWorlds[0] = BukkitAdapter.adapt(worlds[0]);
+        weWorlds[1] = BukkitAdapter.adapt(worlds[1]);
 
         //--- WORLDEDIT ---
         this.log("Loading WorldEdit connector...");
@@ -154,6 +180,26 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     databaseNode.path("url").asText(),
                     databaseNode.path("username").asText(),
                     databaseNode.path("password").asText()
+            );
+            sqlManager.registerClassParser(
+                    Polygon.class,
+                    (polygon, insideJson) -> {
+                        List<List<Integer>> coordinates = new ArrayList<>();
+                        for (int i = 0; i < polygon.npoints; i++) {
+                            coordinates.add(
+                                    List.of(
+                                            polygon.xpoints[i],
+                                            polygon.ypoints[i]
+                                    )
+                            );
+                        }
+
+                        if (insideJson) {
+                            return sqlManager.parse(coordinates);
+                        } else {
+                            return "PolygonFromText('POLYGON((" + coordinates.stream().map(coord -> coord.get(0) + " " + coord.get(1)).collect(Collectors.joining(",")) + "," + coordinates.get(0).get(0) + " " + coordinates.get(0).get(1) + "))')";
+                        }
+                    }
             );
         } catch (IOException | SQLException e) {
             this.error("An error occurred while connecting to the database. Stopping plugin initialization.");
@@ -180,7 +226,10 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 new PreLoginEvent(this),
                 new LoginEvent(this),
                 new JoinEvent(this),
-                new Shortcuts(this)
+                new Shortcuts(this),
+                // new TestCities(this)
+                new TeleportSoundEvent(),
+                regionListener
         );
 
         //--- PLAYER REGISTRY ---
@@ -191,6 +240,20 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         PROVIDERS.put("server", this);
         AUTO_PROVIDERS.add("server");
         this.startAutoScoreboardsTimer();
+
+        //--- SHAPEFILES ---
+        this.log("Loading shapefiles...");
+        try {
+            shapefiles.put("argentina", SHPUtils.getCityFeatures(this, "argentina"));
+            shapefiles.put("bolivia", SHPUtils.getCityFeatures(this, "bolivia"));
+            shapefiles.put("chile", SHPUtils.getCityFeatures(this, "chile"));
+            shapefiles.put("paraguay", SHPUtils.getCityFeatures(this, "paraguay"));
+            shapefiles.put("peru", SHPUtils.getCityFeatures(this, "peru"));
+            shapefiles.put("uruguay", SHPUtils.getCityFeatures(this, "uruguay"));
+        } catch (IOException e) {
+            this.error("An error occurred while loading shapefiles. Stopping plugin initialization.");
+            return;
+        }
 
         //--- COUNTRIES ---
         this.log("Loading countries registry...");
@@ -257,6 +320,41 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             return;
         }
         this.log("Discord bot started successfully.");
+
+        //--- PROJECTS ---
+        this.log("Loading projects registry...");
+        try {
+            this.projectsRegistry.init();
+            this.regionListener.registerRegionEnterListener(
+                    id -> id.startsWith("project_"),
+                    (id, uuid) -> {
+                        String projectId = id.replace("project_", "");
+                        Project project = this.projectsRegistry.get(projectId);
+                        if (project != null) {
+                            Player player = Bukkit.getPlayer(uuid);
+                            assert player != null;
+                            player.sendActionBar(
+                                    Component.text(StringUtils.transformToSmallCapital(project.getDisplayName()), Style.style(TextColor.color(project.getType().getColor().getRGB())))
+                                            .append(Component.text(" - ", Style.style(TextColor.color(DARK_GRAY))))
+                                            .append(
+                                                    (project.isClaimed()
+                                                            ? Component.text(StringUtils.transformToSmallCapital(this.playerRegistry.get(project.getOwner()).getName()), Style.style(TextColor.color(GRAY)))
+                                                            : Component.text("Disponible", Style.style(TextColor.color(GREEN)))
+                                                    )
+                                            )
+                            );
+                            OnlineServerPlayer serverPlayer = (OnlineServerPlayer) this.playerRegistry.get(uuid);
+                            ScoreboardManager manager = serverPlayer.getScoreboardManager();
+                            try {
+                                if (manager.getType().equals("project")) manager.setDisplay(project);
+                            } catch (SQLException ignored) {}
+                        }
+                    }
+            );
+        } catch (SQLException | IOException e) {
+            this.error("An error occurred while loading the projects registry. Stopping plugin initialization.");
+            return;
+        }
     }
 
     @Override
@@ -297,7 +395,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     }
 
     public boolean canBuild(UUID uuid, double x, double z) {
-        return true;
+        return projectsRegistry.isMemberAt(uuid, x, z);
     }
 
     public World getWorld(double y) {
@@ -305,6 +403,14 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             return this.getWorlds()[0];
         } else {
             return this.getWorlds()[1];
+        }
+    }
+
+    public com.sk89q.worldedit.world.World getWEWorld(double y) {
+        if (y < 2032) {
+            return this.getWEWorlds()[0];
+        } else {
+            return this.getWEWorlds()[1];
         }
     }
 

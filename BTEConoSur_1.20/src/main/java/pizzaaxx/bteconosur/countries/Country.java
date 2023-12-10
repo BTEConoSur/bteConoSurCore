@@ -1,6 +1,5 @@
 package pizzaaxx.bteconosur.countries;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
@@ -14,18 +13,31 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.cities.City;
+import pizzaaxx.bteconosur.events.RegionListener;
 import pizzaaxx.bteconosur.projects.ProjectType;
+import pizzaaxx.bteconosur.terra.TerraCoords;
+import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
 import pizzaaxx.bteconosur.utils.registry.RegistrableEntity;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
 
-public class Country implements RegistrableEntity<String> {
+public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String> {
 
     private final BTEConoSurPlugin plugin;
     private final String name;
@@ -44,8 +56,18 @@ public class Country implements RegistrableEntity<String> {
     private final Component chatPrefix;
     private final Component tabPrefix;
     private final List<ProtectedPolygonalRegion> regions = new ArrayList<>();
+    public final Map<Integer, SimpleFeature> cityFeatures = new HashMap<>();
 
-    public Country(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, JsonProcessingException {
+    public Country(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, IOException {
+        super(
+                plugin,
+                () -> {
+                    Map<Integer, SimpleFeature> cityFeatures = plugin.getShapefile(name);
+                    return cityFeatures.keySet();
+                },
+                id -> new City(plugin, name, id),
+                false
+        );
         this.plugin = plugin;
         this.name = name;
         try (SQLResult result = plugin.getSqlManager().select(
@@ -110,6 +132,14 @@ public class Country implements RegistrableEntity<String> {
                         )
                 );
             }
+            Map<Integer, SimpleFeature> featureMap = plugin.getShapefile(name);
+            featureMap.forEach((key, value) -> plugin.getRegionListener().registerRegion(
+                    "city_" + name + "_" + key,
+                    RegionListener.Region.fromMultiPolygon(
+                            (MultiPolygon) value.getDefaultGeometry()
+                    )
+            ));
+            this.cityFeatures.putAll(featureMap);
         }
     }
 
@@ -177,6 +207,16 @@ public class Country implements RegistrableEntity<String> {
         return projectTypes;
     }
 
+    @Nullable
+    public ProjectType getProjectType(String name) {
+        for (ProjectType type : projectTypes) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public @NotNull String getHeadValue() {
         return headValue;
     }
@@ -195,6 +235,23 @@ public class Country implements RegistrableEntity<String> {
 
     public @NotNull List<ProtectedPolygonalRegion> getRegions() {
         return regions;
+    }
+
+    @Nullable
+    public City getCityAt(@NotNull TerraCoords coords) {
+        Point point = new GeometryFactory().createPoint(
+                new Coordinate(
+                        coords.getLon(),
+                        coords.getLat()
+                )
+        );
+        for (SimpleFeature feature : cityFeatures.values()) {
+            MultiPolygon polygon = (MultiPolygon) feature.getDefaultGeometry();
+            if (polygon.contains(point)) {
+                return this.get(Math.toIntExact((long) feature.getAttribute("id")));
+            }
+        }
+        return null;
     }
 
     @Override
