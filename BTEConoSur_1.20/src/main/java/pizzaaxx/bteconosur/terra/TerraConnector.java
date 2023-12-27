@@ -5,6 +5,7 @@ import net.buildtheearth.terraminusminus.generator.EarthGeneratorPipelines;
 import net.buildtheearth.terraminusminus.generator.EarthGeneratorSettings;
 import net.buildtheearth.terraminusminus.generator.GeneratorDatasets;
 import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
@@ -38,8 +39,11 @@ public class TerraConnector {
      * @return The in-game coordinates (x, z)
      */
     public static double[] fromGeo(double lon, double lat) {
+        // create final lat and lon, where lon is between -180 and 180 and lat is between -90 and 90
+        double finalLat = Math.min(Math.max(lat, -90), 90);
+        double finalLon = Math.min(Math.max(lon, -180), 180);
         try {
-            return bteGeneratorSettings.projection().fromGeo(lon, lat);
+            return bteGeneratorSettings.projection().fromGeo(finalLon, finalLat);
         } catch (OutOfProjectionBoundsException e) {
             throw new RuntimeException(e);
         }

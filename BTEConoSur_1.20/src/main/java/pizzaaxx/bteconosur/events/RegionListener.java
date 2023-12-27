@@ -5,58 +5,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.MultiPolygon;
-import pizzaaxx.bteconosur.BTEConoSurPlugin;
 
-import java.awt.*;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class RegionListener implements Listener {
 
-    public static class Region {
-        private final MultiPolygon multiPolygon;
-        private final Polygon polygon;
-
-        @Contract(value = "_ -> new", pure = true)
-        public static @NotNull Region fromMultiPolygon(MultiPolygon multiPolygon) {
-            return new Region(multiPolygon, null);
-        }
-
-        @Contract(value = "_ -> new", pure = true)
-        public static @NotNull Region fromPolygon(Polygon polygon) {
-            return new Region(null, polygon);
-        }
-
-        protected Region(@Nullable MultiPolygon multiPolygon, @Nullable Polygon polygon) {
-            this.multiPolygon = multiPolygon;
-            this.polygon = polygon;
-        }
-
-        public boolean contains(double x, double z) {
-            if (multiPolygon != null) {
-                return multiPolygon.contains(
-                        new GeometryFactory().createPoint(
-                                new Coordinate(x, z)
-                        )
-                );
-            } else if (polygon != null) {
-                return polygon.contains(x, z);
-            }
-            return false;
-        }
-    }
-
-    private final Map<String, Region> regions = new HashMap<>();
-    private final Map<UUID, Set<String>> lastVisitedRegions = new HashMap<>();
+    private final Map<String, Geometry> regions = new HashMap<>();
+    public final Map<UUID, Set<String>> lastVisitedRegions = new HashMap<>();
     private final Map<Predicate<String>, BiConsumer<String, UUID>> regionEnterListeners = new HashMap<>();
     private final Map<Predicate<String>, BiConsumer<String, UUID>> regionLeaveListeners = new HashMap<>();
 
@@ -89,6 +50,8 @@ public class RegionListener implements Listener {
         //check regions left
         applyCheck(uuid, before, after, regionLeaveListeners);
 
+        lastVisitedRegions.put(uuid, after);
+
     }
 
     private void applyCheck(UUID uuid, @NotNull Set<String> before, Set<String> after, Map<Predicate<String>, BiConsumer<String, UUID>> listeners) {
@@ -105,15 +68,15 @@ public class RegionListener implements Listener {
 
     private @NotNull Set<String> getRegionsAt(Location location) {
         Set<String> regions = new HashSet<>();
-        for (Map.Entry<String, Region> entry : this.regions.entrySet()) {
-            if (entry.getValue().contains(location.getX(), location.getZ())) {
+        for (Map.Entry<String, Geometry> entry : this.regions.entrySet()) {
+            if (entry.getValue().contains(new GeometryFactory().createPoint(new Coordinate(location.getX(), location.getZ())))) {
                 regions.add(entry.getKey());
             }
         }
         return regions;
     }
 
-    public void registerRegion(String id, Region region) {
+    public void registerRegion(String id, Geometry region) {
         regions.put(id, region);
     }
 
@@ -127,6 +90,16 @@ public class RegionListener implements Listener {
 
     public void registerRegionLeaveListener(Predicate<String> predicate, BiConsumer<String, UUID> consumer) {
         regionLeaveListeners.put(predicate, consumer);
+    }
+
+    public Set<String> getRegionsAt(double x, double z) {
+        Set<String> regions = new HashSet<>();
+        for (Map.Entry<String, Geometry> entry : this.regions.entrySet()) {
+            if (entry.getValue().contains(new GeometryFactory().createPoint(new Coordinate(x, z)))) {
+                regions.add(entry.getKey());
+            }
+        }
+        return regions;
     }
 
 }

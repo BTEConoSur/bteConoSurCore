@@ -36,7 +36,7 @@ public class ScoreboardCommand implements CommandExecutor {
             return true;
         }
 
-        if (command.getName().equalsIgnoreCase("scoreboard")) {
+        if (command.getName().equalsIgnoreCase("sc")) {
             ScoreboardManager scoreboardManager = s.getScoreboardManager();
             if (args.length == 0) {
                 try {
@@ -53,6 +53,7 @@ public class ScoreboardCommand implements CommandExecutor {
                     }
                 } else if (ScoreboardDisplayProvider.PROVIDERS.containsKey(args[0])) {
                     try {
+                        scoreboardManager.setAuto(false);
                         scoreboardManager.setDisplay(
                                 ScoreboardDisplayProvider.PROVIDERS.get(args[0]).getDisplay(player)
                         );

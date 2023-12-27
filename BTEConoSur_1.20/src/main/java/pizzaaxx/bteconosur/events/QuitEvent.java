@@ -18,6 +18,7 @@ public class QuitEvent implements Listener {
     @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent event) {
         plugin.getPlayerRegistry().quit(event.getPlayer().getUniqueId());
+        plugin.getPlayerClickEvent().unregisterProtector(event.getPlayer().getUniqueId());
     }
 }
 

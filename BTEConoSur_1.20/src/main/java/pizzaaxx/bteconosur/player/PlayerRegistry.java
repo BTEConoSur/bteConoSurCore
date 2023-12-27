@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.player;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
@@ -52,7 +53,7 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
                             return offlineServerPlayer.asOnlinePlayer();
                         }
                         return offlineServerPlayer;
-                    } catch (SQLException e) {
+                    } catch (SQLException | JsonProcessingException e) {
                         plugin.error("Error loading server player instance. (UUID:" + uuid + ")");
                     }
                     return null;

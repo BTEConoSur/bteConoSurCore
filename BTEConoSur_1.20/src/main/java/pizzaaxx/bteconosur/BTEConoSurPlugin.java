@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.PeterMassmann.SQLManager;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.kyori.adventure.text.Component;
@@ -25,6 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.building.DivideCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
@@ -32,21 +33,24 @@ import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
 import pizzaaxx.bteconosur.discord.*;
 import pizzaaxx.bteconosur.events.*;
+import pizzaaxx.bteconosur.gui.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
+import pizzaaxx.bteconosur.player.scoreboard.ScoreboardCommand;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
 import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.ProjectsCommand;
 import pizzaaxx.bteconosur.projects.ProjectsRegistry;
+import pizzaaxx.bteconosur.protection.WorldEditListener;
 import pizzaaxx.bteconosur.terra.TerraConnector;
 import pizzaaxx.bteconosur.terra.TpdirCommand;
 import pizzaaxx.bteconosur.terra.TpllCommand;
-import pizzaaxx.bteconosur.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.PlayerRegistry;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
+import pizzaaxx.bteconosur.test.TestCities;
 import pizzaaxx.bteconosur.utils.SHPUtils;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -75,12 +79,6 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         return weWorlds;
     }
 
-    //--- WORLDGUARD ---
-    private final WorldGuardPlugin worldGuardPlugin = WorldGuardPlugin.inst();
-    public WorldGuardPlugin getWorldGuard() {
-        return worldGuardPlugin;
-    }
-
     //--- WORLDEDIT ---
     private final WorldEditPlugin worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("worldedit");
     public WorldEditPlugin getWorldEdit() {
@@ -106,6 +104,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     public InventoryHandler getInventoryHandler() {
         return inventoryHandler;
     }
+
 
     //--- PLAYER REGISTRY ---
     private PlayerRegistry playerRegistry;
@@ -140,7 +139,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     }
 
     //--- PROJECTS ---
-    private final ProjectsRegistry projectsRegistry = new ProjectsRegistry(this);
+    private ProjectsRegistry projectsRegistry;
     public ProjectsRegistry getProjectsRegistry() {
         return projectsRegistry;
     }
@@ -149,6 +148,12 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     private final RegionListener regionListener = new RegionListener();
     public RegionListener getRegionListener() {
         return regionListener;
+    }
+
+    // --- PROTECTION ---
+    private final PlayerClickEvent playerClickEvent = new PlayerClickEvent(this);
+    public PlayerClickEvent getPlayerClickEvent() {
+        return playerClickEvent;
     }
 
 
@@ -185,11 +190,11 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     Polygon.class,
                     (polygon, insideJson) -> {
                         List<List<Integer>> coordinates = new ArrayList<>();
-                        for (int i = 0; i < polygon.npoints; i++) {
+                        for (Coordinate coordinate : polygon.getCoordinates()) {
                             coordinates.add(
                                     List.of(
-                                            polygon.xpoints[i],
-                                            polygon.ypoints[i]
+                                            (int) coordinate.getX(),
+                                            (int) coordinate.getY()
                                     )
                             );
                         }
@@ -197,7 +202,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                         if (insideJson) {
                             return sqlManager.parse(coordinates);
                         } else {
-                            return "PolygonFromText('POLYGON((" + coordinates.stream().map(coord -> coord.get(0) + " " + coord.get(1)).collect(Collectors.joining(",")) + "," + coordinates.get(0).get(0) + " " + coordinates.get(0).get(1) + "))')";
+                            return "PolygonFromText('POLYGON((" + coordinates.stream().map(coord -> coord.get(0) + " " + coord.get(1)).collect(Collectors.joining(",")) + "))')";
                         }
                     }
             );
@@ -209,6 +214,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         //--- SHARED STUFF ---
         LinkCommand linkCommand = new LinkCommand(this);
         UnlinkCommand unlinkCommand = new UnlinkCommand(this);
+        ProjectsCommand projectsCommand = new ProjectsCommand(this);
 
         //--- REGISTER COMMANDS ---
         this.log("Registering commands...");
@@ -217,29 +223,27 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("link", linkCommand);
         this.registerCommand("unlink", unlinkCommand);
         this.registerCommand("tpdir", new TpdirCommand(this));
+        this.registerCommand("sc", new ScoreboardCommand(this));
+        this.registerCommand("project", projectsCommand);
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
         this.registerListeners(
-                this.inventoryHandler,
                 new QuitEvent(this),
                 new PreLoginEvent(this),
                 new LoginEvent(this),
                 new JoinEvent(this),
                 new Shortcuts(this),
-                // new TestCities(this)
+                new TestCities(this),
                 new TeleportSoundEvent(),
-                regionListener
+                projectsCommand,
+                inventoryHandler,
+                playerClickEvent
         );
 
         //--- PLAYER REGISTRY ---
         this.log("Loading player registry...");
         this.playerRegistry = new PlayerRegistry(this);
-
-        //--- SCOREBOARDS ---
-        PROVIDERS.put("server", this);
-        AUTO_PROVIDERS.add("server");
-        this.startAutoScoreboardsTimer();
 
         //--- SHAPEFILES ---
         this.log("Loading shapefiles...");
@@ -324,6 +328,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         //--- PROJECTS ---
         this.log("Loading projects registry...");
         try {
+            this.projectsRegistry = new ProjectsRegistry(this);
             this.projectsRegistry.init();
             this.regionListener.registerRegionEnterListener(
                     id -> id.startsWith("project_"),
@@ -339,7 +344,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                                             .append(
                                                     (project.isClaimed()
                                                             ? Component.text(StringUtils.transformToSmallCapital(this.playerRegistry.get(project.getOwner()).getName()), Style.style(TextColor.color(GRAY)))
-                                                            : Component.text("Disponible", Style.style(TextColor.color(GREEN)))
+                                                            : Component.text(StringUtils.transformToSmallCapital("Disponible"), Style.style(TextColor.color(GREEN)))
                                                     )
                                             )
                             );
@@ -351,10 +356,54 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                         }
                     }
             );
+            this.regionListener.registerRegionLeaveListener(
+                    id -> id.startsWith("project_"),
+                    (id, uuid) -> {
+                        OnlineServerPlayer serverPlayer = (OnlineServerPlayer) this.playerRegistry.get(uuid);
+                        ScoreboardManager manager = serverPlayer.getScoreboardManager();
+                        try {
+                            if (manager.getType().equals("project")) manager.setDisplay(projectsRegistry.getDisplay(serverPlayer.getPlayer()));
+                        } catch (SQLException ignored) {}
+                    }
+            );
+            this.regionListener.registerRegionEnterListener(
+                    id -> id.startsWith("city_"),
+                    (id, uuid) -> {
+                        String[] split = id.split("_");
+                        String countryName = split[1];
+                        int cityId = Integer.parseInt(split[2]);
+                        Player player = Bukkit.getPlayer(uuid);
+                        assert player != null;
+                        player.sendActionBar(
+                                Component.text(StringUtils.transformToSmallCapital("¡Bienvenido a "), Style.style(TextColor.color(GRAY)))
+                                        .append(Component.text(StringUtils.transformToSmallCapital(this.countriesRegistry.get(countryName).get(cityId).getName()), Style.style(TextColor.color(GREEN), TextDecoration.BOLD)))
+                                        .append(Component.text("!", Style.style(TextColor.color(GRAY))))
+                        );
+                    }
+            );
         } catch (SQLException | IOException e) {
+            e.printStackTrace();
             this.error("An error occurred while loading the projects registry. Stopping plugin initialization.");
             return;
         }
+
+        //--- SCOREBOARDS ---
+        PROVIDERS.put("server", this);
+        PROVIDERS.put("project", this.projectsRegistry);
+        AUTO_PROVIDERS.add("server");
+        AUTO_PROVIDERS.add("project");
+        this.startAutoScoreboardsTimer();
+
+        this.getWorldEdit().getWorldEdit().getEventBus().register(new WorldEditListener(this));
+
+        this.registerListeners(regionListener);
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            OnlineServerPlayer s = (OnlineServerPlayer) this.getPlayerRegistry().get(player.getUniqueId());
+            s.getScoreboardManager().startBoard();
+            this.playerClickEvent.registerProtector(player.getUniqueId());
+        }
+
     }
 
     @Override
@@ -388,14 +437,14 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         }
     }
 
-    private void registerListeners(Listener @NotNull ... listeners) {
+    public void registerListeners(Listener @NotNull ... listeners) {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager().registerEvents(listener, this);
         }
     }
 
     public boolean canBuild(UUID uuid, double x, double z) {
-        return projectsRegistry.isMemberAt(uuid, x, z);
+        return projectsRegistry.canBuildAt(uuid, x, z);
     }
 
     public World getWorld(double y) {
@@ -493,7 +542,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     }
                 },
                 0,
-                5
+                5 * 20
         );
     }
 

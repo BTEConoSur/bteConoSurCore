@@ -30,6 +30,7 @@ public class PreLoginEvent implements Listener {
                                 new SQLValue("name", event.getName())
                         )
                 ).execute();
+                plugin.getPlayerRegistry().registerID(event.getUniqueId());
             } catch (SQLException e) {
                 event.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_OTHER,

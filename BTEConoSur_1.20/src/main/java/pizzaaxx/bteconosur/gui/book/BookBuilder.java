@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.inventory.book;
+package pizzaaxx.bteconosur.gui.book;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;

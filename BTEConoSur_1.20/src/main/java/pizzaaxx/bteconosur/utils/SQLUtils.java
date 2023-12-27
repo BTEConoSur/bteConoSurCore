@@ -1,6 +1,8 @@
 package pizzaaxx.bteconosur.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 import java.awt.*;
 import java.nio.ByteBuffer;
@@ -15,17 +17,20 @@ public class SQLUtils {
         return new UUID(high, low);
     }
 
-    public static @NotNull Polygon polygonFromWKT(@NotNull String wkt) {
-        String[] points = wkt.substring(10, wkt.length() - 2).split(",");
-        Polygon polygon = new Polygon();
-        for (String point : points) {
-            String[] coords = point.trim().split(" ");
-            polygon.addPoint(
-                    (int) (Double.parseDouble(coords[0])),
-                    (int) (Double.parseDouble(coords[1]))
+    public static @NotNull org.locationtech.jts.geom.Polygon polygonFromWKT(@NotNull String wkt) {
+        String[] points = wkt.substring(9, wkt.length() - 2).split(",");
+        Coordinate[] coordinates = new Coordinate[points.length];
+        for (int i = 0; i < points.length - 1; i++) {
+            String[] point = points[i].split(" ");
+            coordinates[i] = new Coordinate(
+                    Double.parseDouble(point[0]),
+                    Double.parseDouble(point[1])
             );
+            coordinates[points.length - 1] = coordinates[0];
         }
-        return polygon;
+        return new GeometryFactory().createPolygon(
+                coordinates
+        );
     }
 
 }

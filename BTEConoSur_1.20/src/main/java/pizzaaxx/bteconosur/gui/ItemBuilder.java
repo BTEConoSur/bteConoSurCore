@@ -1,8 +1,10 @@
-package pizzaaxx.bteconosur.inventory;
+package pizzaaxx.bteconosur.gui;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -18,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public class ItemBuilder {
 
@@ -101,16 +105,16 @@ public class ItemBuilder {
     }
 
     @NotNull
-    public static ItemStack head(UUID owner, String name, @Nullable List<String> lore) {
+    public static ItemStack head(UUID owner, String name, @Nullable List<Component> lore) {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 
         if (name != null) {
-            skullMeta.displayName(Component.text(name));
+            skullMeta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(name));
         }
 
         if (lore != null) {
-            skullMeta.lore(lore.stream().map(Component::text).collect(Collectors.toList()));
+            skullMeta.lore(lore);
         }
 
         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
@@ -120,28 +124,21 @@ public class ItemBuilder {
     }
 
     @NotNull
-    public static ItemStack head(String value, String name, @Nullable List<String> lore) {
+    public static ItemStack head(String value, String name, @Nullable List<Component> lore) {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD,1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 
         if (name != null) {
-            skullMeta.displayName(Component.text(name));
+            skullMeta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(name));
         }
 
         if (lore != null) {
-            skullMeta.lore(lore.stream().map(Component::text).collect(Collectors.toList()));
+            skullMeta.lore(lore);
         }
 
         PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), null);
         profile.getProperties().add(new ProfileProperty("textures", value));
-        Field field;
-        try {
-            field = skullMeta.getClass().getDeclaredField("profile");
-            field.setAccessible(true);
-            field.set(skullMeta, profile);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException x) {
-            x.printStackTrace();
-        }
+        skullMeta.setPlayerProfile(profile);
         skull.setItemMeta(skullMeta);
 
         return skull;

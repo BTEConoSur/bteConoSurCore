@@ -1,5 +1,7 @@
 package pizzaaxx.bteconosur.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -12,27 +14,27 @@ public class StringUtils {
         for (char c : input.toLowerCase().toCharArray()) {
             if (Character.isLetter(c)) {
                 switch (c) {
-                    case 'a' -> result.append('ᴀ');
+                    case 'a', 'á' -> result.append('ᴀ');
                     case 'b' -> result.append('ʙ');
                     case 'c' -> result.append('ᴄ');
                     case 'd' -> result.append('ᴅ');
-                    case 'e' -> result.append('ᴇ');
+                    case 'e', 'é' -> result.append('ᴇ');
                     case 'f' -> result.append('ꜰ');
                     case 'g' -> result.append('ɢ');
                     case 'h' -> result.append('ʜ');
-                    case 'i' -> result.append('ɪ');
+                    case 'i', 'í' -> result.append('ɪ');
                     case 'j' -> result.append('ᴊ');
                     case 'k' -> result.append('ᴋ');
                     case 'l' -> result.append('ʟ');
                     case 'm' -> result.append('ᴍ');
                     case 'n' -> result.append('ɴ');
-                    case 'o' -> result.append('ᴏ');
+                    case 'o', 'ó' -> result.append('ᴏ');
                     case 'p' -> result.append('ᴘ');
-                    case 'q' -> result.append('Q');
+                    case 'q' -> result.append('ꞯ');
                     case 'r' -> result.append('ʀ');
                     case 's' -> result.append('ꜱ');
                     case 't' -> result.append('ᴛ');
-                    case 'u' -> result.append('ᴜ');
+                    case 'u', 'ú' -> result.append('ᴜ');
                     case 'v' -> result.append('ᴠ');
                     case 'w' -> result.append('ᴡ');
                     case 'x' -> result.append('x');
@@ -74,6 +76,10 @@ public class StringUtils {
         }
 
         return builder.toString();
+    }
+
+    public static @NotNull Component deserialize(String text) {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
     }
 
 }

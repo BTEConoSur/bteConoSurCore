@@ -68,6 +68,10 @@ public class ScoreboardManager implements PlayerManager {
 
     public void startBoard() {
         this.board = new FastBoard(player.getPlayer());
+        this.currentDisplay = ScoreboardDisplayProvider.PROVIDERS.get(type).getDisplay(player.getPlayer());
+        if (!this.hidden) {
+            this.setTemporaryDisplay(currentDisplay);
+        }
     }
 
     public boolean isAuto() {
@@ -89,6 +93,9 @@ public class ScoreboardManager implements PlayerManager {
         if (this.hidden) {
             this.board.delete();
         } else {
+            if (this.currentDisplay == null) {
+                this.currentDisplay = ScoreboardDisplayProvider.PROVIDERS.get(type).getDisplay(player.getPlayer());
+            }
             this.setDisplay(this.currentDisplay);
         }
     }
@@ -113,6 +120,22 @@ public class ScoreboardManager implements PlayerManager {
         }
     }
 
+    public void setTemporaryDisplay(@NotNull ScoreboardDisplay display) {
+        if (this.board == null) {
+            return;
+        }
+        this.currentDisplay = display;
+        if (!this.hidden) {
+            if (this.board.isDeleted()) {
+                this.board = new FastBoard(this.player.getPlayer());
+            }
+            this.board.updateLines(
+                    display.getLines()
+            );
+            this.board.updateTitle(display.getTitle());
+        }
+    }
+
     @Override
     public void saveValue(String key, Object value) throws SQLException {
         plugin.getSqlManager().update(
@@ -126,6 +149,10 @@ public class ScoreboardManager implements PlayerManager {
                         )
                 )
         ).execute();
+    }
+
+    public ScoreboardDisplay getCurrentDisplay() {
+        return currentDisplay;
     }
 
     public String getType() {

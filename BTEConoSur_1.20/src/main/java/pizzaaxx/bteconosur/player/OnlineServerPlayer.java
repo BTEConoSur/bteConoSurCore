@@ -31,7 +31,9 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
     }
 
     @Override
-    public void disconnected() {}
+    public void disconnected() {
+        plugin.getRegionListener().lastVisitedRegions.remove(this.getUUID());
+    }
 
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;

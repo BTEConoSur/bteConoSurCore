@@ -8,6 +8,7 @@ import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.SQLResult;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.countries.Country;
 
 import java.awt.*;
 import java.sql.ResultSet;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class ProjectType {
 
     private final BTEConoSurPlugin plugin;
+    private final Country country;
     private final String name;
     private final String displayName;
     private final int maxMembers;
@@ -28,8 +30,9 @@ public class ProjectType {
     private final Color color;
     private final String description;
 
-    public ProjectType(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, JsonProcessingException {
+    public ProjectType(@NotNull BTEConoSurPlugin plugin, Country country, String name) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
+        this.country = country;
         this.name = name;
         try (SQLResult result = plugin.getSqlManager().select(
                 "project_types",
@@ -68,6 +71,10 @@ public class ProjectType {
 
     public String getName() {
         return name;
+    }
+
+    public Country getCountry() {
+        return country;
     }
 
     public String getDisplayName() {

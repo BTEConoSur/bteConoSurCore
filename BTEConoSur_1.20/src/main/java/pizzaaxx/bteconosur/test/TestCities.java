@@ -11,6 +11,8 @@ import pizzaaxx.bteconosur.cities.City;
 import pizzaaxx.bteconosur.countries.Country;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 
+import java.util.Set;
+
 public class TestCities implements Listener {
 
     private final BTEConoSurPlugin plugin;
@@ -22,22 +24,11 @@ public class TestCities implements Listener {
     @EventHandler
     public void onClick(@NotNull PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && event.getItem().getType() == Material.IRON_SWORD) {
-            Country country = plugin.getCountriesRegistry().getCountryAt(event.getInteractionPoint());
-            if (country == null) {
-                event.getPlayer().sendMessage("No estás en ningún país.");
-                return;
-            }
-            City city = country.getCityAt(
-                    TerraCoords.fromMc(
-                            event.getInteractionPoint().getBlockX(),
-                            event.getInteractionPoint().getBlockZ()
-                    )
+            Set<String> regions = plugin.getRegionListener().getRegionsAt(
+                    event.getInteractionPoint().getX(),
+                    event.getInteractionPoint().getZ()
             );
-            if (city == null) {
-                event.getPlayer().sendMessage("No estás en ninguna ciudad. Estás en " + country.getName() + ".");
-                return;
-            }
-            event.getPlayer().sendMessage("Estás en " + city.getName() + ", " + country.getName());
+            event.getPlayer().sendMessage("Regions: " + regions);
         }
     }
 

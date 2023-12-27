@@ -7,15 +7,21 @@ import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.SQLResult;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.Nullable;
+import org.locationtech.jts.geom.Polygon;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.cities.City;
 import pizzaaxx.bteconosur.countries.Country;
+import pizzaaxx.bteconosur.player.OfflineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
-import pizzaaxx.bteconosur.projects.ProjectType;
 import pizzaaxx.bteconosur.utils.SQLUtils;
+import pizzaaxx.bteconosur.utils.StringUtils;
 import pizzaaxx.bteconosur.utils.registry.RegistrableEntity;
 
-import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -23,26 +29,31 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
+import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
+
 public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
 
     private final BTEConoSurPlugin plugin;
+    private final ProjectEditor editor;
+
     private final String id;
-    private String name;
+    protected String name;
     private final Country country;
     private final int city;
-    private long pending;
-    private ProjectType type;
-    private int points;
-    private Set<UUID> members;
-    private UUID owner;
-    private Polygon polygon;
+    protected long pending;
+    protected ProjectType type;
+    protected int points;
+    protected Set<UUID> members;
+    protected UUID owner;
+    protected org.locationtech.jts.geom.Polygon polygon;
 
     public Project(BTEConoSurPlugin plugin, String id) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
         this.id = id;
         try (SQLResult result = plugin.getSqlManager().select(
                 "projects",
-                new SQLColumnSet("*, ST_AsGeoJSON(region) AS region_json"),
+                new SQLColumnSet("*, ST_AsWKT(region) AS region_wkt"),
                 new SQLANDConditionSet(
                         new SQLOperatorCondition("id", "=", id)
                 )
@@ -64,23 +75,25 @@ public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
                 members.add(UUID.fromString(memberNode.asText()));
             }
 
-            this.owner = SQLUtils.uuidFromBytes(set.getBytes("owner"));
+            if (set.getBytes("owner") != null) this.owner = SQLUtils.uuidFromBytes(set.getBytes("owner"));
 
-            JsonNode regionNode = plugin.getJsonMapper().readTree(set.getString("region_json"));
-            this.polygon = new Polygon();
-            JsonNode coordinatesNode = regionNode.path("coordinates").get(0);
-            int nodeSize = coordinatesNode.size();
-            int counter = 0;
-            for (JsonNode coordinateNode : coordinatesNode) {
-                if (counter == nodeSize - 1) {
-                    break;
-                }
-                int x = coordinateNode.get(0).asInt();
-                int z = coordinateNode.get(1).asInt();
-                polygon.addPoint(x, z);
-                counter++;
-            }
+            this.polygon = SQLUtils.polygonFromWKT(set.getString("region_wkt"));
+
+            this.editor = new ProjectEditor(plugin, this);
         }
+    }
+
+    public ProjectEditor getEditor() {
+        return editor;
+    }
+
+    @Override
+    public String getID() {
+        return id;
+    }
+
+    public Country getCountry() {
+        return country;
     }
 
     public String getDisplayName() {
@@ -90,21 +103,41 @@ public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
         return id.toUpperCase();
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    public long getPending() {
+        return pending;
+    }
+
+    public boolean isPending() {
+        return pending > 0;
+    }
+
     public ProjectType getType() {
         return type;
     }
 
+    public Set<UUID> getMembers() {
+        return members;
+    }
+
+    public City getCity() {
+        return country.get(city);
+    }
+
+    @Nullable
     public UUID getOwner() {
         return owner;
     }
 
-    public boolean isClaimed() {
-        return owner != null;
+    public Polygon getPolygon() {
+        return polygon;
     }
 
-    @Override
-    public String getID() {
-        return id;
+    public boolean isClaimed() {
+        return owner != null;
     }
 
     @Override
@@ -114,12 +147,60 @@ public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
 
     @Override
     public Component getTitle() {
-        return null;
+        return Component.text(StringUtils.transformToSmallCapital("Proyecto " + this.getDisplayName()), Style.style(TextColor.color(this.type.getColor().getRGB()), TextDecoration.BOLD));
     }
 
     @Override
     public List<Component> getLines() {
-        return null;
+        List<Component> lines = new java.util.ArrayList<>(List.of(
+                Component.text("◆")
+                        .append(Component.text("                                 ", Style.style(TextDecoration.STRIKETHROUGH)))
+                        .append(Component.text("◆"))
+                        .color(TextColor.color(DARK_GRAY)),
+
+                Component.text(StringUtils.transformToSmallCapital("  Proyecto"), Style.style(TextDecoration.BOLD)),
+                Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital("ID: "), TextColor.color(GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital(id), TextColor.color(191, 242, 233))),
+                Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital("Tipo: "), TextColor.color(GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital(type.getDisplayName()), TextColor.color(191, 242, 233))),
+                Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital("Puntaje: "), TextColor.color(GRAY)))
+                        .append(Component.text(points, TextColor.color(191, 242, 233))),
+
+                Component.text(StringUtils.transformToSmallCapital("  Lugar"), Style.style(TextDecoration.BOLD)),
+                Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital("País: "), TextColor.color(GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital(country.getDisplayName()), TextColor.color(191, 242, 233))),
+                Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital("Ciudad: "), TextColor.color(GRAY)))
+                        .append(Component.text(StringUtils.transformToSmallCapital(this.getCity().getName()), TextColor.color(191, 242, 233)))
+                ));
+
+        if (this.isClaimed()) {
+            OfflineServerPlayer owner = plugin.getPlayerRegistry().get(this.owner);
+            lines.addAll(
+                    List.of(
+                            Component.text(StringUtils.transformToSmallCapital("  Personas"), Style.style(TextDecoration.BOLD)),
+                            Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                                    .append(Component.text(StringUtils.transformToSmallCapital("Líder: "), TextColor.color(GRAY)))
+                                    .append(Component.text(StringUtils.transformToSmallCapital(owner.getName()), TextColor.color(191, 242, 233))),
+                            Component.text("    ▪ ", Style.style(TextColor.color(DARK_GRAY)))
+                                    .append(Component.text(StringUtils.transformToSmallCapital("Miembros: "), TextColor.color(GRAY)))
+                                    .append(Component.text(members.size(), TextColor.color(191, 242, 233)))
+                    )
+            );
+        }
+
+        lines.add(
+                Component.text("◆")
+                        .append(Component.text("                                 ", Style.style(TextDecoration.STRIKETHROUGH)))
+                        .append(Component.text("◆"))
+                        .color(TextColor.color(DARK_GRAY))
+        );
+
+        return lines;
     }
 
     @Override

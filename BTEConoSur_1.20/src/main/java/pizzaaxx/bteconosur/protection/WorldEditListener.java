@@ -25,5 +25,4 @@ public class WorldEditListener {
             event.setExtent(new PlayerExtent(plugin, event.getExtent(), event.getActor().getUniqueId()));
         }
     }
-
 }

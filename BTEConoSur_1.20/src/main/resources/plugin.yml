@@ -11,7 +11,6 @@ loadbefore:
 
 depend:
   - WorldEdit
-  - WorldGuard
   - Terraplusminus
 
 commands:
@@ -25,3 +24,7 @@ commands:
     description: Enlaza tu cuenta de Discord con tu cuenta de Minecraft.
   unlink:
     description: Desenlaza tu cuenta de Discord con tu cuenta de Minecraft.
+  sc:
+    description: Maneja el scoreboard.
+  project:
+    description: Maneja los proyectos.

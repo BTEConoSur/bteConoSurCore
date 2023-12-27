@@ -6,14 +6,19 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.wkt.Parser;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,4 +57,20 @@ public class SHPUtils {
         return cityFeatures;
     }
 
+    @Contract("_ -> new")
+    public static double @NotNull [] getCentroid(@NotNull Polygon polygon) {
+        Coordinate[] coordinates = new Coordinate[polygon.npoints];
+        for (int i = 0; i < polygon.npoints; i++) {
+            coordinates[i] = new Coordinate(polygon.xpoints[i], polygon.ypoints[i]);
+        }
+        org.locationtech.jts.geom.Polygon jtsPolygon = new GeometryFactory()
+                .createPolygon(
+                        coordinates
+                );
+        org.locationtech.jts.geom.Point point = jtsPolygon.getCentroid();
+        return new double[] {
+                point.getX(),
+                point.getY()
+        };
+    }
 }

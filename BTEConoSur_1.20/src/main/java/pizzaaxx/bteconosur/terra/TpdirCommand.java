@@ -15,7 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
-import pizzaaxx.bteconosur.inventory.book.BookBuilder;
+import pizzaaxx.bteconosur.gui.book.BookBuilder;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
 import java.io.IOException;

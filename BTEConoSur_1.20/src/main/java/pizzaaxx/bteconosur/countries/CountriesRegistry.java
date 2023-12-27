@@ -1,11 +1,8 @@
 package pizzaaxx.bteconosur.countries;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.SQLResult;
-import com.sk89q.worldedit.math.BlockVector2;
-import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
@@ -15,7 +12,9 @@ import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class CountriesRegistry extends BaseRegistry<Country, String> {
 
@@ -83,14 +82,11 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
     @Nullable
     public Country getCountryAt(Location location) {
         for (Country country : super.cacheMap.values()) {
-            for (ProtectedPolygonalRegion region : country.getRegions()) {
-                if (region.contains(
-                        location.getBlockX(),
-                        location.getBlockY(),
-                        location.getBlockZ()
-                )) {
-                    return country;
-                }
+            if (country.contains(
+                    location.getBlockX(),
+                    location.getBlockZ()
+            )) {
+                return country;
             }
         }
         return null;
@@ -99,15 +95,25 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
     @Nullable
     public Country getCountryAt(TerraCoords coords) {
         for (Country country : super.cacheMap.values()) {
-            for (ProtectedPolygonalRegion region : country.getRegions()) {
-                if (region.contains(
-                        BlockVector2.at(
-                                coords.getX(),
-                                coords.getZ()
-                        )
-                )) {
-                    return country;
-                }
+            if (country.contains(
+                    coords.getX(),
+                    coords.getZ()
+            )) {
+                return country;
+            }
+        }
+        return null;
+    }
+
+    // getcountryat from x and z
+    @Nullable
+    public Country getCountryAt(double x, double z) {
+        for (Country country : super.cacheMap.values()) {
+            if (country.contains(
+                    x,
+                    z
+            )) {
+                return country;
             }
         }
         return null;

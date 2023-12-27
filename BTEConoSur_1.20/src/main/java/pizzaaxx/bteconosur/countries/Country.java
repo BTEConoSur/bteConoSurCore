@@ -5,8 +5,7 @@ import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.SQLResult;
-import com.sk89q.worldedit.math.BlockVector2;
-import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
+import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.Component;
@@ -14,14 +13,10 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.cities.City;
-import pizzaaxx.bteconosur.events.RegionListener;
 import pizzaaxx.bteconosur.projects.ProjectType;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
@@ -39,9 +34,11 @@ import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
 
 public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String> {
 
+    public static Map<String, ProjectType> PROJECT_TYPES = new HashMap<>();
+
     private final BTEConoSurPlugin plugin;
     private final String name;
-    private final Component displayName;
+    private final String displayName;
     private final String abbreviation;
     private final String guildId;
     private final String showcaseId;
@@ -55,8 +52,7 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
     private final String emoji;
     private final Component chatPrefix;
     private final Component tabPrefix;
-    private final List<ProtectedPolygonalRegion> regions = new ArrayList<>();
-    public final Map<Integer, SimpleFeature> cityFeatures = new HashMap<>();
+    public final Map<Integer, MultiPolygon> cityRegions = new HashMap<>();
 
     public Country(@NotNull BTEConoSurPlugin plugin, String name) throws SQLException, IOException {
         super(
@@ -82,7 +78,7 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
                 throw new SQLException("Country not found.");
             }
 
-            this.displayName = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("display_name"));
+            this.displayName = set.getString("display_name");
             this.abbreviation = set.getString("abbreviation");
             this.guildId = set.getString("guild_id");
             this.showcaseId = set.getString("showcase_id");
@@ -102,9 +98,11 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
             this.projectTypes = new ArrayList<>();
             JsonNode projectTypesNode = plugin.getJsonMapper().readTree(set.getString("project_types"));
             for (JsonNode typeNode : projectTypesNode) {
+                ProjectType type = new ProjectType(plugin, this, typeNode.asText());
                 this.projectTypes.add(
-                        new ProjectType(plugin, typeNode.asText())
+                        type
                 );
+                PROJECT_TYPES.put(typeNode.asText(), type);
             }
 
             this.headValue = set.getString("head_value");
@@ -112,34 +110,26 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
             this.chatPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("chat_prefix"));
             this.tabPrefix = LegacyComponentSerializer.legacyAmpersand().deserialize(set.getString("tab_prefix"));
 
-            JsonNode regionsNode = plugin.getJsonMapper().readTree(set.getString("regions"));
-            for (JsonNode regionNode : regionsNode) {
-                List<BlockVector2> vectors = new ArrayList<>();
-                regionNode.forEach(
-                        coordinateNode -> vectors.add(
-                                BlockVector2.at(
-                                        coordinateNode.path("x").asInt(),
-                                        coordinateNode.path("z").asInt()
-                                )
-                        )
-                );
-                regions.add(
-                        new ProtectedPolygonalRegion(
-                                this.name,
-                                vectors,
-                                -100,
-                                8000
-                        )
-                );
-            }
             Map<Integer, SimpleFeature> featureMap = plugin.getShapefile(name);
-            featureMap.forEach((key, value) -> plugin.getRegionListener().registerRegion(
-                    "city_" + name + "_" + key,
-                    RegionListener.Region.fromMultiPolygon(
-                            (MultiPolygon) value.getDefaultGeometry()
-                    )
-            ));
-            this.cityFeatures.putAll(featureMap);
+            featureMap.forEach((key, value) -> {
+                MultiPolygon polygon = (MultiPolygon) value.getDefaultGeometry();
+                polygon.apply(
+                        (CoordinateFilter) coord -> {
+                            TerraCoords coords = TerraCoords.fromGeo(
+                                    coord.x,
+                                    coord.y
+                            );
+                            coord.setX(coords.getX());
+                            coord.setY(coords.getZ());
+                        }
+                );
+                polygon.geometryChanged();
+                plugin.getRegionListener().registerRegion(
+                        "city_" + name + "_" + key,
+                        polygon
+                );
+                cityRegions.put(key, polygon);
+            });
         }
     }
 
@@ -147,7 +137,7 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
         return name;
     }
 
-    public @NotNull Component getDisplayName() {
+    public @NotNull String getDisplayName() {
         return displayName;
     }
 
@@ -233,22 +223,27 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
         return tabPrefix;
     }
 
-    public @NotNull List<ProtectedPolygonalRegion> getRegions() {
-        return regions;
+    public boolean contains(double x, double z) {
+        Point point = new GeometryFactory().createPoint(new Coordinate(x, z));
+        for (Map.Entry<Integer, MultiPolygon> entry : cityRegions.entrySet()) {
+            if (entry.getValue().contains(point)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nullable
-    public City getCityAt(@NotNull TerraCoords coords) {
+    public City getCityAt(double x, double z) {
         Point point = new GeometryFactory().createPoint(
                 new Coordinate(
-                        coords.getLon(),
-                        coords.getLat()
+                        x,
+                        z
                 )
         );
-        for (SimpleFeature feature : cityFeatures.values()) {
-            MultiPolygon polygon = (MultiPolygon) feature.getDefaultGeometry();
-            if (polygon.contains(point)) {
-                return this.get(Math.toIntExact((long) feature.getAttribute("id")));
+        for (Map.Entry<Integer, MultiPolygon> entry : cityRegions.entrySet()) {
+            if (entry.getValue().contains(point)) {
+                return this.get(entry.getKey());
             }
         }
         return null;
@@ -262,5 +257,13 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
     @Override
     public void disconnected() {
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Country c) {
+            return c.name.equals(this.name);
+        }
+        return false;
     }
 }
