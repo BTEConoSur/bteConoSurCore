@@ -29,6 +29,17 @@ public class InventoryClickAction {
         return action;
     }
 
+    public static @NotNull InventoryClickAction of(
+            @NotNull Consumer<InventoryClickEvent> action
+    ) {
+        return InventoryClickAction.of(
+                action,
+                action,
+                action,
+                action
+        );
+    }
+
     public void setLeftClickAction(Consumer<InventoryClickEvent> leftClickAction) {
         this.leftClickAction = leftClickAction;
     }

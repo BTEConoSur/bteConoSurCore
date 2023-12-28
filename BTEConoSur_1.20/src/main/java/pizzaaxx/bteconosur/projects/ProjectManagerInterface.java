@@ -1,5 +1,10 @@
 package pizzaaxx.bteconosur.projects;
 
+import com.github.PeterMassmann.Columns.SQLColumnSet;
+import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
+import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
+import jdk.jfr.StackTrace;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
@@ -9,12 +14,14 @@ import org.apache.commons.text.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.gui.ItemBuilder;
+import pizzaaxx.bteconosur.gui.inventory.ConfirmActionGUI;
 import pizzaaxx.bteconosur.gui.inventory.InventoryClickAction;
 import pizzaaxx.bteconosur.gui.inventory.InventoryGUI;
 import pizzaaxx.bteconosur.gui.inventory.PaginatedGUI;
@@ -23,13 +30,17 @@ import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
+import pizzaaxx.bteconosur.utils.SQLUtils;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
 import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
 import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
 
@@ -144,7 +155,7 @@ public class ProjectManagerInterface {
             case 1 -> scoreboardManager.setTemporaryDisplay(this.getDisplay(""));
             case 2 -> scoreboardManager.setTemporaryDisplay(this.getDisplay("Transfiere el proyecto a otro jugador."));
             case 3 -> scoreboardManager.setTemporaryDisplay(this.getDisplay("Maneja los miembros de este proyecto."));
-            case 4 -> scoreboardManager.setTemporaryDisplay(this.getDisplay("ve las solicitudes de unión a este proyecto."));
+            case 4 -> scoreboardManager.setTemporaryDisplay(this.getDisplay("Ve las solicitudes de unión a este proyecto."));
             case 5 -> scoreboardManager.setTemporaryDisplay(this.getDisplay(""));
             case 6 -> scoreboardManager.setTemporaryDisplay(this.getDisplay("Marca el proyecto como terminado"));
             case 7 -> scoreboardManager.setTemporaryDisplay(this.getDisplay(""));
@@ -155,18 +166,103 @@ public class ProjectManagerInterface {
 
 
     public void onManageClick(int slot) {
+        Project project = plugin.getProjectsRegistry().get(projectID);
         switch (slot) {
             case 2 -> {
+                if (!project.getOwner().equals(player.getUniqueId())) {
+                    player.sendActionBar("§cNo puedes hacer esto.");
+                    return;
+                }
+                PaginatedGUI gui = PaginatedGUI.fullscreen(
+                        Component.text("Transferir proyecto"),
+                        false
+                );
+                // a project can only be transferred to online members of the project
+                for (UUID uuid : project.getMembers()) {
+                    OfflineServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+                    if (s.isOnline()) {
+                        Consumer<InventoryClickEvent> eventConsumer = event -> {
+                            try {
+                                project.getEditor().transfer(uuid);
+                                event.getWhoClicked().closeInventory();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                event.getWhoClicked().closeInventory();
+                                event.getWhoClicked().sendMessage(PREFIX + "Ha ocurrido un error al transferir el proyecto.");
+                            }
+                        };
 
+                        gui.addItem(
+                                ItemBuilder.head(
+                                        uuid,
+                                        "§a§l" + StringUtils.transformToSmallCapital(s.getName()),
+                                        List.of(
+                                                Component.text("§a[•] ", TextColor.color(GRAY))
+                                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para transferir el proyecto a este jugador."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
+                                        )
+                                ),
+                                InventoryClickAction.of(eventConsumer)
+                        );
+                    }
+                }
+                plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
             }
             case 3 -> {
+                if (!project.getOwner().equals(player.getUniqueId())) {
+                    player.sendActionBar("§cNo puedes hacer esto.");
+                    return;
+                }
                 PaginatedGUI gui = PaginatedGUI.fullscreen(
                         Component.text("Miembros"),
                         false
                 );
 
+                Consumer<InventoryClickEvent> addMembersConsumer = event -> {
+                    PaginatedGUI addMembersGUI = PaginatedGUI.fullscreen(
+                            Component.text("Añadir miembros"),
+                            false
+                    );
+
+                    Bukkit.getOnlinePlayers().stream()
+                                    .filter(player -> !project.getMembers().contains(player.getUniqueId()))
+                                            .forEach(
+                                                    player -> {
+                                                        Consumer<InventoryClickEvent> eventConsumer = event1 -> {
+                                                            try {
+                                                                project.getEditor().addMember(player.getUniqueId());
+                                                                event1.getWhoClicked().closeInventory();
+                                                                this.onManageClick(3); // reopen inventory with updated members
+                                                            } catch (SQLException e) {
+                                                                e.printStackTrace();
+                                                                event1.getWhoClicked().closeInventory();
+                                                                event1.getWhoClicked().sendMessage(PREFIX + "Ha ocurrido un error al añadir al jugador al proyecto.");
+                                                            }
+                                                        };
+
+                                                        addMembersGUI.addItem(
+                                                                ItemBuilder.head(
+                                                                        player.getUniqueId(),
+                                                                        "§a§l" + StringUtils.transformToSmallCapital(player.getName()),
+                                                                        List.of(
+                                                                                Component.text("§a[•] ", TextColor.color(GRAY))
+                                                                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para añadir a este jugador al proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
+                                                                        )
+                                                                ),
+                                                                InventoryClickAction.of(eventConsumer)
+                                                        );
+                                                    }
+                                            );
+
+                    plugin.getInventoryHandler().openInventory(player.getUniqueId(), addMembersGUI);
+                };
+
+                gui.addStaticItem(
+                        49,
+                        MEMBERS_HEAD,
+                        InventoryClickAction.of(addMembersConsumer)
+                );
+
                 // add head of each member excluding owner
-                Project project = plugin.getProjectsRegistry().get(projectID);
                 for (UUID uuid : project.getMembers()) {
 
                     OfflineServerPlayer s = plugin.getPlayerRegistry().get(uuid);
@@ -177,16 +273,166 @@ public class ProjectManagerInterface {
                                     .append(Component.text(StringUtils.transformToSmallCapital("Haz click para quitar a este jugador del proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
                     );
 
+                    Consumer<InventoryClickEvent> eventConsumer = event -> {
+                        try {
+                            project.getEditor().removeMember(uuid);
+                            event.getWhoClicked().closeInventory();
+                            this.onManageClick(3); // reopen inventory with updated members
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            event.getWhoClicked().closeInventory();
+                            event.getWhoClicked().sendMessage(PREFIX + "Ha ocurrido un error al quitar al jugador del proyecto.");
+                        }
+                    };
+
                     gui.addItem(
                             ItemBuilder.head(
                                     uuid,
                                     "§a§l" + StringUtils.transformToSmallCapital(s.getName()),
                                     lore
                             ),
-                            InventoryClickAction.EMPTY
+                            InventoryClickAction.of(eventConsumer)
                     );
                 }
                 plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
+            }
+            case 4 -> {
+                if (!project.getOwner().equals(player.getUniqueId())) {
+                    player.sendActionBar("§cNo puedes hacer esto.");
+                    return;
+                }
+                // get requests from database (table "project_join_requests") and display them in a paginated gui
+                PaginatedGUI gui = PaginatedGUI.fullscreen(
+                        Component.text("Solicitudes de unión"),
+                        false
+                );
+
+                try (SQLResult result = plugin.getSqlManager().select(
+                        "project_join_requests",
+                        new SQLColumnSet("*"),
+                        new SQLANDConditionSet(
+                                new SQLOperatorCondition("project_id", "=", projectID)
+                        )
+                ).retrieve()) {
+
+                    ResultSet set = result.getResultSet();
+
+                    while (set.next()) {
+                        UUID uuid = SQLUtils.uuidFromBytes(set.getBytes("player_id"));
+                        OfflineServerPlayer s = plugin.getPlayerRegistry().get(uuid);
+
+                        List<Component> lore = s.getLore();
+                        lore.add(
+                                StringUtils.deserialize("§a[•] ")
+                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para aceptar a este jugador en el proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
+                        );
+
+                        Consumer<InventoryClickEvent> eventConsumer = event -> {
+                            try {
+                                project.getEditor().addMember(uuid);
+                                plugin.getSqlManager().delete(
+                                        "project_join_requests",
+                                        new SQLANDConditionSet(
+                                                new SQLOperatorCondition("project_id", "=", projectID),
+                                                new SQLOperatorCondition("player_id", "=", uuid)
+                                        )
+                                ).execute();
+                                event.getWhoClicked().closeInventory();
+                                this.onManageClick(4); // reopen inventory with updated requests
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                event.getWhoClicked().closeInventory();
+                                event.getWhoClicked().sendMessage(PREFIX + "Ha ocurrido un error al aceptar la solicitud de unión.");
+                            }
+                        };
+
+                        gui.addItem(
+                                ItemBuilder.head(
+                                        uuid,
+                                        "§a§l" + StringUtils.transformToSmallCapital(s.getName()),
+                                        lore
+                                ),
+                                InventoryClickAction.of(eventConsumer)
+                        );
+                    }
+
+                    plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    player.sendMessage(PREFIX + "Ha ocurrido un error al cargar las solicitudes de unión.");
+                }
+            }
+            case 6 -> {
+                if (!project.getOwner().equals(player.getUniqueId())) {
+                    player.sendActionBar("§cNo puedes hacer esto.");
+                    return;
+                }
+                ConfirmActionGUI gui = new ConfirmActionGUI(
+                        Component.text("¿Finalizar proyecto?"),
+                        () -> {
+                            try {
+                                project.getEditor().finish();
+                                player.closeInventory();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                player.closeInventory();
+                                player.sendMessage(PREFIX + "Ha ocurrido un error al finalizar el proyecto.");
+                            }
+                        },
+                        () -> {
+                            player.closeInventory();
+                            this.onManageClick(6);
+                        }
+                );
+                plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
+            }
+            case 8 -> {
+                if (project.getOwner().equals(player.getUniqueId())) {
+                    ConfirmActionGUI gui = new ConfirmActionGUI(
+                            Component.text("¿Abandonar proyecto?"),
+                            () -> {
+                                try {
+                                    project.getEditor().ownerLeave();
+                                    player.closeInventory();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                    player.closeInventory();
+                                    player.sendMessage(PREFIX + "Ha ocurrido un error al abandonar el proyecto.");
+                                }
+                            },
+                            () -> {
+                                player.closeInventory();
+                                this.onManageClick(8);
+                            }
+                    );
+                    gui.setConfirmLore(
+                            List.of(
+                                    Component.text("Si abandonas el proyecto siendo el líder, se removerá a todos los miembros y el proyecto quedará disponible nuevamente.", TextColor.color(255, 0, 0))
+                                            .decoration(TextDecoration.ITALIC, false)
+                            )
+                    );
+                    plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
+                } else {
+                    ConfirmActionGUI gui = new ConfirmActionGUI(
+                            Component.text("¿Abandonar proyecto?"),
+                            () -> {
+                                try {
+                                    project.getEditor().memberLeave(player.getUniqueId());
+                                    player.closeInventory();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                    player.closeInventory();
+                                    player.sendMessage(PREFIX + "Ha ocurrido un error al abandonar el proyecto.");
+                                }
+                            },
+                            () -> {
+                                player.closeInventory();
+                                this.onManageClick(8);
+                            }
+                    );
+                    plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
+                }
             }
         }
     }
