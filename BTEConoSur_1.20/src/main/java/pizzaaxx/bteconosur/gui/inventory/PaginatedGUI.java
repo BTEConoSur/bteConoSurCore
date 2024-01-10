@@ -64,6 +64,8 @@ public class PaginatedGUI implements InventoryGUI {
             inventory.setItem(entry.getKey(), entry.getValue().getFirst());
         }
 
+        if (items.isEmpty()) return inventory;
+
         // partition items into slots size
         List<List<Pair<ItemStack, InventoryClickAction>>> partitions = Lists.partition(items, slots.length);
         // add items of first partition to inventory
@@ -93,7 +95,6 @@ public class PaginatedGUI implements InventoryGUI {
     public @NotNull InventoryClickAction getAction(int slot) {
         // create partition and get current page
         List<List<Pair<ItemStack, InventoryClickAction>>> partitions = Lists.partition(items, slots.length);
-        List<Pair<ItemStack, InventoryClickAction>> partition = partitions.get(currentPage);
 
         if (slot == backButtonSlot) {
 
@@ -217,6 +218,10 @@ public class PaginatedGUI implements InventoryGUI {
                     break;
                 }
             }
+
+            List<Pair<ItemStack, InventoryClickAction>> partition;
+            if (partitions.isEmpty()) partition = new ArrayList<>();
+            else partition = partitions.get(currentPage);
 
             // get item from partition
             if (index == -1) return InventoryClickAction.EMPTY;

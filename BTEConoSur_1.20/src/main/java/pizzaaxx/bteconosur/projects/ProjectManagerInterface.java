@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.gui.Heads;
 import pizzaaxx.bteconosur.gui.ItemBuilder;
 import pizzaaxx.bteconosur.gui.inventory.ConfirmActionGUI;
 import pizzaaxx.bteconosur.gui.inventory.InventoryClickAction;
@@ -37,12 +38,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
-import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
-import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
+import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 
 public class ProjectManagerInterface {
 
@@ -168,15 +169,35 @@ public class ProjectManagerInterface {
     public void onManageClick(int slot) {
         Project project = plugin.getProjectsRegistry().get(projectID);
         switch (slot) {
+            // TRANSFER
             case 2 -> {
-                if (!project.getOwner().equals(player.getUniqueId())) {
-                    player.sendActionBar("§cNo puedes hacer esto.");
+                if (!Objects.equals(project.getOwner(), player.getUniqueId())) {
+                    player.sendActionBar(StringUtils.deserialize("§cNo puedes hacer esto."));
                     return;
                 }
                 PaginatedGUI gui = PaginatedGUI.fullscreen(
                         Component.text("Transferir proyecto"),
                         false
                 );
+
+                // add head in slot 49 informing that you can only transfer to members that are curently online
+                gui.addStaticItem(
+                        49,
+                        ItemBuilder.head(
+                                Heads.INFO_VALUE,
+                                StringUtils.transformToSmallCapital("Información"),
+                                List.of(
+                                        Component.text(
+                                                StringUtils.transformToSmallCapital(
+                                                        "Un proyecto solo puede ser transferido a miembros que estén actualmente en línea."
+                                                ),
+                                                TextColor.color(GRAY)
+                                        )
+                                )
+                        ),
+                        InventoryClickAction.EMPTY
+                );
+
                 // a project can only be transferred to online members of the project
                 for (UUID uuid : project.getMembers()) {
                     OfflineServerPlayer s = plugin.getPlayerRegistry().get(uuid);
@@ -207,24 +228,54 @@ public class ProjectManagerInterface {
                 }
                 plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
             }
+            // MEMBERS
             case 3 -> {
-                if (!project.getOwner().equals(player.getUniqueId())) {
-                    player.sendActionBar("§cNo puedes hacer esto.");
+                if (!Objects.equals(project.getOwner(), player.getUniqueId())) {
+                    player.sendActionBar(StringUtils.deserialize("§cNo puedes hacer esto."));
                     return;
                 }
                 PaginatedGUI gui = PaginatedGUI.fullscreen(
-                        Component.text("Miembros"),
+                        Component.text("Miembros", TextColor.color(WHITE)),
                         false
                 );
 
                 Consumer<InventoryClickEvent> addMembersConsumer = event -> {
                     PaginatedGUI addMembersGUI = PaginatedGUI.fullscreen(
-                            Component.text("Añadir miembros"),
+                            Component.text("Añadir miembros", TextColor.color(WHITE)),
                             false
                     );
 
+                    addMembersGUI.addStaticItem(
+                            0,
+                            ItemBuilder.head(
+                                    Heads.BACK_VALUE,
+                                    "§f" + StringUtils.transformToSmallCapital("Volver"),
+                                    null
+                            ),
+                            InventoryClickAction.of(
+                                    event1 -> plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui)
+                            )
+                    );
+
+                    addMembersGUI.addStaticItem(
+                            49,
+                            ItemBuilder.head(
+                                    Heads.INFO_VALUE,
+                                    StringUtils.transformToSmallCapital("Información"),
+                                    List.of(
+                                            Component.text(
+                                                    StringUtils.transformToSmallCapital(
+                                                            "Solo se pueden agregar jugadores que estén en línea."
+                                                    ),
+                                                    TextColor.color(GRAY)
+                                            )
+                                    )
+                            ),
+                            InventoryClickAction.EMPTY
+                    );
+
                     Bukkit.getOnlinePlayers().stream()
-                                    .filter(player -> !project.getMembers().contains(player.getUniqueId()))
+                                    .filter(player -> !project.getMembers().contains(player.getUniqueId()) && !Objects.equals(player.getUniqueId(), project.getOwner()))
                                             .forEach(
                                                     player -> {
                                                         Consumer<InventoryClickEvent> eventConsumer = event1 -> {
@@ -239,14 +290,18 @@ public class ProjectManagerInterface {
                                                             }
                                                         };
 
+                                                        OfflineServerPlayer s = plugin.getPlayerRegistry().get(player.getUniqueId());
+                                                        List<Component> lore = s.getLore();
+                                                        lore.add(
+                                                                Component.text("§a[•] ", TextColor.color(GRAY))
+                                                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para añadir a este jugador al proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
+                                                        );
+
                                                         addMembersGUI.addItem(
                                                                 ItemBuilder.head(
                                                                         player.getUniqueId(),
                                                                         "§a§l" + StringUtils.transformToSmallCapital(player.getName()),
-                                                                        List.of(
-                                                                                Component.text("§a[•] ", TextColor.color(GRAY))
-                                                                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para añadir a este jugador al proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
-                                                                        )
+                                                                        lore
                                                                 ),
                                                                 InventoryClickAction.of(eventConsumer)
                                                         );
@@ -296,9 +351,10 @@ public class ProjectManagerInterface {
                 }
                 plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
             }
+            // REQUESTS
             case 4 -> {
-                if (!project.getOwner().equals(player.getUniqueId())) {
-                    player.sendActionBar("§cNo puedes hacer esto.");
+                if (!Objects.equals(project.getOwner(), player.getUniqueId())) {
+                    player.sendActionBar(StringUtils.deserialize("§cNo puedes hacer esto."));
                     return;
                 }
                 // get requests from database (table "project_join_requests") and display them in a paginated gui
@@ -363,9 +419,10 @@ public class ProjectManagerInterface {
                     player.sendMessage(PREFIX + "Ha ocurrido un error al cargar las solicitudes de unión.");
                 }
             }
+            // FINISH
             case 6 -> {
-                if (!project.getOwner().equals(player.getUniqueId())) {
-                    player.sendActionBar("§cNo puedes hacer esto.");
+                if (!Objects.equals(project.getOwner(), player.getUniqueId())) {
+                    player.sendActionBar(StringUtils.deserialize("§cNo puedes hacer esto."));
                     return;
                 }
                 ConfirmActionGUI gui = new ConfirmActionGUI(
@@ -387,8 +444,10 @@ public class ProjectManagerInterface {
                 );
                 plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
             }
+            // LEAVE
             case 8 -> {
-                if (project.getOwner().equals(player.getUniqueId())) {
+                UUID owner = project.getOwner();
+                if (owner != null && owner.equals(player.getUniqueId())) {
                     ConfirmActionGUI gui = new ConfirmActionGUI(
                             Component.text("¿Abandonar proyecto?"),
                             () -> {
