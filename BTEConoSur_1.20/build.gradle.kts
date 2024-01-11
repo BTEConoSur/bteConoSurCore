@@ -34,7 +34,7 @@ dependencies {
     implementation("com.github.FreshLlamanade:polylabel-java:7639b75b53")
     compileOnly("me.clip:placeholderapi:2.11.2")
     implementation("com.networknt:json-schema-validator:1.0.72")
-    implementation("com.github.PeterMassmann:SQL-Manager:83bef5aecb")
+    implementation("com.github.PeterMassmann:SQL-Manager:226907b0b2")
     implementation("fr.mrmicky:fastboard:2.0.1")
     implementation("org.geotools:gt-shapefile:27.0")
 }

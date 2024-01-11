@@ -104,6 +104,23 @@ public class ProjectsManager implements PlayerManager {
 
     }
 
+    public boolean hasUnlocked(@NotNull ProjectType type) {
+        for (Map.Entry<String, Integer> requirement : type.getUnlockRequirements().entrySet()) {
+            int amount = 0;
+            // find amount of finished projects of this type
+            for (Map.Entry<ProjectType, Map<String, Integer>> finishedEntry : finishedProjects.entrySet()) {
+                if (finishedEntry.getKey().getName().equals(requirement.getKey())) {
+                    amount = finishedEntry.getValue().size();
+                    break;
+                }
+            }
+            if (amount < requirement.getValue()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void saveValue(String key, Object value) throws SQLException {
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.JSONParsable;
+import com.github.PeterMassmann.SQLManager;
 import com.github.PeterMassmann.SQLResult;
 import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,7 +34,7 @@ import java.util.Map;
 
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
 
-public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String> {
+public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String>, JSONParsable {
 
     public static Map<String, ProjectType> PROJECT_TYPES = new HashMap<>();
 
@@ -265,5 +267,10 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
             return c.name.equals(this.name);
         }
         return false;
+    }
+
+    @Override
+    public String getJSON(@NotNull SQLManager sqlManager, boolean b) {
+        return sqlManager.parse(this.name, b);
     }
 }

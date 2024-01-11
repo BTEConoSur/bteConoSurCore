@@ -233,5 +233,4 @@ public class DiscordConnector {
         return true;
 
     }
-
 }

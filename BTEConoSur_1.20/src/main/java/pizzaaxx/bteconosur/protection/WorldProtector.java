@@ -23,7 +23,6 @@ public class WorldProtector {
         if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && ProjectsCommand.MANAGER_INTERFACES.containsKey(uuid)) {
 
             int slot = event.getPlayer().getInventory().getHeldItemSlot();
-            plugin.log(slot);
             ProjectsCommand.MANAGER_INTERFACES.get(event.getPlayer().getUniqueId()).onManageClick(slot);
 
         } else {

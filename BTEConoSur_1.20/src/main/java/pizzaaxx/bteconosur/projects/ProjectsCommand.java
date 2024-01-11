@@ -1,5 +1,11 @@
 package pizzaaxx.bteconosur.projects;
 
+import com.github.PeterMassmann.Columns.SQLColumnSet;
+import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
+import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.SQLResult;
+import com.github.PeterMassmann.Values.SQLValue;
+import com.github.PeterMassmann.Values.SQLValuesSet;
 import com.google.common.collect.Lists;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
@@ -9,6 +15,16 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
 import com.sk89q.worldedit.world.World;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -30,25 +46,32 @@ import org.locationtech.jts.geom.Polygon;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.cities.City;
 import pizzaaxx.bteconosur.countries.Country;
+import pizzaaxx.bteconosur.discord.DiscordConnector;
 import pizzaaxx.bteconosur.gui.book.BookBuilder;
 import pizzaaxx.bteconosur.player.OfflineServerPlayer;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
+import pizzaaxx.bteconosur.player.projects.ProjectsManager;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
 import pizzaaxx.bteconosur.projects.selectors.region.MemberSelector;
 import pizzaaxx.bteconosur.projects.selectors.region.NonMemberSelector;
 import pizzaaxx.bteconosur.projects.selectors.region.OwnerSelector;
 import pizzaaxx.bteconosur.projects.selectors.region.ProjectRegionSelector;
+import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
+import java.awt.*;
+import java.io.InputStream;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.WORLDEDIT_CONNECTOR;
 import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 
-public class ProjectsCommand implements CommandExecutor, Listener {
+public class ProjectsCommand extends ListenerAdapter implements CommandExecutor, Listener {
 
     private final BTEConoSurPlugin plugin;
 
@@ -166,6 +189,85 @@ public class ProjectsCommand implements CommandExecutor, Listener {
                         return true;
                     }
                 } else {
+
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.setColor(Color.GREEN);
+                    builder.setTitle(serverPlayer.getName() + " quiere crear un proyecto");
+                    InputStream mapStream;
+                    try {
+                        mapStream = plugin.getSatMapHandler().getMapStream(
+                                new SatMapHandler.SatMapPolygon(
+                                        points,
+                                        "5882fa"
+                                )
+                        );
+                    } catch (Exception e) {
+                        player.sendMessage(PREFIX + "Ha ocurrido un error.");
+                        e.printStackTrace();
+                        return true;
+                    }
+                    builder.setImage("attachment://map.png");
+
+                    StringSelectMenu.Builder typeSelector = StringSelectMenu.create("projectCreateRequestType");
+                    for (ProjectType type : country.getProjectTypes()) {
+                        ProjectsManager manager = serverPlayer.getProjectsManager();
+                        if (manager.hasUnlocked(type)) {
+                            typeSelector.addOption(
+                                    type.getDisplayName(),
+                                    type.getName()
+                            );
+                        }
+                    }
+
+                    StringSelectMenu.Builder pointsSelector = StringSelectMenu.create("projectCreateRequestPoints");
+                    pointsSelector.addOption("a", "a");
+                    pointsSelector.setDisabled(true);
+
+                    country.getRequests().sendMessageEmbeds(
+                            builder.build()
+                    ).addFiles(
+                            FileUpload.fromData(
+                                    mapStream,
+                                    "map.png"
+                            )
+                    ).addComponents(
+                            ActionRow.of(typeSelector.build()),
+                            ActionRow.of(pointsSelector.build()),
+                            ActionRow.of(
+                                    Button.of(
+                                            ButtonStyle.SUCCESS,
+                                            "projectCreateRequestAccept",
+                                            "Aceptar",
+                                            Emoji.fromCustom("approve", 959984723868913714L, false)
+                                    ).withDisabled(true),
+                                    Button.of(
+                                            ButtonStyle.DANGER,
+                                            "projectCreateRequestDeny",
+                                            "Rechazar",
+                                            Emoji.fromCustom("reject", 959984723789250620L, false)
+                                    )
+                            )
+                    ).queue(
+                            message -> {
+                                try {
+                                    plugin.getSqlManager().insert(
+                                            "project_creation_requests",
+                                            new SQLValuesSet(
+                                                    new SQLValue("owner", player.getUniqueId()),
+                                                    new SQLValue("region", polygon),
+                                                    new SQLValue("message_id", message.getId()),
+                                                    new SQLValue("country", country)
+                                            )
+                                    ).execute();
+                                } catch (SQLException e) {
+                                    message.delete().queue();
+                                    player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
+                                    return;
+                                }
+
+                                player.sendMessage(PREFIX + "Solicitud enviada.");
+                            }
+                    );
 
                 }
             }

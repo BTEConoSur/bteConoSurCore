@@ -49,6 +49,7 @@ import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
 import pizzaaxx.bteconosur.test.TestCities;
 import pizzaaxx.bteconosur.utils.SHPUtils;
+import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
 import java.io.File;
@@ -156,6 +157,11 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         return playerClickEvent;
     }
 
+    // --- SATMAP ---
+    private SatMapHandler satMapHandler;
+    public SatMapHandler getSatMapHandler() {
+        return satMapHandler;
+    }
 
     @Override
     public void onEnable() {
@@ -244,6 +250,15 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         //--- PLAYER REGISTRY ---
         this.log("Loading player registry...");
         this.playerRegistry = new PlayerRegistry(this);
+
+        //--- SATMAP ---
+        this.log("Loading SatMap handler...");
+        try {
+            this.satMapHandler = new SatMapHandler(this);
+        } catch (IOException e) {
+            this.error("An error occurred while loading the SatMap handler. Stopping plugin initialization.");
+            return;
+        }
 
         //--- SHAPEFILES ---
         this.log("Loading shapefiles...");
