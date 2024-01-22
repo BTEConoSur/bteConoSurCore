@@ -7,10 +7,6 @@ import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.utils.SQLUtils;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
@@ -20,6 +16,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+
+import static pizzaaxx.bteconosur.utilities.BackCommand.BACK_LOCATIONS;
 
 public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
 
@@ -81,6 +79,7 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
                 this.cacheMap.put(uuid, online.asOfflinePlayer());
             }
         }
+        BACK_LOCATIONS.remove(uuid);
         try {
             plugin.getSqlManager().update(
                     "players",

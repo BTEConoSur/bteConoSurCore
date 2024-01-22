@@ -78,15 +78,12 @@ public class SatMapHandler {
         return builder.toString();
     }
 
-    public InputStream getMapStream(SatMapPolygon... polygons) throws IOException {
+    public HttpRequest getMapStream(SatMapPolygon... polygons) throws IOException {
         return this.getMapStream(Arrays.asList(polygons));
     }
 
-    public InputStream getMapStream(@NotNull Iterable<SatMapPolygon> polygons) throws IOException {
+    public HttpRequest getMapStream(@NotNull Iterable<SatMapPolygon> polygons) throws IOException {
         URL url = new URL(this.getMap(polygons));
-        // return completableFuture of the request
-        try (HttpRequest request = HttpRequest.get(url).execute()) {
-            return request.getInputStream();
-        }
+        return HttpRequest.get(url).execute();
     }
 }

@@ -91,7 +91,7 @@ public class LinkCommand extends ListenerAdapter implements CommandExecutor, Dis
             try {
                 plugin.getPlayerRegistry().get(player.getUniqueId()).getDiscordManager().link(codesDsToMc.get(code));
 
-                player.sendMessage(PREFIX_C.append(Component.text("Tu cuenta de Discord ha sido vinculada.", TextColor.color(ChatUtils.GREEN))));
+                player.sendMessage(PREFIX_C.append(Component.text("Tu cuenta de Discord ha sido vinculada.", TextColor.color(ChatUtils.WHITE))));
             } catch (Exception e) {
                 player.sendMessage(PREFIX_C.append(Component.text("Ha ocurrido un error al enlazar tu cuenta.", TextColor.color(ChatUtils.RED))));
                 return true;

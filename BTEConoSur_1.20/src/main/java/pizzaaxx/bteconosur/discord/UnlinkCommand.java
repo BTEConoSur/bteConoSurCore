@@ -43,7 +43,7 @@ public class UnlinkCommand extends ListenerAdapter implements CommandExecutor, D
         // unlink
         offlineServerPlayer.getDiscordManager().unlink();
 
-        player.sendMessage(PREFIX + "§aTu cuenta de Discord ha sido desvinculada.");
+        player.sendMessage(PREFIX + "Tu cuenta de Discord ha sido desvinculada.");
 
         return true;
     }

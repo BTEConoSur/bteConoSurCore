@@ -86,6 +86,13 @@ public class BaseRegistry<T extends RegistrableEntity<K>, K> {
         return true;
     }
 
+    public void unload(K id) {
+        if (this.cache) {
+            this.cacheMap.remove(id);
+            this.deletionMap.remove(id);
+        }
+    }
+
     public T get(K id) {
         if (this.cacheMap.containsKey(id)) {
             return this.cacheMap.get(id);

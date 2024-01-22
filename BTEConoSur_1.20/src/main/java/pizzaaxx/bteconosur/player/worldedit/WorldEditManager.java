@@ -56,6 +56,11 @@ public class WorldEditManager implements PlayerManager {
         return increment;
     }
 
+    public void setIncrement(int increment) throws SQLException {
+        this.increment = increment;
+        this.saveValue("increment", increment);
+    }
+
     @Override
     public void saveValue(String key, Object value) throws SQLException {
         plugin.getSqlManager().update(

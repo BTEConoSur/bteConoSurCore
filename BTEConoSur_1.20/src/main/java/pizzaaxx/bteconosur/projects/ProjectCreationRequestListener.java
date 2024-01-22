@@ -35,6 +35,7 @@ import pizzaaxx.bteconosur.utils.SQLUtils;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
@@ -71,7 +72,8 @@ public class ProjectCreationRequestListener extends ListenerAdapter {
                 return;
             }
 
-            if (!set.getString("moderator_id").equals(event.getUser().getId())) {
+            String moderatorID = set.getString("moderator_id");
+            if (moderatorID != null && !moderatorID.equals(event.getUser().getId())) {
                 DiscordConnector.respondError(event, "Ya hay alguien revisando esta solicitud.");
                 return;
             }
@@ -174,11 +176,6 @@ public class ProjectCreationRequestListener extends ListenerAdapter {
                 return;
             }
 
-            if (!set.getString("moderator_id").equals(event.getUser().getId())) {
-                DiscordConnector.respondError(event, "Ya hay alguien revisando esta solicitud.");
-                return;
-            }
-
             UUID owner = SQLUtils.uuidFromBytes(set.getBytes("owner"));
             OfflineServerPlayer player = plugin.getPlayerRegistry().get(owner);
             Country country = plugin.getCountriesRegistry().get(set.getString("country"));
@@ -227,8 +224,8 @@ public class ProjectCreationRequestListener extends ListenerAdapter {
                 DiscordConnector.respondError(event, "No se ha encontrado la solicitud.");
                 return;
             }
-
-            if (!set.getString("moderator_id").equals(event.getUser().getId())) {
+            String moderatorID = set.getString("moderator_id");
+            if (moderatorID != null && !moderatorID.equals(event.getUser().getId())) {
                 DiscordConnector.respondError(event, "Ya hay alguien revisando esta solicitud.");
                 return;
             }
@@ -274,11 +271,26 @@ public class ProjectCreationRequestListener extends ListenerAdapter {
                 builder.setColor(Color.YELLOW);
                 builder.setFooter("En revisión por " + event.getUser().getName(), event.getUser().getAvatarUrl());
 
+                ActionRow buttonsRow = ActionRow.of(
+                        Button.of(
+                                ButtonStyle.SUCCESS,
+                                "projectCreateRequestAccept",
+                                "Aceptar",
+                                Emoji.fromCustom("approve", 959984723868913714L, false)
+                        ).withDisabled(true),
+                        Button.of(
+                                ButtonStyle.DANGER,
+                                "projectCreateRequestDeny",
+                                "Rechazar",
+                                Emoji.fromCustom("reject", 959984723789250620L, false)
+                        )
+                );
+
                 event.editComponents(
                         ActionRow.of(typeMenu.build()),
                         ActionRow.of(pointsMenu.build()),
-                        event.getMessage().getComponents().get(2)
-                ).setEmbeds(builder.build()).queue();
+                        buttonsRow
+                ).setEmbeds(builder.build()).setAttachments(event.getMessage().getAttachments()).queue();
 
             } else if (selectID.equals("projectCreateRequestPoints")) {
 
@@ -316,12 +328,11 @@ public class ProjectCreationRequestListener extends ListenerAdapter {
                                         Emoji.fromCustom("reject", 959984723789250620L, false)
                                 )
                         )
-                ).queue();
+                ).setAttachments(event.getMessage().getAttachments()).queue();
 
             }
         } catch (SQLException e) {
             DiscordConnector.respondError(event, "Ha ocurrido un error en la base de datos.");
-            return;
         }
 
 

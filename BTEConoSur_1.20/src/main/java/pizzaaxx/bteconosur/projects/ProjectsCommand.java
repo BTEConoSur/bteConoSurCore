@@ -14,6 +14,7 @@ import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
+import com.sk89q.worldedit.util.net.HttpRequest;
 import com.sk89q.worldedit.world.World;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -60,6 +61,7 @@ import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
 import java.awt.*;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -193,82 +195,90 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
                     EmbedBuilder builder = new EmbedBuilder();
                     builder.setColor(Color.GREEN);
                     builder.setTitle(serverPlayer.getName() + " quiere crear un proyecto");
-                    InputStream mapStream;
-                    try {
-                        mapStream = plugin.getSatMapHandler().getMapStream(
-                                new SatMapHandler.SatMapPolygon(
-                                        points,
-                                        "5882fa"
+                    plugin.log(
+                            plugin.getSatMapHandler().getMap(
+                                    new SatMapHandler.SatMapPolygon(
+                                            points,
+                                            "5882fa"
+                                    )
+                            )
+                    );
+                    try (HttpRequest request = plugin.getSatMapHandler().getMapStream(
+                            new SatMapHandler.SatMapPolygon(
+                                    points,
+                                    "5882fa"
+                            )
+                    )) {
+                        builder.setImage("attachment://map.png");
+
+                        StringSelectMenu.Builder typeSelector = StringSelectMenu.create("projectCreateRequestType");
+                        for (ProjectType type : country.getProjectTypes()) {
+                            ProjectsManager manager = serverPlayer.getProjectsManager();
+                            if (manager.hasUnlocked(type)) {
+                                typeSelector.addOption(
+                                        type.getDisplayName(),
+                                        type.getName()
+                                );
+                            }
+                        }
+
+                        StringSelectMenu.Builder pointsSelector = StringSelectMenu.create("projectCreateRequestPoints");
+                        pointsSelector.addOption("a", "a");
+                        pointsSelector.setDisabled(true);
+
+                        InputStream is = request.getInputStream();
+                        byte[] bytes = is.readAllBytes();
+                        country.getRequests().sendMessageEmbeds(
+                                builder.build()
+                        ).addFiles(
+                                FileUpload.fromData(
+                                        bytes,
+                                        "map.png"
                                 )
+                        ).addComponents(
+                                ActionRow.of(typeSelector.build()),
+                                ActionRow.of(pointsSelector.build()),
+                                ActionRow.of(
+                                        Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "projectCreateRequestAccept",
+                                                "Aceptar",
+                                                Emoji.fromCustom("approve", 959984723868913714L, false)
+                                        ).withDisabled(true),
+                                        Button.of(
+                                                ButtonStyle.DANGER,
+                                                "projectCreateRequestDeny",
+                                                "Rechazar",
+                                                Emoji.fromCustom("reject", 959984723789250620L, false)
+                                        )
+                                )
+                        ).queue(
+                                message -> {
+                                    try {
+                                        plugin.getSqlManager().insert(
+                                                "project_creation_requests",
+                                                new SQLValuesSet(
+                                                        new SQLValue("owner", player.getUniqueId()),
+                                                        new SQLValue("region", polygon),
+                                                        new SQLValue("message_id", message.getId()),
+                                                        new SQLValue("country", country)
+                                                )
+                                        ).execute();
+                                    } catch (SQLException e) {
+                                        message.delete().queue();
+                                        player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
+                                        return;
+                                    }
+
+                                    player.sendMessage(PREFIX + "Solicitud enviada.");
+                                }
                         );
-                    } catch (Exception e) {
+
+                    } catch (IOException e) {
                         player.sendMessage(PREFIX + "Ha ocurrido un error.");
                         e.printStackTrace();
                         return true;
                     }
-                    builder.setImage("attachment://map.png");
-
-                    StringSelectMenu.Builder typeSelector = StringSelectMenu.create("projectCreateRequestType");
-                    for (ProjectType type : country.getProjectTypes()) {
-                        ProjectsManager manager = serverPlayer.getProjectsManager();
-                        if (manager.hasUnlocked(type)) {
-                            typeSelector.addOption(
-                                    type.getDisplayName(),
-                                    type.getName()
-                            );
-                        }
-                    }
-
-                    StringSelectMenu.Builder pointsSelector = StringSelectMenu.create("projectCreateRequestPoints");
-                    pointsSelector.addOption("a", "a");
-                    pointsSelector.setDisabled(true);
-
-                    country.getRequests().sendMessageEmbeds(
-                            builder.build()
-                    ).addFiles(
-                            FileUpload.fromData(
-                                    mapStream,
-                                    "map.png"
-                            )
-                    ).addComponents(
-                            ActionRow.of(typeSelector.build()),
-                            ActionRow.of(pointsSelector.build()),
-                            ActionRow.of(
-                                    Button.of(
-                                            ButtonStyle.SUCCESS,
-                                            "projectCreateRequestAccept",
-                                            "Aceptar",
-                                            Emoji.fromCustom("approve", 959984723868913714L, false)
-                                    ).withDisabled(true),
-                                    Button.of(
-                                            ButtonStyle.DANGER,
-                                            "projectCreateRequestDeny",
-                                            "Rechazar",
-                                            Emoji.fromCustom("reject", 959984723789250620L, false)
-                                    )
-                            )
-                    ).queue(
-                            message -> {
-                                try {
-                                    plugin.getSqlManager().insert(
-                                            "project_creation_requests",
-                                            new SQLValuesSet(
-                                                    new SQLValue("owner", player.getUniqueId()),
-                                                    new SQLValue("region", polygon),
-                                                    new SQLValue("message_id", message.getId()),
-                                                    new SQLValue("country", country)
-                                            )
-                                    ).execute();
-                                } catch (SQLException e) {
-                                    message.delete().queue();
-                                    player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
-                                    return;
-                                }
-
-                                player.sendMessage(PREFIX + "Solicitud enviada.");
-                            }
-                    );
-
                 }
             }
             case "claim" -> this.triggerActionForProjects(

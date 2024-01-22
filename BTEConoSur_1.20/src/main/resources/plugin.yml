@@ -28,3 +28,27 @@ commands:
     description: Maneja el scoreboard.
   project:
     description: Maneja los proyectos.
+  nightvision:
+    description: Activa o desactiva la visión nocturna.
+    aliases:
+      - nv
+  reloadplayer:
+    description: Recarga los datos de un jugador.
+  height:
+    description: Muestra la altura de un jugador.
+  increment:
+    description: Cambia el incremento de WorldEdit de un jugador.
+  enderchest:
+    description: Abre el enderchest de un jugador.
+    aliases:
+      - ec
+  hat:
+    description: Pon un bloque en tu cabeza.
+  back:
+    description: Teletranspórtate a tu última posición.
+  clearinventory:
+    description: Limpia tu inventario.
+    aliases:
+      - ci
+  jump:
+    description: Atraviesa una pared que estés mirando.

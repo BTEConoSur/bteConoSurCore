@@ -54,6 +54,7 @@ public class SHPUtils {
                 );
             }
         }
+        dataStore.dispose();
         return cityFeatures;
     }
 

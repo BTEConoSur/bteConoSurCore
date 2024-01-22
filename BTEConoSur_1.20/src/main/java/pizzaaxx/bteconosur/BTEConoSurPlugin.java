@@ -12,6 +12,8 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.JacobianFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -28,6 +30,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.building.DivideCommand;
+import pizzaaxx.bteconosur.building.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
@@ -38,6 +41,7 @@ import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardCommand;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
 import pizzaaxx.bteconosur.projects.Project;
+import pizzaaxx.bteconosur.projects.ProjectCreationRequestListener;
 import pizzaaxx.bteconosur.projects.ProjectsCommand;
 import pizzaaxx.bteconosur.projects.ProjectsRegistry;
 import pizzaaxx.bteconosur.protection.WorldEditListener;
@@ -48,6 +52,7 @@ import pizzaaxx.bteconosur.player.PlayerRegistry;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
 import pizzaaxx.bteconosur.test.TestCities;
+import pizzaaxx.bteconosur.utilities.*;
 import pizzaaxx.bteconosur.utils.SHPUtils;
 import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
@@ -231,6 +236,15 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("tpdir", new TpdirCommand(this));
         this.registerCommand("sc", new ScoreboardCommand(this));
         this.registerCommand("project", projectsCommand);
+        this.registerCommand("nightvision", new NightVisionCommand());
+        this.registerCommand("reloadplayer", new ReloadPlayerCommand(this));
+        this.registerCommand("height", new HeightCommand());
+        this.registerCommand("increment", new IncrementCommand(this));
+        this.registerCommand("enderchest", new EnderChestCommand());
+        this.registerCommand("hat", new HatCommand());
+        this.registerCommand("back", new BackCommand());
+        this.registerCommand("clearinventory", new ClearInventoryCommand());
+        this.registerCommand("jump", new JumpCommand());
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -241,7 +255,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 new JoinEvent(this),
                 new Shortcuts(this),
                 new TestCities(this),
-                new TeleportSoundEvent(),
+                new TeleportEvent(),
                 projectsCommand,
                 inventoryHandler,
                 playerClickEvent
@@ -287,7 +301,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
 
             this.discordConnector.registerListeners(
                     linkCommand,
-                    unlinkCommand
+                    unlinkCommand,
+                    new ProjectCreationRequestListener(this)
             );
 
             this.discordConnector.startBot(token);
