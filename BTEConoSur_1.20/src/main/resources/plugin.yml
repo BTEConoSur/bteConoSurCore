@@ -52,3 +52,5 @@ commands:
       - ci
   jump:
     description: Atraviesa una pared que estés mirando.
+  ptime:
+    description: Cambia el tiempo de un jugador.

@@ -66,6 +66,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
+import static pizzaaxx.bteconosur.utilities.BackCommand.BACK_LOCATIONS;
 import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 
 public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayProvider, ScoreboardDisplay {
@@ -245,6 +246,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("back", new BackCommand());
         this.registerCommand("clearinventory", new ClearInventoryCommand());
         this.registerCommand("jump", new JumpCommand());
+        this.registerCommand("ptime", new PTimeCommand());
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -432,6 +434,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             OnlineServerPlayer s = (OnlineServerPlayer) this.getPlayerRegistry().get(player.getUniqueId());
             s.getScoreboardManager().startBoard();
             this.playerClickEvent.registerProtector(player.getUniqueId());
+            BACK_LOCATIONS.put(player.getUniqueId(), player.getLocation());
         }
 
     }
