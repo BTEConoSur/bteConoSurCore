@@ -9,11 +9,11 @@ import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
@@ -41,6 +41,8 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
     private final Set<String> managedCountries;
     private final DiscordManager discordManager;
     private final ProjectsManager projectsManager;
+    private final long lastDisconnection;
+    private final Location lastLocation;
 
     public OfflineServerPlayer(@NotNull BTEConoSurPlugin plugin, UUID uuid) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -74,6 +76,15 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
             this.discordManager = new DiscordManager(plugin, this);
 
             this.projectsManager = new ProjectsManager(plugin, this);
+
+            this.lastDisconnection = set.getLong("last_disconnection");
+            JsonNode lastLocationNode = plugin.getJsonMapper().readTree(set.getString("last_location"));
+            this.lastLocation = new Location(
+                    Bukkit.getWorld(lastLocationNode.get("world").asText()),
+                    lastLocationNode.get("x").asDouble(),
+                    lastLocationNode.get("y").asDouble(),
+                    lastLocationNode.get("z").asDouble()
+            );
         }
     }
 
@@ -86,9 +97,11 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
         this.roles = base.roles;
         this.managedCountries = base.managedCountries;
         this.projectsManager = base.projectsManager;
+        this.lastDisconnection = base.lastDisconnection;
+        this.lastLocation = base.lastLocation;
     }
 
-    public OnlineServerPlayer asOnlinePlayer() throws SQLException {
+    public OnlineServerPlayer asOnlinePlayer() throws SQLException, JsonProcessingException {
         return new OnlineServerPlayer(plugin, this);
     }
 

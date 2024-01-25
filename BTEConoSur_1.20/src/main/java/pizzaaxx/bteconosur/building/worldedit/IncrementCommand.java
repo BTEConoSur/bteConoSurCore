@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.building.worldedit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -49,7 +50,7 @@ public class IncrementCommand implements CommandExecutor {
 
             s.getWorldEditManager().setIncrement(amount);
             player.sendMessage("Se ha cambiado el incremento de WorldEdit a §a" + amount + "§f.");
-        } catch (SQLException e) {
+        } catch (SQLException | JsonProcessingException e) {
             player.sendMessage("Ha ocurrido un error en la base de datos.");
         }
         return true;

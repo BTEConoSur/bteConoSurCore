@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,7 +25,7 @@ public class LoginEvent implements Listener {
     public void login(@NotNull PlayerLoginEvent event) {
         try {
             plugin.getPlayerRegistry().login(event.getPlayer().getUniqueId());
-        } catch (SQLException e) {
+        } catch (SQLException | JsonProcessingException e) {
             event.disallow(
                     PlayerLoginEvent.Result.KICK_OTHER,
                     Component.text("Ha ocurrido un error en la base de datos.")

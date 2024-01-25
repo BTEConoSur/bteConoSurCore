@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.player;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
     private final ScoreboardManager scoreboardManager;
     private final WorldEditManager worldEditManager;
 
-    public OnlineServerPlayer(@NotNull BTEConoSurPlugin plugin, OfflineServerPlayer offlinePlayer) throws SQLException {
+    public OnlineServerPlayer(@NotNull BTEConoSurPlugin plugin, OfflineServerPlayer offlinePlayer) throws SQLException, JsonProcessingException {
         super(offlinePlayer);
         this.plugin = plugin;
         this.scoreboardManager = new ScoreboardManager(plugin, this);

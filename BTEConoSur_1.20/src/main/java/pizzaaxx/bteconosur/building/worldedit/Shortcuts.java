@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur.building.worldedit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,7 +29,7 @@ public class Shortcuts implements Listener {
             OnlineServerPlayer player;
             try {
                 player = plugin.getPlayerRegistry().get(event.getPlayer().getUniqueId()).asOnlinePlayer();
-            } catch (SQLException e) {
+            } catch (SQLException | JsonProcessingException e) {
                 plugin.error("Error getting online player from registry. (UUID:" + event.getPlayer().getUniqueId() + ")");
                 return;
             }

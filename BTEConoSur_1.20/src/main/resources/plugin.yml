@@ -54,3 +54,5 @@ commands:
     description: Atraviesa una pared que estés mirando.
   ptime:
     description: Cambia el tiempo de un jugador.
+  tpoffline:
+    description: Teletransportate a la ultima ubicación de un jugador offline.

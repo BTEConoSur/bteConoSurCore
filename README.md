@@ -5,7 +5,7 @@
 🕙 - Pendiente
 
 ## Essentials
-1. `/ptime`
+1. `/ptime` ✔️
 2. `/tptoggle`
 3. `/vanish`
 4. `/jump` ✔️
@@ -31,7 +31,7 @@
 24. `/hat` ✔️
 25. `/mute`
 26. `/afk`
-27. `/tpoffline`
+27. `/tpoffline` ✔️
 28. `/enderchest` / `/ec` ✔️
 
 ## Discord

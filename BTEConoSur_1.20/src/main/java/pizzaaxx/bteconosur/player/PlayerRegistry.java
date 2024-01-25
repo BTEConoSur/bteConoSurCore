@@ -61,7 +61,7 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
         this.plugin = plugin;
     }
 
-    public void login(UUID uuid) throws SQLException {
+    public void login(UUID uuid) throws SQLException, JsonProcessingException {
         if (this.isLoaded(uuid)) {
             OfflineServerPlayer offline = this.cacheMap.get(uuid);
             if (!(offline instanceof OnlineServerPlayer)) {

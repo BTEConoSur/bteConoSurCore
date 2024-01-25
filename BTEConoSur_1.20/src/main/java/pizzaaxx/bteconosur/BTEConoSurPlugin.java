@@ -218,6 +218,23 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                         }
                     }
             );
+            sqlManager.registerClassParser(
+                    Location.class,
+                    (location, insideJson) -> {
+                        if (insideJson) {
+                            return sqlManager.parse(
+                                    Map.of(
+                                            "world", location.getWorld().getName(),
+                                            "x", location.getX(),
+                                            "y", location.getY(),
+                                            "z", location.getZ()
+                                    )
+                            );
+                        } else {
+                            return "PointFromText('POINT(" + location.getX() + " " + location.getZ() + ")')";
+                        }
+                    }
+            );
         } catch (IOException | SQLException e) {
             this.error("An error occurred while connecting to the database. Stopping plugin initialization.");
             return;
@@ -247,6 +264,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("clearinventory", new ClearInventoryCommand());
         this.registerCommand("jump", new JumpCommand());
         this.registerCommand("ptime", new PTimeCommand());
+        this.registerCommand("tpoffline", new TPOfflineCommand(this));
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
