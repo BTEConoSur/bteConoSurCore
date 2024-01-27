@@ -22,9 +22,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.17-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.17-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.18-SNAPSHOT")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.18-SNAPSHOT")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("net.dv8tion:JDA:5.0.0-beta.5")
     implementation("com.github.SmylerMC:terraminusminus:5907790da3")
@@ -35,7 +35,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.2")
     implementation("com.networknt:json-schema-validator:1.0.72")
     implementation("com.github.PeterMassmann:SQL-Manager:226907b0b2")
-    implementation("fr.mrmicky:fastboard:2.0.1")
+    implementation("fr.mrmicky:fastboard:2.0.2")
     implementation("org.geotools:gt-shapefile:27.0")
 }
 

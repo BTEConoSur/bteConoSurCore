@@ -56,3 +56,9 @@ commands:
     description: Cambia el tiempo de un jugador.
   tpoffline:
     description: Teletransportate a la ultima ubicación de un jugador offline.
+  /polywalls:
+    description: Crea paredes de un polígono.
+  banner:
+    aliases:
+      - banners
+    description: Obtén los banners de un texto.

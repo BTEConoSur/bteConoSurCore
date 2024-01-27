@@ -53,7 +53,7 @@
 ## Minecraft
 1. `/tpll` ✔️
 2. `/prefix` 
-3. `/preset`
+3. `/preset` ✔️
 4. `/scoreboard` ✔️
 5. `//selredo`
 6. `/lobby`
@@ -74,7 +74,7 @@
 21. `/donator`
 22. `/increment` ✔️
 23. `//divide` ✔️
-24. `/banners`
-25. `//polywalls`
+24. `/banners` ✔️
+25. `//polywalls` ✔️
 26. `//selundo`
 27. `/googlemaps`

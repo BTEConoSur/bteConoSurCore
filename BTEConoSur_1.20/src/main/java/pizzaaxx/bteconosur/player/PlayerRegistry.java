@@ -7,6 +7,8 @@ import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.SQLResult;
 import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.utils.SQLUtils;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
@@ -53,6 +55,7 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
                         return offlineServerPlayer;
                     } catch (SQLException | JsonProcessingException e) {
                         plugin.error("Error loading server player instance. (UUID:" + uuid + ")");
+                        e.printStackTrace();
                     }
                     return null;
                 },
@@ -81,11 +84,16 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
         }
         BACK_LOCATIONS.remove(uuid);
         try {
+            Player player = Bukkit.getPlayer(uuid);
+            assert player != null;
             plugin.getSqlManager().update(
                     "players",
                     new SQLValuesSet(
                             new SQLValue(
                                     "last_disconnected", System.currentTimeMillis()
+                            ),
+                            new SQLValue(
+                                    "last_location", player.getLocation()
                             )
                     ),
                     new SQLANDConditionSet(

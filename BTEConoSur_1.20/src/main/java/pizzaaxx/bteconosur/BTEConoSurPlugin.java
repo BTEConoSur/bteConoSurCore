@@ -1,5 +1,6 @@
 package pizzaaxx.bteconosur;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.PeterMassmann.SQLManager;
@@ -30,6 +31,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.building.DivideCommand;
+import pizzaaxx.bteconosur.building.PolywallsCommand;
 import pizzaaxx.bteconosur.building.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
@@ -38,6 +40,7 @@ import pizzaaxx.bteconosur.discord.*;
 import pizzaaxx.bteconosur.events.*;
 import pizzaaxx.bteconosur.gui.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
+import pizzaaxx.bteconosur.player.projects.CountryProjectManagerScoreboardProvider;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardCommand;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardManager;
 import pizzaaxx.bteconosur.projects.Project;
@@ -265,6 +268,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("jump", new JumpCommand());
         this.registerCommand("ptime", new PTimeCommand());
         this.registerCommand("tpoffline", new TPOfflineCommand(this));
+        this.registerCommand("/polywalls", new PolywallsCommand(this));
+        this.registerCommand("banner", new BannersCommand());
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -440,8 +445,10 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         //--- SCOREBOARDS ---
         PROVIDERS.put("server", this);
         PROVIDERS.put("project", this.projectsRegistry);
+        PROVIDERS.put("progress", new CountryProjectManagerScoreboardProvider(this));
         AUTO_PROVIDERS.add("server");
         AUTO_PROVIDERS.add("project");
+        AUTO_PROVIDERS.add("progress");
         this.startAutoScoreboardsTimer();
 
         this.getWorldEdit().getWorldEdit().getEventBus().register(new WorldEditListener(this));
@@ -577,18 +584,18 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 this,
                 () -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        OnlineServerPlayer s = (OnlineServerPlayer) this.getPlayerRegistry().get(player.getUniqueId());
-                        ScoreboardManager manager = s.getScoreboardManager();
-                        if (manager.isAuto()) {
-                            ScoreboardDisplayProvider provider = ScoreboardDisplayProvider.getNext(manager.getType());
-                            try {
+                        try {
+                            OnlineServerPlayer s = this.getPlayerRegistry().get(player.getUniqueId()).asOnlinePlayer();
+                            ScoreboardManager manager = s.getScoreboardManager();
+                            if (manager.isAuto()) {
+                                ScoreboardDisplayProvider provider = ScoreboardDisplayProvider.getNext(manager.getType());
                                 manager.setDisplay(
                                         provider.getDisplay(player)
                                 );
-                            } catch (SQLException e) {
-                                this.warn("Error updating scoreboard display. (UUID: " + player.getUniqueId() + ")");
-                                e.printStackTrace();
                             }
+                        } catch (SQLException | JsonProcessingException e) {
+                            this.warn("Error updating scoreboard display. (UUID: " + player.getUniqueId() + ")");
+                            e.printStackTrace();
                         }
                     }
                 },

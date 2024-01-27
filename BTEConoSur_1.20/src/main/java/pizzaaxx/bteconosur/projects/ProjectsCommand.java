@@ -298,6 +298,9 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
                     },
                     new NonMemberSelector(player.getUniqueId())
             );
+            case "progress" -> {
+
+            }
             case "name" -> {
                 if (args.length < 2) {
                     player.sendMessage(PREFIX + "Introduce un nombre para el proyecto.");

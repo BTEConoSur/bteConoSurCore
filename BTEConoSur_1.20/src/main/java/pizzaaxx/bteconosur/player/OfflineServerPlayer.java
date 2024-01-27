@@ -77,14 +77,24 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
 
             this.projectsManager = new ProjectsManager(plugin, this);
 
-            this.lastDisconnection = set.getLong("last_disconnection");
-            JsonNode lastLocationNode = plugin.getJsonMapper().readTree(set.getString("last_location"));
-            this.lastLocation = new Location(
-                    Bukkit.getWorld(lastLocationNode.get("world").asText()),
-                    lastLocationNode.get("x").asDouble(),
-                    lastLocationNode.get("y").asDouble(),
-                    lastLocationNode.get("z").asDouble()
-            );
+            this.lastDisconnection = set.getLong("last_disconnected");
+
+            if (set.getString("last_location") == null) {
+                this.lastLocation = null;
+            } else {
+                JsonNode lastLocationNode = plugin.getJsonMapper().readTree(set.getString("last_location"));
+                if (lastLocationNode.isEmpty()) {
+                    this.lastLocation = null;
+                } else {
+                    this.lastLocation = new Location(
+                            Bukkit.getWorld(lastLocationNode.get("world").asText()),
+                            lastLocationNode.get("x").asDouble(),
+                            lastLocationNode.get("y").asDouble(),
+                            lastLocationNode.get("z").asDouble()
+                    );
+                }
+            }
+
         }
     }
 

@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.player.projects;
 import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.Conditions.SQLJSONArrayCondition;
+import com.github.PeterMassmann.Conditions.SQLORConditionSet;
 import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
@@ -33,9 +34,9 @@ public class ProjectsManager implements PlayerManager {
         try (ResultSet projectsSet = plugin.getSqlManager().select(
                 "projects",
                 new SQLColumnSet("id"),
-                new SQLANDConditionSet(
+                new SQLORConditionSet(
                         new SQLJSONArrayCondition("members", player.getUUID()),
-                        new SQLOperatorCondition("owner", "=", player.getUUID().toString())
+                        new SQLOperatorCondition("owner", "=", player.getUUID())
                 )
         ).retrieve().getResultSet()) {
             while (projectsSet.next()) {
@@ -46,9 +47,9 @@ public class ProjectsManager implements PlayerManager {
         try (ResultSet finishedSet = plugin.getSqlManager().select(
                 "finished_projects",
                 new SQLColumnSet("type", "id", "points"),
-                new SQLANDConditionSet(
+                new SQLORConditionSet(
                         new SQLJSONArrayCondition("members", player.getUUID()),
-                        new SQLOperatorCondition("owner", "=", player.getUUID().toString())
+                        new SQLOperatorCondition("owner", "=", player.getUUID())
                 )
         ).retrieve().getResultSet()) {
             while (finishedSet.next()) {
@@ -86,6 +87,10 @@ public class ProjectsManager implements PlayerManager {
                 .filter(entry -> entry.getKey().getCountry().equals(country))
                 .mapToInt(entry -> entry.getValue().size())
                 .sum();
+    }
+
+    public int getFinishedProjects(ProjectType type) {
+        return finishedProjects.getOrDefault(type, new HashMap<>()).size();
     }
 
     public Set<String> getProjects() {

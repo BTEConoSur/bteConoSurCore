@@ -6,9 +6,14 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.entity.Player;
+import com.sk89q.worldedit.extension.input.InputParseException;
+import com.sk89q.worldedit.extension.input.ParserContext;
+import com.sk89q.worldedit.extent.Extent;
+import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.world.World;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 
@@ -89,6 +94,19 @@ public class WorldEditConnector {
             }
         }
         return vset;
+    }
+
+    public Pattern getPattern(org.bukkit.entity.Player player, String input) throws InputParseException {
+        ParserContext context = new ParserContext();
+        com.sk89q.worldedit.entity.Player actor = this.getWEPlayer(player);
+        context.setActor(actor);
+        Extent extent = actor.getExtent();
+        if (extent instanceof World) {
+            context.setWorld((World) extent);
+        }
+        context.setSession(this.getLocalSession(player));
+
+        return plugin.getWorldEdit().getWorldEdit().getPatternFactory().parseFromInput(input, context);
     }
 
 }
