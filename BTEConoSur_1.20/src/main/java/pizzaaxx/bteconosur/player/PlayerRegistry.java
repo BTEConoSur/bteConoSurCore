@@ -78,31 +78,16 @@ public class PlayerRegistry extends BaseRegistry<OfflineServerPlayer, UUID> {
         if (this.isLoaded(uuid)) {
             OfflineServerPlayer offline = this.cacheMap.get(uuid);
             if (offline instanceof OnlineServerPlayer online) {
-                online.disconnected();
-                this.cacheMap.put(uuid, online.asOfflinePlayer());
+                try {
+                    online.disconnected();
+                    this.cacheMap.put(uuid, online.asOfflinePlayer());
+                } catch (SQLException e) {
+                    plugin.error("Error saving player data. (UUID:" + uuid + ")");
+                    e.printStackTrace();
+                }
             }
         }
         BACK_LOCATIONS.remove(uuid);
-        try {
-            Player player = Bukkit.getPlayer(uuid);
-            assert player != null;
-            plugin.getSqlManager().update(
-                    "players",
-                    new SQLValuesSet(
-                            new SQLValue(
-                                    "last_disconnected", System.currentTimeMillis()
-                            ),
-                            new SQLValue(
-                                    "last_location", player.getLocation()
-                            )
-                    ),
-                    new SQLANDConditionSet(
-                            new SQLOperatorCondition(
-                                    "uuid", "=", uuid
-                            )
-                    )
-            ).execute();
-        } catch (SQLException ignored) {}
     }
 
 }

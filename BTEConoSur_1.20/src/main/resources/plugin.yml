@@ -62,3 +62,29 @@ commands:
     aliases:
       - banners
     description: Obtén los banners de un texto.
+  vanish:
+    description: Activa o desactiva el modo invisible.
+  tptoggle:
+    description: Activa o desactiva el teletransporte hacia ti.
+  tp:
+    description: Teletransportate.
+  editsign:
+    description: Edita un cartel.
+  pweather:
+    description: Cambia el clima de un jugador.
+  skull:
+    description: Obtén la cabeza de un jugador.
+  kick:
+    description: Kickea a un jugador.
+  ban:
+    description: Banea a un jugador.
+  tempban:
+    description: Banea temporalmente a un jugador.
+  unban:
+    description: Desbanea a un jugador.
+  banip:
+    description: Banea la IP de un jugador.
+  tempbanip:
+    description: Banea temporalmente la IP de un jugador.
+  unbanip:
+    description: Desbanea la IP de un jugador.

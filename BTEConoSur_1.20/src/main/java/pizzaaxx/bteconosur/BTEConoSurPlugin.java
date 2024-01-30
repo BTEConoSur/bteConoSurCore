@@ -13,8 +13,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.analysis.differentiation.JacobianFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -56,6 +54,7 @@ import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
 import pizzaaxx.bteconosur.test.TestCities;
 import pizzaaxx.bteconosur.utilities.*;
+import pizzaaxx.bteconosur.utilities.moderation.*;
 import pizzaaxx.bteconosur.utils.SHPUtils;
 import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
@@ -270,6 +269,19 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("tpoffline", new TPOfflineCommand(this));
         this.registerCommand("/polywalls", new PolywallsCommand(this));
         this.registerCommand("banner", new BannersCommand());
+        this.registerCommand("vanish", new VanishCommand());
+        this.registerCommand("tptoggle", new TPToggleCommand(this));
+        this.registerCommand("tp", new TPCommand(this));
+        this.registerCommand("editsign", new EditSignCommand(this));
+        this.registerCommand("pweather", new PWeatherCommand());
+        this.registerCommand("skull", new SkullCommand());
+        this.registerCommand("kick", new KickCommand(this));
+        this.registerCommand("ban", new BanCommand(this));
+        this.registerCommand("tempban", new TempBanCommand(this));
+        this.registerCommand("unban", new UnbanCommand(this));
+        this.registerCommand("banip", new BanIPCommand(this));
+        this.registerCommand("tempbanip", new TempBanIPCommand(this));
+        this.registerCommand("unbanip", new UnbanIPCommand(this));
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");

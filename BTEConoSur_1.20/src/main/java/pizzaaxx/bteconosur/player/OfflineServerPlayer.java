@@ -41,8 +41,9 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
     private final Set<String> managedCountries;
     private final DiscordManager discordManager;
     private final ProjectsManager projectsManager;
-    private final long lastDisconnection;
-    private final Location lastLocation;
+    private long lastDisconnection;
+    protected Location lastLocation;
+    private boolean allowTP;
 
     public OfflineServerPlayer(@NotNull BTEConoSurPlugin plugin, UUID uuid) throws SQLException, JsonProcessingException {
         this.plugin = plugin;
@@ -95,6 +96,8 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
                 }
             }
 
+            this.allowTP = set.getBoolean("allow_tp");
+
         }
     }
 
@@ -109,6 +112,7 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
         this.projectsManager = base.projectsManager;
         this.lastDisconnection = base.lastDisconnection;
         this.lastLocation = base.lastLocation;
+        this.allowTP = base.allowTP;
     }
 
     public OnlineServerPlayer asOnlinePlayer() throws SQLException, JsonProcessingException {
@@ -137,7 +141,44 @@ public class OfflineServerPlayer implements RegistrableEntity<UUID> {
     }
 
     @Override
-    public void disconnected() {}
+    public void disconnected() throws SQLException {
+        this.lastDisconnection = System.currentTimeMillis();
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "last_disconnected", this.lastDisconnection
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", uuid
+                        )
+                )
+        ).execute();
+    }
+
+    // edit tpToggle
+    public void setAllowTP(boolean allowTP) throws SQLException {
+        this.allowTP = allowTP;
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "allow_tp", this.allowTP
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", uuid
+                        )
+                )
+        ).execute();
+    }
+
+    public boolean allowsTP() {
+        return allowTP;
+    }
 
     public boolean isOnline() {
         return Bukkit.getOnlinePlayers().stream().anyMatch(player -> player.getUniqueId().equals(this.uuid));

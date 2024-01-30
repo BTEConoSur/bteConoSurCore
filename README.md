@@ -6,33 +6,33 @@
 
 ## Essentials
 1. `/ptime` ✔️
-2. `/tptoggle`
-3. `/vanish`
+2. `/tptoggle` ✔️
+3. `/vanish` ✔️
 4. `/jump` ✔️
-5. `/tpdeny`
-6. `/unbanip`
+5. `/tp` ✔️
+6. `/unbanip` ✔️
 7. `/r`
 8. `/msg`
-9. `/tempban`
-10. `/ban`
-11. `/editsign`
-12. `/list`
-13. `/kick`
-14. `/tempbanip`
-15. `/me`
-16. `/sudo`
-17. `/pweather`
-18. `/gamemode`
-19. `/skull`
-20. `/clearinventory` / `/ci` ✔️
-21. `/ignore`
-22. `/back` ✔️
-23. `/banip`
-24. `/hat` ✔️
-25. `/mute`
-26. `/afk`
-27. `/tpoffline` ✔️
-28. `/enderchest` / `/ec` ✔️
+9. `/tempban` ✔️
+10. `/ban` ✔️
+11. `/editsign` ✔️
+12. `/kick` ✔️
+13. `/tempbanip` ✔️
+14. `/me`
+15. `/sudo`
+16. `/pweather` ✔️
+17. `/gamemode`
+18. `/skull`
+19. `/clearinventory` / `/ci` ✔️
+20. `/ignore`
+21. `/back` ✔️
+22. `/banip`✔️
+23. `/hat` ✔️
+24. `/mute`
+25. `/afk`
+26. `/tpoffline` ✔️
+27. `/enderchest` / `/ec` ✔️
+28. `/unban` ✔️
 
 ## Discord
 1. `/ayuda`

@@ -1,6 +1,10 @@
 package pizzaaxx.bteconosur.player;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
+import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
+import com.github.PeterMassmann.Values.SQLValue;
+import com.github.PeterMassmann.Values.SQLValuesSet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +36,22 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
     }
 
     @Override
-    public void disconnected() {
+    public void disconnected() throws SQLException {
         plugin.getRegionListener().lastVisitedRegions.remove(this.getUUID());
+        super.lastLocation = this.getPlayer().getLocation();
+        plugin.getSqlManager().update(
+                "players",
+                new SQLValuesSet(
+                        new SQLValue(
+                                "last_location", this.getPlayer().getLocation()
+                        )
+                ),
+                new SQLANDConditionSet(
+                        new SQLOperatorCondition(
+                                "uuid", "=", super.getUUID()
+                        )
+                )
+        ).execute();
     }
 
     public ScoreboardManager getScoreboardManager() {

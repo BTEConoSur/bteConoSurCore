@@ -1,7 +1,6 @@
 package pizzaaxx.bteconosur.utilities;
 
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.command.Command;
@@ -27,281 +26,281 @@ public class BannersCommand implements CommandExecutor, TabCompleter {
 
     public BannersCommand() {
         List<Pair<PatternColor, PatternType>> a = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("a", a);
         List<Pair<PatternColor, PatternType>> b = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("b", b);
         List<Pair<PatternColor, PatternType>> c = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("c", c);
         List<Pair<PatternColor, PatternType>> d = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("cbo")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("vh")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("curly_border"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_vertical"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("d", d);
         List<Pair<PatternColor, PatternType>> e = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("e", e);
         List<Pair<PatternColor, PatternType>> f = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("f", f);
         List<Pair<PatternColor, PatternType>> g = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hh")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("g", g);
         List<Pair<PatternColor, PatternType>> h = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("h", h);
         List<Pair<PatternColor, PatternType>> i = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("cs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_center"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("i", i);
         List<Pair<PatternColor, PatternType>> j = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hh")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("j", j);
         List<Pair<PatternColor, PatternType>> k = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("mc")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("circle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("k", k);
         List<Pair<PatternColor, PatternType>> l = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("l", l);
         List<Pair<PatternColor, PatternType>> m = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("tt")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("tts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("triangle_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("triangles_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("m", m);
         List<Pair<PatternColor, PatternType>> n = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("n", n);
         List<Pair<PatternColor, PatternType>> o = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("o", o);
         List<Pair<PatternColor, PatternType>> p = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hhb")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("p", p);
         List<Pair<PatternColor, PatternType>> q = Arrays.asList(
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("mr")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("br")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("rhombus"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("square_bottom_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("q", q);
         List<Pair<PatternColor, PatternType>> r = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("r", r);
         List<Pair<PatternColor, PatternType>> s = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("cbo")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("curly_border"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("s", s);
         List<Pair<PatternColor, PatternType>> t = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("cs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_center"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("t", t);
         List<Pair<PatternColor, PatternType>> u = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("u", u);
         List<Pair<PatternColor, PatternType>> v = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bt")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("triangle_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("v", v);
         List<Pair<PatternColor, PatternType>> w = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bt")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("triangle_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("triangles_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("w", w);
         List<Pair<PatternColor, PatternType>> x = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("x", x);
         List<Pair<PatternColor, PatternType>> y = Arrays.asList(
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rd")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("diagonal_up_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("y", y);
         List<Pair<PatternColor, PatternType>> z = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("z", z);
         List<Pair<PatternColor, PatternType>> zero = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("0", zero);
         List<Pair<PatternColor, PatternType>> one = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("cs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("tl")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_center"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("square_top_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("1", one);
         List<Pair<PatternColor, PatternType>> two = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("mr")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("rhombus"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("2", two);
         List<Pair<PatternColor, PatternType>> three = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("cbo")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("curly_border"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("3", three);
         List<Pair<PatternColor, PatternType>> four = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hhb")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("4", four);
         List<Pair<PatternColor, PatternType>> five = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("mr")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("drs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("rhombus"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downright"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("5", five);
         List<Pair<PatternColor, PatternType>> six = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hh")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("6", six);
         List<Pair<PatternColor, PatternType>> seven = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("dls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_downleft"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("7", seven);
         List<Pair<PatternColor, PatternType>> eight = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("bs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("8", eight);
         List<Pair<PatternColor, PatternType>> nine = Arrays.asList(
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ls")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("hhb")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ts")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("rs")),
-                new Pair<>(PatternColor.FRONT, PatternType.getByIdentifier("ms")),
-                new Pair<>(PatternColor.BACKGROUND, PatternType.getByIdentifier("bo"))
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_left"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("half_horizontal_bottom"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_top"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_right"))),
+                new Pair<>(PatternColor.FRONT, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("stripe_middle"))),
+                new Pair<>(PatternColor.BACKGROUND, Registry.BANNER_PATTERN.get(NamespacedKey.minecraft("border")))
         );
         letters.put("9", nine);
     }
@@ -356,52 +355,52 @@ public class BannersCommand implements CommandExecutor, TabCompleter {
     private final Material colorToMaterial(@NotNull DyeColor color) {
         switch (color) {
             case WHITE -> {
-                return Material.WHITE_WALL_BANNER;
+                return Material.WHITE_BANNER;
             }
             case ORANGE -> {
-                return Material.ORANGE_WALL_BANNER;
+                return Material.ORANGE_BANNER;
             }
             case MAGENTA -> {
-                return Material.MAGENTA_WALL_BANNER;
+                return Material.MAGENTA_BANNER;
             }
             case LIGHT_BLUE -> {
-                return Material.LIGHT_BLUE_WALL_BANNER;
+                return Material.LIGHT_BLUE_BANNER;
             }
             case YELLOW -> {
-                return Material.YELLOW_WALL_BANNER;
+                return Material.YELLOW_BANNER;
             }
             case LIME -> {
-                return Material.LIME_WALL_BANNER;
+                return Material.LIME_BANNER;
             }
             case PINK -> {
-                return Material.PINK_WALL_BANNER;
+                return Material.PINK_BANNER;
             }
             case GRAY -> {
-                return Material.GRAY_WALL_BANNER;
+                return Material.GRAY_BANNER;
             }
             case LIGHT_GRAY -> {
-                return Material.LIGHT_GRAY_WALL_BANNER;
+                return Material.LIGHT_GRAY_BANNER;
             }
             case CYAN -> {
-                return Material.CYAN_WALL_BANNER;
+                return Material.CYAN_BANNER;
             }
             case PURPLE -> {
-                return Material.PURPLE_WALL_BANNER;
+                return Material.PURPLE_BANNER;
             }
             case BLUE -> {
-                return Material.BLUE_WALL_BANNER;
+                return Material.BLUE_BANNER;
             }
             case BROWN -> {
-                return Material.BROWN_WALL_BANNER;
+                return Material.BROWN_BANNER;
             }
             case GREEN -> {
-                return Material.GREEN_WALL_BANNER;
+                return Material.GREEN_BANNER;
             }
             case RED -> {
-                return Material.RED_WALL_BANNER;
+                return Material.RED_BANNER;
             }
             default -> {
-                return Material.BLACK_WALL_BANNER;
+                return Material.BLACK_BANNER;
             }
         }
     }

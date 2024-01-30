@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.utilities;
+package pizzaaxx.bteconosur.utilities.moderation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
