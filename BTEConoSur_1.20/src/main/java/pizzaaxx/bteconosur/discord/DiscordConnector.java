@@ -6,9 +6,15 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class DiscordConnector {
+public class DiscordConnector extends ListenerAdapter {
 
     private final BTEConoSurPlugin plugin;
     public static JDA BOT;
@@ -39,6 +45,7 @@ public class DiscordConnector {
                 GatewayIntent.MESSAGE_CONTENT
         );
         builder.addEventListeners(listeners.toArray());
+        builder.addEventListeners(this);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.playing("bteconosur.com"));
         BOT = builder.build().awaitReady();
@@ -231,6 +238,25 @@ public class DiscordConnector {
         }
 
         return true;
+    }
 
+    public static @NotNull Button deleteButton(@NotNull User user) {
+        return Button.of(
+                ButtonStyle.DANGER,
+                "delete?user=" + user.getId(),
+                "Eliminar",
+                Emoji.fromUnicode("U+1F5D1")
+        );
+    }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if (event.getComponentId().startsWith("delete?user=")) {
+            if (event.getUser().getId().equals(event.getComponentId().substring(12))) {
+                event.getMessage().delete().queue();
+            } else {
+                DiscordConnector.respondError(event, "No puedes eliminar este mensaje.");
+            }
+        }
     }
 }

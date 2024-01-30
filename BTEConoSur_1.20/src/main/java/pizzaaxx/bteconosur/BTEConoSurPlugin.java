@@ -35,6 +35,10 @@ import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
 import pizzaaxx.bteconosur.discord.*;
+import pizzaaxx.bteconosur.discord.commands.DiscordCommandHolder;
+import pizzaaxx.bteconosur.discord.commands.LinkCommand;
+import pizzaaxx.bteconosur.discord.commands.ModsCommand;
+import pizzaaxx.bteconosur.discord.commands.UnlinkCommand;
 import pizzaaxx.bteconosur.events.*;
 import pizzaaxx.bteconosur.gui.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
@@ -339,7 +343,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             this.discordConnector.registerListeners(
                     linkCommand,
                     unlinkCommand,
-                    new ProjectCreationRequestListener(this)
+                    new ProjectCreationRequestListener(this),
+                    new ModsCommand(this)
             );
 
             this.discordConnector.startBot(token);

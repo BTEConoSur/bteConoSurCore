@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.discord;
+package pizzaaxx.bteconosur.discord.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.discord.DiscordConnector;
 import pizzaaxx.bteconosur.utils.ChatUtils;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
@@ -23,7 +24,6 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX_C;
 

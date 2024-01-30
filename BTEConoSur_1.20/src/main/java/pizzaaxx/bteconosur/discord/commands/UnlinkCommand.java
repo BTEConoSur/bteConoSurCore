@@ -1,4 +1,4 @@
-package pizzaaxx.bteconosur.discord;
+package pizzaaxx.bteconosur.discord.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,11 +10,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.discord.DiscordConnector;
 import pizzaaxx.bteconosur.player.OfflineServerPlayer;
 import pizzaaxx.bteconosur.player.discord.DiscordManager;
 
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
-import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX_C;
 
 public class UnlinkCommand extends ListenerAdapter implements CommandExecutor, DiscordCommandHolder {
 
