@@ -100,9 +100,4 @@ public class ProjectType {
     public String getDescription() {
         return description;
     }
-
-    // TODO
-    public boolean isUnlocked() {
-        return true;
-    }
 }

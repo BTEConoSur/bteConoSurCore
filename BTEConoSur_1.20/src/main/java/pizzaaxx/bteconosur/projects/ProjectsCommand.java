@@ -95,6 +95,82 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
         }
 
         switch (args[0]) {
+            case "redefine" -> this.triggerActionForProjects(
+                    player,
+                    id -> {
+                        Project project = plugin.getProjectsRegistry().get(id);
+                        LocalSession session = WORLDEDIT_CONNECTOR.getLocalSession(player);
+                        // get players selection
+                        Region region;
+                        try {
+                            region = WORLDEDIT_CONNECTOR.getSelection(player);
+                        } catch (IncompleteRegionException e) {
+                            player.sendMessage(PREFIX + "Selecciona una región poligonal");
+                            return;
+                        }
+                        if (!(region instanceof Polygonal2DRegion polyRegion)) {
+                            player.sendMessage(PREFIX + "Selecciona una región poligonal");
+                            return;
+                        }
+                        // get points from polygonal region
+                        List<BlockVector2> points = polyRegion.getPoints();
+
+                        // construct polygon from points
+                        List<Coordinate> coordinates = new ArrayList<>();
+                        for (BlockVector2 point : points) {
+                            coordinates.add(new Coordinate(point.getX(), point.getZ()));
+                        }
+                        coordinates.add(coordinates.get(0));
+                        Polygon polygon = new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[0]));
+
+                        // get country at centroid
+                        Point centroid = polygon.getCentroid();
+                        Country country = plugin.getCountriesRegistry().getCountryAt(centroid.getX(), centroid.getY());
+
+                        // check if country is the same
+                        if (country == null || !country.getName().equals(project.getCountry().getName())) {
+                            player.sendMessage(PREFIX + "La región seleccionada no está dentro del país del proyecto.");
+                            return;
+                        }
+
+                        // get BlockVector2 from project polygon
+                        List<BlockVector2> newPoints = new ArrayList<>();
+                        for (Coordinate coordinate : polygon.getCoordinates()) {
+                            newPoints.add(BlockVector2.at(coordinate.getX(), coordinate.getY()));
+                        }
+
+                        // get image with original project polygon and new polygon, original in red and new in blue
+                        try (HttpRequest request = plugin.getSatMapHandler().getMapStream(
+                                new SatMapHandler.SatMapPolygon(
+                                        newPoints,
+                                        "ff0000"
+                                ),
+                                new SatMapHandler.SatMapPolygon(
+                                        points,
+                                        "0000ff"
+                                )
+                        )) {
+
+                            country.getRequests().sendMessageEmbeds(
+                                    new EmbedBuilder()
+                                            .setColor(Color.GREEN)
+                                            .setImage("attachment://map.png")
+                                            .build()
+                            ).addFiles(
+                                    FileUpload.fromData(
+                                            request.getInputStream().readAllBytes(),
+                                            "map.png"
+                                    )
+                            ).queue(); // TODO
+
+                        } catch (IOException e) {
+                            player.sendMessage(PREFIX + "Ha ocurrido un error.");
+                            e.printStackTrace();
+                            return;
+                        }
+                    },
+                    new OwnerSelector(player.getUniqueId())
+            );
             case "create" -> {
 
                 // get selected region and check if its polygonal
@@ -455,7 +531,7 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
     ) {
         Set<String> ids = plugin.getProjectsRegistry().getProjectsAt(player.getLocation(), selectors);
         if (ids.isEmpty()) {
-            player.sendMessage("No estás dentro de ningún proyecto.");
+            player.sendMessage(PREFIX + "No estás dentro de ningún proyecto.");
         } else if (ids.size() == 1) {
             action.accept(ids.iterator().next());
         } else {

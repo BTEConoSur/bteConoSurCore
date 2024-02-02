@@ -22,7 +22,7 @@
 15. 🕙 `/sudo`
 16. ✔️ `/pweather`
 17. 🕙 `/gamemode`
-18. 🕙 `/skull`
+18. ✔️ `/skull`
 19. ✔️ `/clearinventory` / `/ci`
 20. 🕙 `/ignore`
 21. ✔️ `/back`
@@ -43,7 +43,7 @@
 6. 🕙 `/imagenes`
 7. 🕙 `/ip`
 8. 🕙 `/jugador`
-9. 🕙 `/mods`
+9. ✔️ `/mods`
 10. 🕙 `/online`
 11. 🕙 `/patron`
 12. 🕙 `/proyecto`
@@ -55,7 +55,7 @@
 2. 🕙 `/prefix` 
 3. ✔️ `/preset`
 4. ✔️ `/scoreboard`
-5. 🕙 `//selredo`
+5. ✔️ `//selredo`
 6. 🕙 `/lobby`
 7. ✔️ `/nightvision`
 8. ✔️ `/tpdir`
@@ -76,5 +76,5 @@
 23. ✔️ `//divide`
 24. ✔️ `/banners`
 25. ✔️ `//polywalls`
-26. 🕙 `//selundo`
-27. 🕙 `/googlemaps`
+26. ✔️ `//selundo`
+27. ✔️ `/googlemaps`

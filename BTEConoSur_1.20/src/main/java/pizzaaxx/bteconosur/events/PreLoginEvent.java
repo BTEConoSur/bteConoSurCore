@@ -21,17 +21,20 @@ public class PreLoginEvent implements Listener {
 
     @EventHandler
     public void onPreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
+        plugin.log("Attempt to join: " + event.getUniqueId());
         if (!plugin.getPlayerRegistry().exists(event.getUniqueId())) { // IF PLAYER HASN'T ENTERED BEFORE
             try {
                 plugin.getSqlManager().insert(
                         "players",
                         new SQLValuesSet(
                                 new SQLValue("uuid", event.getUniqueId()),
-                                new SQLValue("name", event.getName())
+                                new SQLValue("name", event.getName()),
+                                new SQLValue("last_disconnected", System.currentTimeMillis())
                         )
                 ).execute();
                 plugin.getPlayerRegistry().registerID(event.getUniqueId());
             } catch (SQLException e) {
+                e.printStackTrace();
                 event.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
                         Component.text("Ha ocurrido un error en la base de datos.")

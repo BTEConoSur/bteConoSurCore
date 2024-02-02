@@ -38,13 +38,19 @@ public class Shortcuts implements Listener {
             if (event.getAction() == Action.LEFT_CLICK_AIR) {
 
                 if (event.getPlayer().isSneaking()) {
+                    plugin.getSelUndoRedoCommand().onShortcutBefore(event.getPlayer());
                     event.getPlayer().performCommand("/shift " + player.getWorldEditManager().getIncrement());
+                    plugin.getSelUndoRedoCommand().onShortcutAfter(event.getPlayer());
                 } else {
+                    plugin.getSelUndoRedoCommand().onShortcutBefore(event.getPlayer());
                     event.getPlayer().performCommand("/expand " + player.getWorldEditManager().getIncrement());
+                    plugin.getSelUndoRedoCommand().onShortcutAfter(event.getPlayer());
                 }
 
             } else if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+                plugin.getSelUndoRedoCommand().onShortcutBefore(event.getPlayer());
                 event.getPlayer().performCommand("/contract " + player.getWorldEditManager().getIncrement());
+                plugin.getSelUndoRedoCommand().onShortcutAfter(event.getPlayer());
             }
         }
 

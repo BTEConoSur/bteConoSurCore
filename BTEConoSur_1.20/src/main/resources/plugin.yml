@@ -88,3 +88,17 @@ commands:
     description: Banea temporalmente la IP de un jugador.
   unbanip:
     description: Desbanea la IP de un jugador.
+  googlemaps:
+    description: Obtén un enlace a GoogleMaps con tu ubicación.
+    aliases:
+      - gm
+  /selredo:
+    description: Rehace la selección.
+    aliases:
+      - /sr
+      - /sredo
+  /selundo:
+    description: Deshace la selección.
+    aliases:
+      - /su
+      - /sundo

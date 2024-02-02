@@ -31,6 +31,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.building.DivideCommand;
 import pizzaaxx.bteconosur.building.PolywallsCommand;
 import pizzaaxx.bteconosur.building.worldedit.IncrementCommand;
+import pizzaaxx.bteconosur.building.worldedit.SelUndoRedoCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
@@ -175,6 +176,12 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         return satMapHandler;
     }
 
+    // --- /SELREDO AND /SELUNDO ---
+    private SelUndoRedoCommand selUndoRedoCommand;
+    public SelUndoRedoCommand getSelUndoRedoCommand() {
+        return selUndoRedoCommand;
+    }
+
     @Override
     public void onEnable() {
 
@@ -226,20 +233,15 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             );
             sqlManager.registerClassParser(
                     Location.class,
-                    (location, insideJson) -> {
-                        if (insideJson) {
-                            return sqlManager.parse(
-                                    Map.of(
-                                            "world", location.getWorld().getName(),
-                                            "x", location.getX(),
-                                            "y", location.getY(),
-                                            "z", location.getZ()
-                                    )
-                            );
-                        } else {
-                            return "PointFromText('POINT(" + location.getX() + " " + location.getZ() + ")')";
-                        }
-                    }
+                    (location, insideJson) -> sqlManager.parse(
+                            Map.of(
+                                    "world", location.getWorld().getName(),
+                                    "x", location.getX(),
+                                    "y", location.getY(),
+                                    "z", location.getZ()
+                            ),
+                            insideJson
+                    )
             );
         } catch (IOException | SQLException e) {
             this.error("An error occurred while connecting to the database. Stopping plugin initialization.");
@@ -250,6 +252,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         LinkCommand linkCommand = new LinkCommand(this);
         UnlinkCommand unlinkCommand = new UnlinkCommand(this);
         ProjectsCommand projectsCommand = new ProjectsCommand(this);
+        selUndoRedoCommand = new SelUndoRedoCommand(this);
 
         //--- REGISTER COMMANDS ---
         this.log("Registering commands...");
@@ -286,6 +289,9 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("banip", new BanIPCommand(this));
         this.registerCommand("tempbanip", new TempBanIPCommand(this));
         this.registerCommand("unbanip", new UnbanIPCommand(this));
+        this.registerCommand("googlemaps", new GoogleMapsCommand(this));
+        this.registerCommand("/selundo", selUndoRedoCommand);
+        this.registerCommand("/selredo", selUndoRedoCommand);
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -299,7 +305,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 new TeleportEvent(),
                 projectsCommand,
                 inventoryHandler,
-                playerClickEvent
+                playerClickEvent,
+                selUndoRedoCommand
         );
 
         //--- PLAYER REGISTRY ---
@@ -532,6 +539,14 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
 
     public com.sk89q.worldedit.world.World getWEWorld(double y) {
         if (y < 2032) {
+            return this.getWEWorlds()[0];
+        } else {
+            return this.getWEWorlds()[1];
+        }
+    }
+
+    public com.sk89q.worldedit.world.World getWEWorld(@NotNull World world) {
+        if (world.equals(this.getWorlds()[0])) {
             return this.getWEWorlds()[0];
         } else {
             return this.getWEWorlds()[1];
