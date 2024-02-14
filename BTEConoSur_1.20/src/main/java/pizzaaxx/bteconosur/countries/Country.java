@@ -7,10 +7,11 @@ import com.github.PeterMassmann.Conditions.SQLOperatorCondition;
 import com.github.PeterMassmann.JSONParsable;
 import com.github.PeterMassmann.SQLManager;
 import com.github.PeterMassmann.SQLResult;
-import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.geom.*;
 import org.opengis.feature.simple.SimpleFeature;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.chat.Chat;
 import pizzaaxx.bteconosur.cities.City;
+import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.projects.ProjectType;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
@@ -32,9 +35,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
 
-public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String>, JSONParsable {
+public class Country extends BaseRegistry<City, Integer> implements RegistrableEntity<String>, JSONParsable, Chat {
 
     public static Map<String, ProjectType> PROJECT_TYPES = new HashMap<>();
 
@@ -272,5 +277,40 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
     @Override
     public String getJSON(@NotNull SQLManager sqlManager, boolean b) {
         return sqlManager.parse(this.name, b);
+    }
+
+    @Override
+    public String getChatId() {
+        return name;
+    }
+
+    @Override
+    public String getProviderId() {
+        return "country";
+    }
+
+    @Override
+    public void sendMessage(Chat origin, OnlineServerPlayer player, Component message) {
+        Component component;
+        if (origin != this) {
+            // [§6PING§f] <nickname> <message>
+            component = Component.text("[")
+                    .append(Component.text("PING", GOLD))
+                    .append(Component.text("] <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE).decoration(TextDecoration.BOLD, false))
+                    .append(message);
+        } else {
+            // <prefixes> <nickname> <message>
+            component = Component.join(
+                    JoinConfiguration.spaces(),
+                    player.getPrefixes()
+            )
+                    .append(Component.text(" <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE))
+                    .append(message);
+        }
+        plugin.getChatHandler().sendMessage(this, component);
     }
 }

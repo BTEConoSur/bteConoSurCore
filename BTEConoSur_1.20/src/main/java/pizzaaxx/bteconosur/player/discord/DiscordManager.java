@@ -120,6 +120,10 @@ public class DiscordManager implements PlayerManager, RegistrableEntity<String> 
         return BOT.retrieveUserById(this.id);
     }
 
+    public OfflineServerPlayer getPlayer() {
+        return this.player;
+    }
+
     @Override
     public void disconnected() {}
 }

@@ -4,8 +4,12 @@ import com.github.PeterMassmann.Columns.SQLColumnSet;
 import com.github.PeterMassmann.Conditions.SQLANDConditionSet;
 import com.github.PeterMassmann.SQLResult;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.chat.Chat;
+import pizzaaxx.bteconosur.chat.ChatProvider;
 import pizzaaxx.bteconosur.terra.TerraCoords;
 import pizzaaxx.bteconosur.utils.registry.BaseRegistry;
 
@@ -16,9 +20,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class CountriesRegistry extends BaseRegistry<Country, String> {
-
-    private final BTEConoSurPlugin plugin;
+public class CountriesRegistry extends BaseRegistry<Country, String> implements ChatProvider {
 
     public CountriesRegistry(BTEConoSurPlugin plugin) {
         super(
@@ -50,7 +52,6 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
                 },
                 false
         );
-        this.plugin = plugin;
     }
 
     public List<Country> getCountries() {
@@ -119,4 +120,18 @@ public class CountriesRegistry extends BaseRegistry<Country, String> {
         return null;
     }
 
+    @Override
+    public @Nullable Chat getChat(String id) {
+        return this.get(id);
+    }
+
+    @Override
+    public @NotNull String getProviderId() {
+        return "country";
+    }
+
+    @Override
+    public @NotNull List<? extends Chat> getAvailableForPlayer(Player player) {
+        return this.getCountries();
+    }
 }

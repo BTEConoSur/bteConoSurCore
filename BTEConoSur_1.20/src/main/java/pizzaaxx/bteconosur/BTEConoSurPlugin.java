@@ -9,6 +9,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -34,12 +35,12 @@ import pizzaaxx.bteconosur.building.worldedit.IncrementCommand;
 import pizzaaxx.bteconosur.building.worldedit.SelUndoRedoCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
+import pizzaaxx.bteconosur.chat.Chat;
+import pizzaaxx.bteconosur.chat.ChatHandler;
+import pizzaaxx.bteconosur.chat.ChatProvider;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
 import pizzaaxx.bteconosur.discord.*;
-import pizzaaxx.bteconosur.discord.commands.DiscordCommandHolder;
-import pizzaaxx.bteconosur.discord.commands.LinkCommand;
-import pizzaaxx.bteconosur.discord.commands.ModsCommand;
-import pizzaaxx.bteconosur.discord.commands.UnlinkCommand;
+import pizzaaxx.bteconosur.discord.commands.*;
 import pizzaaxx.bteconosur.events.*;
 import pizzaaxx.bteconosur.gui.inventory.InventoryHandler;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
@@ -72,11 +73,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static pizzaaxx.bteconosur.discord.DiscordConnector.BOT;
 import static pizzaaxx.bteconosur.utilities.BackCommand.BACK_LOCATIONS;
 import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 
-public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayProvider, ScoreboardDisplay {
+public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayProvider, ScoreboardDisplay, ChatProvider, Chat {
 
     //--- PREFIX ---
     public static final String PREFIX = "§7[§2CONO §aSUR§7] §8» §r";
@@ -180,6 +183,12 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     private SelUndoRedoCommand selUndoRedoCommand;
     public SelUndoRedoCommand getSelUndoRedoCommand() {
         return selUndoRedoCommand;
+    }
+
+    // --- CHAT ---
+    private final ChatHandler chatHandler = new ChatHandler(this);
+    public ChatHandler getChatHandler() {
+        return chatHandler;
     }
 
     @Override
@@ -351,7 +360,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     linkCommand,
                     unlinkCommand,
                     new ProjectCreationRequestListener(this),
-                    new ModsCommand(this)
+                    new IPCommand(),
+                    new SchematicCommand(this)
             );
 
             this.discordConnector.startBot(token);
@@ -467,13 +477,18 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         }
 
         //--- SCOREBOARDS ---
-        PROVIDERS.put("server", this);
-        PROVIDERS.put("project", this.projectsRegistry);
-        PROVIDERS.put("progress", new CountryProjectManagerScoreboardProvider(this));
+        SCOREBOARD_PROVIDERS.put("server", this);
+        SCOREBOARD_PROVIDERS.put("project", this.projectsRegistry);
+        SCOREBOARD_PROVIDERS.put("progress", new CountryProjectManagerScoreboardProvider(this));
         AUTO_PROVIDERS.add("server");
         AUTO_PROVIDERS.add("project");
         AUTO_PROVIDERS.add("progress");
         this.startAutoScoreboardsTimer();
+
+        // --- CHATS ---
+        CHAT_PROVIDERS.put("global", this);
+        CHAT_PROVIDERS.put("project", this.projectsRegistry);
+        CHAT_PROVIDERS.put("country", this.countriesRegistry);
 
         this.getWorldEdit().getWorldEdit().getEventBus().register(new WorldEditListener(this));
 
@@ -694,5 +709,50 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     }
             );
         });
+    }
+
+    @Override
+    public @Nullable Chat getChat(String id) {
+        return this;
+    }
+
+    @Override
+    public @NotNull String getProviderId() {
+        return "global";
+    }
+
+    @Override
+    public @NotNull List<? extends Chat> getAvailableForPlayer(Player player) {
+        return List.of(this);
+    }
+
+    @Override
+    public String getChatId() {
+        return "global";
+    }
+
+    @Override
+    public void sendMessage(Chat origin, OnlineServerPlayer player, Component message) {
+        Component component;
+        if (origin != this) {
+            // [§6PING§f] <nickname> <message>
+            component = Component.text("[")
+                    .append(Component.text("PING", GOLD))
+                    .append(Component.text("] <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE).decoration(TextDecoration.BOLD, false))
+                    .append(message);
+        } else {
+            // <prefixes> <nickname> <message>
+            component = Component.join(
+                            JoinConfiguration.spaces(),
+                            player.getPrefixes()
+                    )
+                    .append(Component.text(" <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE))
+                    .append(message);
+        }
+        this.getChatHandler().sendMessage(this, component);
     }
 }

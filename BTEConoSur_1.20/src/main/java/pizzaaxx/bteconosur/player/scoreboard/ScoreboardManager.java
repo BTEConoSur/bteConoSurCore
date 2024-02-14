@@ -8,7 +8,6 @@ import com.github.PeterMassmann.Values.SQLValue;
 import com.github.PeterMassmann.Values.SQLValuesSet;
 import fr.mrmicky.fastboard.adventure.FastBoard;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
@@ -16,7 +15,6 @@ import pizzaaxx.bteconosur.player.PlayerManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.TimeUnit;
 
 public class ScoreboardManager implements PlayerManager {
 
@@ -68,7 +66,7 @@ public class ScoreboardManager implements PlayerManager {
 
     public void startBoard() {
         this.board = new FastBoard(player.getPlayer());
-        this.currentDisplay = ScoreboardDisplayProvider.PROVIDERS.get(type).getDisplay(player.getPlayer());
+        this.currentDisplay = ScoreboardDisplayProvider.SCOREBOARD_PROVIDERS.get(type).getDisplay(player.getPlayer());
         if (!this.hidden) {
             this.setTemporaryDisplay(currentDisplay);
         }
@@ -94,7 +92,7 @@ public class ScoreboardManager implements PlayerManager {
             this.board.delete();
         } else {
             if (this.currentDisplay == null) {
-                this.currentDisplay = ScoreboardDisplayProvider.PROVIDERS.get(type).getDisplay(player.getPlayer());
+                this.currentDisplay = ScoreboardDisplayProvider.SCOREBOARD_PROVIDERS.get(type).getDisplay(player.getPlayer());
             }
             this.setDisplay(this.currentDisplay);
         }

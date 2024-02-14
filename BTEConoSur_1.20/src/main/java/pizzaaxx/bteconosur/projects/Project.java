@@ -13,9 +13,11 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.geom.Polygon;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.chat.Chat;
 import pizzaaxx.bteconosur.cities.City;
 import pizzaaxx.bteconosur.countries.Country;
 import pizzaaxx.bteconosur.player.OfflineServerPlayer;
+import pizzaaxx.bteconosur.player.OnlineServerPlayer;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
 import pizzaaxx.bteconosur.utils.SQLUtils;
@@ -29,10 +31,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
 import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
 
-public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
+public class Project implements RegistrableEntity<String>, ScoreboardDisplay, Chat {
 
     private final BTEConoSurPlugin plugin;
     private final ProjectEditor editor;
@@ -209,7 +212,49 @@ public class Project implements RegistrableEntity<String>, ScoreboardDisplay {
     }
 
     @Override
+    public String getProviderId() {
+        return "project";
+    }
+
+    @Override
     public boolean isSavable() {
         return true;
+    }
+
+    @Override
+    public String getChatId() {
+        return id;
+    }
+
+    @Override
+    public void sendMessage(Chat origin, OnlineServerPlayer player, Component message) {
+        Component component;
+        if (origin != this) {
+            // [§6PING§f] <nickname> <message>
+            component = Component.text("[")
+                    .append(Component.text("PING", GOLD))
+                    .append(Component.text("] <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE).decoration(TextDecoration.BOLD, false))
+                    .append(message);
+        } else {
+            // <role in project> <nickname> <message>
+            Component role;
+            if (player.getUUID().equals(owner)) {
+                role = Component.text("LÍDER", GOLD);
+            } else if (members.contains(player.getUUID())) {
+                role = Component.text("MIEMBRO", YELLOW);
+            } else {
+                role = Component.text("VISITA", WHITE);
+            }
+
+            component = Component.text("[")
+                    .append(role)
+                    .append(Component.text("] <", WHITE))
+                    .append(player.getChatManager().getNickname())
+                    .append(Component.text("> ", WHITE).decoration(TextDecoration.BOLD, false))
+                    .append(message);
+        }
+        plugin.getChatHandler().sendMessage(this, component);
     }
 }

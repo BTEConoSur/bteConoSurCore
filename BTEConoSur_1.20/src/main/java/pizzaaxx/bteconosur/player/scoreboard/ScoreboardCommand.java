@@ -51,11 +51,11 @@ public class ScoreboardCommand implements CommandExecutor {
                     } catch (SQLException e) {
                         player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");
                     }
-                } else if (ScoreboardDisplayProvider.PROVIDERS.containsKey(args[0])) {
+                } else if (ScoreboardDisplayProvider.SCOREBOARD_PROVIDERS.containsKey(args[0])) {
                     try {
                         scoreboardManager.setAuto(false);
                         scoreboardManager.setDisplay(
-                                ScoreboardDisplayProvider.PROVIDERS.get(args[0]).getDisplay(player)
+                                ScoreboardDisplayProvider.SCOREBOARD_PROVIDERS.get(args[0]).getDisplay(player)
                         );
                     } catch (SQLException e) {
                         player.sendMessage(PREFIX + "Ha ocurrido un error en la base de datos.");

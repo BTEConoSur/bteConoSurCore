@@ -61,4 +61,8 @@ public class LinkRegistry extends BaseRegistry<DiscordManager, String> {
         );
     }
 
+    public boolean isConnected(String id) {
+        return exists(id);
+    }
+
 }

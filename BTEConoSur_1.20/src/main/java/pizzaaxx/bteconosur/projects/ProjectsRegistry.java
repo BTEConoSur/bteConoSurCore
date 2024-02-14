@@ -18,6 +18,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
+import pizzaaxx.bteconosur.chat.Chat;
+import pizzaaxx.bteconosur.chat.ChatProvider;
 import pizzaaxx.bteconosur.countries.Country;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplay;
 import pizzaaxx.bteconosur.player.scoreboard.ScoreboardDisplayProvider;
@@ -36,7 +38,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.DARK_RED;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static pizzaaxx.bteconosur.utils.ChatUtils.DARK_GRAY;
 
-public class ProjectsRegistry extends BaseRegistry<Project, String> implements ScoreboardDisplayProvider {
+public class ProjectsRegistry extends BaseRegistry<Project, String> implements ScoreboardDisplayProvider, ChatProvider {
 
     private final BTEConoSurPlugin plugin;
     private final Map<String, Polygon> regions = new HashMap<>();
@@ -233,5 +235,24 @@ public class ProjectsRegistry extends BaseRegistry<Project, String> implements S
     @Override
     public String getIdentifier() {
         return "project";
+    }
+
+    @Override
+    public Chat getChat(String id) {
+        return this.get(id);
+    }
+
+    @Override
+    public @NotNull String getProviderId() {
+        return "project";
+    }
+
+    @Override
+    public @NotNull List<? extends Chat> getAvailableForPlayer(Player player) {
+        return this.members.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(player.getUniqueId()))
+                .map(entry -> this.get(entry.getKey()))
+                .sorted((p1, p2) -> String.CASE_INSENSITIVE_ORDER.compare(p1.getDisplayName(), p2.getDisplayName()))
+                .collect(Collectors.toList());
     }
 }

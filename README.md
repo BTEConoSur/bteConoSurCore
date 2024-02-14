@@ -41,14 +41,13 @@
 4. ✔️ `/desconectar`
 5. 🕙 `/encontrarcolor`
 6. 🕙 `/imagenes`
-7. 🕙 `/ip`
+7. ✔️ `/ip`
 8. 🕙 `/jugador`
-9. ✔️ `/mods`
-10. 🕙 `/online`
-11. 🕙 `/patron`
-12. 🕙 `/proyecto`
-13. 🕙 `/schematic`
-14. 🕙 `/scoreboard`
+9. 🕙 `/online`
+10. 🕙 `/patron`
+11. 🕙 `/proyecto`
+12. ✔️ `/schematic`
+13. 🕙 `/scoreboard`
 
 ## Minecraft
 1. ✔️ `/tpll`

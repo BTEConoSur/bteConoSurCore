@@ -27,7 +27,7 @@ dependencies {
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.18-SNAPSHOT")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("net.dv8tion:JDA:5.0.0-beta.5")
-    implementation("com.github.SmylerMC:terraminusminus:5907790da3")
+    compileOnly("com.github.SmylerMC:terraminusminus:5907790da3")
     implementation("com.mysql:mysql-connector-j:8.0.32")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("com.github.micycle1:Clipper2-java:1.0.6")

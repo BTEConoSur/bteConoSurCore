@@ -31,7 +31,17 @@ import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 public class OfflineServerPlayer implements RegistrableEntity<UUID> {
 
     public enum Role {
-        ADMIN, MOD, STREAMER, DONOR
+        ADMIN("[§cADMIN§f]"), MOD("[§5MOD§f]"), STREAMER("[§aSTREAMER§f]"), DONOR("[§dDONADOR§f]");
+
+        private final String prefix;
+
+        Role(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
     }
 
     private final BTEConoSurPlugin plugin;
