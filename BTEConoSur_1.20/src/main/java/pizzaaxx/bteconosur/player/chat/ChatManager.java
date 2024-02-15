@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.chat.Chat;
 import pizzaaxx.bteconosur.chat.ChatProvider;
@@ -126,6 +127,10 @@ public class ChatManager implements PlayerManager {
         String provider = currentChat.split("_")[0];
         String id = currentChat.split("_")[1];
         return CHAT_PROVIDERS.get(provider).getChat(id);
+    }
+
+    public void setCurrentChat(@NotNull Chat currentChat) {
+        this.currentChat = currentChat.getProviderId() + "_" + currentChat.getChatId();
     }
 
     @Override

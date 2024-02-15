@@ -316,7 +316,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 projectsCommand,
                 inventoryHandler,
                 playerClickEvent,
-                selUndoRedoCommand
+                selUndoRedoCommand,
+                new ChatHandler(this)
         );
 
         //--- PLAYER REGISTRY ---
@@ -500,6 +501,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
             s.getScoreboardManager().startBoard();
             this.playerClickEvent.registerProtector(player.getUniqueId());
             BACK_LOCATIONS.put(player.getUniqueId(), player.getLocation());
+            this.getChatHandler().addToChat(s.getUUID(), this);
         }
 
     }
@@ -720,6 +722,27 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
     @Override
     public @NotNull String getProviderId() {
         return "global";
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Global";
+    }
+
+    @Override
+    public void playerJoin(UUID uuid) {
+        this.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + this.getPlayerRegistry().get(uuid).getName() + " ha entrado al chat.")
+        );
+    }
+
+    @Override
+    public void playerLeave(UUID uuid) {
+        this.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + this.getPlayerRegistry().get(uuid).getName() + " ha salido del chat.")
+        );
     }
 
     @Override

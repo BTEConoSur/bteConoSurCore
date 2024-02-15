@@ -165,6 +165,16 @@ public class ChatHandler extends ListenerAdapter implements Listener {
 
     public static Map<UUID, String> CHATS = new HashMap<>();
 
+    public void addToChat(UUID uuid, @NotNull Chat chat) {
+        chat.playerJoin(uuid);
+        CHATS.put(uuid, chat.getProviderId() + "_" + chat.getChatId());
+    }
+
+    public void removeFromChat(UUID uuid, @NotNull Chat chat) {
+        CHATS.remove(uuid, chat.getProviderId() + "_" + chat.getChatId());
+        chat.playerLeave(uuid);
+    }
+
     public void sendMessage(Chat chat, Component message) {
         for (Map.Entry<UUID, String> entry : CHATS.entrySet()) {
             if (entry.getValue().equals(chat.getProviderId() + "_" + chat.getChatId())) {

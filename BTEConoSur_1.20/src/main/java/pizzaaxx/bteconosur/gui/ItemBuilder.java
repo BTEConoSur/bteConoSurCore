@@ -144,6 +144,46 @@ public class ItemBuilder {
         return skull;
     }
 
+    @NotNull
+    public static ItemStack head(UUID owner, Component name, @Nullable List<Component> lore) {
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+
+        if (name != null) {
+            skullMeta.displayName(name);
+        }
+
+        if (lore != null) {
+            skullMeta.lore(lore);
+        }
+
+        skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+        skull.setItemMeta(skullMeta);
+
+        return skull;
+    }
+
+    @NotNull
+    public static ItemStack head(String value, Component name, @Nullable List<Component> lore) {
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD,1);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+
+        if (name != null) {
+            skullMeta.displayName(name);
+        }
+
+        if (lore != null) {
+            skullMeta.lore(lore);
+        }
+
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), null);
+        profile.getProperties().add(new ProfileProperty("textures", value));
+        skullMeta.setPlayerProfile(profile);
+        skull.setItemMeta(skullMeta);
+
+        return skull;
+    }
+
     public static String CONFIRM_HEAD = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=";
 
     public static String CANCEL_HEAD = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjc1NDgzNjJhMjRjMGZhODQ1M2U0ZDkzZTY4YzU5NjlkZGJkZTU3YmY2NjY2YzAzMTljMWVkMWU4NGQ4OTA2NSJ9fX0=";

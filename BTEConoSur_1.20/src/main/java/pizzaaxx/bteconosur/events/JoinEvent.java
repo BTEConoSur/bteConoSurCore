@@ -6,6 +6,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.player.OnlineServerPlayer;
+import pizzaaxx.bteconosur.player.chat.ChatManager;
 
 import static pizzaaxx.bteconosur.utilities.BackCommand.BACK_LOCATIONS;
 
@@ -23,6 +24,8 @@ public class JoinEvent implements Listener {
         serverPlayer.getScoreboardManager().startBoard();
         plugin.getPlayerClickEvent().registerProtector(event.getPlayer().getUniqueId());
         BACK_LOCATIONS.put(event.getPlayer().getUniqueId(), event.getPlayer().getLocation());
+        plugin.getChatHandler().addToChat(serverPlayer.getUUID(), plugin);
+        serverPlayer.getChatManager().setCurrentChat(plugin);
     }
 
 }

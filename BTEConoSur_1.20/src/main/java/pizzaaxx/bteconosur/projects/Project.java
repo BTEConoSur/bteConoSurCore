@@ -106,6 +106,22 @@ public class Project implements RegistrableEntity<String>, ScoreboardDisplay, Ch
         return id.toUpperCase();
     }
 
+    @Override
+    public void playerJoin(UUID uuid) {
+        plugin.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + plugin.getPlayerRegistry().get(uuid).getName() + " ha entrado al chat.")
+        );
+    }
+
+    @Override
+    public void playerLeave(UUID uuid) {
+        plugin.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + plugin.getPlayerRegistry().get(uuid).getName() + " ha salido del chat.")
+        );
+    }
+
     public int getPoints() {
         return points;
     }

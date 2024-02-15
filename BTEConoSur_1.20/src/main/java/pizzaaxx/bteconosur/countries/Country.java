@@ -30,10 +30,7 @@ import pizzaaxx.bteconosur.utils.registry.RegistrableEntity;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -312,5 +309,21 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
                     .append(message);
         }
         plugin.getChatHandler().sendMessage(this, component);
+    }
+
+    @Override
+    public void playerJoin(UUID uuid) {
+        plugin.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + plugin.getPlayerRegistry().get(uuid).getName() + " ha entrado al chat.")
+        );
+    }
+
+    @Override
+    public void playerLeave(UUID uuid) {
+        plugin.getChatHandler().sendMessage(
+                this,
+                Component.text("§a" + plugin.getPlayerRegistry().get(uuid).getName() + " ha salido del chat.")
+        );
     }
 }

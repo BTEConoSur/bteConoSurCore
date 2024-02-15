@@ -386,7 +386,7 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
                     new NonMemberSelector(player.getUniqueId())
             );
             case "progress" -> {
-
+                // TODO
             }
             case "name" -> {
                 if (args.length < 2) {
