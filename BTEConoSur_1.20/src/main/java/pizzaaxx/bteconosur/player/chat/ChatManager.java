@@ -65,7 +65,7 @@ public class ChatManager implements PlayerManager {
             } else {
                 this.hidden = set.getBoolean("hidden");
                 this.defaultChat = set.getString("default_chat");
-                this.nickname = set.getString("boolean");
+                this.nickname = set.getString("nickname");
                 this.countryPrefixChat = set.getString("country_chat_prefix");
                 this.countryPrefixTab = set.getString("country_tab_prefix");
             }

@@ -38,6 +38,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
@@ -77,8 +78,18 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
 
     private final BTEConoSurPlugin plugin;
 
+    public static final Map<UUID, ProjectManagerInterface> MANAGER_INTERFACES = new HashMap<>();
+
     public ProjectsCommand(BTEConoSurPlugin plugin) {
         this.plugin = plugin;
+        this.plugin.getPlayerClickEvent().registerBlockingCondition(
+                1,
+                event -> (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && ProjectsCommand.MANAGER_INTERFACES.containsKey(event.getPlayer().getUniqueId()),
+                event -> {
+                    int slot = event.getPlayer().getInventory().getHeldItemSlot();
+                    ProjectsCommand.MANAGER_INTERFACES.get(event.getPlayer().getUniqueId()).onManageClick(slot);
+                }
+        );
     }
 
     @Override
@@ -576,8 +587,6 @@ public class ProjectsCommand extends ListenerAdapter implements CommandExecutor,
             builder.open(player);
         }
     }
-
-    public static final Map<UUID, ProjectManagerInterface> MANAGER_INTERFACES = new HashMap<>();
 
     @EventHandler
     public void onMainHandChange(@NotNull PlayerItemHeldEvent event) {

@@ -301,6 +301,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("googlemaps", new GoogleMapsCommand(this));
         this.registerCommand("/selundo", selUndoRedoCommand);
         this.registerCommand("/selredo", selUndoRedoCommand);
+        this.registerCommand("get", new GetCommand(this));
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");

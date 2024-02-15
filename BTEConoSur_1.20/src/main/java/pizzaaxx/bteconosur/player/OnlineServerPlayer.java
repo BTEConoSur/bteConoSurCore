@@ -25,7 +25,7 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
     private final WorldEditManager worldEditManager;
     private final ChatManager chatManager;
 
-    public OnlineServerPlayer(@NotNull BTEConoSurPlugin plugin, OfflineServerPlayer offlinePlayer, ChatManager chatManager) throws SQLException, JsonProcessingException {
+    public OnlineServerPlayer(@NotNull BTEConoSurPlugin plugin, OfflineServerPlayer offlinePlayer) throws SQLException, JsonProcessingException {
         super(offlinePlayer);
         this.plugin = plugin;
         this.scoreboardManager = new ScoreboardManager(plugin, this);

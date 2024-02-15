@@ -5,8 +5,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import pizzaaxx.bteconosur.BTEConoSurPlugin;
 import pizzaaxx.bteconosur.projects.ProjectsCommand;
+import pizzaaxx.bteconosur.utils.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class WorldProtector {
 
@@ -19,17 +24,9 @@ public class WorldProtector {
     }
 
     public void onInteract(@NotNull PlayerInteractEvent event) {
-        // check if is managing a project
-        if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && ProjectsCommand.MANAGER_INTERFACES.containsKey(uuid)) {
-
-            int slot = event.getPlayer().getInventory().getHeldItemSlot();
-            ProjectsCommand.MANAGER_INTERFACES.get(event.getPlayer().getUniqueId()).onManageClick(slot);
-
-        } else {
 
 
 
-        }
     }
 
 }
