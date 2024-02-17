@@ -31,16 +31,22 @@ import static pizzaaxx.bteconosur.utils.ChatUtils.*;
 public class OfflineServerPlayer implements RegistrableEntity<UUID> {
 
     public enum Role {
-        ADMIN("[§cADMIN§f]"), MOD("[§5MOD§f]"), STREAMER("[§aSTREAMER§f]"), DONOR("[§dDONADOR§f]");
+        ADMIN("[§cADMIN§f]", ":crown:"), MOD("[§5MOD§f]", ":shield:"), STREAMER("[§aSTREAMER§f]", ":videogame:"), DONOR("[§dDONADOR§f]", ":gem:");
 
         private final String prefix;
+        private final String discordEmoji;
 
-        Role(String prefix) {
+        Role(String prefix, String discordEmoji) {
             this.prefix = prefix;
+            this.discordEmoji = discordEmoji;
         }
 
         public String getPrefix() {
             return prefix;
+        }
+
+        public String getDiscordEmoji() {
+            return discordEmoji;
         }
     }
 

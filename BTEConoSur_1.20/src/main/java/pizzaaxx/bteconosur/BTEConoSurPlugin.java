@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.PeterMassmann.SQLManager;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -36,6 +38,7 @@ import pizzaaxx.bteconosur.building.worldedit.SelUndoRedoCommand;
 import pizzaaxx.bteconosur.building.worldedit.Shortcuts;
 import pizzaaxx.bteconosur.building.worldedit.WorldEditConnector;
 import pizzaaxx.bteconosur.chat.Chat;
+import pizzaaxx.bteconosur.chat.ChatCommand;
 import pizzaaxx.bteconosur.chat.ChatHandler;
 import pizzaaxx.bteconosur.chat.ChatProvider;
 import pizzaaxx.bteconosur.countries.CountriesRegistry;
@@ -65,6 +68,7 @@ import pizzaaxx.bteconosur.utils.SHPUtils;
 import pizzaaxx.bteconosur.utils.SatMapHandler;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -302,6 +306,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.registerCommand("/selundo", selUndoRedoCommand);
         this.registerCommand("/selredo", selUndoRedoCommand);
         this.registerCommand("get", new GetCommand(this));
+        this.registerCommand("chat", new ChatCommand(this));
 
         //--- REGISTER LISTENERS ---
         this.log("Registering listeners...");
@@ -317,7 +322,7 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 inventoryHandler,
                 playerClickEvent,
                 selUndoRedoCommand,
-                new ChatHandler(this)
+                chatHandler
         );
 
         //--- PLAYER REGISTRY ---
@@ -363,7 +368,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     unlinkCommand,
                     new ProjectCreationRequestListener(this),
                     new IPCommand(),
-                    new SchematicCommand(this)
+                    new SchematicCommand(this),
+                    chatHandler
             );
 
             this.discordConnector.startBot(token);
@@ -735,6 +741,10 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                 this,
                 Component.text("§a" + this.getPlayerRegistry().get(uuid).getName() + " ha entrado al chat.")
         );
+        String discordMessage = "<:plus:1042295433969537055> **" + this.getPlayerRegistry().get(uuid).getName() + "** ha entrado al chat.";
+        this.countriesRegistry.getCountries().forEach(
+                country -> country.getChat().sendMessage(discordMessage).queue()
+        );
     }
 
     @Override
@@ -742,6 +752,10 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
         this.getChatHandler().sendMessage(
                 this,
                 Component.text("§a" + this.getPlayerRegistry().get(uuid).getName() + " ha salido del chat.")
+        );
+        String discordMessage = "<:minus:1042295467322654736> **" + this.getPlayerRegistry().get(uuid).getName() + "** ha salido del chat.";
+        this.countriesRegistry.getCountries().forEach(
+                country -> country.getChat().sendMessage(discordMessage).queue()
         );
     }
 
@@ -777,6 +791,13 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     .append(Component.text("> ", WHITE))
                     .append(message);
         }
+
+        String discordMessage = "<:chat:1042295395625209886> **" + String.join(" ", player.getDiscordPrefixes()) + " " + player.getName() + ":** " + ((TextComponent) message).content();
+
+        this.countriesRegistry.getCountries().forEach(
+                country -> country.getChat().sendMessage(discordMessage).queue()
+        );
+
         this.getChatHandler().sendMessage(this, component);
     }
 }

@@ -72,12 +72,12 @@ public class DiscordConnector extends ListenerAdapter {
                             .build()
             ).queue();
         }
-
-            BOT.shutdown();
+        BOT.shutdown();
         if (!BOT.awaitShutdown(Duration.ofSeconds(10))) {
             BOT.shutdownNow(); // Cancel all remaining requests
             BOT.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
         }
+        plugin.log("Bot has been stopped.");
     }
 
     public void registerListeners(Object... listeners) {
@@ -258,5 +258,9 @@ public class DiscordConnector extends ListenerAdapter {
                 DiscordConnector.respondError(event, "No puedes eliminar este mensaje.");
             }
         }
+    }
+
+    public static JDA getBot() {
+        return BOT;
     }
 }

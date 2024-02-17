@@ -104,3 +104,5 @@ commands:
       - /sundo
   get:
     description: Obtén bloques especiales.
+  chat:
+    description: Maneja el chat.

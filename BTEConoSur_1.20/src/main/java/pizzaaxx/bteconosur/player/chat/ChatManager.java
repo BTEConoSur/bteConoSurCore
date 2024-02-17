@@ -23,6 +23,7 @@ import java.sql.SQLException;
 
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
+import static pizzaaxx.bteconosur.chat.ChatHandler.CHATS;
 import static pizzaaxx.bteconosur.chat.ChatProvider.CHAT_PROVIDERS;
 
 public class ChatManager implements PlayerManager {
@@ -69,6 +70,7 @@ public class ChatManager implements PlayerManager {
                 this.nickname = set.getString("nickname");
                 this.countryPrefixChat = set.getString("country_chat_prefix");
                 this.countryPrefixTab = set.getString("country_tab_prefix");
+                this.currentChat = CHATS.get(player.getUUID());
             }
         }
     }
@@ -103,7 +105,7 @@ public class ChatManager implements PlayerManager {
                 style
         ).hoverEvent(
                 Component.join(
-                        JoinConfiguration.spaces(),
+                        JoinConfiguration.newlines(),
                         player.getLoreWithTitle()
                 )
         );

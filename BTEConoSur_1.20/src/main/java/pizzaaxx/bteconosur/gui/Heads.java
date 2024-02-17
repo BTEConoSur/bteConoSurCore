@@ -1,9 +1,13 @@
 package pizzaaxx.bteconosur.gui;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.inventory.ItemStack;
 import pizzaaxx.bteconosur.utils.StringUtils;
 
 import java.util.List;
+
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 
 public class Heads {
 
@@ -38,4 +42,12 @@ public class Heads {
     public static String STICKY_PISTON_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjExNzZjNGQ2Mzk1ZmY1NzY3YTc0YTM2OWZlMzg2ZDA2Y2M2MGEyMDk3YmM1YTUzYmQwMDVlYWRkMGE3Y2JkNCJ9fX0=";
 
     public static String IRON_TRAPDOOR_VALUE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmI3ZDJlODRhZTEwYzk3MWQ5MmNiMDViNmFiNDExNmY3NjUwM2E4N2QzMTc0MjQ5Y2QxZjQ5OTJiYTE4MWRiNCJ9fX0=";
+
+    public static ItemStack BACK = ItemBuilder.head(
+            BACK_VALUE,
+            Component.text(StringUtils.transformToSmallCapital("Atrás"), GREEN).decoration(TextDecoration.ITALIC, false),
+            List.of(
+                    StringUtils.deserialize("§a[⬅] §7Haz click para retroceder")
+            )
+    );
 }

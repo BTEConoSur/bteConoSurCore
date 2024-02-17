@@ -29,7 +29,7 @@ public class IPCommand extends ListenerAdapter implements DiscordCommandHolder {
                                     "No disponible.",
                                     false
                             )
-                            .setImage("https://media.discordapp.net/attachments/807694452214333482/845857288609988628/conosur.png")
+                            .setThumbnail("https://media.discordapp.net/attachments/807694452214333482/845857288609988628/conosur.png")
                             .build()
             ).queue();
         }

@@ -3,6 +3,7 @@ package pizzaaxx.bteconosur.chat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -31,6 +32,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX;
 import static pizzaaxx.bteconosur.BTEConoSurPlugin.PREFIX_C;
 import static pizzaaxx.bteconosur.chat.ChatHandler.CHATS;
+import static pizzaaxx.bteconosur.gui.Heads.BACK;
 import static pizzaaxx.bteconosur.utils.ChatUtils.GRAY;
 
 public class ChatCommand implements CommandExecutor {
@@ -86,10 +88,10 @@ public class ChatCommand implements CommandExecutor {
                 48,
                 ItemBuilder.head(
                         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxZmQ2ZWMxYmFlMGI1NGZkYTg1MjJlYWM1NDk5M2JhNDAwZTMxNDgwOGNlZjA4ODdkMjRiOTJjMTVjOTE5ZiJ9fX0=",
-                        "§a§lCambiar chat",
+                        Component.text(StringUtils.transformToSmallCapital("Cambiar de chat"), Style.style(GREEN, TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                         List.of(
                                 Component.text("§a[•] ")
-                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar de chat."), TextColor.color(GRAY)))
+                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar de chat."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
                         )
                 ),
                 InventoryClickAction.of(
@@ -97,13 +99,21 @@ public class ChatCommand implements CommandExecutor {
                             StaticGUI chatGUI = new StaticGUI(3, Component.text("Cambiar chat"));
 
                             chatGUI.addItem(
+                                    0,
+                                    BACK,
+                                    InventoryClickAction.of(
+                                            event1 -> plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui)
+                                    )
+                            );
+
+                            chatGUI.addItem(
                                     11,
                                     ItemBuilder.head(
                                             "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjU0ODUwMzFiMzdmMGQ4YTRmM2I3ODE2ZWI3MTdmMDNkZTg5YTg3ZjZhNDA2MDJhZWY1MjIyMWNkZmFmNzQ4OCJ9fX0=",
-                                            "§a§lChat global",
+                                            Component.text(StringUtils.transformToSmallCapital("Chat global"), Style.style(GREEN, TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                                             List.of(
                                                     Component.text("§a[•] ")
-                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat global."), TextColor.color(GRAY))
+                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat global."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false)
                                                             )
                                             )
                                     ),
@@ -122,10 +132,10 @@ public class ChatCommand implements CommandExecutor {
                                     13,
                                     ItemBuilder.head(
                                             "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDhmZDcxMjZjZDY3MGM3OTcxYTI4NTczNGVkZmRkODAyNTcyYTcyYTNmMDVlYTQxY2NkYTQ5NDNiYTM3MzQ3MSJ9fX0=",
-                                            "§a§lChats de países",
+                                            Component.text(StringUtils.transformToSmallCapital("Chats de países"), Style.style(GREEN, TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                                             List.of(
                                                     Component.text("§a[•] ")
-                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar a un chat de país."), TextColor.color(GRAY))
+                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar a un chat de país."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false)
                                                             )
                                             )
                                     ),
@@ -136,14 +146,23 @@ public class ChatCommand implements CommandExecutor {
                                                         false
                                                 );
 
+                                                // back button on bottom left corner
+                                                countryGUI.addStaticItem(
+                                                        0,
+                                                        BACK,
+                                                        InventoryClickAction.of(
+                                                                event2 -> plugin.getInventoryHandler().openInventory(player.getUniqueId(), chatGUI)
+                                                        )
+                                                );
+
                                                 for (Country country : plugin.getCountriesRegistry().getCountries()) {
                                                     countryGUI.addItem(
                                                             ItemBuilder.head(
                                                                     country.getHeadValue(),
-                                                                    "§a§l" + StringUtils.transformToSmallCapital(country.getName()),
+                                                                    "§a§l" + StringUtils.transformToSmallCapital(country.getDisplayName()),
                                                                     List.of(
                                                                             Component.text("§a[•] ")
-                                                                                    .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat de §a" + country.getName() + "§7."), TextColor.color(GRAY))
+                                                                                    .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat de " + country.getName() + "."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false)
                                                                                     )
                                                                     )
                                                             ),
@@ -153,11 +172,12 @@ public class ChatCommand implements CommandExecutor {
                                                                         plugin.getChatHandler().addToChat(player.getUniqueId(), country);
                                                                         chatManager.setCurrentChat(country);
                                                                         event2.getInventory().close();
-                                                                        player.sendMessage(PREFIX + "Has cambiado al chat de §a" + country.getName() + "§f.");
+                                                                        player.sendMessage(PREFIX + "Has cambiado al chat de §a" + country.getDisplayName() + "§f.");
                                                                     }
                                                             )
                                                     );
                                                 }
+                                                plugin.getInventoryHandler().openInventory(player.getUniqueId(), countryGUI);
                                             }
                                     )
                             );
@@ -166,10 +186,10 @@ public class ChatCommand implements CommandExecutor {
                                     15,
                                     ItemBuilder.head(
                                             "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2Y5NGVmYWI5OTIxN2IwZTFlMDY0NTYzOWE2ZmFmMTE3ZWI5NmQ4NDRlMDIyNGVlZDU0ZWJmODY5MGRjNzJlZCJ9fX0=",
-                                            "§a§lChats de proyectos",
+                                            Component.text(StringUtils.transformToSmallCapital("Chats de proyectos"), Style.style(GREEN, TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                                             List.of(
                                                     Component.text("§a[•] ")
-                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar a un chat de proyecto."), TextColor.color(GRAY))
+                                                            .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar a un chat de proyecto."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false)
                                                             )
                                             )
                                     ),
@@ -180,16 +200,25 @@ public class ChatCommand implements CommandExecutor {
                                                         false
                                                 );
 
+                                                // back button on bottom left corner
+                                                projectGUI.addStaticItem(
+                                                        0,
+                                                        BACK,
+                                                        InventoryClickAction.of(
+                                                                event2 -> plugin.getInventoryHandler().openInventory(player.getUniqueId(), chatGUI)
+                                                        )
+                                                );
+
                                                 // all projects the player is owner or member of
                                                 for (String projectID : s.getProjectsManager().getProjects()) {
                                                     Project project = plugin.getProjectsRegistry().get(projectID);
                                                     projectGUI.addItem(
                                                             ItemBuilder.head(
                                                                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2Y5NGVmYWI5OTIxN2IwZTFlMDY0NTYzOWE2ZmFmMTE3ZWI5NmQ4NDRlMDIyNGVlZDU0ZWJmODY5MGRjNzJlZCJ9fX0=",
-                                                                    Component.text(StringUtils.transformToSmallCapital(project.getDisplayName()), TextColor.color(project.getType().getColor().getRGB())),
+                                                                    Component.text(StringUtils.transformToSmallCapital(project.getDisplayName()), Style.style(TextColor.color(project.getType().getColor().getRGB()), TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                                                                     List.of(
                                                                             Component.text("§a[•] ")
-                                                                                    .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat de §a" + projectID + "§7."), TextColor.color(GRAY))
+                                                                                    .append(Component.text(StringUtils.transformToSmallCapital("Haz click para cambiar al chat del proyecto " + project.getDisplayName() + "."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false)
                                                                                     )
                                                                     )
                                                             ),
@@ -204,21 +233,23 @@ public class ChatCommand implements CommandExecutor {
                                                             )
                                                     );
                                                 }
+                                                plugin.getInventoryHandler().openInventory(player.getUniqueId(), projectGUI);
                                             }
                                     )
                             );
+                            plugin.getInventoryHandler().openInventory(player.getUniqueId(), chatGUI);
                         }
                 )
         );
 
         gui.addStaticItem(
-                48,
+                50,
                 ItemBuilder.head(
                         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjA1NmJjMTI0NGZjZmY5OTM0NGYxMmFiYTQyYWMyM2ZlZTZlZjZlMzM1MWQyN2QyNzNjMTU3MjUzMWYifX19",
-                        "§a§lInvitar jugador",
+                        Component.text(StringUtils.transformToSmallCapital("Invitar jugador"), Style.style(GREEN, TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                         List.of(
                                 Component.text("§a[•] ")
-                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para invitar jugadores a este chat."), TextColor.color(GRAY)))
+                                        .append(Component.text(StringUtils.transformToSmallCapital("Haz click para invitar jugadores a este chat."), TextColor.color(GRAY)).decoration(TextDecoration.ITALIC, false))
                         )
                 ),
                 InventoryClickAction.of(
@@ -226,6 +257,15 @@ public class ChatCommand implements CommandExecutor {
                             PaginatedGUI inviteGUI = PaginatedGUI.fullscreen(
                                     Component.text("Invitar jugadores"),
                                     false
+                            );
+
+                            // back button on bottom left corner
+                            inviteGUI.addStaticItem(
+                                    0,
+                                    BACK,
+                                    InventoryClickAction.of(
+                                            event1 -> plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui)
+                                    )
                             );
 
                             // add all players that are not in the chat
@@ -281,9 +321,13 @@ public class ChatCommand implements CommandExecutor {
                                         }
                                     }
                             );
+
+                            plugin.getInventoryHandler().openInventory(player.getUniqueId(), inviteGUI);
                         }
                 )
         );
+
+        plugin.getInventoryHandler().openInventory(player.getUniqueId(), gui);
 
         return true;
     }

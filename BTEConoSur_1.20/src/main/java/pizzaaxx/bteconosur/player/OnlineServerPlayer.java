@@ -88,6 +88,19 @@ public class OnlineServerPlayer extends OfflineServerPlayer {
         return result;
     }
 
+    public List<String> getDiscordPrefixes() {
+        List<String> result = new ArrayList<>();
+        for (Role role : super.getRoles()) {
+            result.add("[" + role.getDiscordEmoji() + "]");
+        }
+        switch (super.getProjectsManager().getBuilderRank()) {
+            case BUILDER -> result.add("[:hammer_pick:]");
+            case APPLIER -> result.add("[:books:]");
+            case NONE -> result.add("[:flag_white:]");
+        }
+        return result;
+    }
+
     @Override
     public void sendNotification(String minecraftMessage, String discordMessage) {
         this.getPlayer().sendMessage(minecraftMessage);

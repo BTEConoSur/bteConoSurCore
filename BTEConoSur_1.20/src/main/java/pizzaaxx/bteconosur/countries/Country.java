@@ -165,6 +165,10 @@ public class Country extends BaseRegistry<City, Integer> implements RegistrableE
         return BOT.getTextChannelById(showcaseId);
     }
 
+    /**
+     * Get the id of the Discord channel of the country.
+     * @return
+     */
     public @NotNull String getChatID() {
         return chatId;
     }
