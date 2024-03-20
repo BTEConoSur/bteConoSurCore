@@ -369,7 +369,8 @@ public class BTEConoSurPlugin extends JavaPlugin implements ScoreboardDisplayPro
                     new ProjectCreationRequestListener(this),
                     new IPCommand(),
                     new SchematicCommand(this),
-                    chatHandler
+                    chatHandler,
+                    new FindColorCommand(this)
             );
 
             this.discordConnector.startBot(token);
