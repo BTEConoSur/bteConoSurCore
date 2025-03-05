@@ -29,6 +29,10 @@ public abstract class BaseCommand extends Command {
         this(command, null, CommandMode.BOTH);
     }
 
+    public BaseCommand(String command, CommandMode mode) {
+        this(command, null, mode);
+    }
+
     public BaseCommand(String command, String permission) {
         this(command, permission, CommandMode.BOTH);
     }
