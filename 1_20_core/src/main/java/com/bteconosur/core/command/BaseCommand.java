@@ -40,7 +40,7 @@ public abstract class BaseCommand extends Command {
     public BaseCommand(String command, String permission, CommandMode mode) {
         super(command);
         this.command = command;
-        this.plugin = BteConoSurCore.getPlugin();
+        this.plugin = BteConoSurCore.getInstance();
         this.permission = permission;
         this.commandMode = mode;
     }

@@ -26,6 +26,6 @@ public class PluginRegistry {
      */
     public static void disablePlugin(String reason) {
         Bukkit.getLogger().severe(reason);
-        Bukkit.getServer().getPluginManager().disablePlugin(BteConoSurCore.getPlugin());
+        Bukkit.getServer().getPluginManager().disablePlugin(BteConoSurCore.getInstance());
     }
 }
