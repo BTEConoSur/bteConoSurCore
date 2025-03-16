@@ -1,6 +1,7 @@
 package com.bteconosur.core.command;
 
 import com.bteconosur.core.BteConoSurCore;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -62,7 +63,7 @@ public abstract class BaseCommand extends Command {
             BaseCommand subcommand = subcommands.get(subcommandName);
 
             if (subcommand != null) {
-                return subcommand.onCommand(sender, shiftArgs(args));
+                return subcommand.execute(sender, commandLabel, shiftArgs(args));
             }
         }
 
